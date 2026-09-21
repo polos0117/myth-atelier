@@ -432,12 +432,8 @@ html:has(.dex-page) {height:100%;overflow:hidden;overscroll-behavior:none}
   background-image:linear-gradient(var(--gold) 1px,transparent 1px),linear-gradient(90deg,var(--gold) 1px,transparent 1px);background-size:96px 96px;
   opacity:.16;animation:hall-flow 9s linear infinite;mask-image:linear-gradient(to top,#000 20%,transparent 95%);-webkit-mask-image:linear-gradient(to top,#000 20%,transparent 95%)}
 @keyframes hall-flow {to {background-position:0 96px,0 0}}
-.hall-col {position:absolute;bottom:8%;width:34px;height:82%;transform-style:preserve-3d;
   background:linear-gradient(90deg,var(--line) 0,var(--card2) 22%,var(--card) 50%,var(--card2) 78%,var(--line) 100%);
   box-shadow:inset 0 0 0 1px var(--line),inset 0 0 24px var(--pattern);border-radius:3px 3px 0 0;opacity:.9}
-.hall-col::before,.hall-col::after {content:'';position:absolute;left:-8px;right:-8px;height:10px;background:var(--line);border-radius:2px}
-.hall-col::before {top:-6px;box-shadow:0 12px 0 -4px var(--gold)}
-.hall-col::after {bottom:-8px;height:14px}
 .hall-col:nth-child(1) {left:6%;transform:translateZ(120px) scale(1.15)}
 .hall-col:nth-child(2) {right:6%;transform:translateZ(120px) scale(1.15)}
 .hall-col:nth-child(3) {left:19%;transform:translateZ(-80px) scale(.9)}
@@ -492,65 +488,39 @@ html:has(.dex-page) {height:100%;overflow:hidden;overscroll-behavior:none}
 /* 신전마다 홀이 다르다 — 기둥은 그 신화권 건축, 떠오르는 것은 그 신전의 공기.
    대리석 신전이 바탕(세로 홈 기둥·햇살 먼지)이고 나머지 일곱이 덮어쓴다.
    기둥 색은 테마 변수 말고 재료색으로 박는다 — 대리석·주홍 옻칠·사암은 테마가 바뀌어도 그 색이다 */
-.hall-col {background:repeating-linear-gradient(90deg,transparent 0 5px,var(--pattern) 5px 6px),linear-gradient(90deg,var(--line) 0,var(--card2) 22%,var(--card) 50%,var(--card2) 78%,var(--line) 100%)}
-.hall-col::before {left:-10px;right:-10px;height:8px;box-shadow:0 9px 0 -2px var(--gold),0 14px 0 -3px var(--line)}
 .hall-mote {animation-duration:calc(var(--d,9s) * 1.7)}
 
 /* 발할라의 밤 — 네모진 룬 돌기둥, 위로 무거운 들보. 눈이 내린다 */
-[data-theme="midnight"] .hall-col {border-radius:0;width:38px;background:repeating-linear-gradient(0deg,transparent 0 46px,#0003 46px 48px),linear-gradient(90deg,#1c2538,#38466a 50%,#1c2538);box-shadow:inset 0 0 0 1px #4a5a80}
-[data-theme="midnight"] .hall-col::before {left:-14px;right:-14px;height:14px;background:#2a3550;box-shadow:inset 0 -3px 0 #4a5a80,0 -6px 0 -2px var(--gold)}
-[data-theme="midnight"] .hall-col::after {left:15px;right:15px;top:26%;bottom:20%;height:auto;background:repeating-linear-gradient(0deg,transparent 0 13px,var(--gold) 13px 15px,transparent 15px 22px,var(--gold) 22px 23px);opacity:.55;border-radius:0}
 [data-theme="midnight"] .hall-mote {top:-4%;bottom:auto;width:3px;height:3px;background:#e6efff;box-shadow:0 0 6px #9ec9ff;animation-name:hall-snow;animation-duration:calc(var(--d,9s) * 1.4)}
 @keyframes hall-snow {0% {transform:translate(0,0);opacity:0} 10% {opacity:.9} 50% {transform:translate(14px,55vh)} 100% {transform:translate(-8px,110vh);opacity:0}}
 
 /* 세계수 그늘 — 나무줄기 기둥, 위에 잎 덩이. 반딧불이 깜박인다 */
-[data-theme="moss"] .hall-col {border-radius:16px 16px 4px 4px;width:36px;background:repeating-linear-gradient(0deg,transparent 0 11px,#0003 11px 13px),linear-gradient(90deg,#241c12,#5c4a2c 45%,#3a2c18);box-shadow:inset 0 0 0 1px #6a5636}
-[data-theme="moss"] .hall-col::before {left:-30px;right:-30px;top:-34px;height:56px;border-radius:50%;background:radial-gradient(ellipse at 40% 45%,#6f9a4a,#3f6a32 55%,#24421f 85%,transparent 100%);box-shadow:none}
-[data-theme="moss"] .hall-col::after {left:-6px;right:-6px;height:10px;border-radius:50% 50% 0 0;background:#2f2418}
 [data-theme="moss"] .hall-mote {width:4px;height:4px;background:#e4f58c;box-shadow:0 0 8px #cfd88a,0 0 18px #cfd88a88;animation-name:hall-firefly;animation-duration:calc(var(--d,9s) * 2.2)}
 @keyframes hall-firefly {0% {transform:translate(0,0);opacity:0} 15% {opacity:1} 30% {opacity:.1} 45% {opacity:1;transform:translate(18px,-30vh)} 60% {opacity:.2} 75% {opacity:1;transform:translate(-10px,-62vh)} 100% {transform:translate(6px,-95vh);opacity:0}}
 
 /* 심해 신전 — 물결에 닳은 청록 돌기둥, 산호 갓. 물방울이 흔들리며 오른다 */
-[data-theme="deep"] .hall-col {border-radius:8px 8px 0 0;background:repeating-linear-gradient(0deg,transparent 0 24px,#7fd9d222 24px 32px),linear-gradient(90deg,#0b3540,#1a5c68 50%,#0b3540);box-shadow:inset 0 0 0 1px #2f7a86}
-[data-theme="deep"] .hall-col::before {left:-12px;right:-12px;height:16px;border-radius:40% 60% 35% 65%/60% 40% 60% 40%;background:radial-gradient(circle at 30% 40%,#ff9a8a,#c9574a 60%,#8a3a30);box-shadow:none}
-[data-theme="deep"] .hall-col::after {background:#0b3540;box-shadow:inset 0 2px 0 #2f7a86}
 [data-theme="deep"] .hall-floor {background-image:repeating-radial-gradient(ellipse at 50% 110%,transparent 0 46px,var(--accent) 46px 47px);background-size:auto;animation:hall-pulse 4s ease-in-out infinite alternate}
 @keyframes hall-pulse {from {opacity:.1} to {opacity:.26}}
 [data-theme="deep"] .hall-mote {width:8px;height:8px;background:transparent;border:1px solid #c8f2f2;box-shadow:inset -2px -2px 3px #ffffff66,0 0 4px #7fd9d266;animation-name:hall-bubble;animation-duration:calc(var(--d,9s) * 1.3)}
 @keyframes hall-bubble {0% {transform:translate(0,0) scale(.5);opacity:0} 10% {opacity:.9} 40% {transform:translate(10px,-40vh) scale(.8)} 70% {transform:translate(-8px,-72vh) scale(1)} 100% {transform:translate(4px,-105vh) scale(1.15);opacity:0}}
 
 /* 벚꽃 사당 — 주홍 둥근 기둥에 검은 갓(도리이). 꽃잎이 돌며 진다 */
-[data-theme="blossom"] .hall-col {border-radius:14px 14px 0 0;width:28px;background:linear-gradient(90deg,#8e2d24,#d4503f 45%,#8e2d24);box-shadow:inset 0 0 0 1px #6a1f18}
-[data-theme="blossom"] .hall-col::before {left:-16px;right:-16px;top:-10px;height:12px;border-radius:6px 6px 2px 2px;background:#2a1b1b;box-shadow:0 16px 0 -3px #2a1b1b}
-[data-theme="blossom"] .hall-col::after {left:-5px;right:-5px;height:12px;background:#2a1b1b;border-radius:2px}
 [data-theme="blossom"] .hall-mote {top:-6%;bottom:auto;width:10px;height:7px;border-radius:70% 30% 70% 30%;background:linear-gradient(135deg,#ffe1e8,#f3a3ba);box-shadow:none;animation-name:hall-petal;animation-duration:calc(var(--d,9s) * 1.5)}
 @keyframes hall-petal {0% {transform:translate(0,0) rotate(0);opacity:0} 8% {opacity:.95} 50% {transform:translate(30px,55vh) rotate(300deg)} 100% {transform:translate(-14px,112vh) rotate(620deg);opacity:0}}
 
 /* 주홍 사당 — 옻칠한 검은 기둥에 금 띠, 걸린 등롱. 불티가 흔들리며 오른다 */
-[data-theme="ember"] .hall-col {border-radius:6px 6px 0 0;background:repeating-linear-gradient(0deg,transparent 0 64px,var(--gold) 64px 67px),linear-gradient(90deg,#120a09,#3d2521 50%,#120a09);box-shadow:inset 0 0 0 1px #5a3a30}
-[data-theme="ember"] .hall-col::before {left:-8px;right:-8px;height:10px;background:#7a2a20;box-shadow:0 -5px 0 -1px var(--gold)}
-[data-theme="ember"] .hall-col::after {left:-8px;right:-8px;top:24%;bottom:auto;height:34px;border-radius:40%;background:radial-gradient(ellipse at 50% 55%,#fff0b0,#ff9a3c 45%,#c84a25 80%,#7a2a20);box-shadow:0 0 22px #ff8a3aa8,0 0 46px #ff6a2a55,inset 0 0 0 1px #3a1a12}
 [data-theme="ember"] .hall-floor {opacity:.22;background-image:linear-gradient(#ff8d6e 1px,transparent 1px),linear-gradient(90deg,#ff8d6e 1px,transparent 1px)}
 [data-theme="ember"] .hall-mote {width:6px;height:11px;border-radius:50% 50% 45% 45%/62% 62% 38% 38%;background:radial-gradient(circle at 50% 72%,#fff3b0,#ff9a3c 42%,#d3361f 78%,transparent 100%);box-shadow:0 0 10px #ff7a2a,0 0 20px #ff5a1a66;animation-name:hall-fire;animation-duration:calc(var(--d,9s) * .8)}
 @keyframes hall-fire {0% {transform:translate(0,0) scale(.5);opacity:0} 8% {opacity:1;transform:translate(0,-4vh) scale(1)} 30% {transform:translate(8px,-28vh) scale(.9,1.2)} 55% {transform:translate(-9px,-56vh) scale(.7,1);opacity:.85} 80% {transform:translate(5px,-84vh) scale(.5,.8);opacity:.5} 100% {transform:translate(-3px,-108vh) scale(.2);opacity:0}}
 
 /* 태양 사원 — 새김 띠 두른 사암 기둥, 불룩한 갓. 모래알이 바람에 옆으로 흐른다 */
-[data-theme="sand"] .hall-col {border-radius:4px 4px 0 0;width:38px;background:repeating-linear-gradient(0deg,transparent 0 30px,#7a501a55 30px 33px,transparent 33px 36px,#7a501a33 36px 37px),linear-gradient(90deg,#a4743a,#e3bd7c 50%,#a4743a);box-shadow:inset 0 0 0 1px #8a5e2a}
-[data-theme="sand"] .hall-col::before {left:-14px;right:-14px;top:-12px;height:20px;border-radius:50% 50% 12% 12%/70% 70% 30% 30%;background:linear-gradient(180deg,#e9c88a,#b8863f);box-shadow:0 -5px 0 -1px var(--gold)}
-[data-theme="sand"] .hall-col::after {left:-10px;right:-10px;height:16px;border-radius:30% 30% 4px 4px;background:linear-gradient(180deg,#b8863f,#8a5e2a)}
 [data-theme="sand"] .hall-mote {width:2.5px;height:2.5px;background:#d9a52b;box-shadow:0 0 3px #f0c05a;animation-name:hall-sand;animation-duration:calc(var(--d,9s) * 1.1)}
 @keyframes hall-sand {0% {transform:translate(0,0);opacity:0} 10% {opacity:.9} 100% {transform:translate(42vw,-32vh);opacity:0}}
 
 /* 연꽃 사원의 밤 — 남색 기둥에 금 띠, 연꽃 갓. 분홍 반딧불이 느리게 오른다 */
-[data-theme="plum"] .hall-col {border-radius:8px 8px 0 0;background:repeating-linear-gradient(0deg,transparent 0 52px,var(--gold) 52px 54px),linear-gradient(90deg,#1e1640,#4a3a80 50%,#1e1640);box-shadow:inset 0 0 0 1px #6a5aa0}
-[data-theme="plum"] .hall-col::before {left:-16px;right:-16px;top:-14px;height:20px;border-radius:50% 50% 8% 8%/100% 100% 20% 20%;background:radial-gradient(ellipse at 50% 100%,#ffd9ea,#f0a6c8 55%,#b06090 100%);box-shadow:none}
-[data-theme="plum"] .hall-col::after {left:-6px;right:-6px;height:12px;border-radius:40% 40% 0 0;background:#2a1e50;box-shadow:inset 0 2px 0 var(--gold)}
 [data-theme="plum"] .hall-mote {width:5px;height:5px;background:#ffd4e6;box-shadow:0 0 8px #f0a6c8,0 0 20px #f0a6c866;animation-name:hall-firefly;animation-duration:calc(var(--d,9s) * 2.6)}
 
 /* 만신전 — 유리처럼 검은 흑요석 기둥에 금 갓. 금 불꽃이 천천히 오른다 */
-[data-theme="pantheon"] .hall-col {border-radius:3px 3px 0 0;width:38px;background:linear-gradient(90deg,#050408,#2a2433 42%,#3a3345 50%,#2a2433 58%,#050408);box-shadow:inset 0 0 0 1px #4a4058,inset 6px 0 14px #ffffff10}
-[data-theme="pantheon"] .hall-col::before {left:-14px;right:-14px;height:12px;background:linear-gradient(180deg,#f3dc9a,#b8913d);box-shadow:0 -5px 0 -1px #f3dc9a,0 16px 0 -4px #b8913d}
-[data-theme="pantheon"] .hall-col::after {left:-10px;right:-10px;height:16px;background:linear-gradient(180deg,#b8913d,#6a5220);border-radius:2px}
 [data-theme="pantheon"] .hall-mote {width:5px;height:5px;background:#fff1c2;box-shadow:0 0 10px #e2c275,0 0 24px #e2c27588;animation-duration:calc(var(--d,9s) * 2)}
 [data-theme="pantheon"] .hall-floor {opacity:.28}
 @media (max-width:599px) {
@@ -559,3 +529,83 @@ html:has(.dex-page) {height:100%;overflow:hidden;overscroll-behavior:none}
   .hall-copy h2 {font-size:clamp(24px,7vw,32px)}
   .theme-gallery {grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+/* 기둥 — 돌처럼. 층은 넷: 돌결(잡음) · 세로 홈 · 원기둥 음영(왼쪽 그늘, 3분의 1 지점 하이라이트, 오른쪽 깊은 그늘) · 재료색.
+   갓(::before)은 주판 + 에키누스, 받침(::after)은 토러스. 바닥엔 드리운 그림자. 재료색은 신전이 정한다 */
+:root {--stone:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .32 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  --cyl:linear-gradient(90deg,#00000088 0,#00000028 12%,#ffffff66 30%,#ffffff1a 44%,#00000014 62%,#000000a0 100%);
+  --drums:repeating-linear-gradient(0deg,transparent 0 92px,#00000030 92px 93px,#ffffff26 93px 94px);
+  --flute:repeating-linear-gradient(90deg,transparent 0 3px,#00000038 3px 5px,#ffffff26 5px 6px,transparent 6px 9px)}
+.hall-col {position:absolute;bottom:8%;width:40px;height:82%;border-radius:2px;transform-style:preserve-3d;
+  --col:#e8e1d3;--col-dark:#b9b09f;--cap:#f3eee3;--cap-dark:#7d7364;
+  background:var(--stone) center/140px 140px,var(--flute),var(--drums),var(--cyl),linear-gradient(180deg,var(--col) 0%,var(--col) 72%,var(--col-dark) 100%);
+  background-blend-mode:soft-light,normal,normal,normal,normal;filter:drop-shadow(0 26px 14px #00000080)}
+.hall-col > i {display:none}
+.hall-col::before,.hall-col::after {content:'';position:absolute;left:-10px;right:-10px;background-blend-mode:soft-light,normal,normal}
+.hall-col::before {top:-14px;height:18px;clip-path:polygon(0 0,100% 0,100% 36%,85% 100%,15% 100%,0 36%);
+  background:var(--stone) center/140px 140px,linear-gradient(180deg,#ffffff55,#0000 36%),linear-gradient(180deg,var(--cap) 0 36%,var(--cap-dark) 36% 39%,var(--cap) 44%,var(--cap-dark) 100%)}
+.hall-col::after {bottom:-12px;height:16px;clip-path:polygon(15% 0,85% 0,100% 50%,100% 100%,0 100%,0 50%);
+  background:var(--stone) center/140px 140px,linear-gradient(90deg,#00000060,#0000 30%,#0000 70%,#00000080),linear-gradient(180deg,var(--cap-dark) 0,var(--cap) 42%,var(--cap-dark) 52%,var(--cap) 62%,var(--cap-dark) 100%)}
+
+/* 발할라의 밤 — 네모진 잿빛 돌기둥, 금 룬 띠, 무거운 들보 */
+[data-theme="midnight"] .hall-col {width:38px;border-radius:0;--col:#4b5876;--col-dark:#1f2637;--cap:#5c6b8c;--cap-dark:#252c40;
+  background:var(--stone) center/140px 140px,repeating-linear-gradient(0deg,transparent 0 13px,var(--gold) 13px 15px,transparent 15px 22px,var(--gold) 22px 23px) center 30%/4px 46% no-repeat,repeating-linear-gradient(0deg,transparent 0 46px,#00000055 46px 48px),var(--cyl),linear-gradient(180deg,var(--col),var(--col-dark));background-blend-mode:soft-light,normal,normal,normal,normal}
+[data-theme="midnight"] .hall-col::before {clip-path:none;left:-14px;right:-14px;height:14px;top:-12px;box-shadow:0 -5px 0 -1px var(--gold)}
+[data-theme="midnight"] .hall-col::after {clip-path:none}
+/* 세계수 그늘 — 나무껍질 줄기, 잎 덩이, 뿌리 */
+[data-theme="moss"] .hall-col {width:36px;border-radius:16px 16px 4px 4px;--col:#5a482c;--col-dark:#2a2014;
+  background:var(--stone) center/140px 140px,repeating-linear-gradient(0deg,transparent 0 11px,#00000045 11px 13px),repeating-linear-gradient(90deg,transparent 0 5px,#00000030 5px 6px),var(--cyl),linear-gradient(180deg,var(--col),var(--col-dark));background-blend-mode:soft-light,normal,normal,normal,normal}
+[data-theme="moss"] .hall-col::before {clip-path:none;left:-30px;right:-30px;top:-36px;height:58px;border-radius:50%;background:radial-gradient(ellipse at 40% 42%,#7fa852,#3f6a32 55%,#24421f 85%,transparent 100%)}
+[data-theme="moss"] .hall-col::after {clip-path:none;left:-8px;right:-8px;height:12px;border-radius:50% 50% 0 0;background:linear-gradient(180deg,#3a2c18,#1e160c)}
+/* 심해 신전 — 물결에 닳은 청록 돌, 산호 갓 */
+[data-theme="deep"] .hall-col {border-radius:8px 8px 0 0;--col:#1c5f6c;--col-dark:#0a3540;--cap:#c9574a;--cap-dark:#7a3028;
+  background:var(--stone) center/140px 140px,repeating-linear-gradient(0deg,transparent 0 24px,#7fd9d22a 24px 32px),var(--cyl),linear-gradient(180deg,var(--col),var(--col-dark))}
+[data-theme="deep"] .hall-col::before {clip-path:none;height:18px;top:-14px;border-radius:40% 60% 35% 65%/60% 40% 60% 40%;background:var(--stone) center/140px 140px,radial-gradient(circle at 30% 40%,#ff9a8a,#c9574a 60%,#8a3a30)}
+/* 벚꽃 사당 — 주홍 둥근 기둥, 검은 갓과 받침 (도리이) */
+[data-theme="blossom"] .hall-col {width:28px;border-radius:14px 14px 0 0;--col:#c9463a;--col-dark:#7e2419;--cap:#2a1b1b;--cap-dark:#120b0b;
+  background:var(--stone) center/140px 140px,var(--cyl),linear-gradient(180deg,var(--col),var(--col-dark));background-blend-mode:soft-light,normal,normal}
+[data-theme="blossom"] .hall-col::before {clip-path:none;left:-16px;right:-16px;top:-12px;height:12px;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,#3a2828,#160e0e);box-shadow:0 16px 0 -3px #2a1b1b}
+[data-theme="blossom"] .hall-col::after {clip-path:none;left:-5px;right:-5px;height:12px;border-radius:2px;background:linear-gradient(180deg,#2a1b1b,#120b0b)}
+/* 주홍 사당 — 옻칠한 검은 기둥에 금 띠, 걸린 등롱 */
+[data-theme="ember"] .hall-col {border-radius:6px 6px 0 0;--col:#3d2521;--col-dark:#120a09;--cap:#8a2f24;--cap-dark:#4a1710;
+  background:var(--stone) center/140px 140px,repeating-linear-gradient(0deg,transparent 0 64px,var(--gold) 64px 67px),linear-gradient(90deg,#0000 28%,#ffffff30 34%,#0000 40%),var(--cyl),linear-gradient(180deg,var(--col),var(--col-dark));background-blend-mode:soft-light,normal,normal,normal,normal}
+[data-theme="ember"] .hall-col::before {clip-path:none;height:10px;top:-10px;left:-8px;right:-8px;background:linear-gradient(180deg,var(--cap),var(--cap-dark));box-shadow:0 -5px 0 -1px var(--gold)}
+[data-theme="ember"] .hall-col::after {clip-path:none;left:-8px;right:-8px;height:10px;background:linear-gradient(180deg,#3a1a12,#1a0b08)}
+[data-theme="ember"] .hall-col > i {display:block;position:absolute;left:-8px;right:-8px;top:24%;height:34px;border-radius:40%;background:radial-gradient(ellipse at 50% 55%,#fff0b0,#ff9a3c 45%,#c84a25 80%,#7a2a20);box-shadow:0 0 22px #ff8a3aa8,0 0 46px #ff6a2a55,inset 0 0 0 1px #3a1a12;animation:hall-lantern 3s ease-in-out infinite alternate}
+@keyframes hall-lantern {from {filter:brightness(.92)} to {filter:brightness(1.12)}}
+/* 태양 사원 — 새김 띠 두른 사암, 불룩한 갓 */
+[data-theme="sand"] .hall-col {width:38px;border-radius:4px 4px 0 0;--col:#dcb46f;--col-dark:#9a6e34;--cap:#e9c88a;--cap-dark:#8a5e2a;
+  background:var(--stone) center/140px 140px,repeating-linear-gradient(0deg,transparent 0 30px,#7a501a66 30px 33px,transparent 33px 36px,#7a501a40 36px 37px),var(--cyl),linear-gradient(180deg,var(--col),var(--col-dark))}
+[data-theme="sand"] .hall-col::before {clip-path:none;left:-14px;right:-14px;top:-14px;height:22px;border-radius:50% 50% 12% 12%/70% 70% 30% 30%;background:var(--stone) center/140px 140px,linear-gradient(180deg,#ffffff50,#0000 40%),linear-gradient(180deg,var(--cap),var(--cap-dark));box-shadow:0 -5px 0 -1px var(--gold)}
+/* 연꽃 사원의 밤 — 남색 기둥에 금 띠, 연꽃 갓 */
+[data-theme="plum"] .hall-col {border-radius:8px 8px 0 0;--col:#4a3a80;--col-dark:#1e1640;--cap:#f0a6c8;--cap-dark:#a05888;
+  background:var(--stone) center/140px 140px,repeating-linear-gradient(0deg,transparent 0 52px,var(--gold) 52px 54px),var(--cyl),linear-gradient(180deg,var(--col),var(--col-dark))}
+[data-theme="plum"] .hall-col::before {clip-path:none;left:-16px;right:-16px;top:-16px;height:22px;border-radius:50% 50% 8% 8%/100% 100% 20% 20%;background:radial-gradient(ellipse at 50% 100%,#ffd9ea,#f0a6c8 55%,#b06090 100%)}
+[data-theme="plum"] .hall-col::after {clip-path:none;left:-6px;right:-6px;height:12px;border-radius:40% 40% 0 0;background:#2a1e50;box-shadow:inset 0 2px 0 var(--gold)}
+/* 만신전 — 유리처럼 검은 흑요석, 금 갓 */
+[data-theme="pantheon"] .hall-col {width:38px;border-radius:3px 3px 0 0;--col:#2a2433;--col-dark:#08060b;--cap:#f3dc9a;--cap-dark:#8a6a2a;
+  background:var(--stone) center/140px 140px,linear-gradient(90deg,#0000 24%,#ffffff8c 31%,#ffffff22 38%,#0000 46%),linear-gradient(90deg,#0000 58%,#e2c27552 64%,#0000 72%),var(--drums),linear-gradient(90deg,#000000d0,#00000060 14%,#ffffff20 40%,#00000040 66%,#000000e0 100%),linear-gradient(180deg,var(--col),var(--col-dark));background-blend-mode:soft-light,normal,normal,normal,normal,normal}
+[data-theme="pantheon"] .hall-col::before {left:-14px;right:-14px;height:16px;top:-13px;box-shadow:0 -5px 0 -1px #f3dc9a}
+
+/* 각성·저주 — 단추 둘. 누르면 카드 그림이 그 상태로 넘어가고 홀의 공기도 따라간다 */
+.hall-modes {display:inline-flex;gap:8px;margin:12px 0 0 10px;vertical-align:middle}
+.hall-mode {min-height:40px;padding:0 16px;border:1px solid var(--gold);border-radius:4px;background:var(--card);color:var(--text);font:700 13px var(--display);letter-spacing:.06em;cursor:pointer;transition:background-color .25s,color .25s,box-shadow .25s,transform .2s}
+.hall-mode:hover {transform:translateY(-1px)}
+.hall-mode[aria-pressed="true"][data-mode="awaken"] {background:linear-gradient(180deg,#f7e7b0,#d9b96a);color:#2a1e08;border-color:#f7e7b0;box-shadow:0 0 22px #f3dc9a88}
+.hall-mode[aria-pressed="true"][data-mode="cursed"] {background:linear-gradient(180deg,#e0304a,#8a0f2a);color:#fff;border-color:#ff6b84;box-shadow:0 0 22px #c0143c99}
+.hall-card img {position:absolute;inset:0;opacity:0;transition:opacity .55s ease}
+.hall-card img.on {opacity:1}
+.hall[data-mode="awaken"] {--halo:#f3dc9a5c}
+.hall[data-mode="awaken"] .hall-ring {border-color:#f7e7b0;opacity:.95;box-shadow:0 0 36px #f3dc9a88,inset 0 0 36px #f3dc9a55}
+.hall[data-mode="awaken"] .hall-floor {opacity:.36}
+.hall[data-mode="awaken"] .hall-mote {top:auto;bottom:-4%;width:4px;height:4px;border:0;border-radius:50%;background:#fff3c0;box-shadow:0 0 10px #f3dc9a,0 0 22px #f3dc9a99;animation-name:hall-rise;animation-duration:calc(var(--d,9s) * .7)}
+.hall[data-mode="awaken"] .hall-copy h2 {background-image:linear-gradient(180deg,#fff7dc 20%,#f3dc9a)}
+.hall[data-mode="cursed"] {--halo:#c0143c66}
+.hall[data-mode="cursed"] .hall-ring {border-color:#ff4d6d;opacity:.9;box-shadow:0 0 36px #c0143c99,inset 0 0 36px #c0143c66}
+.hall[data-mode="cursed"] .hall-floor {background-image:linear-gradient(#ff3b5c 1px,transparent 1px),linear-gradient(90deg,#ff3b5c 1px,transparent 1px);opacity:.3}
+.hall[data-mode="cursed"] .hall-col {box-shadow:inset -8px 0 14px #c0143c70}
+.hall[data-mode="cursed"] .hall-mote {top:auto;bottom:-4%;width:6px;height:11px;border:0;border-radius:50% 50% 45% 45%/62% 62% 38% 38%;background:radial-gradient(circle at 50% 72%,#ffd0d8,#ff3b5c 42%,#7a0a22 78%,transparent 100%);box-shadow:0 0 10px #ff3b5c,0 0 20px #c0143c88;animation-name:hall-fire;animation-duration:calc(var(--d,9s) * .8)}
+.hall[data-mode="cursed"] .hall-copy h2 {background-image:linear-gradient(180deg,var(--text) 20%,#ff4d6d)}
+.hall[data-mode="cursed"] .hall-fog {background:linear-gradient(transparent,#c0143c55)}
+.hall[data-mode="awaken"] .hall-fog {background:linear-gradient(transparent,#f3dc9a44)}
+@media (max-width:599px) {.hall-modes {margin-left:0;margin-top:10px} .hall-mode {min-height:40px;padding:0 13px;font-size:12px}}
