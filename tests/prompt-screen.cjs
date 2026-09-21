@@ -75,7 +75,7 @@ const S = ctx.window.AtelierSpec;
     await p.waitForFunction(() => document.querySelector('#pm-file').innerText.endsWith('_cursed.webp'));
     assert((await p.locator('#prompt-output').inputValue()).includes('CURSED state'), '저주');
     await p.selectOption('#pm-output', 'casual');
-    await p.fill('#pm-casual', '3');
+    await p.selectOption('#pm-casual', '3');
     await p.waitForFunction(() => document.querySelector('#pm-file').innerText.endsWith('_casual3.webp'));
     /* 일상컷 장면 — 외형 묶음은 사라지고 장면 칸이 온다 */
     await p.waitForSelector('#pm-casual-cat');

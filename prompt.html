@@ -198,7 +198,9 @@ function App() {
         <${Select} id="pm-output" label=${W('prompt.output')} value=${st.output} options=${Object.keys(S.OUTPUTS).map(k => [k, S.OUTPUTS[k].name])} onChange=${v => update({ output: v })} />
         <p class="pm-note">${S.OUTPUTS[st.output].note}</p>
         ${st.output === 'casual' && html`<label for="pm-casual">${W('prompt.casual.index')}
-          <input id="pm-casual" type="number" min="1" max="9" value=${st.casualIndex} onInput=${e => update({ casualIndex: Math.max(1, +e.currentTarget.value || 1) })} /></label>`}
+          <select id="pm-casual" value=${String(st.casualIndex || 1)} onChange=${e => update({ casualIndex: +e.currentTarget.value })}>
+            ${[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => html`<option key=${n} value=${String(n)}>${n}</option>`)}
+          </select></label>`}
         ${st.output === 'casual' && c ? html`<${Casual} sc=${st.casual || DEFAULT().casual} update=${update} />` : html`
         <h2>${W('prompt.design')}</h2>
         <p class="pm-note">${W('prompt.design.note')}</p>
