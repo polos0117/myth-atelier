@@ -1,6 +1,6 @@
 {
  "version": 1,
  "note": "tools/register-images.py 가 그림 저장소(myth-atelier-img/img)를 읽어 채운다. 손으로 고치지 않는다.",
- "count": 0,
- "img": {}
+ "count": 1,
+ "img": {"궁니르": {"byStyle": {"glossy_promo": {"f": "궁니르_glossy_promo_f.webp"}}}}
 }
