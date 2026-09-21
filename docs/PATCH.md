@@ -8,6 +8,10 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-09-21 · claude · UI/UX Pro Max skill 들여오기
+
+- .claude/skills/ui-ux-pro-max/ — nextlevelbuilder/ui-ux-pro-max-skill v2.13.0 (MIT, LICENSE 동봉) 의 핵심 skill 만 복사. SKILL.md + 참고문서 + CSV 자료(스타일 79·팔레트 192·폰트 74·UX 규칙 119·아이콘·차트·스택) + 표준 라이브러리만 쓰는 검색 스크립트. 딸려오는 sub-skill 여섯(banner·brand·design·design-system·slides·ui-styling)은 안 넣었다. SKILL.md 의 `${CLAUDE_PLUGIN_ROOT}` 경로 열한 곳을 저장소 상대경로(`python3 .claude/skills/ui-ux-pro-max/scripts/search.py`)로 바꿨다 — 플러그인이 아니라 저장소에 든 skill 이라서. `/plugin` 이 안 되는 웹·모바일 세션에서도 붙는다
+
 ## 2026-09-21 · claude · 그림 올리기 skill 과 도구
 
 - .claude/skills/upload-art/SKILL.md — "미스틸테인 2.5d" 처럼 그림 몇 장에 무기 이름만 붙어 오면 따르는 절차. 칸 읽기(기본→각성→저주→일상), 화풍 별칭, 수치 읽는 법(구도 일치 0.6, 명암 48~67), 답하는 모양, 안 될 때. 저장소 안에 두어 웹·모바일 어느 세션에서 열어도 같이 붙는다
