@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap">
-<link rel="stylesheet" href="lib/workspace.css?v=myth5">
+<link rel="stylesheet" href="lib/workspace.css?v=myth6">
 <script src="lib/workspace-theme.js?v=myth3"></script>
 <script src="lib/words.js?v=myth4"></script>
 <script src="lib/img.js?v=myth1"></script>
@@ -53,7 +53,7 @@ function Patch(){
    CSS 3D 뿐이라 라이브러리가 없고, 손이 닿으면 홀이 그쪽으로 살짝 기운다 */
 const MOTES=[[8,11,0],[17,13,2],[26,9,5],[35,14,1],[44,10,7],[53,12,3],[62,9,6],[71,13,2],[80,11,8],[89,10,4],[95,12,1],[3,14,6]];
 function Hall(){
-  const [cards,setCards]=useState(null),[broken,setBroken]=useState({}),[mode,setMode]=useState('base'),box=useRef(null);
+  const [cards,setCards]=useState(null),[broken,setBroken]=useState({}),[mode,setMode]=useState('base'),[gl,setGl]=useState(false),box=useRef(null),glRef=useRef(null);
   useEffect(()=>{
     let live=true;
     Promise.all([fetch('data/card.json',{cache:'no-cache'}).then(r=>r.ok?r.json():{cards:[]}),IMG.load().catch(()=>({}))])
@@ -71,17 +71,36 @@ function Hall(){
       }).catch(()=>{if(live)setCards([]);});
     return()=>{live=false};
   },[]);
+  /* 만신전만 진짜 3D — Three.js 를 CDN 에서 그때 받는다. 못 받으면 CSS 기둥 그대로다.
+     테마가 바뀌면 캔버스를 걷는다 */
+  useEffect(()=>{
+    let dead=false,inst=null,busy=false;
+    const want=()=>window.AtelierAppearance.get().theme==='pantheon';
+    async function sync(){
+      if(busy)return;
+      if(want()&&!inst&&box.current){
+        busy=true;
+        try{const m=await import('./lib/hall-3d.js?v=3');if(dead||!want())return;inst=await m.mount(box.current);if(!inst||dead)return;glRef.current=inst;setGl(true);}
+        catch(e){/* CDN 없음 — CSS 기둥 */}
+        finally{busy=false;}
+      }else if(!want()&&inst){inst.dispose();inst=null;glRef.current=null;setGl(false);}
+    }
+    sync();addEventListener('atelier-appearance',sync);
+    return()=>{dead=true;removeEventListener('atelier-appearance',sync);if(inst)inst.dispose();};
+  },[]);
+  useEffect(()=>{if(glRef.current)glRef.current.mode(mode);},[mode,gl]);
   const tilt=e=>{
     const el=box.current;if(!el)return;
     const r=el.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
     el.style.setProperty('--ty',(x*10).toFixed(2)+'deg');el.style.setProperty('--tx',(-y*6).toFixed(2)+'deg');
+    if(glRef.current)glRef.current.tilt(x,y);
   };
   const rest=()=>{const el=box.current;if(el){el.style.setProperty('--tx','0deg');el.style.setProperty('--ty','0deg');}};
   const toggle=m=>setMode(v=>v===m?'base':m);
   const n=cards?cards.length:0;
   const pic=(c,slot,file)=>h('img',{key:slot,class:(slot===(c[mode]&&!broken[c.name+mode]?mode:'file')?'on':''),src:IMG.thumbURL(file),alt:'',loading:'lazy',decoding:'async',
     onError:()=>setBroken(b=>({...b,[c.name+slot]:true}))});
-  return h('section',{class:'hall',ref:box,'data-mode':mode,'aria-label':W('home.hall'),onPointerMove:tilt,onPointerLeave:rest},
+  return h('section',{class:'hall'+(gl?' webgl':''),ref:box,'data-mode':mode,'aria-label':W('home.hall'),onPointerMove:tilt,onPointerLeave:rest},
     h('div',{class:'hall-halo','aria-hidden':'true'}),
     h('div',{class:'hall-fog','aria-hidden':'true'}),
     h('div',{class:'hall-scene','aria-hidden':'true'},
