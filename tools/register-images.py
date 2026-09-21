@@ -113,7 +113,9 @@ def main():
     img = doc["img"]
     idx = card_index()
     styles = roster.styles()
-    disk = {f for f in os.listdir(IMG_DIR) if f.lower().endswith(".webp")}
+    # 그림이 하나도 없으면 폴더 자체가 없다(git 은 빈 폴더를 안 올린다). 그것도 정상이다
+    disk = {f for f in (os.listdir(IMG_DIR) if os.path.isdir(IMG_DIR) else [])
+            if f.lower().endswith(".webp")}
     listed = listed_files(img)
 
     added, unknown = [], []

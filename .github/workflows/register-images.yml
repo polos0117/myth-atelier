@@ -39,8 +39,9 @@ jobs:
           repository: polos0117/myth-atelier-img
           path: img-repo
 
+      # 그림이 아직 없으면 폴더도 없다 — 빈 폴더를 만들어 두고 잇는다
       - name: 그림 자리 잇기
-        run: ln -s img-repo/img img && ls img | head -20
+        run: mkdir -p img-repo/img && ln -s img-repo/img img && ls img | head -20
 
       - uses: actions/setup-python@v5
         with:
