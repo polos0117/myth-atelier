@@ -6,7 +6,7 @@ const card = JSON.parse(fs.readFileSync('data/card.json', 'utf8')), N = card.car
 const skill = JSON.parse(fs.readFileSync('data/skill.json', 'utf8')).skills;
 const IMG = { img: {
   '묠니르': { byStyle: { glossy_promo: { f: '묠니르_glossy_promo_f.webp', awaken: { f: '묠니르_glossy_promo_f_awaken.webp' },
-    casual: { f: ['묠니르_glossy_promo_f_casual1.webp'] } } } },
+    casual: { f: ['묠니르_glossy_promo_f_casual1.webp'] }, extra: { f: ['묠니르_glossy_promo_f_extra1.webp'] } } } },
   '아이기스': { byStyle: { cel_anime: { f: '아이기스_cel_anime_f.webp' } } },
 } };
 (async () => {
@@ -55,9 +55,13 @@ const IMG = { img: {
     assert.equal(await p.locator('.big img').getAttribute('src'), window_src('묠니르_glossy_promo_f_awaken.webp'), '각성으로 바뀐다');
     await p.click('button[data-cut="portrait"]');
     assert.equal(await p.locator('.big img').getAttribute('src'), window_src('묠니르_glossy_promo_f.webp'));
-    assert.equal(await p.locator('.gal .cell').count(), 1, '일상컷 하나');
-    await p.click('.gal .cell');
+    assert.equal(await p.locator('.gal .cell[data-cut="casual"]').count(), 1, '일상컷 하나');
+    assert.equal(await p.locator('.gal .cell[data-cut="extra"]').count(), 1, '특별컷 하나');
+    await p.click('.gal .cell[data-cut="casual"]');
     assert.equal(await p.locator('.big img').getAttribute('src'), window_src('묠니르_glossy_promo_f_casual1.webp'));
+    await p.click('.gal .cell[data-cut="extra"]');
+    assert.equal(await p.locator('.big img').getAttribute('src'), window_src('묠니르_glossy_promo_f_extra1.webp'));
+    assert((await p.locator('.sec').filter({ hasText: '특별컷 1' }).count()) >= 1, '특별컷 이름표');
     await p.click('.back'); await p.waitForSelector('.grid .cell');
 
     /* 그림 없는 카드도 열린다 */

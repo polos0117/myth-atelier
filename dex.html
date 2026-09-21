@@ -214,7 +214,7 @@ function Detail({ card, entry, styleName, group, skill, selection, onClose }) {
   const style = keys.indexOf(wantStyle) >= 0 ? wantStyle : (keys[0] || '');
   const bucket = (style && IMG.styleMap(entry)[style]) || {};
   const portrait = bucket[V] || null, awaken = IMG.awakenOf(bucket, V);
-  const casual = IMG.cuts(bucket, 'casual', V);
+  const casual = IMG.cuts(bucket, 'casual', V), extra = IMG.cuts(bucket, 'extra', V);
   const shown = focus || (portrait ? { file: portrait, cut: 'portrait' } : null);
 
   const head = html`
@@ -243,9 +243,13 @@ function Detail({ card, entry, styleName, group, skill, selection, onClose }) {
     <p class="sec">${W('kind.card')}</p>
     <${Facts} card=${card} group=${group} skill=${skill} />
 
+    ${extra.length > 0 && html`
+      <p class="sec">${W('dex.extra')}<span>${W('art.count', { n: extra.length })}</span></p>
+      <div class="gal">${extra.map((f, i) => html`<button key=${f} class="cell" data-cut="extra"
+        onClick=${() => setFocus({ file: f, cut: 'extra', index: i + 1 })}><${Pic} file=${f} alt=${W('dex.cut.extra')} /></button>`)}</div>`}
     ${casual.length > 0 && html`
       <p class="sec">${W('dex.casual')}<span>${W('art.count', { n: casual.length })}</span></p>
-      <div class="gal">${casual.map((f, i) => html`<button key=${f} class="cell"
+      <div class="gal">${casual.map((f, i) => html`<button key=${f} class="cell" data-cut="casual"
         onClick=${() => setFocus({ file: f, cut: 'casual', index: i + 1 })}><${Pic} file=${f} alt=${W('dex.cut.casual')} /></button>`)}</div>`}
   <//>`;
 }
