@@ -8,6 +8,16 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-09-21 · claude · 세 상태 — 기본 · 각성 · 저주. 벤치가 차도 셋째는 산다
+
+- lib/auto.js — 저주: 체력이 curse.at 아래면 한 판에 한 번 발현, 공격·기술 배수, 박자당 출혈, 치유·보호막 제외, 되살아나도 유지. 벤치가 찼어도 같은 1성이 둘이면 사서 바로 2성으로
+- data/card.json — 카드마다 curse {at, atk, skill, bleed, text}. 전승이 저주인 아홉 자루는 세다
+- lib/img.js · tools/register-images.py — _f_cursed 슬롯. coverOf 는 저주 > 각성 > 기본
+- dex.html · auto.html · lib/words.js — 도감에 저주 단추와 저주 줄, 오토 배틀 결과 칸은 저주받은 유닛의 그림·테두리
+- lib/prompt-spec.js · lib/prompt-myth.js · prompt.html — 출력에 저주. 첨부 그림 기준, 룬은 붉은 보랏빛으로 오염되고 은색 장갑은 그대로
+- tests — auto-sim(합치기 사기·저주 다섯), data(curse 모양), dex-screen(저주 단추), prompt-engine·screen(저주 출력)
+- docs/GAME_CONCEPT.md · IMAGE_RULES.md — 세 상태 정의와 파일 이름
+
 ## 2026-09-21 · claude · 도감에 특별컷 — 저주형 같은 변주 자리
 
 - dex.html · lib/words.js — 등록기가 이미 받던 _f_extraN 을 도감이 안 보여 주고 있었다. 일상컷 위에 특별컷 갤러리

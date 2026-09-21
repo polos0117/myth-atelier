@@ -5,6 +5,7 @@
 파일 이름이 곧 등록 정보다. 폼은 없다 — 무기당 액션 한 장이 곧 그 캐릭터다.
     <카드>_<화풍>_f.webp            액션 한 장(카드 그림)
     <카드>_<화풍>_f_awaken.webp     각성 한 장(3성일 때 대신 뜬다) — 선택
+    <카드>_<화풍>_f_cursed.webp     저주 한 장(저주 발현 때 대신 뜬다) — 선택
     <카드>_<화풍>_f_casual3.webp    일상컷 3 — 선택
 카드 이름의 공백은 밑줄로 써도 된다(아킬레우스의_창_glossy_promo_f.webp).
 화풍 key 는 data/style.json 목록만 쓰고, 그 밖의 토막이 끼면 카드 이름으로
@@ -27,7 +28,7 @@ import roster
 # img.json 에는 폴더 없이 파일 이름만 적는다 — 경로는 lib/img.js 의 BASE 가 붙인다.
 IMG_DIR = "img"
 
-PAT = re.compile(r"^(.+?)_(m|f|awaken|casual(\d+)|extra(\d+))\.webp$", re.I)
+PAT = re.compile(r"^(.+?)_(m|f|awaken|cursed|casual(\d+)|extra(\d+))\.webp$", re.I)
 # 화풍 견본. 카드 그림이 아니다
 SKIP = re.compile(r"^style-")
 
@@ -67,7 +68,7 @@ def buckets(img):
             yield b
 
 
-SLOTS = ("m", "f", "awaken", "casual", "extra")
+SLOTS = ("m", "f", "awaken", "cursed", "casual", "extra")
 
 
 def tidy(img, styles):
@@ -93,9 +94,10 @@ def listed_files(img):
         for k in ("m", "f"):
             if d.get(k):
                 out.add(d[k])
-        for g, f in (d.get("awaken") or {}).items():
-            if f:
-                out.add(f)
+        for slot in ("awaken", "cursed"):
+            for g, f in (d.get(slot) or {}).items():
+                if f:
+                    out.add(f)
         for k in ("casual", "extra"):
             for lst in shots(d, k).values():
                 for f in lst or []:
@@ -147,10 +149,10 @@ def main():
                 unknown.append((f, "액션 자리 중복: " + e[kind]))
                 continue
             e[kind] = f
-        elif kind == "awaken":
-            box = e.setdefault("awaken", {})
+        elif kind in ("awaken", "cursed"):
+            box = e.setdefault(kind, {})
             if box.get(gender):
-                unknown.append((f, "각성 자리 중복: " + box[gender]))
+                unknown.append((f, kind + " 자리 중복: " + box[gender]))
                 continue
             box[gender] = f
         else:
@@ -181,10 +183,11 @@ def main():
             for k in ("m", "f"):
                 if e.get(k) in gone:
                     del e[k]
-            if "awaken" in e:
-                e["awaken"] = {g: f for g, f in e["awaken"].items() if f not in gone}
-                if not e["awaken"]:
-                    del e["awaken"]
+            for slot in ("awaken", "cursed"):
+                if slot in e:
+                    e[slot] = {g: f for g, f in e[slot].items() if f not in gone}
+                    if not e[slot]:
+                        del e[slot]
             for k in ("casual", "extra"):
                 if k not in e:
                     continue

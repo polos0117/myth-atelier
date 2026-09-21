@@ -68,6 +68,21 @@ const ok = (cond, msg) => { assert(cond, msg); n++; };
   ok(A.buy(st, data, 0).merged.length === 0 && A.units(st).length === 5, '3성은 더 안 합친다');
 }
 
+/* 벤치가 찼어도 같은 1성이 둘이면 산 것이 바로 합쳐진다 */
+{
+  const st = A.newGame(data, 4);
+  st.gold = 99;
+  const put = (zone, i, name, star) => { const u = { id: st.nextId++, name, star }; (zone === 'board' ? st.board : st.bench)[i] = u; return u; };
+  for (let i = 0; i < A.BENCH; i++) put('bench', i, ['칸다', '가다', '탈라리아', '환두대도', '야른그레이프', '드라우프니르'][i], 1);
+  const keep = put('board', 1, '칸다', 1);
+  st.shop[0] = '칸다';
+  const r = A.buy(st, data, 0);
+  ok(r.ok && r.merged[0].star === 2 && st.board[1].id === keep.id && st.board[1].star === 2 && !st.bench[0] && st.shop[0] === null && st.gold === 98, '벤치가 차 있어도 셋째를 사면 판 위 것이 2성이 되고 벤치 것이 사라진다');
+  put('bench', 0, '미스틸테인', 1);
+  st.shop[0] = '가다';
+  ok(A.buy(st, data, 0).why === 'bench', '합쳐질 것이 없으면 여전히 벤치가 찼다');
+}
+
 /* 시너지 — 이름으로 센다 */
 {
   const s = A.synergies(data, [U('묠니르', 1), U('묠니르', 2), U('궁니르', 1), U('그람', 1)]);
@@ -134,6 +149,29 @@ const ok = (cond, msg) => { assert(cond, msg); n++; };
   const data2 = { cards: data.cards.concat([dummy]), skills: data.skills, synergy: data.synergy };
   const draw = A.simulate(data2, st, [U('허수아비', 1, 0, 1)], [U('허수아비', 1, 0, 1)]);
   ok(draw.winner === 'draw' && draw.beats === A.MAX_BEATS, '못 죽이면 무승부');
+}
+
+/* 저주 — 체력이 문턱 아래로 떨어지면 한 번 발현, 공격이 오르고 피를 잃고 치유를 못 받는다 */
+{
+  const st = A.newGame(data, 13);
+  const r = A.simulate(data, st, [U('칸다', 1, 0, 1)], [U('아이기스', 3, 0, 1)]);
+  const curse = r.log.find(e => e.k === 'curse');
+  ok(curse && curse.b === 1, '칸다가 저주 발현');
+  const before = r.log.find(e => e.k === 'hit' && e.a === 1 && e.t < curse.t), after = r.log.find(e => e.k === 'hit' && e.a === 1 && e.t > curse.t);
+  ok(before && after && after.d === Math.round(before.d * (1 + by('칸다').curse.atk)), '발현 뒤 공격이 curse.atk 만큼 오른다: ' + (before && before.d) + ' → ' + (after && after.d));
+  ok(r.log.some(e => e.k === 'bleed' && e.b === 1 && e.d === Math.round(by('칸다').hp * by('칸다').curse.bleed)), '박자마다 최대 체력의 bleed 만큼');
+  ok(r.log.filter(e => e.k === 'curse' && e.b === 1).length === 1, '한 판에 한 번');
+  ok(r.ents[0].cursed === true && r.ents[1].cursed === false, '결과에 상태가 남는다');
+  /* 치유는 저주받은 아군을 건너뛴다 */
+  const h = A.simulate(data, st, [U('카두케우스', 3, 1, 1), U('칸다', 1, 0, 1)], [U('아이기스', 3, 0, 1)]);
+  const c2 = h.log.find(e => e.k === 'curse' && e.b === 2);
+  ok(c2 && !h.log.some(e => e.k === 'heal' && e.b === 2 && e.t > c2.t), '저주받은 칸다는 치유를 못 받는다');
+  /* 되살아나도 저주는 그대로 — 북유럽 둘 */
+  const n = A.simulate(data, st, [U('다인슬레이프', 1, 0, 1), U('야른그레이프', 1, 0, 0)], [U('묠니르', 3, 0, 1)]);
+  const rev = n.log.find(e => e.k === 'revive' && e.b === 1), cur = n.log.find(e => e.k === 'curse' && e.b === 1);
+  ok(rev && cur && n.log.filter(e => e.k === 'curse' && e.b === 1).length === 1 && n.log.some(e => e.k === 'bleed' && e.b === 1 && e.t > rev.t), '되살아난 뒤에도 저주가 이어진다');
+  /* 전승 자체가 저주인 무기는 문턱이 높고 세다 */
+  ok(by('티르핑').curse.at > by('칸다').curse.at && by('티르핑').curse.atk > by('칸다').curse.atk, '티르핑의 저주가 칸다보다 세다');
 }
 
 /* 라운드 흐름 — 지면 체력이 깎이고, 0이면 끝. 열 라운드 이기면 이긴다 */

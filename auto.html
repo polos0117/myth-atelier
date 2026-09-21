@@ -47,6 +47,7 @@ body {color:var(--text);font-size:15px}
 .at-cell .hpbar {position:relative;height:5px;border-radius:99px;background:var(--accent-soft);overflow:hidden}
 .at-cell .hpbar u {display:block;height:100%;background:var(--ok);text-decoration:none}
 .at-cell.dead {opacity:.4}
+.at-cell.cursed {border-color:var(--signal);box-shadow:inset 0 0 0 1px var(--signal)}
 .at-row {display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px;align-items:stretch;margin-bottom:6px}
 .at-row > i {writing-mode:vertical-rl;text-orientation:upright;font:700 10px ui-monospace,monospace;letter-spacing:.2em;color:var(--muted);display:flex;align-items:center;justify-content:center;width:18px}
 /* 벤치 여섯 · 상점 다섯 */
@@ -127,8 +128,8 @@ function save(st) { try { localStorage.setItem(STORE, JSON.stringify(st)); } cat
 function seed() { return (Date.now() ^ Math.floor(Math.random() * 1e9)) | 0; }
 
 /* 카드 그림 — 있으면 깔고 없으면 이름만. 3성이면 각성 그림 */
-function Art({ img, name, star }) {
-  const file = IMG.coverOf(img[name], V, undefined, star || 1);
+function Art({ img, name, star, cursed }) {
+  const file = IMG.coverOf(img[name], V, undefined, star || 1, !!cursed);
   return file ? html`<img src=${IMG.thumbURL(file)} alt="" loading="lazy"
     onError=${e => { const t = e.currentTarget; if (t.dataset.f) return; t.dataset.f = '1'; t.src = IMG.imgURL(file); }} />` : null;
 }
@@ -138,10 +139,10 @@ function Cell({ unit, index, zone, color, img, picked, target, onClick, side, hp
   if (!unit) return html`<button class=${'at-cell empty' + (target ? ' target' : '')} data-index=${index} data-zone=${zone}
     onClick=${onClick} disabled=${!onClick}>${W('auto.empty')}</button>`;
   const dead = hp && !hp.alive;
-  return html`<button class=${'at-cell' + (picked ? ' on' : '') + (side ? ' ' + side : '') + (dead ? ' dead' : '')}
-    data-index=${index} data-zone=${zone} data-name=${unit.name} data-star=${unit.star}
+  return html`<button class=${'at-cell' + (picked ? ' on' : '') + (side ? ' ' + side : '') + (dead ? ' dead' : '') + (hp && hp.cursed ? ' cursed' : '')}
+    data-index=${index} data-zone=${zone} data-name=${unit.name} data-star=${unit.star} data-cursed=${hp && hp.cursed ? '1' : undefined}
     style=${'--cc:' + (color || 'var(--line)')} onClick=${onClick} disabled=${!onClick}>
-    <${Art} img=${img} name=${unit.name} star=${unit.star} />
+    <${Art} img=${img} name=${unit.name} star=${unit.star} cursed=${hp && hp.cursed} />
     <span class="nm">${unit.name}</span>
     <${Stars} n=${unit.star} />
     ${hp && html`<span class="hpbar"><u style=${'width:' + Math.round(hp.hp / hp.maxHp * 100) + '%'}></u></span>`}

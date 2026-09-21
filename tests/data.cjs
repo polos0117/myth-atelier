@@ -8,7 +8,7 @@ const card = read('card'), group = read('group'), skill = read('skill'), style =
 const cards = card.cards;
 assert(Array.isArray(cards) && cards.length >= 40, '카드가 마흔 자루는 되어야 한다');
 const names = new Set(), ens = new Set();
-const FIELDS = ['name', 'en', 'myth', 'kind', 'cost', 'hp', 'atk', 'spd', 'range', 'skill', 'wielder', 'text', 'look'];
+const FIELDS = ['name', 'en', 'myth', 'kind', 'cost', 'hp', 'atk', 'spd', 'range', 'skill', 'wielder', 'text', 'look', 'curse'];
 for (const c of cards) {
   for (const k of FIELDS) assert(c[k] !== undefined && c[k] !== '', c.name + ' 에 ' + k + ' 가 없다');
   assert(!names.has(c.name), '이름이 겹친다: ' + c.name); names.add(c.name);
@@ -21,6 +21,8 @@ for (const c of cards) {
   assert(skill.skills[c.skill], c.name + ' 의 기술 ' + c.skill + ' 이 skill.json 에 없다');
   /* 이름은 파일 이름이 된다 — 밑줄이 들어가면 공백과 헷갈린다 */
   assert(!/[_/\\]/.test(c.name), c.name + ' 에 밑줄이나 빗금이 있다');
+  const cu = c.curse;
+  assert(cu && cu.at >= 0.2 && cu.at <= 0.6 && cu.atk >= 0 && cu.atk <= 0.8 && cu.skill >= 0 && cu.skill <= 0.8 && cu.bleed >= 0.01 && cu.bleed <= 0.08 && cu.text, c.name + ' 의 curse 는 {at, atk, skill, bleed, text}');
   assert(/^[ -~\u2019]+$/.test(c.look) && c.look.split(';').length === 3, c.name + ' 의 look 은 영어이고 "재질과 색; 형태; 문양" 세 토막');
 }
 /* 신화권마다 열 자루, 값은 1~5 골고루 — 상점이 어느 값에서든 카드를 내놓아야 한다 */
@@ -62,7 +64,7 @@ for (const [name, e] of Object.entries(img.img || {})) {
   assert(!e.byForm, name + ' 에 폼이 있다 — 이 놀이에 폼은 없다');
   for (const [k, b] of Object.entries(e.byStyle || {})) {
     assert(styleKeys.has(k), name + ' 의 화풍 ' + k + ' 는 style.json 에 없다');
-    for (const slot of Object.keys(b)) assert(['m', 'f', 'awaken', 'casual', 'extra'].includes(slot), name + '/' + k + ' 의 칸 ' + slot);
+    for (const slot of Object.keys(b)) assert(['m', 'f', 'awaken', 'cursed', 'casual', 'extra'].includes(slot), name + '/' + k + ' 의 칸 ' + slot);
   }
 }
 console.log('PASS 자료: 카드 ' + cards.length + ' · 기술 ' + Object.keys(skill.skills).length + ' · 화풍 ' + style.styles.length + ' · 그림 ' + Object.keys(img.img || {}).length);

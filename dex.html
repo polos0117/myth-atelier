@@ -187,6 +187,7 @@ function Facts({ card, group, skill }) {
     [W('card.cost'), html`<b>${W('card.cost.n', { n: card.cost })}</b>`],
     [W('card.range'), W('range.' + card.range)],
     [W('card.skill'), html`<b>${sk.name}</b><small>${sk.text}</small>`],
+    card.curse && [W('card.curse'), html`<b>${W('card.curse.n', { at: Math.round(card.curse.at * 100), atk: Math.round(card.curse.atk * 100), skill: Math.round(card.curse.skill * 100), bleed: Math.round(card.curse.bleed * 100) })}</b><small>${card.curse.text}</small><small>${W('card.curse.note')}</small>`],
     card.wielder && [W('card.wielder'), card.wielder],
     card.text && [W('card.text'), card.text],
   ].filter(Boolean);
@@ -213,7 +214,7 @@ function Detail({ card, entry, styleName, group, skill, selection, onClose }) {
   const [focus, setFocus] = useState(selection?.file && selection.cut !== 'portrait' ? selection : null);
   const style = keys.indexOf(wantStyle) >= 0 ? wantStyle : (keys[0] || '');
   const bucket = (style && IMG.styleMap(entry)[style]) || {};
-  const portrait = bucket[V] || null, awaken = IMG.awakenOf(bucket, V);
+  const portrait = bucket[V] || null, awaken = IMG.awakenOf(bucket, V), cursed = IMG.cursedOf(bucket, V);
   const casual = IMG.cuts(bucket, 'casual', V), extra = IMG.cuts(bucket, 'extra', V);
   const shown = focus || (portrait ? { file: portrait, cut: 'portrait' } : null);
 
@@ -234,9 +235,11 @@ function Detail({ card, entry, styleName, group, skill, selection, onClose }) {
         onClick=${() => setFocus(null)}>${W('dex.cut.portrait')}</button>
       <button class=${shown && shown.cut === 'awaken' ? 'on' : ''} disabled=${!awaken} data-cut="awaken"
         onClick=${() => setFocus({ file: awaken, cut: 'awaken' })}>${W('dex.cut.awaken')}</button>
+      <button class=${shown && shown.cut === 'cursed' ? 'on' : ''} disabled=${!cursed} data-cut="cursed"
+        onClick=${() => setFocus({ file: cursed, cut: 'cursed' })}>${W('dex.cut.cursed')}</button>
     </div>
     ${shown ? html`
-      <p class="sec">${shotLabel(shown)}<span>${shown.cut === 'awaken' ? W('dex.awaken.note') : (styleName[style] || '')}</span></p>
+      <p class="sec">${shotLabel(shown)}<span>${shown.cut === 'awaken' ? W('dex.awaken.note') : shown.cut === 'cursed' ? W('dex.cursed.note') : (styleName[style] || '')}</span></p>
       <div class="big"><${Pic} full file=${shown.file} alt=${card.name} /></div>
     ` : html`<div class="big"><span class="ph">${W('art.none')}</span></div>`}
 
@@ -292,7 +295,8 @@ function List({ st, filters, onFilter, onOpen, compact, onCompact }) {
       ? html`<p class="empty">${W('dex.filter.empty')}</p>`
       : html`<div class="grid">${shown.map(c => {
           const entry = st.img[c.name], file = IMG.portraitOf(entry, V, f.style || undefined);
-          const awaken = file && IMG.awakenOf(IMG.styleMap(entry)[f.style] || Object.values(IMG.styleMap(entry)).find(b => b[V]), V);
+          const bucket = file && (IMG.styleMap(entry)[f.style] || Object.values(IMG.styleMap(entry)).find(b => b[V]));
+          const states = file ? [W('art.done')].concat(IMG.awakenOf(bucket, V) ? [W('art.awaken.done')] : [], IMG.cursedOf(bucket, V) ? [W('art.cursed.done')] : []).join(' ') : W('art.missing');
           return html`<button key=${c.name} class="cell" data-card=${c.name} data-myth=${c.myth} data-kind=${c.kind}
             style=${'--cc:' + (st.group.myth.color[c.myth] || 'var(--line)')}
             onClick=${() => onOpen({ card: c, style: f.style, file, cut: 'portrait' })}>
@@ -301,7 +305,7 @@ function List({ st, filters, onFilter, onOpen, compact, onCompact }) {
               : html`<span class="ph">${W('art.none')}</span>`}</span>
             <span class="cap"><span class="cost">${W('card.cost.n', { n: c.cost })}</span>${c.name}
               <i>${st.group.myth.name[c.myth]} · ${st.group.kind.name[c.kind]}</i>
-              <i>${file ? (awaken ? W('art.awaken.done') : W('art.done')) : W('art.missing')}</i>
+              <i>${states}</i>
             </span>
           </button>`;
         })}</div>`}

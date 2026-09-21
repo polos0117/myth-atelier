@@ -27,7 +27,7 @@ for (const p of S.PARAMS) {
 }
 assert.equal(new Set(S.PARAMS.map(p => p.key)).size, S.PARAMS.length, '열쇠가 겹친다');
 
-const BUDGET = { portrait: 320, awaken: 260, casual: 560 };
+const BUDGET = { portrait: 320, awaken: 260, cursed: 290, casual: 560 };
 let n = 0, longest = { w: 0 };
 for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for (const style of S.STYLES) {
   const st = { card: card.name, style: style[0], output, params: {} };
@@ -39,8 +39,9 @@ for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for 
   assert(w <= BUDGET[output], card.name + ' ' + output + ' ' + style[0] + ' 낱말 ' + w + ' > ' + BUDGET[output]);
   if (w > longest.w) longest = { w, card: card.name, output, style: style[0] };
   assert(!/포켓몬|armor form|pokemon|overdrive/i.test(text), '앞 저장소의 말이 남았다');
-  if (output === 'awaken') {
-    assert(/attached/.test(text) && !text.includes('ACTION:') && !text.includes('IDENTITY:'), '각성은 첨부 그림을 따르고 동작·외형을 다시 말하지 않는다');
+  if (output === 'awaken' || output === 'cursed') {
+    assert(/attached/.test(text) && !text.includes('SUBJECT:') && !text.includes('IDENTITY'), '각성·저주는 첨부 그림을 따르고 뼈대·외형을 다시 말하지 않는다');
+    if (output === 'cursed') assert(text.includes('red-violet') && text.includes('silver plates stay silver'), '저주는 룬이 오염되고 장갑은 그대로');
   } else if (output === 'portrait') {
     assert(text.includes('Facial ethnicity: ' + S.PARAMS[0].auto[card.myth]), '자동이면 신화권이 얼굴 계통을 정한다');
   }
@@ -50,7 +51,7 @@ for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for 
     assert(text.includes(S.CASUAL_RULES.input) && text.includes(S.CASUAL_RULES.project) && text.includes(S.CASUAL_RULES.material) && text.includes(S.CASUAL_RULES.final), '일상컷 규칙 넷');
     assert(!text.includes('SUBJECT:') && !text.includes('IDENTITY') && !text.includes('plates, joints'), '일상컷에는 뼈대·외형·메카 문장이 없다');
     assert(!text.includes('CATEGORY:') && !text.includes('SCENE DETAILS'), '갈래를 안 고르면 갈래 줄이 없다');
-  } else if (output !== 'awaken') {
+  } else if (output === 'portrait') {
     assert(text.includes('WEAPON LOOK') && text.includes(card.look), '무기의 시각 언어가 실린다');
     assert(text.includes('SUBJECT: ' + S.CORE.mecha.replace('{weapon}', card.en)), '뼈대는 메카 의인화 한 문단');
     assert(text.includes('does NOT hold') && text.includes('Both hands are ordinary human hands'), '무기를 들지 않고 손은 손이다');
@@ -90,10 +91,11 @@ for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for 
   for (const g of S.PARAM_GROUPS) assert(full.includes(g[0].toUpperCase() + ' \u2014 '), g[0] + ' 묶음 줄');
   assert.equal(P.fileName(st, P.cardOf(data, '묠니르')), '묠니르_ink_wash_f.webp');
   assert.equal(P.fileName({ ...st, output: 'awaken' }, P.cardOf(data, '묠니르')), '묠니르_ink_wash_f_awaken.webp');
+  assert.equal(P.fileName({ ...st, output: 'cursed' }, P.cardOf(data, '묠니르')), '묠니르_ink_wash_f_cursed.webp');
   assert.equal(P.fileName({ ...st, output: 'casual', casualIndex: 3 }, P.cardOf(data, '아킬레우스의 창')), '아킬레우스의_창_ink_wash_f_casual3.webp');
   assert.equal(P.build({ card: '없는 무기', params: {} }, data), '', '없는 카드는 빈 문자열');
   /* 파일 이름은 등록기의 규칙과 맞물린다: <카드>_<화풍>_f[_awaken|_casualN].webp */
-  assert(/^[^_]+_[a-z_]+_f(_awaken|_casual\d+)?\.webp$/.test(P.fileName({ ...st, output: 'casual', casualIndex: 2 }, P.cardOf(data, '묠니르'))));
+  assert(/^[^_]+_[a-z_]+_f(_awaken|_cursed|_casual\d+)?\.webp$/.test(P.fileName({ ...st, output: 'casual', casualIndex: 2 }, P.cardOf(data, '묠니르'))));
 }
 /* 일상컷 — 갈래·예시·자세·축·랜덤 */
 {

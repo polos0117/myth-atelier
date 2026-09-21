@@ -5,7 +5,7 @@ const { start, FOLD } = require('./browser-harness.cjs');
 const card = JSON.parse(fs.readFileSync('data/card.json', 'utf8')), N = card.cards.length;
 const skill = JSON.parse(fs.readFileSync('data/skill.json', 'utf8')).skills;
 const IMG = { img: {
-  '묠니르': { byStyle: { glossy_promo: { f: '묠니르_glossy_promo_f.webp', awaken: { f: '묠니르_glossy_promo_f_awaken.webp' },
+  '묠니르': { byStyle: { glossy_promo: { f: '묠니르_glossy_promo_f.webp', awaken: { f: '묠니르_glossy_promo_f_awaken.webp' }, cursed: { f: '묠니르_glossy_promo_f_cursed.webp' },
     casual: { f: ['묠니르_glossy_promo_f_casual1.webp'] }, extra: { f: ['묠니르_glossy_promo_f_extra1.webp'] } } } },
   '아이기스': { byStyle: { cel_anime: { f: '아이기스_cel_anime_f.webp' } } },
 } };
@@ -53,6 +53,9 @@ const IMG = { img: {
     assert.equal(await p.locator('.big img').getAttribute('src'), window_src('묠니르_glossy_promo_f.webp'));
     await p.click('button[data-cut="awaken"]');
     assert.equal(await p.locator('.big img').getAttribute('src'), window_src('묠니르_glossy_promo_f_awaken.webp'), '각성으로 바뀐다');
+    await p.click('button[data-cut="cursed"]');
+    assert.equal(await p.locator('.big img').getAttribute('src'), window_src('묠니르_glossy_promo_f_cursed.webp'), '저주로 바뀐다');
+    assert(facts.includes(skill.thunder_smash.name) && facts.includes('저주') && facts.includes(card.cards.find(c => c.name === '묠니르').curse.text), '저주 줄');
     await p.click('button[data-cut="portrait"]');
     assert.equal(await p.locator('.big img').getAttribute('src'), window_src('묠니르_glossy_promo_f.webp'));
     assert.equal(await p.locator('.gal .cell[data-cut="casual"]').count(), 1, '일상컷 하나');
@@ -69,6 +72,7 @@ const IMG = { img: {
     await p.waitForSelector('.facts');
     assert.equal(await p.locator('.big img').count(), 0);
     assert.equal(await p.locator('button[data-cut="awaken"]').isDisabled(), true);
+    assert.equal(await p.locator('button[data-cut="cursed"]').isDisabled(), true);
     await p.click('.back');
 
     /* 휴대폰 — 가로로 넘치지 않고 두 줄 격자 */
