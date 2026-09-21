@@ -14,7 +14,12 @@
 cover 로 잘라 보여주므로 여기서 굳이 맞추지 않는다.
 
 이미 있고 원본보다 새 것이면 건너뛴다. 그래서 워크플로가 매번 돌아도
-새로 올라온 것만 처리한다.
+새로 올라온 것만 처리한다. 다만 CI 의 체크아웃은 모든 파일의 시각이 같아서
+"덮어쓴 원본" 을 이 규칙으로는 못 알아본다 — 워크플로가 이번 푸시에서 달라진
+파일을 --redo 로 넘겨 주고, 그것은 시각과 상관없이 다시 만든다.
+
+    python3 tools/make-thumbs.py --redo img/a.webp img/b.webp
+    python3 tools/make-thumbs.py --all        # 전부 다시
 
 화풍 견본(style-*.webp)은 목록에 안 쓰이므로 제외한다.
 """
@@ -55,6 +60,13 @@ def build(src: Path, dst: Path) -> int:
 
 def main() -> int:
     check = "--check" in sys.argv
+    redo_all = "--all" in sys.argv
+    redo = set()
+    if "--redo" in sys.argv:
+        for a in sys.argv[sys.argv.index("--redo") + 1:]:
+            if a.startswith("--"):
+                break
+            redo.add(Path(a).name)
     if not SRC.is_dir():
         print("img/ 가 없다", file=sys.stderr)
         return 1
@@ -62,7 +74,7 @@ def main() -> int:
     made = skipped = total = 0
     for src in targets():
         dst = DST / src.name
-        if not stale(src, dst):
+        if not (redo_all or src.name in redo) and not stale(src, dst):
             skipped += 1
             continue
         if check:
