@@ -7,7 +7,7 @@ const skill = JSON.parse(fs.readFileSync('data/skill.json', 'utf8')).skills;
 const IMG = { img: {
   '묠니르': { byStyle: { glossy_promo: { f: '묠니르_glossy_promo_f.webp', awaken: { f: '묠니르_glossy_promo_f_awaken.webp' }, cursed: { f: '묠니르_glossy_promo_f_cursed.webp' },
     casual: { f: ['묠니르_glossy_promo_f_casual1.webp'] }, extra: { f: ['묠니르_glossy_promo_f_extra1.webp'] } } } },
-  '아이기스': { byStyle: { cel_anime: { f: '아이기스_cel_anime_f.webp' } } },
+  '아이기스': { byStyle: { cel_anime: { f: '아이기스_cel_anime_f.webp' }, ink_wash: { f: '아이기스_ink_wash_f.webp' }, photoreal: { f: '아이기스_photoreal_f.webp' } } },
 } };
 (async () => {
   const harness = await start();
@@ -40,6 +40,8 @@ const IMG = { img: {
 
     /* 거른 조건은 브라우저에 남는다 */
     await p.selectOption('#dex-cost', '5');
+    /* 저장은 그린 뒤(useEffect)에 되므로 다시 그려진 것을 보고 나서 새로고침한다 */
+    await p.waitForFunction(n => document.querySelectorAll('.grid .cell').length === n, card.cards.filter(c => c.cost === 5).length);
     await p.reload(); await p.waitForSelector('.grid .cell');
     assert.equal(await p.locator('.grid .cell').count(), card.cards.filter(c => c.cost === 5).length, '조건이 남는다');
     await p.click('#dex-reset');
@@ -65,6 +67,22 @@ const IMG = { img: {
     await p.click('.gal .cell[data-cut="extra"]');
     assert.equal(await p.locator('.big img').getAttribute('src'), window_src('묠니르_glossy_promo_f_extra1.webp'));
     assert((await p.locator('.sec').filter({ hasText: '특별컷 1' }).count()) >= 1, '특별컷 이름표');
+    await p.click('.back'); await p.waitForSelector('.grid .cell');
+
+    /* 화풍이 여럿이면 셀렉트와 썸네일 줄로 고른다 */
+    await p.click('.grid .cell[data-card="아이기스"]');
+    await p.waitForSelector('.style-strip');
+    assert.equal(await p.locator('#dex-style-pick option').count(), 3, '화풍 셀렉트');
+    assert.equal(await p.locator('.style-strip .style-cell').count(), 3, '화풍 썸네일 셋');
+    assert.equal(await p.locator('.sw button, .style-strip button').evaluateAll(es => es.filter(e => e.closest('header')).length), 0, '머리에 단추 벽이 없다');
+    await p.locator('.style-strip .style-cell[data-style="photoreal"]').click();
+    await p.waitForFunction(() => document.querySelector('#dex-style-pick').value === 'photoreal');
+    assert.equal(await p.locator('.big img').getAttribute('src'), window_src('아이기스_photoreal_f.webp'), '썸네일을 누르면 그 화풍');
+    await p.selectOption('#dex-style-pick', 'ink_wash');
+    await p.waitForFunction(() => document.querySelector('.style-strip .style-cell.on').dataset.style === 'ink_wash');
+    assert.equal(await p.locator('.big img').getAttribute('src'), window_src('아이기스_ink_wash_f.webp'), '셀렉트로 골라도 같다');
+    const strip = await p.locator('.style-strip').evaluate(e => ({ ov: getComputedStyle(e).overflowX, w: e.clientWidth }));
+    assert(strip.ov === 'auto', '줄은 옆으로 구른다');
     await p.click('.back'); await p.waitForSelector('.grid .cell');
 
     /* 그림 없는 카드도 열린다 */
