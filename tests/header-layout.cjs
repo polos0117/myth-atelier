@@ -1,7 +1,7 @@
 /* Tab changes must preserve the shared header's geometry, including native scrollbars. */
 const assert=require('node:assert/strict'),{start,FOLD}=require('./browser-harness.cjs');
 /* 화면이 늘면 여기 더한다. (파일, 다 그려졌다는 표시) */
-const PAGES=[['dex.html','.grid .cell'],['index.html','.theme-card']];
+const PAGES=[['dex.html','.grid .cell'],['auto.html','.at-shop'],['index.html','.theme-card']];
 const selectors=['.workspace-heading','.workspace-heading h1','.workspace-nav',
  '.workspace-nav a:nth-child(1)','.workspace-nav a:nth-child(2)','.workspace-nav a:nth-child(3)',
  '.workspace-nav a:nth-child(4)',

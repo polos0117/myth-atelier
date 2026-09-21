@@ -8,6 +8,16 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-09-21 · claude · 오토 배틀러 엔진과 화면 — 2단계
+
+- lib/auto.js — 규칙 전부: 상점·금·이자·벤치·판(앞줄·뒷줄 × 3)·합치기·시너지·싸움(사거리·마나·기술·멈춤·되살기)·라운드·맡긴 손. 상태는 JSON, 난수는 정수 하나
+- data/synergy.json — 아홉 시너지의 켜지는 수·값·범위. 엔진이 읽는 자료
+- tests/auto-sim.cjs — 규칙 73가지. --quick 없이 돌리면 400판 균형 표
+- auto.html · tests/auto-screen.cjs — 상점·판·벤치·시너지·싸움 기록·저장. 화면은 엔진을 부를 뿐
+- lib/words.js — auto.* 낱말
+- tests/header-layout.cjs · tests/theme-screen.cjs — 화면 목록에 auto.html
+- docs/GAME_CONCEPT.md — 정해진 수치와 굴려 본 결과
+
 ## 2026-09-21 · claude · 집·도감·자료·등록 도구 — 1단계
 
 - lib/words.js — 신화 무기 주제의 낱말 표. 항해는 공방·도감·오토 배틀·프롬프트 넷
