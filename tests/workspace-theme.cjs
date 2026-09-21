@@ -11,7 +11,7 @@ vm.runInNewContext(source,{window,document:{documentElement:root,querySelector:(
 while(frames.length)frames.shift()();
 assert.equal(root.dataset.theme,'daylight','new visitors start in the daylight temple');
 assert.equal(properties.get('--atelier-vh'),'704px');
-const themes=['midnight','daylight','blossom','moss','plum','sand','deep','ember'];
+const themes=['midnight','daylight','blossom','moss','plum','sand','deep','ember','pantheon'];
 assert.deepEqual(Array.from(window.AtelierAppearance.themes),themes,'saved theme keys stay stable');
 for(const key of themes){
  window.AtelierAppearance.set('theme',key);
@@ -33,11 +33,11 @@ stored.set('atelier_theme_v1','plum');events.get('storage')({key:'atelier_theme_
 assert.equal(root.dataset.theme,'plum','cross-tab preference survives');
 const marks=ui.slice(ui.indexOf('const CREST_MARK'),ui.indexOf('const MARK_STYLE'));
 const shapes=[...marks.matchAll(/  (\w+): \[([\s\S]*?)\n  \]/g)].map(m=>m[2]);
-assert.equal(shapes.length,8);
-assert.equal(new Set(shapes).size,8,'eight distinct motifs');
+assert.equal(shapes.length,9);
+assert.equal(new Set(shapes).size,9,'nine distinct motifs');
 assert(!/#[0-9a-f]{3,6}/i.test(marks),'motifs inherit palette colors');
 assert(!/지구연방|네오지온|소레스탈|철화단|모노아이|CREATIVE DECK/.test(ui));
 assert(!css.includes("content:'DAYLIGHT"),'theme labels are not CSS content');
 assert(ui.includes("W('workspace.signature')"));
 assert(viewportEvents.has('resize'));assert(events.has('storage'));
-console.log('PASS: 8 armory themes, persistent keys, palette previews, browser chrome and viewport sizing');
+console.log('PASS: 9 armory themes, persistent keys, palette previews, browser chrome and viewport sizing');

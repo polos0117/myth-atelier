@@ -8,6 +8,15 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-09-21 · claude · 웅장하게 — 새김체·금빛 제목·상인방 항해·모서리 괄호, 그리고 아홉째 신전 만신전
+
+- lib/workspace.css — ui-ux-pro-max 로 방향을 잡았다(3D & hyperrealism, 겹그림자·시차·300ms 전환, 체크리스트: 커서·호버 전환·초점·움직임 줄이기·375/768/1024/1440). 팔레트 추천은 핀테크 초록이라 버리고 키아트 색을 지켰다. 새김체(Cinzel)를 눈썹·서명·구획 제목에, 명조(Noto Serif KR)를 제목에 — 둘 다 구글 폰트, 안 오면 시스템 명조. 제목은 흰→금 그라데이션 새김, 제목 아래 금 실선에 마름모, 항해는 위아래 금 실선 든 상인방에 현재 칸이 은은히 빛난다. 카드·테마 카드엔 금 모서리 괄호와 겹그림자, 호버에 3~4px 떠오르며 금 테와 후광. 어두운 신전은 가장자리 비네트. 홀은 더 높고(최대 640px) 제목이 금빛, 바닥에 안개, 고리에 안쪽 빛. 초점 테두리는 금. 아홉째 신전 `pantheon`(만신전): 흑요석 바탕에 금, 여섯 쌍 AA 대비 통과. 홀은 검은 유리 기둥에 금 갓, 금 불꽃
+- lib/workspace-ui.js — 만신전 문장(돔·기둥 넷·오쿨루스·월계관)
+- lib/words.js — 만신전 이름·표·메모, '여덟 신전' → '아홉 신전'
+- lib/workspace-theme.js — 만신전 크롬색
+- index.html — 홀에 안개 층. 네 화면에 구글 폰트 링크, `?v=myth4`
+- tests/theme-screen.cjs, tests/workspace-theme.cjs — 여덟 → 아홉
+
 ## 2026-09-21 · claude · UI/UX Pro Max skill 들여오기
 
 - .claude/skills/ui-ux-pro-max/ — nextlevelbuilder/ui-ux-pro-max-skill v2.13.0 (MIT, LICENSE 동봉) 의 핵심 skill 만 복사. SKILL.md + 참고문서 + CSV 자료(스타일 79·팔레트 192·폰트 74·UX 규칙 119·아이콘·차트·스택) + 표준 라이브러리만 쓰는 검색 스크립트. 딸려오는 sub-skill 여섯(banner·brand·design·design-system·slides·ui-styling)은 안 넣었다. SKILL.md 의 `${CLAUDE_PLUGIN_ROOT}` 경로 열한 곳을 저장소 상대경로(`python3 .claude/skills/ui-ux-pro-max/scripts/search.py`)로 바꿨다 — 플러그인이 아니라 저장소에 든 skill 이라서. `/plugin` 이 안 되는 웹·모바일 세션에서도 붙는다

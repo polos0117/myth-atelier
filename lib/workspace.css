@@ -4,6 +4,7 @@
   --ink:var(--text);--dim:var(--muted);--plate:var(--accent);
   --ui-font:13px;--ui-small:12px;--ui-height:40px;--ui-pad:8px;--ui-gap:8px;--gap:12px;
   --sigil:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 44' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='17' cy='15' r='11.5' stroke-dasharray='5 4'/%3E%3Cpath d='M17 3v31M11 27h12M17 38v3M7 43h20'/%3E%3Cpath d='M17 3l-2.5 5h5Z' fill='%23000' stroke='none'/%3E%3C/svg%3E");
+  --inscription:'Cinzel','Cormorant Garamond','Noto Serif KR',Georgia,serif;
   --display:'Noto Serif KR','Apple Myungjo','Nanum Myeongjo','Songti SC','Songti TC',Georgia,'Times New Roman',serif;
 }
 /* 여덟 신전 — 신화권마다 둘(밤·낮). 열쇠는 저장된 선호와 맞물려 그대로 둔다.
@@ -64,6 +65,13 @@
   --signal:#f2c96b;--gold:#e8c36a;--ok:#b6d69a;--warn:#f2c96b;--pattern:#ff8d6e10;--halo:#ff8d6e24;
   --shadow:0 10px 30px #00000066;
 }
+:root[data-theme="pantheon"],[data-theme-preview="pantheon"] {
+  color-scheme:dark;
+  --bg:#0b0a0d;--deck:#121016;--card:#191620;--card2:#221d2b;--text:#f4ecd8;
+  --muted:#b8ad98;--line:#3d3448;--accent:#e2c275;--accent-soft:#2c2536;--on-accent:#1c1405;
+  --signal:#f0e6c8;--gold:#e2c275;--ok:#9fd9b0;--warn:#f0c674;--pattern:#e2c27514;--halo:#e2c27530;
+  --shadow:0 1px 0 #ffffff0a inset,0 18px 48px #000000a0;
+}
 :root[data-density="relaxed"] {
   --ui-font:15px;--ui-small:13px;--ui-height:46px;--ui-pad:12px;--ui-gap:10px;--gap:14px;
 }
@@ -74,21 +82,22 @@ button,select,summary {touch-action:manipulation}
 button,a,select,input,textarea,summary {scroll-margin-block:16px}
 button:not(:disabled),select,summary {cursor:pointer}
 button:disabled {opacity:.45;cursor:default}
+button,select,.cell,.lab-link,.theme-card,.style-cell,.at-card {transition:background-color .2s,border-color .2s,color .2s,box-shadow .25s,transform .25s,filter .2s}
 button,input,select,textarea {accent-color:var(--accent)}
 button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible {
-  outline:2px solid var(--accent);outline-offset:3px;
+  outline:2px solid var(--gold);outline-offset:3px;
 }
 .sr-only {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .workspace-header {flex:none;margin-bottom:18px}
 .workspace-nav-row {display:flex;gap:6px;align-items:stretch}
-.workspace-nav {display:flex;gap:5px;padding:5px;margin:0;background:var(--card);border:1px solid var(--line);border-radius:8px;flex-wrap:nowrap;flex:1 1 auto;min-width:0}
+.workspace-nav {display:flex;gap:5px;padding:5px;margin:0;background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:8px;box-shadow:inset 0 1px 0 var(--gold),inset 0 -1px 0 var(--gold),var(--shadow);flex-wrap:nowrap;flex:1 1 auto;min-width:0}
 .header-fold {flex:0 0 44px;min-height:44px;padding:0;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--muted);font:inherit;font-size:14px;cursor:pointer}
 .header-fold:hover {color:var(--text);border-color:var(--accent)}
 .workspace-header.folded .workspace-heading,.workspace-header.folded .appearance-controls {display:none}
 .workspace-header.folded {margin-bottom:10px}
-.workspace-nav a {flex:1 1 0;display:flex;align-items:center;justify-content:center;min-width:0;min-height:44px;padding:0 2px;border:0;border-radius:5px;font-size:12px;font-weight:650;letter-spacing:.02em;opacity:1;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none}
+.workspace-nav a {flex:1 1 0;display:flex;align-items:center;justify-content:center;min-width:0;min-height:44px;padding:0 2px;border:0;border-radius:5px;font-size:12px;font-weight:700;letter-spacing:.08em;transition:background-color .2s,color .2s,box-shadow .2s;opacity:1;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none}
 @media (max-width:599px) { .workspace-nav {gap:2px;padding:4px} .workspace-nav a {font-size:11px;letter-spacing:-.02em} .header-fold {flex-basis:40px} }
-.workspace-nav a[aria-current="page"] {color:var(--text);background:var(--accent-soft);box-shadow:inset 0 -2px var(--gold)}
+.workspace-nav a[aria-current="page"] {color:var(--text);background:var(--accent-soft);box-shadow:inset 0 -2px var(--gold),0 0 18px var(--halo)}
 /* Reserve readable space for longer labels while keeping all four tabs on one row. */
 .workspace-nav a[href="index.html"] {flex-grow:1.25}
 .workspace-nav a[href="prompt.html"] {flex-grow:1.65}
@@ -96,18 +105,21 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
 .appearance-controls label {display:flex;align-items:center;gap:6px;white-space:nowrap}
 .workspace-header .appearance-controls select {width:auto;min-width:0;max-width:180px;height:44px;min-height:44px;padding:7px 26px 7px 9px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--text);font:600 12px/1.35 'Pretendard','Apple SD Gothic Neo','Noto Sans KR',system-ui,sans-serif}
 .theme-dot {width:7px;height:7px;flex:none;border-radius:50%;background:var(--signal);box-shadow:0 0 0 3px var(--accent-soft)}
-.workspace-heading {display:flex;justify-content:space-between;align-items:center;gap:18px;height:136px;padding:12px 0 18px;position:relative}
+.workspace-heading {display:flex;justify-content:space-between;align-items:center;gap:18px;height:150px;padding:12px 0 18px;position:relative}
 .workspace-title {display:flex;align-items:center;gap:14px;min-width:0}
 .workspace-title>div {min-width:0}
-.crest-mark {width:60px;height:60px;padding:8px;flex:none;color:var(--accent);background:var(--accent-soft);border:1px solid var(--gold);border-radius:8px;box-shadow:inset 0 0 0 3px var(--card)}
-.eyebrow {font:700 10px/1.6 ui-monospace,monospace;letter-spacing:.16em;color:var(--accent)}
+.crest-mark {width:64px;height:64px;padding:9px;flex:none;color:var(--accent);background:radial-gradient(circle at 50% 30%,var(--accent-soft),var(--card));border:1px solid var(--gold);border-radius:8px;box-shadow:inset 0 0 0 3px var(--card),0 0 0 1px var(--line),0 8px 24px var(--halo)}
+.eyebrow {font:600 11px/1.6 var(--inscription);letter-spacing:.28em;text-transform:uppercase;color:var(--gold)}
 .eyebrow span {color:var(--muted);font-weight:400}
-.workspace-heading h1 {margin:3px 0 4px;font:700 clamp(24px,3.7vw,34px)/1.2 var(--display);letter-spacing:-.02em;white-space:nowrap}
+.workspace-heading h1 {margin:3px 0 4px;font:700 clamp(26px,4vw,42px)/1.15 var(--display);letter-spacing:-.01em;white-space:nowrap;color:var(--text);background:linear-gradient(180deg,var(--text) 0%,var(--text) 45%,var(--gold) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-shadow:none}
 .workspace-heading p {margin:0;min-height:36px;color:var(--muted);font-size:12px;line-height:18px;word-break:keep-all}
-.crest-signature {display:flex;flex-direction:column;align-items:flex-end;gap:7px;flex:none;font:10px ui-monospace,monospace;letter-spacing:.12em;color:var(--muted)}
-.crest-name {color:var(--accent);font-weight:700;letter-spacing:.04em}
+.crest-signature {display:flex;flex-direction:column;align-items:flex-end;gap:7px;flex:none;font:10px var(--inscription);letter-spacing:.18em;color:var(--muted)}
+.crest-name {color:var(--gold);font:700 12px var(--display);letter-spacing:.04em}
 .crest-signature i {width:100px;height:4px;border-radius:0;background:linear-gradient(to right,var(--accent) 0 52%,var(--card) 52% 57%,var(--signal) 57% 82%,var(--card) 82% 87%,var(--gold) 87%)}
 .crest-signature b {font-size:8px;font-weight:500;letter-spacing:.18em}
+/* 어두운 신전은 화면 가장자리가 어둠에 잠긴다 */
+:is([data-theme="midnight"],[data-theme="moss"],[data-theme="plum"],[data-theme="deep"],[data-theme="ember"],[data-theme="pantheon"]) body::before {content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 80% 70% at 50% 35%,transparent 50%,#0000008c 100%)}
+:is([data-theme="midnight"],[data-theme="moss"],[data-theme="plum"],[data-theme="deep"],[data-theme="ember"],[data-theme="pantheon"]) body > * {position:relative;z-index:1}
 /* 신전 배경 — 제단 위 후광 하나, 기둥처럼 선 세로 띠, 바닥 쪽으로 가라앉는 그늘.
    밤 신전은 별을 뿌리고, 낮 신전은 대리석 결을 비스듬히 넣는다 */
 body {background-color:var(--bg);background-image:
@@ -115,7 +127,7 @@ body {background-color:var(--bg);background-image:
   repeating-linear-gradient(90deg,transparent 0 118px,var(--pattern) 118px 120px),
   linear-gradient(180deg,transparent 60%,var(--pattern));
   background-attachment:fixed}
-:is([data-theme="midnight"],[data-theme="plum"],[data-theme="deep"]) body {background-image:
+:is([data-theme="midnight"],[data-theme="plum"],[data-theme="deep"],[data-theme="pantheon"]) body {background-image:
   radial-gradient(ellipse 70% 40% at 50% -6%,var(--halo),transparent 70%),
   radial-gradient(var(--pattern) 1px,transparent 1.5px),
   repeating-linear-gradient(90deg,transparent 0 118px,var(--pattern) 118px 120px);
@@ -155,7 +167,7 @@ body {background-color:var(--bg);background-image:
 .collection-count {color:var(--accent);font:700 12px ui-monospace,monospace;margin-left:8px;white-space:nowrap}
 .dex-page .grid {grid-template-columns:repeat(auto-fill,minmax(155px,1fr))}
 .dex-page.dex-compact .grid {grid-template-columns:repeat(auto-fill,minmax(112px,1fr))}
-.dex-page .cell {border:1px solid var(--rule);border-radius:6px;background:var(--card);box-shadow:var(--shadow);transition:transform .18s,border-color .18s}
+.dex-page .cell {border:1px solid var(--rule);border-radius:6px;background:var(--card);box-shadow:var(--shadow)}
 .dex-page .face {background:var(--card2)}
 .dex-page .ph {flex-direction:column;gap:12px}
 .dex-page .ph::before,.at-card .face .ph::before {content:'';display:block;flex:none;width:34px;height:44px;background:var(--line);-webkit-mask:var(--sigil) center/contain no-repeat;mask:var(--sigil) center/contain no-repeat;opacity:.9}
@@ -178,7 +190,7 @@ body {background-color:var(--bg);background-image:
 .prompt-page .panel-head span {color:var(--muted);font-size:11px}
 .prompt-page .form-section {display:grid;grid-template-columns:minmax(0,1fr);gap:16px;padding:16px 0}
 .studio-setup,.studio-editor {min-width:0}
-.section-caption {font-size:11px;font-weight:750;letter-spacing:.05em;color:var(--accent);margin:0 0 10px;display:flex;gap:9px;align-items:center}
+.section-caption {font:600 11px var(--inscription);letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin:0 0 10px;display:flex;gap:9px;align-items:center}
 .section-caption b {font:10px ui-monospace,monospace;padding:3px 6px;border:1px solid var(--line);border-radius:4px}
 .prompt-page .field {padding:var(--ui-pad);background:var(--card);border-radius:10px}
 .prompt-page .field label,.prompt-page .param-card label {font-size:var(--ui-small);line-height:1.5}
@@ -233,7 +245,7 @@ body {background-color:var(--bg);background-image:
 .prompt-page .param-actions {padding:0;grid-template-columns:repeat(2,minmax(0,1fr))}
 .prompt-page .controls {position:static;padding:12px 16px;border:1px solid var(--line);border-radius:12px;background:var(--deck);box-shadow:var(--shadow);grid-template-columns:minmax(0,1fr) auto;gap:10px}
 .prompt-page .controls button {min-height:46px}
-.prompt-page .controls .primary {background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.prompt-page .controls .primary {background:linear-gradient(180deg,var(--gold),var(--accent));color:var(--on-accent);border-color:var(--gold);box-shadow:0 6px 20px var(--halo)}
 :is([data-theme="daylight"],[data-theme="blossom"],[data-theme="sand"]) .prompt-page .controls .primary {color:#fff}
 .prompt-page .status {padding:8px 4px;font-size:12px;overflow-wrap:anywhere}
 .prompt-page .prompt-view {margin-top:12px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
@@ -247,7 +259,8 @@ body {background-color:var(--bg);background-image:
 @media (hover:hover) {
   .workspace-nav a:hover,button:not(:disabled):hover {filter:brightness(1.12)}
   :is([data-theme="daylight"],[data-theme="blossom"],[data-theme="sand"]) button:not(:disabled):hover {filter:brightness(.96)}
-  .dex-page .cell:hover {transform:translateY(-3px);border-color:var(--accent)}
+  .dex-page .cell:hover {transform:translateY(-4px);border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 22px 44px #0006,0 0 32px var(--halo)}
+  .lab-link:hover,.theme-card:hover {transform:translateY(-3px);border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 24px 48px #0005,0 0 32px var(--halo)}
 }
 /* Fold inner display: use the added width without squeezing fields into tiny columns. */
 @media (min-width:680px) {
@@ -300,7 +313,8 @@ body {background-color:var(--bg);background-image:
   .workspace-nav a {font-size:11px}
 }
 @media (prefers-reduced-motion:reduce) {*,*::before,*::after {scroll-behavior:auto!important;transition:none!important}}
-.workspace-heading::after {content:'';position:absolute;bottom:8px;left:0;width:66px;height:3px;border-radius:2px;background:linear-gradient(to right,var(--accent) 0 46%,transparent 46% 53%,var(--signal) 53% 79%,transparent 79% 86%,var(--gold) 86%)}
+/* 제목 아래 새김선 — 금 실선 가운데 마름모 */
+.workspace-heading::after {content:'';position:absolute;bottom:8px;left:0;width:120px;height:9px;background:linear-gradient(var(--gold),var(--gold)) 0 50%/48px 1px no-repeat,linear-gradient(var(--gold),var(--gold)) 100% 50%/48px 1px no-repeat,conic-gradient(from 45deg,var(--gold) 0 25%,transparent 0 50%,var(--gold) 0 75%,transparent 0) 50% 50%/9px 9px no-repeat;opacity:.9}
 .build-stamp {display:block;margin:10px 0 0;text-align:right;color:var(--muted);font:10px/1.5 ui-monospace,monospace;opacity:.8}
 @media (pointer:coarse) {
   .prompt-page .lab-lock {min-height:44px;padding-right:50px}
@@ -373,17 +387,20 @@ html:has(.dex-page) {height:100%;overflow:hidden;overscroll-behavior:none}
 .patch-entry ul {margin:0;padding-left:17px;color:var(--muted);font-size:12.5px;line-height:1.75}
 @media (max-width:599px) { .patch-panel {padding:15px} .patch-list {max-height:60vh} }
 .lab-links {display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px 0 36px}
-.lab-link {position:relative;padding:24px;background:var(--card);border:1px solid var(--line);border-top:2px solid var(--gold);border-radius:8px;color:var(--text);text-decoration:none;box-shadow:var(--shadow)}
-.lab-link>small {display:block;color:var(--accent);font:700 11px ui-monospace,monospace;letter-spacing:.12em}
-.lab-link h3 {font:700 21px/1.3 var(--display);letter-spacing:-.01em;margin:12px 0 7px}
+.lab-link {position:relative;padding:28px;background:linear-gradient(180deg,var(--card),var(--deck));border:1px solid var(--line);border-top:2px solid var(--gold);border-radius:8px;color:var(--text);text-decoration:none;box-shadow:var(--shadow)}
+.lab-link::before,.lab-link::after,.theme-card::before,.theme-card::after {content:'';position:absolute;width:14px;height:14px;border:1px solid var(--gold);pointer-events:none;opacity:.8}
+.lab-link::before,.theme-card::before {left:7px;top:7px;border-right:0;border-bottom:0}
+.lab-link::after,.theme-card::after {right:7px;bottom:7px;border-left:0;border-top:0}
+.lab-link>small {display:block;color:var(--gold);font:600 11px var(--inscription);letter-spacing:.24em}
+.lab-link h3 {font:700 26px/1.25 var(--display);letter-spacing:-.01em;margin:12px 0 8px}
 .lab-link p {font-size:13px;color:var(--muted);max-width:85%;line-height:1.7;margin:0}
 .lab-link .lab-arrow {position:absolute;right:22px;bottom:22px;width:34px;height:34px;display:grid;place-items:center;background:var(--accent-soft);border:1px solid var(--gold);border-radius:4px;color:var(--accent)}
 .theme-gallery-head {display:flex;justify-content:space-between;align-items:baseline;gap:15px;margin-bottom:15px}
-.theme-gallery-head h2 {font:700 18px/1.3 var(--display);margin:0}
+.theme-gallery-head h2 {font:700 22px/1.3 var(--display);margin:0}
 .theme-gallery-head p {font-size:12px;color:var(--muted);margin:0}
-.theme-gallery {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:24px}
+.theme-gallery {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:24px}
 .prompt-page .theme-card {position:relative;min-width:0;text-align:left;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--text);padding:16px;min-height:160px;box-shadow:var(--shadow)}
-.theme-card .theme-myth {display:block;margin:0 0 6px;font:700 10px/1 ui-monospace,monospace;letter-spacing:.14em;color:var(--gold)}
+.theme-card .theme-myth {display:block;margin:0 0 6px;font:600 10px/1 var(--inscription);letter-spacing:.2em;color:var(--gold)}
 .theme-card[aria-pressed="true"] {outline:3px solid var(--accent);outline-offset:2px}
 .theme-card .crest-mark {width:40px;height:40px;padding:5px;border-radius:6px;margin-bottom:12px}
 .theme-card strong {display:block;font:700 14px/1.3 var(--display)}
@@ -405,11 +422,12 @@ html:has(.dex-page) {height:100%;overflow:hidden;overscroll-behavior:none}
 /* 신전 홀 — 집 화면 첫 칸. CSS 3D 하나로 돈다: 기둥 여섯이 뒤로 물러나고, 바닥 격자가
    앞으로 흐르고, 금 고리 셋이 제단 위를 돌고, 올라온 카드가 고리 위를 천천히 돈다.
    그림은 그림 저장소 썸네일이라 없으면 이름표로 바꿔 세운다. 손이 닿으면 홀이 살짝 기운다 */
-.hall {position:relative;height:clamp(340px,52vh,560px);margin:0 0 20px;border:1px solid var(--line);border-top:2px solid var(--gold);border-radius:8px;overflow:hidden;
+.hall {position:relative;height:clamp(380px,60vh,640px);margin:0 0 20px;border:1px solid var(--line);border-top:2px solid var(--gold);border-radius:8px;overflow:hidden;
   background:linear-gradient(180deg,var(--deck) 0%,var(--bg) 55%,var(--card2) 100%);box-shadow:var(--shadow);perspective:1100px;perspective-origin:50% 42%;
   --tx:0deg;--ty:0deg;contain:layout paint}
 .hall-scene {position:absolute;inset:0;transform-style:preserve-3d;transform:rotateX(var(--tx)) rotateY(var(--ty));transition:transform .35s ease-out;will-change:transform}
 .hall-halo {position:absolute;left:50%;top:-14%;width:120%;height:70%;transform:translateX(-50%);background:radial-gradient(ellipse at 50% 40%,var(--halo),transparent 62%);pointer-events:none}
+.hall-fog {position:absolute;left:0;right:0;bottom:0;height:45%;background:linear-gradient(transparent,var(--halo));pointer-events:none;mix-blend-mode:screen}
 .hall-floor {position:absolute;left:-60%;right:-60%;bottom:-30%;height:90%;transform-origin:50% 100%;transform:rotateX(72deg);
   background-image:linear-gradient(var(--gold) 1px,transparent 1px),linear-gradient(90deg,var(--gold) 1px,transparent 1px);background-size:96px 96px;
   opacity:.16;animation:hall-flow 9s linear infinite;mask-image:linear-gradient(to top,#000 20%,transparent 95%);-webkit-mask-image:linear-gradient(to top,#000 20%,transparent 95%)}
@@ -426,14 +444,14 @@ html:has(.dex-page) {height:100%;overflow:hidden;overscroll-behavior:none}
 .hall-col:nth-child(4) {right:19%;transform:translateZ(-80px) scale(.9)}
 .hall-col:nth-child(5) {left:29%;transform:translateZ(-260px) scale(.7);opacity:.6}
 .hall-col:nth-child(6) {right:29%;transform:translateZ(-260px) scale(.7);opacity:.6}
-.hall-rings {position:absolute;left:50%;top:60%;width:0;height:0;transform-style:preserve-3d}
-.hall-ring {position:absolute;left:50%;top:50%;border:1px solid var(--gold);border-radius:50%;transform-style:preserve-3d;opacity:.55;
-  animation:hall-spin linear infinite;box-shadow:0 0 18px var(--halo)}
+.hall-rings {position:absolute;left:50%;top:54%;width:0;height:0;transform-style:preserve-3d}
+.hall-ring {position:absolute;left:50%;top:50%;border:1px solid var(--gold);border-radius:50%;transform-style:preserve-3d;opacity:.65;
+  animation:hall-spin linear infinite;box-shadow:0 0 24px var(--halo),inset 0 0 24px var(--halo)}
 .hall-ring:nth-child(1) {width:420px;height:420px;margin:-210px 0 0 -210px;--rx:74deg;animation-duration:38s;border-style:dashed}
 .hall-ring:nth-child(2) {width:300px;height:300px;margin:-150px 0 0 -150px;--rx:74deg;animation-duration:26s;animation-direction:reverse;border-width:2px}
 .hall-ring:nth-child(3) {width:180px;height:180px;margin:-90px 0 0 -90px;--rx:74deg;animation-duration:17s;border-style:dotted}
 @keyframes hall-spin {from {transform:rotateX(var(--rx)) rotateZ(0)} to {transform:rotateX(var(--rx)) rotateZ(360deg)}}
-.hall-carousel {position:absolute;left:50%;top:52%;width:0;height:0;transform-style:preserve-3d;animation:hall-turn 80s linear infinite}
+.hall-carousel {position:absolute;left:50%;top:44%;width:0;height:0;transform-style:preserve-3d;animation:hall-turn 80s linear infinite}
 @keyframes hall-turn {to {transform:rotateY(-360deg)}}
 .hall-card {position:absolute;left:-52px;top:-78px;width:104px;height:156px;transform:rotateY(var(--a)) translateZ(var(--r,300px));
   backface-visibility:hidden;-webkit-backface-visibility:hidden;border:1px solid var(--gold);border-radius:5px;overflow:hidden;background:var(--card);
@@ -446,11 +464,11 @@ html:has(.dex-page) {height:100%;overflow:hidden;overscroll-behavior:none}
 .hall-mote {position:absolute;bottom:-4%;width:4px;height:4px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold);opacity:0;
   animation:hall-rise linear infinite;animation-duration:var(--d,9s);animation-delay:var(--w,0s);left:var(--x,50%)}
 @keyframes hall-rise {0% {transform:translateY(0) scale(.6);opacity:0} 12% {opacity:.9} 100% {transform:translateY(-110vh) translateY(60px) scale(1.1);opacity:0}}
-.hall-copy {position:absolute;left:0;right:0;bottom:0;padding:22px 24px 20px;background:linear-gradient(transparent,var(--bg) 72%);pointer-events:none}
+.hall-copy {position:absolute;left:0;right:0;bottom:0;padding:22px 24px 20px;background:linear-gradient(transparent,var(--bg) 62%);pointer-events:none}
 .hall-copy > * {pointer-events:auto}
 .hall-copy .eyebrow {margin-bottom:6px}
-.hall-copy h2 {margin:0 0 8px;font:700 clamp(24px,4.2vw,40px)/1.2 var(--display);letter-spacing:-.02em;text-shadow:0 2px 12px var(--bg)}
-.hall-copy p {margin:0;max-width:600px;color:var(--muted);font-size:14px;line-height:1.75}
+.hall-copy h2 {margin:0 0 10px;font:700 clamp(28px,5vw,52px)/1.15 var(--display);letter-spacing:-.01em;color:var(--text);background:linear-gradient(180deg,var(--text) 30%,var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 2px 12px var(--bg))}
+.hall-copy p {margin:0;max-width:640px;color:var(--muted);font-size:15px;line-height:1.8}
 .hall-copy .lab-tag {margin-top:12px}
 @media (max-width:599px) {
   .hall {height:clamp(300px,58vh,440px);perspective:800px}
@@ -528,3 +546,16 @@ html:has(.dex-page) {height:100%;overflow:hidden;overscroll-behavior:none}
 [data-theme="plum"] .hall-col::before {left:-16px;right:-16px;top:-14px;height:20px;border-radius:50% 50% 8% 8%/100% 100% 20% 20%;background:radial-gradient(ellipse at 50% 100%,#ffd9ea,#f0a6c8 55%,#b06090 100%);box-shadow:none}
 [data-theme="plum"] .hall-col::after {left:-6px;right:-6px;height:12px;border-radius:40% 40% 0 0;background:#2a1e50;box-shadow:inset 0 2px 0 var(--gold)}
 [data-theme="plum"] .hall-mote {width:5px;height:5px;background:#ffd4e6;box-shadow:0 0 8px #f0a6c8,0 0 20px #f0a6c866;animation-name:hall-firefly;animation-duration:calc(var(--d,9s) * 2.6)}
+
+/* 만신전 — 유리처럼 검은 흑요석 기둥에 금 갓. 금 불꽃이 천천히 오른다 */
+[data-theme="pantheon"] .hall-col {border-radius:3px 3px 0 0;width:38px;background:linear-gradient(90deg,#050408,#2a2433 42%,#3a3345 50%,#2a2433 58%,#050408);box-shadow:inset 0 0 0 1px #4a4058,inset 6px 0 14px #ffffff10}
+[data-theme="pantheon"] .hall-col::before {left:-14px;right:-14px;height:12px;background:linear-gradient(180deg,#f3dc9a,#b8913d);box-shadow:0 -5px 0 -1px #f3dc9a,0 16px 0 -4px #b8913d}
+[data-theme="pantheon"] .hall-col::after {left:-10px;right:-10px;height:16px;background:linear-gradient(180deg,#b8913d,#6a5220);border-radius:2px}
+[data-theme="pantheon"] .hall-mote {width:5px;height:5px;background:#fff1c2;box-shadow:0 0 10px #e2c275,0 0 24px #e2c27588;animation-duration:calc(var(--d,9s) * 2)}
+[data-theme="pantheon"] .hall-floor {opacity:.28}
+@media (max-width:599px) {
+  .workspace-heading {height:112px}
+  .workspace-heading h1 {font-size:clamp(22px,6vw,28px)}
+  .hall-copy h2 {font-size:clamp(24px,7vw,32px)}
+  .theme-gallery {grid-template-columns:repeat(2,minmax(0,1fr))}
+}
