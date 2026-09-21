@@ -80,6 +80,13 @@ node tests/auto-sim.cjs --quick  # 싸움 규칙 (빼면 균형 표)
 node tests/prompt-engine.cjs     # 프롬프트가 화면 없이 나오나
 ```
 
+브라우저 검사에는 준비물이 하나 더 있다. 생성기의 체형·헤어 견본 그림은 앞 저장소(atelier)가 Pages 에 올린
+png 를 쓰는데, 검사에서는 harness 가 그 주소를 `img/figure-previews/` 로 돌린다:
+
+```bash
+mkdir -p img/figure-previews && cp <atelier>/assets/figures/*-female-*.png img/figure-previews/
+```
+
 브라우저 검사는 `tests/browser-harness.cjs` 를 쓴다. CDN(esm.sh)이 막힌 곳에서는 `ESM_DIR` 에
 preact·htm 이 든 `node_modules` 경로를, 브라우저는 `CHROMIUM_PATH` 로 준다. Playwright 는
 `NODE_PATH` 로 찾는다.

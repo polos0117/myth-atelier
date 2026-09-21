@@ -30,6 +30,30 @@ html,body {margin:0;padding:0}
 .pm-group summary i {font-style:normal;font-size:11px;color:var(--accent);margin-left:auto}
 .pm-group .pm-note {margin:0 0 8px}
 .pm-group .pm-id select,.pm-group .pm-id input {background:var(--card)}
+.pm-param {display:grid;gap:8px;min-width:0}
+.pm-param.wide {grid-column:1/-1}
+.pm-extras {display:grid;gap:6px}
+.pm-check {display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card2);font-size:12px;color:var(--text);cursor:pointer}
+.pm-check input {width:18px;height:18px;margin:2px 0 0;flex:none}
+.pm-check b {display:block;font-size:12px}
+.pm-check small {display:block;color:var(--muted);font-size:11px;line-height:1.5}
+/* 팔레트 — 색 동그라미. 자동은 빗금, 직접 입력은 무지개 */
+.pm-colors {display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:6px}
+.pm-color {display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0;min-height:70px;padding:6px 3px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--text);font:inherit;cursor:pointer}
+.pm-color i {display:block;flex:none;width:26px;height:26px;border-radius:50%;box-shadow:inset 0 0 0 1px #0004;background:var(--card2)}
+.pm-color.auto i {background:repeating-linear-gradient(45deg,var(--card2) 0 4px,var(--line) 4px 8px)}
+.pm-color.custom i {background:conic-gradient(#e08aa8,#e3c574,#7fd8c0,#2f6fd0,#7e5aa8,#e08aa8)}
+.pm-color span {font-size:10px;line-height:13px;text-align:center;overflow-wrap:anywhere}
+.pm-color[aria-pressed="true"] {border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 -3px var(--accent)}
+/* 견본 그림 — 가로로 구른다 */
+.pm-figures-head {display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11px;color:var(--muted)}
+.pm-figures-head .pm-btn {min-height:36px;padding:5px 10px;font-size:11px}
+.pm-figures-head .pm-btn[aria-pressed="true"] {border-color:var(--accent);color:var(--accent)}
+.pm-figure-row {display:flex;gap:8px;overflow-x:auto;overscroll-behavior-x:contain;padding:4px 2px 10px;scrollbar-width:thin;scroll-snap-type:x proximity}
+.pm-figure {flex:0 0 84px;width:84px;height:158px;padding:5px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;border:1px solid var(--line);border-radius:9px;background:var(--card);color:var(--muted);font:inherit;cursor:pointer;scroll-snap-align:start;overflow:hidden}
+.pm-figure img {display:block;width:auto;height:auto;max-width:72px;max-height:112px;object-fit:contain;pointer-events:none}
+.pm-figure b {display:block;width:72px;font-size:10px;line-height:13px;text-align:center;white-space:normal;overflow-wrap:anywhere;max-height:26px;overflow:hidden}
+.pm-figure[aria-pressed="true"] {border-color:var(--accent);background:var(--accent-soft);color:var(--text);box-shadow:inset 0 -3px var(--accent)}
 .pm-out {display:grid;gap:8px}
 .pm-out textarea {width:100%;min-height:360px;padding:14px;border:1px solid var(--line);border-radius:10px;background:var(--card2);color:var(--text);font:13px/1.7 ui-monospace,monospace;resize:vertical}
 .pm-bar {display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12px;color:var(--muted)}
@@ -125,8 +149,17 @@ function App() {
         <${Select} id="pm-style" label=${W('prompt.style')} value=${st.style} options=${S.STYLES.map(s => [s[0], s[1]])} onChange=${v => update({ style: v })} />
         <${Select} id="pm-output" label=${W('prompt.output')} value=${st.output} options=${Object.keys(S.OUTPUTS).map(k => [k, S.OUTPUTS[k].name])} onChange=${v => update({ output: v })} />
         <p class="pm-note">${S.OUTPUTS[st.output].note}</p>
-        ${st.output === 'portrait' && c && html`<${Select} id="pm-action" label=${W('prompt.action')} value=${st.action || S.ACTIONS[c.kind][0][0]}
-          options=${S.ACTIONS[c.kind].map(a => [a[0], a[1]])} onChange=${v => update({ action: v })} />`}
+        <h2>${W('prompt.design')}</h2>
+        <p class="pm-note">${W('prompt.design.note')}</p>
+        <${Select} id="pm-design" label=${W('prompt.design.kind')} value=${st.design || 'mecha'} options=${S.DESIGNS.map(d => [d[0], d[1] + ' — ' + d[2]])} onChange=${v => update({ design: v })} />
+        <div class="pm-extras" role="group" aria-label=${W('prompt.extras')}>
+          ${S.EXTRAS.map(([k, ko, note]) => html`<label key=${k} class="pm-check" title=${note}>
+            <input type="checkbox" id=${'pm-extra-' + k} checked=${!!(st.extras && st.extras[k])}
+              onChange=${e => update({ extras: { ...(st.extras || {}), [k]: e.currentTarget.checked } })} />
+            <span><b>${ko}</b><small>${note}</small></span></label>`)}
+        </div>
+        ${st.output === 'portrait' && c && html`<${Select} id="pm-action" label=${W('prompt.posture')} value=${st.action || ''}
+          options=${[['', W('prompt.posture.none')], ...S.ACTIONS[c.kind].map(a => [a[0], a[1]])]} onChange=${v => update({ action: v })} />`}
         ${st.output === 'casual' && html`<label for="pm-casual">${W('prompt.casual.index')}
           <input id="pm-casual" type="number" min="1" max="9" value=${st.casualIndex} onInput=${e => update({ casualIndex: Math.max(1, +e.currentTarget.value || 1) })} /></label>`}
         ${st.output === 'awaken' && html`<p class="pm-note">${W('prompt.awaken.note')}</p>`}
@@ -140,11 +173,31 @@ function App() {
           return html`<details class="pm-group" key=${gk} data-group=${gk} open=${gi === 0}>
             <summary><span>${gko}</span><i>${set ? W('prompt.group.set', { n: set }) : ''}</i></summary>
             <p class="pm-note">${gnote}</p>
-            <div class="pm-id">${mine.map(p => html`<${Select} key=${p.key} id=${'pm-' + p.key} label=${p.ko} value=${st.params[p.key] || ''}
-                options=${p.options} onChange=${v => update({ params: { ...st.params, [p.key]: v } })} />
-              ${st.params[p.key] === '__custom__' && html`<label class="custom" for=${'pm-' + p.key + '-custom'}>${p.ko} · ${W('prompt.custom')}
-                <input id=${'pm-' + p.key + '-custom'} type="text" value=${st.params[p.key + '_custom'] || ''}
-                  onInput=${e => update({ params: { ...st.params, [p.key + '_custom']: e.currentTarget.value } })} /></label>`}`)}</div>
+            <div class="pm-id">${mine.map(p => {
+              const setP = v => update({ params: { ...st.params, [p.key]: v } }), val = st.params[p.key] || '';
+              const visual = S.FIGURE_VALUES[p.key], color = S.COLOR_KEYS[p.key];
+              return html`<div key=${p.key} class=${'pm-param' + (visual || color ? ' wide' : '')}>
+                <${Select} id=${'pm-' + p.key} label=${p.ko} value=${val} options=${p.options} onChange=${setP} />
+                ${color && html`<div class="pm-colors" role="group" data-color-picker=${p.key} aria-label=${W('prompt.color.pick', { label: p.ko })}>
+                  ${p.options.map(([v, t]) => html`<button key=${v} type="button" data-value=${v} aria-pressed=${val === v} title=${t}
+                    class=${'pm-color' + (!v ? ' auto' : v === '__custom__' ? ' custom' : '')} onClick=${() => setP(v)}>
+                    <i aria-hidden="true" style=${S.COLOR_HEX[v] ? 'background:' + S.COLOR_HEX[v] : ''}></i>
+                    <span>${!v ? W(p.key === 'eyeColor2' ? 'prompt.eye.same' : 'prompt.auto') : v === '__custom__' ? W('prompt.custom') : t.split(' — ').pop()}</span></button>`)}
+                </div>`}
+                ${visual && html`<div class="pm-figures" data-figure-picker=${p.key}>
+                  <div class="pm-figures-head"><span>${W('prompt.figure.pick', { label: p.ko })}</span>
+                    <button type="button" class="pm-btn quiet" data-value="" aria-pressed=${!val} onClick=${() => setP('')}>${W('prompt.auto')}</button></div>
+                  <div class="pm-figure-row" role="group" aria-label=${W('prompt.figure.pick', { label: p.ko })}>
+                    ${visual.map(v => { const t = (p.options.find(o => o[0] === v) || [v, v])[1]; return html`<button key=${v} type="button" class="pm-figure" data-value=${v}
+                      aria-pressed=${val === v} title=${t} onClick=${() => setP(v)}>
+                      <img src=${P.figureURL(p.key, v)} alt="" loading="lazy" draggable="false" onError=${e => { e.currentTarget.style.visibility = 'hidden'; }} />
+                      <b>${t.split(' — ')[0]}</b></button>`; })}
+                  </div>
+                </div>`}
+                ${val === '__custom__' && html`<label class="custom" for=${'pm-' + p.key + '-custom'}>${p.ko} · ${W('prompt.custom')}
+                  <input id=${'pm-' + p.key + '-custom'} type="text" value=${st.params[p.key + '_custom'] || ''}
+                    onInput=${e => update({ params: { ...st.params, [p.key + '_custom']: e.currentTarget.value } })} /></label>`}
+              </div>`; })}</div>
           </details>`;
         })}
         ${c && html`<button class="pm-btn quiet" id="pm-reset" type="button" onClick=${() => { const next = { ...store, __card: card }; delete next[card]; setStore(next); writeStore(next); }}>${W('prompt.reset')}</button>`}

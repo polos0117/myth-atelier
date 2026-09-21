@@ -16,23 +16,47 @@ const S = ctx.window.AtelierSpec;
     await p.waitForFunction(() => document.querySelector('#prompt-output').value.startsWith('WEAPON: Mjolnir'));
     let t = await p.locator('#prompt-output').inputValue();
     assert(t.includes(S.STYLES.find(s => s[0] === S.DEFAULT_STYLE)[2]), '기본 화풍');
-    assert(t.includes('POSTURE: ' + S.ACTIONS.blunt[0][2]) && t.includes('WEAPON LOOK'), '둔기의 첫 자세와 시각 언어');
+    assert(!t.includes('POSTURE:') && t.includes('WEAPON LOOK') && t.includes('mecha personification'), '기본은 자세 없이 메카 의인화');
     assert.equal(await p.locator('#pm-file').innerText(), '묠니르_glossy_promo_f.webp');
-    assert.equal(await p.locator('#pm-action option').count(), S.ACTIONS.blunt.length, '둔기 동작 넷');
+    assert.equal(await p.locator('#pm-action option').count(), S.ACTIONS.blunt.length + 1, '자동 + 둔기 자세 넷');
+    /* 설계 — 천으로, 선택 문단 켜기 */
+    await p.selectOption('#pm-design', 'cloth');
+    await p.waitForFunction(() => !document.querySelector('#prompt-output').value.includes('mecha personification'));
+    await p.selectOption('#pm-design', 'mecha');
+    await p.locator('#pm-extra-silhouette').check();
+    await p.waitForFunction(() => document.querySelector('#prompt-output').value.includes('SILHOUETTE: blunt'));
+    await p.locator('#pm-extra-silhouette').uncheck();
+    await p.waitForFunction(() => !document.querySelector('#prompt-output').value.includes('SILHOUETTE:'));
 
     await p.selectOption('#pm-style', 'ink_wash');
     await p.selectOption('#pm-action', 'shoulder');
     assert.equal(await p.locator('.pm-group').count(), S.PARAM_GROUPS.length, '외형 묶음 다섯');
     assert.equal(await p.locator('#pm-hairColor').isVisible(), false, '머리 묶음은 접혀 있다');
     await p.locator('.pm-group[data-group="hair"] summary').click();
-    await p.selectOption('#pm-hairColor', 'crimson');
+    /* 팔레트 — 동그라미를 누르면 select 도 따라온다 */
+    assert.equal(await p.locator('[data-color-picker="hairColor"] .pm-color').count(), S.PARAMS.find(x => x.key === 'hairColor').options.length, '머리색 팔레트');
+    await p.locator('[data-color-picker="hairColor"] .pm-color[data-value="crimson"]').click();
+    await p.waitForFunction(() => document.querySelector('#pm-hairColor').value === 'crimson');
+    assert.equal(await p.locator('[data-color-picker="hairColor"] .pm-color[aria-pressed="true"]').getAttribute('data-value'), 'crimson');
+    /* 견본 그림 — 헤어스타일 */
+    assert.equal(await p.locator('[data-figure-picker="hairStyle"] .pm-figure').count(), S.FIGURE_VALUES.hairStyle.length, '헤어 견본');
+    const loaded = await p.locator('[data-figure-picker="hairStyle"] .pm-figure img').first().evaluate(i => new Promise(r => { if (i.complete) r(i.naturalWidth > 0); else { i.onload = () => r(i.naturalWidth > 0); i.onerror = () => r(false); } }));
+    assert(loaded, '견본 png 가 뜬다 (img/figure-previews 가 있어야 한다)');
+    await p.locator('[data-figure-picker="hairStyle"] .pm-figure[data-value="high ponytail"]').click();
+    await p.waitForFunction(() => document.querySelector('#pm-hairStyle').value === 'high ponytail');
+    await p.locator('[data-figure-picker="hairStyle"] .pm-figures-head button[data-value=""]').click();
+    await p.waitForFunction(() => document.querySelector('#pm-hairStyle').value === '');
+    await p.locator('.pm-group[data-group="build"] summary').click();
+    assert.equal(await p.locator('[data-figure-picker="body"] .pm-figure').count(), S.FIGURE_VALUES.body.length, '체형 견본');
+    await p.locator('[data-figure-picker="body"] .pm-figure[data-value="athletic"]').click();
+    await p.waitForFunction(() => document.querySelector('#prompt-output').value.includes('Body type: athletic.'));
     await p.selectOption('#pm-ethnicity', '__custom__');
     await p.waitForSelector('#pm-ethnicity-custom');
     await p.fill('#pm-ethnicity-custom', 'Sami');
     await p.fill('#pm-scene', 'stormy cliff at dusk');
     await p.waitForFunction(() => document.querySelector('#prompt-output').value.includes('SCENE NOTE: stormy cliff at dusk'));
     t = await p.locator('#prompt-output').inputValue();
-    assert(t.includes('POSTURE: ' + S.ACTIONS.blunt[1][2]) && t.includes('HAIR \u2014 Hair color: crimson.') && t.includes('Facial ethnicity: Sami.'), t.slice(0, 200));
+    assert(t.includes('POSTURE: ' + S.ACTIONS.blunt[1][2]) && t.includes('Hair color: crimson.') && t.includes('Facial ethnicity: Sami.'), t.slice(0, 200));
     assert((await p.locator('.pm-group[data-group="hair"] summary i').innerText()).includes('1'), '고른 수가 묶음 머리에');
     assert.equal(await p.locator('#pm-file').innerText(), '묠니르_ink_wash_f.webp');
 
