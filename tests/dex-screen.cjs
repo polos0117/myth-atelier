@@ -42,6 +42,8 @@ const IMG = { img: {
     await p.selectOption('#dex-cost', '5');
     /* 저장은 그린 뒤(useEffect)에 되므로 다시 그려진 것을 보고 나서 새로고침한다 */
     await p.waitForFunction(n => document.querySelectorAll('.grid .cell').length === n, card.cards.filter(c => c.cost === 5).length);
+    /* Preact 의 useEffect 는 그린 다음 프레임에 돈다 — 저장이 실제로 됐는지 보고 새로고침한다 */
+    await p.waitForFunction(() => (localStorage.getItem('myth_dex_filters_v1') || '').includes('"cost":"5"'));
     await p.reload(); await p.waitForSelector('.grid .cell');
     assert.equal(await p.locator('.grid .cell').count(), card.cards.filter(c => c.cost === 5).length, '조건이 남는다');
     await p.click('#dex-reset');
