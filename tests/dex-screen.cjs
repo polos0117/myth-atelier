@@ -58,6 +58,21 @@ const IMG = { img: {
     assert.equal(await p.locator('#dex-style-pick').inputValue(), 'glossy_promo');
     await p.click('button[data-cut="awaken"]');
     assert.equal(await p.locator('.big img').getAttribute('src'), window_src('묠니르_glossy_promo_f_awaken.webp'), '각성으로 바뀐다');
+    /* 크게 보기 — 큰 그림을 누르면 덮개, 화살표로 컷 이동, Esc 로 닫기 */
+    await p.click('button[data-cut="portrait"]');
+    await p.waitForFunction(s => document.querySelector('.big img').getAttribute('src') === s, window_src('묠니르_glossy_promo_f.webp'));
+    await p.click('.big .zoom');
+    await p.waitForSelector('.zoom-layer');
+    assert.equal(await p.locator('.zoom-layer img').getAttribute('src'), window_src('묠니르_glossy_promo_f.webp'), '원본 주소로 크게');
+    assert((await p.locator('.zoom-bar span').innerText()).startsWith('1 / '), '몇 번째인지');
+    await p.locator('.zoom-next').click();
+    await p.waitForFunction(s => document.querySelector('.zoom-layer img').getAttribute('src') === s, window_src('묠니르_glossy_promo_f_awaken.webp'));
+    await p.keyboard.press('ArrowRight');
+    await p.waitForFunction(s => document.querySelector('.zoom-layer img').getAttribute('src') === s, window_src('묠니르_glossy_promo_f_cursed.webp'));
+    await p.keyboard.press('Escape');
+    await p.waitForFunction(() => !document.querySelector('.zoom-layer'));
+    assert.equal(await p.locator('.big img').getAttribute('src'), window_src('묠니르_glossy_promo_f_cursed.webp'), '덮개에서 옮긴 컷이 남는다');
+    await p.click('button[data-cut="portrait"]');
     await p.click('button[data-cut="cursed"]');
     assert.equal(await p.locator('.big img').getAttribute('src'), window_src('묠니르_glossy_promo_f_cursed.webp'), '저주로 바뀐다');
     assert(facts.includes(skill.thunder_smash.name) && facts.includes('저주') && facts.includes(card.cards.find(c => c.name === '묠니르').curse.text), '저주 줄');

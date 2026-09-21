@@ -98,6 +98,17 @@ body {color:var(--text);font-size:15px}
 .gal {display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
 .gal img {display:block;width:100%;border:1px solid var(--line);border-radius:8px}
 .empty {padding:36px 0;text-align:center;color:var(--muted);font-size:13px}
+/* 크게 보기 — 큰 그림을 누르면 화면을 덮는다. 원본을 contain 으로, 좌우 화살표로 같은 화풍의 다른 컷 */
+.big button.zoom {display:block;width:100%;height:100%;padding:0;border:0;background:transparent;cursor:zoom-in}
+.zoom-layer {position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;background:#0b0d12f2;color:#fff}
+.zoom-layer .zoom-bar {display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 14px 8px;font:12px ui-monospace,monospace;letter-spacing:.06em}
+.zoom-layer .zoom-bar b {flex:1 1 auto;font-weight:600;overflow-wrap:anywhere}
+.zoom-layer .zoom-bar button,.zoom-layer .zoom-nav button {min-width:44px;min-height:44px;padding:0 12px;border:1px solid #ffffff40;border-radius:10px;background:#ffffff14;color:#fff;font:inherit;font-size:14px;cursor:pointer}
+.zoom-layer .zoom-body {flex:1 1 auto;min-height:0;position:relative;display:grid;place-items:center;padding:0 8px 8px}
+.zoom-layer .zoom-body img {max-width:100%;max-height:100%;object-fit:contain;display:block;cursor:zoom-out}
+.zoom-layer .zoom-nav {position:absolute;inset:0;display:flex;justify-content:space-between;align-items:center;padding:0 6px;pointer-events:none}
+.zoom-layer .zoom-nav button {pointer-events:auto;opacity:.85}
+.zoom-layer .zoom-nav button:disabled {opacity:.2}
 </style>
 <script src="lib/workspace-theme.js?v=myth1"></script>
 <script src="lib/words.js?v=myth1"></script>
@@ -110,7 +121,7 @@ body {color:var(--text);font-size:15px}
 /* Fragment 는 h 에 안 붙어 있다. h.Fragment 로 부르면 preact 가 진짜 태그를 만들어
    격자(.facts) 칸을 하나 잡아먹는다. 따로 들여온다 */
 import { h, render, Fragment } from 'https://esm.sh/preact@10.24.3';
-import { useState, useEffect, useMemo } from 'https://esm.sh/preact@10.24.3/hooks';
+import { useState, useEffect, useMemo, useRef } from 'https://esm.sh/preact@10.24.3/hooks';
 import htm from 'https://esm.sh/htm@3.1.1';
 import { WorkspaceHeader } from './lib/workspace-ui.js?v=myth1';
 const html = htm.bind(h);
@@ -227,6 +238,13 @@ function Detail({ card, entry, styleName, group, skill, selection, onClose }) {
   const portrait = bucket[V] || null, awaken = IMG.awakenOf(bucket, V), cursed = IMG.cursedOf(bucket, V);
   const casual = IMG.cuts(bucket, 'casual', V), extra = IMG.cuts(bucket, 'extra', V);
   const shown = focus || (portrait ? { file: portrait, cut: 'portrait' } : null);
+  /* 크게 보기 — 같은 화풍의 컷 전부를 한 줄로: 액션 → 각성 → 저주 → 특별 → 일상 */
+  const [zoom, setZoom] = useState(false);
+  const shots = [].concat(portrait ? [{ file: portrait, cut: 'portrait' }] : [], awaken ? [{ file: awaken, cut: 'awaken' }] : [],
+    cursed ? [{ file: cursed, cut: 'cursed' }] : [], extra.map((f, i) => ({ file: f, cut: 'extra', index: i + 1 })), casual.map((f, i) => ({ file: f, cut: 'casual', index: i + 1 })));
+  const zoomAt = shown ? Math.max(0, shots.findIndex(x => x.file === shown.file)) : 0;
+  const move = d => { const n = shots[zoomAt + d]; if (n) setFocus(n.cut === 'portrait' ? null : n); };
+  useEffect(() => { document.body.classList.toggle('zoomed', zoom); return () => document.body.classList.remove('zoomed'); }, [zoom]);
 
   const head = html`
     <div class="bar">
@@ -258,8 +276,9 @@ function Detail({ card, entry, styleName, group, skill, selection, onClose }) {
     </div>
     ${shown ? html`
       <p class="sec">${shotLabel(shown)}<span>${shown.cut === 'awaken' ? W('dex.awaken.note') : shown.cut === 'cursed' ? W('dex.cursed.note') : (styleName[style] || '')}</span></p>
-      <div class="big"><${Pic} full file=${shown.file} alt=${card.name} /></div>
+      <div class="big"><button type="button" class="zoom" aria-label=${W('dex.zoom')} onClick=${() => setZoom(true)}><${Pic} full file=${shown.file} alt=${card.name} /></button></div>
     ` : html`<div class="big"><span class="ph">${W('art.none')}</span></div>`}
+    ${zoom && shown && html`<${Zoom} card=${card} shots=${shots} at=${zoomAt} onMove=${move} onClose=${() => setZoom(false)} />`}
 
     <p class="sec">${W('kind.card')}</p>
     <${Facts} card=${card} group=${group} skill=${skill} />
@@ -273,6 +292,31 @@ function Detail({ card, entry, styleName, group, skill, selection, onClose }) {
       <div class="gal">${casual.map((f, i) => html`<button key=${f} class="cell" data-cut="casual"
         onClick=${() => setFocus({ file: f, cut: 'casual', index: i + 1 })}><${Pic} file=${f} alt=${W('dex.cut.casual')} /></button>`)}</div>`}
   <//>`;
+}
+
+/* 크게 보기. shots 는 같은 화풍의 컷 전부 [{file, cut, index}], at 은 지금 것 */
+function Zoom({ card, shots, at, onMove, onClose }) {
+  /* 키 핸들러는 한 번만 걸고 최신 함수를 참조로 읽는다. 그려질 때마다 갈아 끼우면 효과가 다음 프레임에 돌아
+     그 사이 눌린 키가 옛 위치를 잡는다 — 검사가 빠르게 누르면 실제로 그랬다 */
+  const live = useRef(); live.current = { onMove, onClose };
+  useEffect(() => {
+    const key = e => { const f = live.current; if (e.key === 'Escape') f.onClose(); if (e.key === 'ArrowLeft') f.onMove(-1); if (e.key === 'ArrowRight') f.onMove(1); };
+    addEventListener('keydown', key);
+    return () => removeEventListener('keydown', key);
+  }, []);
+  const shot = shots[at];
+  return html`<div class="zoom-layer" role="dialog" aria-modal="true" aria-label=${W('dex.zoom')}>
+    <div class="zoom-bar"><b>${card.name} · ${shotLabel(shot)}</b><span>${at + 1} / ${shots.length}</span>
+      <a href=${IMG.imgURL(shot.file)} target="_blank" rel="noopener" class="zoom-open">${W('dex.zoom.original')}</a>
+      <button type="button" class="zoom-close" onClick=${onClose} aria-label=${W('dex.zoom.close')}>✕</button></div>
+    <div class="zoom-body" onClick=${e => { if (e.target === e.currentTarget) onClose(); }}>
+      <img src=${IMG.imgURL(shot.file)} alt=${card.name} onClick=${onClose} />
+      <div class="zoom-nav">
+        <button type="button" class="zoom-prev" disabled=${at <= 0} onClick=${() => onMove(-1)} aria-label=${W('dex.zoom.prev')}>‹</button>
+        <button type="button" class="zoom-next" disabled=${at >= shots.length - 1} onClick=${() => onMove(1)} aria-label=${W('dex.zoom.next')}>›</button>
+      </div>
+    </div>
+  </div>`;
 }
 
 function shotLabel(shot) {
