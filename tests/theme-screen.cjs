@@ -13,7 +13,7 @@ const contrast=(a,b)=>{const x=luminance(a),y=luminance(b);return (Math.max(x,y)
   const p=a.page;
   await p.waitForSelector('.theme-card');
   assert.equal(await p.locator('.theme-card').count(),9);
-  assert.equal(await p.evaluate(()=>document.documentElement.dataset.theme),'daylight');
+  assert.equal(await p.evaluate(()=>document.documentElement.dataset.theme),'pantheon');
   const keys=await p.evaluate(()=>window.AtelierAppearance.themes);
   const marks=new Set(),backgrounds=new Set();
   for(const key of keys){

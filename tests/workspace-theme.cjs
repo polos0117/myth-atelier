@@ -9,7 +9,7 @@ vm.runInNewContext(source,{window,document:{documentElement:root,querySelector:(
  localStorage:{getItem:k=>stored.get(k)||null,setItem:(k,v)=>stored.set(k,v)},
  requestAnimationFrame:fn=>{frames.push(fn);return frames.length},cancelAnimationFrame(){},Event:function(){}});
 while(frames.length)frames.shift()();
-assert.equal(root.dataset.theme,'daylight','new visitors start in the daylight temple');
+assert.equal(root.dataset.theme,'pantheon','new visitors start in the pantheon');
 assert.equal(properties.get('--atelier-vh'),'704px');
 const themes=['midnight','daylight','blossom','moss','plum','sand','deep','ember','pantheon'];
 assert.deepEqual(Array.from(window.AtelierAppearance.themes),themes,'saved theme keys stay stable');
@@ -24,7 +24,7 @@ for(const key of themes){
  assert(css.includes('[data-theme-preview="'+key+'"]'),key+' palette preview');
 }
 window.AtelierAppearance.set('theme','unknown');
-assert.equal(root.dataset.theme,'daylight');
+assert.equal(root.dataset.theme,'pantheon');
 window.AtelierAppearance.set('density','relaxed');
 assert.equal(root.dataset.density,'relaxed');
 window.AtelierAppearance.set('density','unknown');

@@ -16,7 +16,7 @@
   --signal:#9ec9ff;--gold:#d9b96a;--ok:#8fddba;--warn:#f0c674;--pattern:#d9b96a14;--halo:#9ec9ff1f;
   --shadow:0 10px 30px #00000059;
 }
-:root, :root[data-theme="daylight"],[data-theme-preview="daylight"] {
+:root[data-theme="daylight"],[data-theme-preview="daylight"] {
   color-scheme:light;
   --bg:#f3efe6;--deck:#f9f6ef;--card:#ffffff;--card2:#ece6d8;--text:#2b2620;
   --muted:#625a4d;--line:#d5ccb9;--accent:#775a14;--accent-soft:#f3e8c9;--on-accent:#ffffff;
@@ -65,7 +65,7 @@
   --signal:#f2c96b;--gold:#e8c36a;--ok:#b6d69a;--warn:#f2c96b;--pattern:#ff8d6e10;--halo:#ff8d6e24;
   --shadow:0 10px 30px #00000066;
 }
-:root[data-theme="pantheon"],[data-theme-preview="pantheon"] {
+:root, :root[data-theme="pantheon"],[data-theme-preview="pantheon"] {
   color-scheme:dark;
   --bg:#0b0a0d;--deck:#121016;--card:#191620;--card2:#221d2b;--text:#f4ecd8;
   --muted:#b8ad98;--line:#3d3448;--accent:#e2c275;--accent-soft:#2c2536;--on-accent:#1c1405;
