@@ -17,7 +17,7 @@ const S = ctx.window.AtelierSpec;
     let t = await p.locator('#prompt-output').inputValue();
     assert(t.includes(S.STYLES.find(s => s[0] === S.DEFAULT_STYLE)[2]), '기본 화풍');
     assert(!t.includes('POSTURE:') && t.includes('WEAPON LOOK') && t.includes('mecha personification'), '기본은 자세 없이 메카 의인화');
-    assert.equal(await p.locator('#pm-file').innerText(), '묠니르_glossy_promo_f.webp');
+    assert.equal(await p.locator('#pm-file').innerText(), '묠니르_' + S.DEFAULT_STYLE + '_f.webp');
     assert.equal(await p.locator('#pm-action option').count(), S.ACTIONS.blunt.length + 1, '자동 + 둔기 자세 넷');
     /* 설계 — 천으로, 선택 문단 켜기 */
     await p.selectOption('#pm-design', 'cloth');
@@ -106,7 +106,7 @@ const S = ctx.window.AtelierSpec;
     /* 다른 무기는 제 설정, 돌아오면 아까 것 */
     await p.selectOption('#pm-card', '간디바');
     await p.waitForFunction(() => document.querySelector('#prompt-output').value.startsWith('WEAPON: Gandiva'));
-    assert.equal(await p.locator('#pm-file').innerText(), '간디바_glossy_promo_f.webp', '새 무기는 기본 설정');
+    assert.equal(await p.locator('#pm-file').innerText(), '간디바_' + S.DEFAULT_STYLE + '_f.webp', '새 무기는 기본 설정');
     assert((await p.locator('#prompt-output').inputValue()).includes('Facial ethnicity: South Asian.'), '인도면 남아시아가 자동');
     await p.reload(); await p.waitForSelector('#pm-card');
     assert.equal(await p.locator('#pm-card').inputValue(), '간디바', '고른 무기가 남는다');
@@ -118,7 +118,7 @@ const S = ctx.window.AtelierSpec;
     await p.locator('.pm-group[data-group="hair"] summary').click();
     assert.equal(await p.locator('#pm-hairColor').inputValue(), 'crimson', '무기마다 설정이 남는다');
     await p.locator('#pm-reset').click();
-    await p.waitForFunction(() => document.querySelector('#pm-file').innerText === '묠니르_glossy_promo_f.webp');
+    await p.waitForFunction(d => document.querySelector('#pm-file').innerText === '묠니르_' + d + '_f.webp', S.DEFAULT_STYLE);
 
     /* 복사 단추가 있고, 휴대폰에서 안 넘친다 */
     assert.equal(await p.locator('#pm-copy').isDisabled(), false);

@@ -1,6 +1,6 @@
 {
  "version": 1,
- "note": "화풍 열쇠와 이름. lib/prompt-spec.js 의 STYLES 와 같아야 한다(tests/prompt-engine.cjs 가 맞춘다). 열쇠는 그림 파일 이름에 들어가므로 바꾸지 않는다.",
+ "note": "화풍 열쇠와 이름. lib/prompt-spec.js 의 STYLES 와 같아야 한다(tests/prompt-engine.cjs 가 맞춘다). 열쇠는 그림 파일 이름에 들어가므로 바꾸지 않는다. 차례는 화면 차례 — 앞의 다섯이 2026-09-21 궁니르 열넷을 견주고 고른 결, 첫 것이 기준.",
  "styles": [
   {
    "key": "cinematic_semi_real",
@@ -15,20 +15,20 @@
    "name": "한국형 글로시 게임 일러스트"
   },
   {
-   "key": "glossy_promo",
-   "name": "글로시 프로모 키아트"
-  },
-  {
-   "key": "mecha_cinematic_keyart",
-   "name": "시네마틱 키아트"
-  },
-  {
    "key": "game_cgi",
    "name": "게임 시네마틱 CGI"
   },
   {
    "key": "semi_real_paint",
    "name": "세미리얼 유화"
+  },
+  {
+   "key": "glossy_promo",
+   "name": "글로시 프로모 키아트"
+  },
+  {
+   "key": "mecha_cinematic_keyart",
+   "name": "시네마틱 키아트"
   },
   {
    "key": "photoreal",
