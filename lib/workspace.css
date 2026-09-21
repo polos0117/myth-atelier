@@ -640,3 +640,20 @@ html:has(.dex-page) {height:100%;overflow:hidden;overscroll-behavior:none}
   [data-theme="midnight"] .hall-col:nth-child(1) {left:-6%;transform:translateZ(120px) scale(.85)} [data-theme="midnight"] .hall-col:nth-child(2) {right:-6%;transform:translateZ(120px) scale(.85)}
   [data-theme="midnight"] .hall-col:nth-child(3) {left:14%;transform:translateZ(-80px) scale(.7)} [data-theme="midnight"] .hall-col:nth-child(4) {right:14%;transform:translateZ(-80px) scale(.7)}
 }
+
+/* 발할라의 밤 — 룬이 빛난다. 기둥 그림에서 금 상감만 딴 마스크(img/ui/hall_midnight_runes.webp)를 <i> 에 씌우고
+   색을 채운다. 기본은 은은한 금 맥동, 각성은 환한 금이 아래서 위로 차오르고, 저주는 핏빛이 깜박인다 */
+:root {--hall-runes-midnight:url("https://polos0117.github.io/myth-atelier-img/img/ui/hall_midnight_runes.webp")}
+[data-theme="midnight"] .hall-col > i {display:block;position:absolute;inset:0;pointer-events:none;
+  -webkit-mask:var(--hall-runes-midnight) center/100% 100% no-repeat;mask:var(--hall-runes-midnight) center/100% 100% no-repeat;
+  background:#ffd27a;opacity:.55;animation:rune-breathe 4.5s ease-in-out infinite;transition:background-color .6s,opacity .6s;filter:blur(0)}
+[data-theme="midnight"] .hall-col::after {z-index:1}
+@keyframes rune-breathe {0%,100% {opacity:.45} 50% {opacity:.8}}
+[data-theme="midnight"] .hall[data-mode="awaken"] .hall-col > i {background:linear-gradient(0deg,#fff6d0 0,#ffe08a 40%,#ffb347 100%) 0 0/100% 300%;opacity:1;
+  animation:rune-rise 2.6s ease-out infinite,rune-breathe-hi 1.8s ease-in-out infinite;filter:drop-shadow(0 0 6px #ffd27a) drop-shadow(0 0 16px #ffb34799)}
+@keyframes rune-rise {from {background-position:0 0} to {background-position:0 100%}}
+@keyframes rune-breathe-hi {0%,100% {opacity:.85} 50% {opacity:1}}
+[data-theme="midnight"] .hall[data-mode="cursed"] .hall-col > i {background:#ff2d55;opacity:1;animation:rune-flicker 1.1s steps(1,end) infinite;
+  filter:drop-shadow(0 0 6px #ff2d55) drop-shadow(0 0 18px #c0143c)}
+@keyframes rune-flicker {0%,100% {opacity:1} 8% {opacity:.55} 12% {opacity:1} 40% {opacity:.9} 46% {opacity:.4} 50% {opacity:1} 78% {opacity:.7} 82% {opacity:1}}
+@media (prefers-reduced-motion:reduce) {[data-theme="midnight"] .hall-col > i {animation:none;opacity:.7}}
