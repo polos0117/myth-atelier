@@ -5,7 +5,7 @@ const { start, FOLD } = require('./browser-harness.cjs');
 const card = JSON.parse(fs.readFileSync('data/card.json', 'utf8')), N = card.cards.length;
 const skill = JSON.parse(fs.readFileSync('data/skill.json', 'utf8')).skills;
 const IMG = { img: {
-  '묠니르': { byStyle: { glossy_promo: { f: '묠니르_glossy_promo_f.webp', awaken: { f: '묠니르_glossy_promo_f_awaken.webp' }, cursed: { f: '묠니르_glossy_promo_f_cursed.webp' },
+  '묠니르': { byStyle: { ink_wash: { f: '묠니르_ink_wash_f.webp' }, glossy_promo: { f: '묠니르_glossy_promo_f.webp', awaken: { f: '묠니르_glossy_promo_f_awaken.webp' }, cursed: { f: '묠니르_glossy_promo_f_cursed.webp' },
     casual: { f: ['묠니르_glossy_promo_f_casual1.webp'] }, extra: { f: ['묠니르_glossy_promo_f_extra1.webp'] } } } },
   '아이기스': { byStyle: { cel_anime: { f: '아이기스_cel_anime_f.webp' }, ink_wash: { f: '아이기스_ink_wash_f.webp' }, photoreal: { f: '아이기스_photoreal_f.webp' } } },
 } };
@@ -52,7 +52,8 @@ const IMG = { img: {
     assert((await p.locator('.bar h2').innerText()).includes('묠니르'));
     const facts = await p.locator('.facts').innerText();
     assert(facts.includes(skill.thunder_smash.name) && facts.includes('토르') && facts.includes('북유럽') && facts.includes('둔기'), facts);
-    assert.equal(await p.locator('.big img').getAttribute('src'), window_src('묠니르_glossy_promo_f.webp'));
+    assert.equal(await p.locator('.big img').getAttribute('src'), window_src('묠니르_glossy_promo_f.webp'), '처음엔 상태 그림이 많은 화풍(글로시 프로모)');
+    assert.equal(await p.locator('#dex-style-pick').inputValue(), 'glossy_promo');
     await p.click('button[data-cut="awaken"]');
     assert.equal(await p.locator('.big img').getAttribute('src'), window_src('묠니르_glossy_promo_f_awaken.webp'), '각성으로 바뀐다');
     await p.click('button[data-cut="cursed"]');

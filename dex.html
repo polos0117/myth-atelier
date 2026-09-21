@@ -220,7 +220,9 @@ function Detail({ card, entry, styleName, group, skill, selection, onClose }) {
   const keys = IMG.styleKeys(entry || {});
   const [wantStyle, setStyle] = useState(selection?.style || '');
   const [focus, setFocus] = useState(selection?.file && selection.cut !== 'portrait' ? selection : null);
-  const style = keys.indexOf(wantStyle) >= 0 ? wantStyle : (keys[0] || '');
+  /* 처음 열 때는 상태 그림(각성·저주·일상)이 가장 많은 화풍을 고른다. 같으면 앞의 것 */
+  const richest = keys.slice().sort((a, b) => IMG.shotsOf(IMG.styleMap(entry)[b], V).length - IMG.shotsOf(IMG.styleMap(entry)[a], V).length || keys.indexOf(a) - keys.indexOf(b))[0];
+  const style = keys.indexOf(wantStyle) >= 0 ? wantStyle : (richest || '');
   const bucket = (style && IMG.styleMap(entry)[style]) || {};
   const portrait = bucket[V] || null, awaken = IMG.awakenOf(bucket, V), cursed = IMG.cursedOf(bucket, V);
   const casual = IMG.cuts(bucket, 'casual', V), extra = IMG.cuts(bucket, 'extra', V);
