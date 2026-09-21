@@ -33,6 +33,11 @@ html,body {margin:0;padding:0}
 .pm-group .pm-note {margin:0 0 8px}
 .pm-group .pm-id select,.pm-group .pm-id input {background:var(--card)}
 .pm-param {display:grid;gap:8px;min-width:0}
+.pm-scene {display:grid;gap:6px}
+.pm-scene-tools {display:flex;gap:6px;flex-wrap:wrap}
+.pm-scene-tools .pm-btn {min-height:36px;padding:5px 10px;font-size:11px}
+.pm-scene-tools .pm-btn[aria-pressed="true"] {border-color:var(--accent);color:var(--accent)}
+.pm-scene input[type=text] {margin-top:2px}
 .pm-param.wide {grid-column:1/-1}
 .pm-extras {display:grid;gap:6px}
 .pm-check {display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card2);font-size:12px;color:var(--text);cursor:pointer}
@@ -78,6 +83,7 @@ html,body {margin:0;padding:0}
 <script src="lib/img.js?v=myth1"></script>
 <script src="lib/prompt-spec.js?v=1"></script>
 <script src="lib/prompt-myth.js?v=1"></script>
+<script src="lib/prompt-random.js?v=1"></script>
 </head>
 <body class="prompt-page">
 <div class="wrap"><div id="app"></div></div>
@@ -87,7 +93,7 @@ import { useState, useEffect, useMemo } from 'https://esm.sh/preact@10.24.3/hook
 import htm from 'https://esm.sh/htm@3.1.1';
 import { WorkspaceHeader } from './lib/workspace-ui.js?v=myth1';
 const html = htm.bind(h);
-const W = window.W, S = window.AtelierSpec, P = window.AtelierPrompt, IMG = window.AtelierImg;
+const W = window.W, S = window.AtelierSpec, P = window.AtelierPrompt, IMG = window.AtelierImg, R = window.AtelierSceneRandom;
 const STORE = 'myth_prompt_v1';
 
 function readStore() { try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch { return {}; } }
@@ -102,7 +108,7 @@ function useData() {
   }, []);
   return state;
 }
-const DEFAULT = () => ({ style: S.DEFAULT_STYLE, output: 'portrait', action: '', casualIndex: 1, scene: '', params: {} });
+const DEFAULT = () => ({ style: S.DEFAULT_STYLE, output: 'portrait', action: '', casualIndex: 1, scene: '', params: {}, casual: { cat: 'everyday_basic', ex: '', pose: '', orient: '', expr: '', outfit: '', scene: '', axes: {}, locks: {} } });
 
 function Select({ id, label, value, options, onChange }) {
   return html`<label for=${id}>${label}
@@ -111,6 +117,45 @@ function Select({ id, label, value, options, onChange }) {
     </select></label>`;
 }
 
+/* 일상컷 장면 — 갈래·예시·자세·방향·표정·의상·장소·강도 축. 칸마다 랜덤과 잠금 */
+function Casual({ sc, update }) {
+  const set = patch => update({ casual: { ...sc, ...patch } });
+  const lock = k => set({ locks: { ...(sc.locks || {}), [k]: !(sc.locks || {})[k] } });
+  const roll = k => update({ casual: R.randomize(sc, k) });
+  const cats = S.CASUAL_CATS.filter(r => r[3] !== 'm').map(r => [r[0], r[1]]);
+  const exRows = S.CASUAL_EXAMPLES[sc.cat] || [];
+  const exOpts = exRows.map(r => [r[0], r[0] && r[0] !== '__custom__' ? r[1] + ' · ' + W('prompt.casual.tier.' + (r[3] || 'basic')) : r[1]]);
+  const note = k => k === 'ex' ? (S.CASUAL_EX_NOTE[sc.ex] || '') : '';
+  const field = (k, label, value, options, onChange, extra) => html`<div class="pm-scene" key=${k}>
+    <${Select} id=${'pm-casual-' + k.replace('.', '-')} label=${label} value=${value} options=${options} onChange=${onChange} />
+    <div class="pm-scene-tools">
+      <button type="button" class="pm-btn quiet" data-random=${k} disabled=${!R.canRandomize(sc, k)} aria-label=${W('prompt.casual.random.field', { label })} onClick=${() => roll(k)}>${W('prompt.casual.random')}</button>
+      <button type="button" class="pm-btn quiet" data-lock=${k} aria-pressed=${!!(sc.locks || {})[k]} aria-label=${W('prompt.casual.lock.field', { label })} onClick=${() => lock(k)}>${(sc.locks || {})[k] ? W('prompt.casual.locked') : W('prompt.casual.lock')}</button>
+    </div>
+    ${extra}
+  </div>`;
+  return html`<h2>${W('prompt.casual')}</h2>
+    <p class="pm-note">${W('prompt.casual.note')}</p>
+    <div class="pm-scene-tools"><button type="button" class="pm-btn quiet" id="pm-casual-random-all"
+      disabled=${!Object.keys(R.fields(sc)).some(k => R.canRandomize(sc, k))} onClick=${() => roll(null)}>${W('prompt.casual.random.all')}</button></div>
+    ${field('cat', W('prompt.casual.category'), sc.cat || '', cats, v => set({ cat: v, ex: '' }),
+      sc.cat === '__custom__' && html`<input type="text" id="pm-casual-catCustom" value=${sc.catCustom || ''} onInput=${e => set({ catCustom: e.currentTarget.value })} />`)}
+    ${exRows.length > 1 && field('ex', W('prompt.casual.example'), sc.ex || '', exOpts, v => set({ ex: v }),
+      html`${note('ex') && html`<p class="pm-note">${note('ex')}</p>`}
+        ${sc.ex === '__custom__' && html`<input type="text" id="pm-casual-exCustom" value=${sc.exCustom || ''} onInput=${e => set({ exCustom: e.currentTarget.value })} />`}`)}
+    ${field('pose', W('prompt.casual.pose'), sc.pose || '', S.CASUAL_POSES, v => set({ pose: v }))}
+    ${field('orient', W('prompt.casual.orient'), sc.orient || '', S.CASUAL_ORIENTS, v => set({ orient: v }))}
+    ${field('expr', W('prompt.casual.expr'), sc.expr || '', S.CASUAL_EXPRESSIONS, v => set({ expr: v }))}
+    <label for="pm-casual-outfit">${W('prompt.casual.outfit')}<input id="pm-casual-outfit" type="text" value=${sc.outfit || ''} onInput=${e => set({ outfit: e.currentTarget.value })} /></label>
+    <label for="pm-casual-scene">${W('prompt.casual.scene')}<input id="pm-casual-scene" type="text" value=${sc.scene || ''} onInput=${e => set({ scene: e.currentTarget.value })} /></label>
+    <details class="pm-group" data-group="axes">
+      <summary><span>${W('prompt.casual.axes')}</span><i>${Object.values(sc.axes || {}).filter(v => v && v !== 'AUTO').length ? W('prompt.group.set', { n: Object.values(sc.axes || {}).filter(v => v && v !== 'AUTO').length }) : ''}</i></summary>
+      <p class="pm-note">${W('prompt.casual.axes.note')}</p>
+      ${S.CASUAL_AXES.map(ax => field('axes.' + ax, S.CASUAL_AXIS_LABELS[ax][1], (sc.axes || {})[ax] || 'AUTO',
+        S.CASUAL_AXIS_OPTIONS[ax].map(v => [v, v === 'AUTO' ? W('prompt.auto') : (S.CASUAL_AXIS_GUIDES[ax][v] ? v + ' — ' + S.CASUAL_AXIS_GUIDES[ax][v][0] : v)]),
+        v => set({ axes: { ...(sc.axes || {}), [ax]: v } })))}
+    </details>`;
+}
 function App() {
   const loaded = useData();
   const [store, setStore] = useState(readStore);
@@ -152,6 +197,9 @@ function App() {
         <${Select} id="pm-style" label=${W('prompt.style')} value=${st.style} options=${S.STYLES.map(s => [s[0], s[1]])} onChange=${v => update({ style: v })} />
         <${Select} id="pm-output" label=${W('prompt.output')} value=${st.output} options=${Object.keys(S.OUTPUTS).map(k => [k, S.OUTPUTS[k].name])} onChange=${v => update({ output: v })} />
         <p class="pm-note">${S.OUTPUTS[st.output].note}</p>
+        ${st.output === 'casual' && html`<label for="pm-casual">${W('prompt.casual.index')}
+          <input id="pm-casual" type="number" min="1" max="9" value=${st.casualIndex} onInput=${e => update({ casualIndex: Math.max(1, +e.currentTarget.value || 1) })} /></label>`}
+        ${st.output === 'casual' && c ? html`<${Casual} sc=${st.casual || DEFAULT().casual} update=${update} />` : html`
         <h2>${W('prompt.design')}</h2>
         <p class="pm-note">${W('prompt.design.note')}</p>
         <${Select} id="pm-design" label=${W('prompt.design.kind')} value=${st.design || 'mecha'} options=${S.DESIGNS.map(d => [d[0], d[1] + ' — ' + d[2]])} onChange=${v => update({ design: v })} />
@@ -163,8 +211,6 @@ function App() {
         </div>
         ${st.output === 'portrait' && c && html`<${Select} id="pm-action" label=${W('prompt.posture')} value=${st.action || ''}
           options=${[['', W('prompt.posture.none')], ...S.ACTIONS[c.kind].map(a => [a[0], a[1]])]} onChange=${v => update({ action: v })} />`}
-        ${st.output === 'casual' && html`<label for="pm-casual">${W('prompt.casual.index')}
-          <input id="pm-casual" type="number" min="1" max="9" value=${st.casualIndex} onInput=${e => update({ casualIndex: Math.max(1, +e.currentTarget.value || 1) })} /></label>`}
         ${st.output === 'awaken' && html`<p class="pm-note">${W('prompt.awaken.note')}</p>`}
         <label for="pm-scene">${W('prompt.scene')}
           <input id="pm-scene" type="text" value=${st.scene} placeholder=${W('prompt.scene.hint')} onInput=${e => update({ scene: e.currentTarget.value })} /></label>
@@ -203,6 +249,13 @@ function App() {
               </div>`; })}</div>
           </details>`;
         })}
+        `}
+        ${st.output === 'casual' && c && html`${S.PARAM_GROUPS.filter(g => g[0] === 'shot').map(([gk, gko, gnote]) => {
+          const mine = S.PARAMS.filter(p => p.group === gk && ['frame', 'lens'].includes(p.key));
+          return html`<details class="pm-group" key=${gk} data-group=${gk}>
+            <summary><span>${gko}</span><i></i></summary>
+            <div class="pm-id">${mine.map(p => html`<${Select} key=${p.key} id=${'pm-' + p.key} label=${p.ko} value=${st.params[p.key] || ''} options=${p.options} onChange=${v => update({ params: { ...st.params, [p.key]: v } })} />`)}</div>
+          </details>`; })}`}
         ${c && html`<button class="pm-btn quiet" id="pm-reset" type="button" onClick=${() => { const next = { ...store, __card: card }; delete next[card]; setStore(next); writeStore(next); }}>${W('prompt.reset')}</button>`}
       </div>
 

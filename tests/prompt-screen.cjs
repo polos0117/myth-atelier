@@ -74,6 +74,31 @@ const S = ctx.window.AtelierSpec;
     await p.selectOption('#pm-output', 'casual');
     await p.fill('#pm-casual', '3');
     await p.waitForFunction(() => document.querySelector('#pm-file').innerText.endsWith('_casual3.webp'));
+    /* 일상컷 장면 — 외형 묶음은 사라지고 장면 칸이 온다 */
+    await p.waitForSelector('#pm-casual-cat');
+    assert.equal(await p.locator('.pm-group[data-group="hair"]').count(), 0, '일상컷에는 외형 묶음이 없다');
+    assert.equal(await p.locator('#pm-casual-cat option').count(), S.CASUAL_CATS.filter(r => r[3] !== 'm').length, '갈래 전부');
+    await p.selectOption('#pm-casual-cat', 'heritage_visit');
+    await p.waitForFunction(() => document.querySelector('#pm-casual-ex') && document.querySelector('#pm-casual-ex').options.length > 3);
+    assert.equal(await p.locator('#pm-casual-ex option').count(), S.CASUAL_EXAMPLES.heritage_visit.length, '유적 나들이 예시');
+    await p.selectOption('#pm-casual-ex', 'museum_glass');
+    await p.waitForFunction(() => document.querySelector('#prompt-output').value.includes('EXAMPLE SCENE:'));
+    t = await p.locator('#prompt-output').inputValue();
+    assert(t.includes('CATEGORY:') && t.includes('museum vitrine') && !t.includes('SUBJECT:'), '갈래·예시가 문장에, 뼈대는 없다');
+    /* 랜덤과 잠금 — 예시를 잠그면 갈래 랜덤이 꺼진다 */
+    await p.locator('button[data-lock="ex"]').click();
+    await p.waitForFunction(() => document.querySelector('button[data-random="cat"]').disabled);
+    await p.locator('button[data-random="pose"]').click();
+    await p.waitForFunction(() => document.querySelector('#pm-casual-pose').value !== '');
+    await p.locator('#pm-casual-random-all').click();
+    await p.waitForFunction(() => document.querySelector('#pm-casual-orient').value !== '');
+    assert.equal(await p.locator('#pm-casual-cat').inputValue(), 'heritage_visit', '잠긴 예시의 갈래는 그대로');
+    assert.equal(await p.locator('#pm-casual-ex').inputValue(), 'museum_glass');
+    await p.locator('.pm-group[data-group="axes"] summary').click();
+    await p.selectOption('#pm-casual-axes-skin_exposure', 'low');
+    await p.waitForFunction(() => document.querySelector('#prompt-output').value.includes('skin exposure: low'));
+    await p.fill('#pm-casual-outfit', 'grey wool coat');
+    await p.waitForFunction(() => document.querySelector('#prompt-output').value.includes('outfit and props: grey wool coat'));
 
     /* 다른 무기는 제 설정, 돌아오면 아까 것 */
     await p.selectOption('#pm-card', '간디바');
@@ -84,6 +109,9 @@ const S = ctx.window.AtelierSpec;
     assert.equal(await p.locator('#pm-card').inputValue(), '간디바', '고른 무기가 남는다');
     await p.selectOption('#pm-card', '묠니르');
     await p.waitForFunction(() => document.querySelector('#pm-file').innerText === '묠니르_ink_wash_f_casual3.webp');
+    assert.equal(await p.locator('#pm-casual-cat').inputValue(), 'heritage_visit', '일상컷 장면도 무기마다 남는다');
+    await p.selectOption('#pm-output', 'portrait');
+    await p.waitForSelector('.pm-group[data-group="hair"] summary');
     await p.locator('.pm-group[data-group="hair"] summary').click();
     assert.equal(await p.locator('#pm-hairColor').inputValue(), 'crimson', '무기마다 설정이 남는다');
     await p.locator('#pm-reset').click();
