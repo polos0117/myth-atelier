@@ -8,7 +8,7 @@ const card = read('card'), group = read('group'), skill = read('skill'), style =
 const cards = card.cards;
 assert(Array.isArray(cards) && cards.length >= 40, '카드가 마흔 자루는 되어야 한다');
 const names = new Set(), ens = new Set();
-const FIELDS = ['name', 'en', 'myth', 'kind', 'cost', 'hp', 'atk', 'spd', 'range', 'skill', 'wielder', 'text'];
+const FIELDS = ['name', 'en', 'myth', 'kind', 'cost', 'hp', 'atk', 'spd', 'range', 'skill', 'wielder', 'text', 'look'];
 for (const c of cards) {
   for (const k of FIELDS) assert(c[k] !== undefined && c[k] !== '', c.name + ' 에 ' + k + ' 가 없다');
   assert(!names.has(c.name), '이름이 겹친다: ' + c.name); names.add(c.name);
@@ -21,6 +21,7 @@ for (const c of cards) {
   assert(skill.skills[c.skill], c.name + ' 의 기술 ' + c.skill + ' 이 skill.json 에 없다');
   /* 이름은 파일 이름이 된다 — 밑줄이 들어가면 공백과 헷갈린다 */
   assert(!/[_/\\]/.test(c.name), c.name + ' 에 밑줄이나 빗금이 있다');
+  assert(/^[ -~\u2019]+$/.test(c.look) && c.look.split(';').length === 3, c.name + ' 의 look 은 영어이고 "재질과 색; 형태; 문양" 세 토막');
 }
 /* 신화권마다 열 자루, 값은 1~5 골고루 — 상점이 어느 값에서든 카드를 내놓아야 한다 */
 for (const m of group.myth.order) {

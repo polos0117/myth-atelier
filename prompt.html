@@ -22,6 +22,14 @@ html,body {margin:0;padding:0}
 .pm-note {margin:0;color:var(--muted);font-size:12px;line-height:1.6;word-break:keep-all}
 .pm-id {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .pm-id .custom {grid-column:1/-1}
+.pm-group {border:1px solid var(--line);border-radius:10px;background:var(--card2);padding:0 10px 10px}
+.pm-group summary {display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:44px;cursor:pointer;font-size:13px;font-weight:700;list-style:none}
+.pm-group summary::-webkit-details-marker {display:none}
+.pm-group summary::after {content:'+';color:var(--accent);font:18px ui-monospace,monospace}
+.pm-group[open] summary::after {content:'−'}
+.pm-group summary i {font-style:normal;font-size:11px;color:var(--accent);margin-left:auto}
+.pm-group .pm-note {margin:0 0 8px}
+.pm-group .pm-id select,.pm-group .pm-id input {background:var(--card)}
 .pm-out {display:grid;gap:8px}
 .pm-out textarea {width:100%;min-height:360px;padding:14px;border:1px solid var(--line);border-radius:10px;background:var(--card2);color:var(--text);font:13px/1.7 ui-monospace,monospace;resize:vertical}
 .pm-bar {display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12px;color:var(--muted)}
@@ -127,11 +135,18 @@ function App() {
 
         <h2>${W('prompt.identity')}</h2>
         <p class="pm-note">${W('prompt.identity.note')}</p>
-        <div class="pm-id">${S.PARAMS.map(p => html`<${Select} key=${p.key} id=${'pm-' + p.key} label=${p.ko} value=${st.params[p.key] || ''}
-            options=${p.options} onChange=${v => update({ params: { ...st.params, [p.key]: v } })} />
-          ${st.params[p.key] === '__custom__' && html`<label class="custom" for=${'pm-' + p.key + '-custom'}>${p.ko} · ${W('prompt.custom')}
-            <input id=${'pm-' + p.key + '-custom'} type="text" value=${st.params[p.key + '_custom'] || ''}
-              onInput=${e => update({ params: { ...st.params, [p.key + '_custom']: e.currentTarget.value } })} /></label>`}`)}</div>
+        ${S.PARAM_GROUPS.map(([gk, gko, gnote], gi) => {
+          const mine = S.PARAMS.filter(p => p.group === gk), set = mine.filter(p => st.params[p.key]).length;
+          return html`<details class="pm-group" key=${gk} data-group=${gk} open=${gi === 0}>
+            <summary><span>${gko}</span><i>${set ? W('prompt.group.set', { n: set }) : ''}</i></summary>
+            <p class="pm-note">${gnote}</p>
+            <div class="pm-id">${mine.map(p => html`<${Select} key=${p.key} id=${'pm-' + p.key} label=${p.ko} value=${st.params[p.key] || ''}
+                options=${p.options} onChange=${v => update({ params: { ...st.params, [p.key]: v } })} />
+              ${st.params[p.key] === '__custom__' && html`<label class="custom" for=${'pm-' + p.key + '-custom'}>${p.ko} · ${W('prompt.custom')}
+                <input id=${'pm-' + p.key + '-custom'} type="text" value=${st.params[p.key + '_custom'] || ''}
+                  onInput=${e => update({ params: { ...st.params, [p.key + '_custom']: e.currentTarget.value } })} /></label>`}`)}</div>
+          </details>`;
+        })}
         ${c && html`<button class="pm-btn quiet" id="pm-reset" type="button" onClick=${() => { const next = { ...store, __card: card }; delete next[card]; setStore(next); writeStore(next); }}>${W('prompt.reset')}</button>`}
       </div>
 
