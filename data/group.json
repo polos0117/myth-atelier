@@ -1,0 +1,15 @@
+{
+ "note": "시너지 축의 이름표. myth 는 신화권, kind 는 무기 종류. order 는 화면 차례이고 color 는 카드 테두리. 효과 수치는 data/synergy.json 에 있다.",
+ "myth": {
+  "order": ["norse", "greek", "east", "india"],
+  "name": {"norse": "북유럽", "greek": "그리스", "east": "동아시아", "india": "인도"},
+  "en": {"norse": "Norse", "greek": "Greek", "east": "East Asia", "india": "India"},
+  "color": {"norse": "#5b8fd6", "greek": "#d6a24a", "east": "#c9494f", "india": "#c07bd6"}
+ },
+ "kind": {
+  "order": ["sword", "spear", "blunt", "bow", "relic"],
+  "name": {"sword": "검", "spear": "창", "blunt": "둔기", "bow": "활", "relic": "이형"},
+  "en": {"sword": "Sword", "spear": "Spear", "blunt": "Blunt", "bow": "Bow", "relic": "Relic"},
+  "color": {"sword": "#8fa3b8", "spear": "#7fb08a", "blunt": "#b0865f", "bow": "#a5a06a", "relic": "#9a86c4"}
+ }
+}

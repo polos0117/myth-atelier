@@ -1,0 +1,6 @@
+{
+ "version": 1,
+ "note": "tools/register-images.py 가 그림 저장소(myth-atelier-img/img)를 읽어 채운다. 손으로 고치지 않는다.",
+ "count": 0,
+ "img": {}
+}

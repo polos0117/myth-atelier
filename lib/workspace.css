@@ -1,4 +1,4 @@
-/* Pokemon research surfaces. Theme keys remain compatible with saved preferences. */
+/* Mythic armory surfaces. Theme keys stay compatible with saved preferences. */
 :root {
   --void:var(--bg);--panel:var(--card);--rule:var(--line);
   --ink:var(--text);--dim:var(--muted);--plate:var(--accent);
@@ -85,7 +85,7 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
 .workspace-nav a {flex:1 1 0;display:flex;align-items:center;justify-content:center;min-width:0;min-height:44px;padding:0 2px;border:0;border-radius:12px;font-size:12px;font-weight:650;opacity:1;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none}
 @media (max-width:599px) { .workspace-nav {gap:2px;padding:4px} .workspace-nav a {font-size:11px;letter-spacing:-.02em} .header-fold {flex-basis:40px} }
 .workspace-nav a[aria-current="page"] {color:var(--text);background:var(--accent-soft);box-shadow:inset 0 -2px var(--accent)}
-/* Reserve readable space for longer labels while keeping all six tabs on one row. */
+/* Reserve readable space for longer labels while keeping all four tabs on one row. */
 .workspace-nav a[href="index.html"] {flex-grow:1.25}
 .workspace-nav a[href="prompt.html"] {flex-grow:1.65}
 .appearance-controls {display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px 16px;margin:12px 0 0;color:var(--muted);font-size:11px}

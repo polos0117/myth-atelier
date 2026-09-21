@@ -1,0 +1,280 @@
+{
+ "version": 1,
+ "note": "기술 표. 카드의 skill 열쇠가 여기 한 칸을 가리킨다. effect 는 엔진(lib/auto.js)이 아는 종류 — strike(한 대) sweep(앞줄·판 전체) volley(무작위 몇) pierce(앞과 그 뒤 같은 줄) execute(체력 낮으면 두 배) stun(멈춤) heal shield buff(자기 공격) rally(아군 공격) haste(자기 속도) drain(흡혈). mult 는 공격력의 몇 배, targets 는 몇 명, dur 은 몇 박자.",
+ "skills": {
+  "thunder_smash": {
+   "name": "뇌정 강타",
+   "text": "망치를 내려찍어 앞줄 전부를 번개로 친다.",
+   "effect": "sweep",
+   "mult": 2.2,
+   "targets": 3
+  },
+  "unerring": {
+   "name": "빗나가지 않는 창",
+   "text": "던진 창이 앞을 꿰뚫고 뒤까지 닿는다.",
+   "effect": "pierce",
+   "mult": 2.4
+  },
+  "dragon_slayer": {
+   "name": "용 잡는 칼날",
+   "text": "약해진 상대를 단칼에 벤다. 체력이 낮을수록 세다.",
+   "effect": "execute",
+   "mult": 2.2,
+   "threshold": 0.35
+  },
+  "world_fire": {
+   "name": "세계를 태우는 불",
+   "text": "판 전체를 불길로 쓸어 낸다.",
+   "effect": "sweep",
+   "mult": 1.3,
+   "targets": 6
+  },
+  "cursed_edge": {
+   "name": "저주받은 날",
+   "text": "뽑으면 반드시 피를 본다. 세지만 제 몸도 조금 다친다.",
+   "effect": "strike",
+   "mult": 3.0,
+   "selfHurt": 0.1
+  },
+  "venom_bite": {
+   "name": "독 이빨",
+   "text": "베인 자리에 독이 남아 잠시 계속 아프다.",
+   "effect": "strike",
+   "mult": 1.6,
+   "dot": 0.3,
+   "dur": 3
+  },
+  "endless_war": {
+   "name": "끝없는 전쟁",
+   "text": "뽑은 뒤로 칼이 점점 사나워진다. 공격이 오른다.",
+   "effect": "buff",
+   "pct": 0.4,
+   "dur": 4
+  },
+  "blind_shot": {
+   "name": "눈먼 화살",
+   "text": "어디로 갈지 모르는 화살. 아무나 하나를 세게 맞힌다.",
+   "effect": "volley",
+   "mult": 1.8,
+   "targets": 1
+  },
+  "iron_grip": {
+   "name": "무쇠 손아귀",
+   "text": "붙잡아 잠깐 못 움직이게 한다.",
+   "effect": "stun",
+   "mult": 1.2,
+   "dur": 2
+  },
+  "nine_gold": {
+   "name": "아홉 반지",
+   "text": "아흐레마다 불어나는 금. 가장 다친 아군에게 보호막을 준다.",
+   "effect": "shield",
+   "mult": 2.0
+  },
+  "gorgon_gaze": {
+   "name": "고르곤의 눈",
+   "text": "방패의 얼굴이 앞줄을 돌로 굳힌다.",
+   "effect": "stun",
+   "mult": 0.8,
+   "targets": 3,
+   "dur": 2
+  },
+  "thunderbolt": {
+   "name": "벼락",
+   "text": "하늘에서 한 발. 아무나 하나에 큰 벼락이 떨어진다.",
+   "effect": "volley",
+   "mult": 2.6,
+   "targets": 1
+  },
+  "earthshaker": {
+   "name": "땅 흔들기",
+   "text": "삼지창을 땅에 꽂아 앞줄을 흔든다.",
+   "effect": "sweep",
+   "mult": 1.6,
+   "targets": 3
+  },
+  "heel_strike": {
+   "name": "발뒤꿈치 찌르기",
+   "text": "약점을 찌른다. 체력이 낮은 상대에게 세다.",
+   "effect": "execute",
+   "mult": 2.4,
+   "threshold": 0.3
+  },
+  "beheading": {
+   "name": "목 베기",
+   "text": "낫 칼로 마무리한다. 체력이 낮은 상대에게 세다.",
+   "effect": "execute",
+   "mult": 2.0,
+   "threshold": 0.4
+  },
+  "moon_volley": {
+   "name": "달빛 세 발",
+   "text": "화살 셋이 셋을 찾아간다.",
+   "effect": "volley",
+   "mult": 1.1,
+   "targets": 3
+  },
+  "lion_crush": {
+   "name": "사자 으깨기",
+   "text": "곤봉으로 내려쳐 잠깐 멈춘다.",
+   "effect": "stun",
+   "mult": 2.0,
+   "dur": 1
+  },
+  "twin_serpents": {
+   "name": "두 마리 뱀",
+   "text": "지팡이의 뱀이 가장 다친 아군을 크게 낫게 한다.",
+   "effect": "heal",
+   "mult": 2.5
+  },
+  "forge_temper": {
+   "name": "담금질",
+   "text": "가장 다친 아군에게 새로 벼린 보호막을 씌운다.",
+   "effect": "shield",
+   "mult": 2.2
+  },
+  "wind_step": {
+   "name": "바람 걸음",
+   "text": "날개 신발. 잠시 공격이 훨씬 빨라진다.",
+   "effect": "haste",
+   "pct": 0.3,
+   "dur": 4
+  },
+  "expand": {
+   "name": "여의 늘이기",
+   "text": "봉이 길어져 판 전체를 후린다.",
+   "effect": "sweep",
+   "mult": 1.7,
+   "targets": 6
+  },
+  "grass_cutter": {
+   "name": "풀 베기",
+   "text": "한 번 휘둘러 앞줄을 벤다.",
+   "effect": "sweep",
+   "mult": 2.0,
+   "targets": 3
+  },
+  "twin_blades": {
+   "name": "쌍검",
+   "text": "간장과 막야, 둘이 잇달아 벤다.",
+   "effect": "strike",
+   "mult": 1.3,
+   "hits": 2
+  },
+  "heaven_mandate": {
+   "name": "천명",
+   "text": "황제의 검이 아군 전체의 공격을 올린다.",
+   "effect": "rally",
+   "pct": 0.25,
+   "dur": 3
+  },
+  "dragon_sweep": {
+   "name": "청룡 후리기",
+   "text": "언월도로 앞줄을 크게 쓸어 낸다.",
+   "effect": "sweep",
+   "mult": 1.9,
+   "targets": 3
+  },
+  "gate_shot": {
+   "name": "원문 사격",
+   "text": "극을 던져 앞과 뒤를 함께 꿰뚫는다.",
+   "effect": "pierce",
+   "mult": 2.2
+  },
+  "purge": {
+   "name": "불제",
+   "text": "칼이 제 몸의 나쁜 것을 씻고 상대를 벤다.",
+   "effect": "strike",
+   "mult": 2.0,
+   "cleanse": true
+  },
+  "god_whip": {
+   "name": "타신편",
+   "text": "신을 치는 채찍. 맞은 쪽이 잠시 멈춘다.",
+   "effect": "stun",
+   "mult": 1.5,
+   "dur": 2
+  },
+  "tiger_hour": {
+   "name": "인시의 검",
+   "text": "호랑이 때에 벼린 칼. 반드시 치명타다.",
+   "effect": "strike",
+   "mult": 2.4,
+   "crit": true
+  },
+  "ring_pommel": {
+   "name": "고리 자루",
+   "text": "묵직하게 한 번 벤다.",
+   "effect": "strike",
+   "mult": 1.8
+  },
+  "annihilation": {
+   "name": "소멸",
+   "text": "브라흐마의 무기. 판 전체를 지운다.",
+   "effect": "sweep",
+   "mult": 2.0,
+   "targets": 6
+  },
+  "returning_disc": {
+   "name": "돌아오는 원반",
+   "text": "원반이 앞을 꿰뚫고 뒤까지 베고 돌아온다.",
+   "effect": "pierce",
+   "mult": 2.5
+  },
+  "diamond_thunder": {
+   "name": "금강 벼락",
+   "text": "바즈라의 벼락. 맞은 쪽이 잠시 멈춘다.",
+   "effect": "stun",
+   "mult": 2.2,
+   "dur": 1
+  },
+  "thousand_arrows": {
+   "name": "천 개의 화살",
+   "text": "간디바가 판 전체에 화살을 뿌린다.",
+   "effect": "volley",
+   "mult": 0.9,
+   "targets": 6
+  },
+  "three_worlds": {
+   "name": "삼계 찌르기",
+   "text": "삼지창이 앞과 뒤를 함께 찌른다.",
+   "effect": "pierce",
+   "mult": 2.3
+  },
+  "beast_lord": {
+   "name": "짐승의 주인",
+   "text": "파슈파타. 아무나 하나에 큰 한 방.",
+   "effect": "volley",
+   "mult": 2.8,
+   "targets": 1
+  },
+  "moon_laugh": {
+   "name": "달의 웃음",
+   "text": "베어 낸 만큼 제 상처를 채운다.",
+   "effect": "drain",
+   "mult": 2.0,
+   "ratio": 0.5
+  },
+  "axe_of_ages": {
+   "name": "시대의 도끼",
+   "text": "도끼로 마무리한다. 체력이 낮은 상대에게 세다.",
+   "effect": "execute",
+   "mult": 2.3,
+   "threshold": 0.35
+  },
+  "monkey_might": {
+   "name": "원숭이 힘",
+   "text": "하누만의 철퇴. 잠시 공격이 크게 오른다.",
+   "effect": "buff",
+   "pct": 0.5,
+   "dur": 3
+  },
+  "double_edge": {
+   "name": "양날",
+   "text": "칸다의 양날이 잇달아 벤다.",
+   "effect": "strike",
+   "mult": 1.4,
+   "hits": 2
+  }
+ }
+}

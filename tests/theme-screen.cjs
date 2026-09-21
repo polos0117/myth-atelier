@@ -1,4 +1,4 @@
-/* Shared themes across the laboratory, collection, and prompt studio. */
+/* Shared themes across the armory home, codex, auto battler and prompt studio. */
 const assert=require('node:assert/strict'),{start,FOLD}=require('./browser-harness.cjs');
 const luminance=hex=>{
  const c=hex.trim().slice(1).match(/../g).map(x=>parseInt(x,16)/255)
@@ -33,12 +33,13 @@ const contrast=(a,b)=>{const x=luminance(a),y=luminance(b);return (Math.max(x,y)
    marks.add(await p.locator('.workspace-title svg').innerHTML());
   }
   assert.equal(backgrounds.size,8);assert.equal(marks.size,8);
-  for(const [page,selector] of [['dex.html','.grid .cell'],['prompt.html','#prompt-output'],['battle.html','.bt-setup'],['run.html','.run-draft'],['survey.html','.sv-start'],['index.html','.theme-card']]){
+  /* 화면이 늘면 여기 더한다 */
+  for(const [page,selector] of [['dex.html','.grid .cell'],['index.html','.theme-card']]){
    await p.goto(harness.base+'/'+page);await p.waitForSelector(selector);
    const nav=await p.locator('.workspace-nav a').evaluateAll(es=>es.map(e=>({
     href:e.getAttribute('href'),current:e.getAttribute('aria-current'),decoration:getComputedStyle(e).textDecorationLine
    })));
-   assert.deepEqual(nav.map(x=>x.href),['index.html','dex.html','prompt.html','battle.html','run.html','survey.html'],page+' common navigation');
+   assert.deepEqual(nav.map(x=>x.href),['index.html','dex.html','auto.html','prompt.html'],page+' common navigation');
    assert.deepEqual(nav.filter(x=>x.current==='page').map(x=>x.href),[page],page+' selected tab');
    assert(nav.every(x=>x.decoration==='none'),page+' navigation underlines');
    assert(await p.evaluate(()=>{

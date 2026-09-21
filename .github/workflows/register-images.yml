@@ -1,6 +1,6 @@
 name: 그림 등록
 
-# 그림 저장소(pkm-atelier-img)의 img/ 를 읽어 data/img.json 에 적고 되커밋한다.
+# 그림 저장소(myth-atelier-img)의 img/ 를 읽어 data/img.json 에 적고 되커밋한다.
 # 깨우는 길은 셋이다.
 #   repository_dispatch — 그림 저장소의 썸네일 워크플로가 끝나면서 보낸다(토큰이 있을 때).
 #   schedule            — 뒤받침. GitHub 시간표는 자주 밀리고 빠진다(8시간에 1번 돈 적이 있다).
@@ -36,7 +36,7 @@ jobs:
       # 그림 저장소를 옆에 받아 img/ 로 잇는다. img/ 는 .gitignore 라 커밋에 안 들어간다
       - uses: actions/checkout@v4
         with:
-          repository: polos0117/pkm-atelier-img
+          repository: polos0117/myth-atelier-img
           path: img-repo
 
       - name: 그림 자리 잇기
@@ -63,7 +63,7 @@ jobs:
 
       # 자료·등록기·화면이 같은 말을 하는지 — 깨지면 커밋하지 않는다
       - name: 검사
-        run: node tests/forms.cjs
+        run: node tests/data.cjs
 
       - name: 되커밋
         run: |

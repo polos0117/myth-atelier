@@ -9,7 +9,7 @@ vm.runInNewContext(source,{window,document:{documentElement:root,querySelector:(
  localStorage:{getItem:k=>stored.get(k)||null,setItem:(k,v)=>stored.set(k,v)},
  requestAnimationFrame:fn=>{frames.push(fn);return frames.length},cancelAnimationFrame(){},Event:function(){}});
 while(frames.length)frames.shift()();
-assert.equal(root.dataset.theme,'daylight','new visitors start in the Pokemon laboratory');
+assert.equal(root.dataset.theme,'daylight','new visitors start in the daylight temple');
 assert.equal(properties.get('--atelier-vh'),'704px');
 const themes=['midnight','daylight','blossom','moss','plum','sand','deep','ember'];
 assert.deepEqual(Array.from(window.AtelierAppearance.themes),themes,'saved theme keys stay stable');
@@ -40,4 +40,4 @@ assert(!/지구연방|네오지온|소레스탈|철화단|모노아이|CREATIVE 
 assert(!css.includes("content:'DAYLIGHT"),'theme labels are not CSS content');
 assert(ui.includes("W('workspace.signature')"));
 assert(viewportEvents.has('resize'));assert(events.has('storage'));
-console.log('PASS: 8 Pokemon themes, persistent keys, palette previews, browser chrome and viewport sizing');
+console.log('PASS: 8 armory themes, persistent keys, palette previews, browser chrome and viewport sizing');

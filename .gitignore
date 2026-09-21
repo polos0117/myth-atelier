@@ -2,6 +2,6 @@
 __pycache__/
 .cache/
 
-# 그림은 pkm-atelier-img 저장소에 둔다.
+# 그림은 myth-atelier-img 저장소에 둔다.
 # 여기 img/ 는 화면 검사용 임시 자리다 — 올리지 않는다.
 /img/

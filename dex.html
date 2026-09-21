@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow, noarchive, noimageindex">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#faf9f3">
+<title>신화 무기 공방</title>
+<!--
+  도감. 무기 한 자루 = 카드 한 장 = 그림 한 장. 폼도 시트도 없다.
+  각성 그림이 있으면 3성일 때 그것으로 바뀐다 — 도감에서는 단추로 견준다.
+
+  화면은 data/img.json 에 적힌 것만 그린다. 그림 저장소에 파일이 있어도
+  tools/register-images.py 를 거치기 전에는 없는 것으로 본다.
+-->
+<link rel="stylesheet" href="lib/workspace.css?v=myth1">
+<style>
+/* 색·밀도 토막은 lib/workspace.css 한 곳에 있다. 여기는 뼈대만 —
+   workspace.css 의 .dex-page 규칙이 이 뼈대에 살을 붙인다. */
+:root {--cc:var(--line)}
+* {box-sizing:border-box}
+html,body {margin:0;padding:0}
+body {color:var(--text);font-size:15px}
+/* 목록은 껍데기가 정한 자리(.collection-scroll)에서만 구른다. #app 도 같이
+   늘어나야 main 이 제 높이를 받고 .collection-scroll 이 0 이 되지 않는다 */
+.dex-page > #app {display:flex;flex-direction:column;min-height:0;height:100%}
+.dex-page > #app > main {flex:1 1 auto;min-height:0}
+.collection-scroll {display:block}
+.dex-page .collection-scroll {padding-bottom:calc(44px + env(safe-area-inset-bottom))}
+.grid {display:grid;gap:var(--gap)}
+.dex-page .grid {grid-template-columns:repeat(auto-fill,minmax(132px,1fr))}
+.cell {display:block;width:100%;padding:0;text-align:left;color:inherit;font:inherit;
+  background:var(--card);border:1px solid var(--line);border-radius:11px;overflow:hidden}
+.face {display:block;position:relative;width:100%;aspect-ratio:2/3;background:var(--card2);overflow:hidden}
+.face img {display:block;width:100%;height:100%;object-fit:contain;object-position:center top}
+.ph {display:flex;align-items:center;justify-content:center;height:100%;padding:6px;
+  color:var(--muted);font:10px/1.4 ui-monospace,monospace;letter-spacing:.06em;text-align:center}
+.cap {display:block;font-weight:700;overflow-wrap:anywhere}
+.cap i {display:block;margin-top:3px;font:400 11px ui-monospace,monospace;font-style:normal;color:var(--muted)}
+.cap .cost {float:right;margin-left:6px;padding:1px 7px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font:700 10px ui-monospace,monospace}
+.search-row {display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+.search-row input {width:100%;background:var(--card);border:1px solid var(--line);
+  color:var(--text);font:inherit;border-radius:8px;padding:9px 11px;min-width:0}
+.search-row input::placeholder {color:var(--muted)}
+.dex-reset {background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit;font-size:12px;min-height:40px}
+.dex-view-row {display:flex;align-items:center;justify-content:space-between;gap:8px;margin:12px 0}
+.dex-view-row .sec {margin:0;flex-wrap:wrap;min-width:0}
+.dex-view-row button {flex-shrink:0;min-height:44px}
+.dex-view-row button[aria-pressed="true"] {border-color:var(--accent);color:var(--accent)}
+.dex-filters {margin:12px 0;border:1px solid var(--line);border-radius:10px;background:var(--card);padding:10px}
+.dex-filters summary {cursor:pointer;min-height:30px;font-weight:700;font-size:13px}
+.dex-filter-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:8px}
+.dex-filter-grid label {display:grid;gap:5px;min-width:0;color:var(--muted);font-size:12px}
+.dex-filter-grid select {width:100%;min-width:0;min-height:40px;border:1px solid var(--line);border-radius:8px;background:var(--card2);color:var(--text);padding:6px;font:inherit}
+@media(min-width:720px){.dex-filter-grid {grid-template-columns:repeat(5,minmax(0,1fr))}}
+.sw {display:flex;flex-wrap:wrap;gap:4px;border:1px solid var(--line);border-radius:8px;padding:4px}
+.sw button {flex:1 1 auto;background:var(--card);border:0;border-radius:6px;color:var(--muted);
+  font:inherit;font-weight:700;font-size:12px;min-height:40px;padding:6px 10px}
+.sw button.on {background:var(--accent-soft);color:var(--text);box-shadow:inset 0 -2px var(--accent)}
+.sw button:disabled {opacity:.45}
+.sec {margin:18px 0 8px;font:700 11px/1.6 ui-monospace,monospace;letter-spacing:.1em;color:var(--accent)}
+.sec span {color:var(--muted);font-weight:400;letter-spacing:0;margin-left:8px}
+.note {margin:8px 0 0;color:var(--muted);font-size:12px;line-height:1.6;word-break:keep-all}
+.bar {display:flex;align-items:center;gap:10px;padding:12px 0 8px}
+.bar h2 {flex:1 1 auto;margin:0;font-size:19px;letter-spacing:-.02em;overflow-wrap:anywhere}
+.bar h2 small {display:block;font:400 11px ui-monospace,monospace;color:var(--muted);letter-spacing:.06em}
+.bar .n {flex:none;font:700 11px ui-monospace,monospace;color:var(--accent);white-space:nowrap}
+.back {flex:none;min-height:40px;padding:8px 12px;background:var(--card2);color:var(--text);
+  border:1px solid var(--line);border-radius:8px;font:inherit;font-size:12px;font-weight:700}
+/* 2:3 을 그대로 두면 한 장이 화면을 다 먹는다. 화면 높이의 절반 아래로 묶고 contain 으로 담는다 */
+.big {position:relative;width:100%;aspect-ratio:2/3;max-height:46dvh;overflow:hidden;
+  background:var(--card2);border:1px solid var(--line);border-radius:12px}
+.big img {display:block;width:100%;height:100%;object-fit:contain}
+.big .ph {font-size:12px}
+.facts {display:grid;grid-template-columns:auto minmax(0,1fr);gap:7px 12px;
+  margin:0;padding:12px;background:var(--card);border:1px solid var(--line);border-radius:10px}
+.facts dt {margin:0;color:var(--muted);font-size:11px;white-space:nowrap;align-self:center}
+.facts dd {margin:0;font-size:13px;overflow-wrap:anywhere}
+.facts dd b {font-weight:700}
+.facts dd small {display:block;color:var(--muted);font-size:12px;line-height:1.5}
+/* 세기 — 숫자만 늘어놓으면 어느 쪽이 높은지 안 읽힌다. 막대를 같이 둔다 */
+.bars {display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 8px;align-items:center;
+  margin:0;padding:12px;background:var(--card);border:1px solid var(--line);border-radius:10px}
+.bars span {color:var(--muted);font-size:11px;white-space:nowrap}
+.bars i {display:block;height:7px;border-radius:99px;background:var(--accent-soft);overflow:hidden}
+.bars i u {display:block;height:100%;background:var(--accent);text-decoration:none}
+.bars b {font:700 12px ui-monospace,monospace;text-align:right;min-width:3ch}
+.tag {display:inline-block;margin-right:6px;padding:2px 8px;border-radius:999px;
+  border:1px solid var(--cc);color:var(--text);font:700 11px ui-monospace,monospace;vertical-align:middle}
+.gal {display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
+.gal img {display:block;width:100%;border:1px solid var(--line);border-radius:8px}
+.empty {padding:36px 0;text-align:center;color:var(--muted);font-size:13px}
+</style>
+<script src="lib/workspace-theme.js?v=myth1"></script>
+<script src="lib/words.js?v=myth1"></script>
+<script src="lib/fresh.js?v=4"></script>
+<script src="lib/img.js?v=myth1"></script>
+</head>
+<body class="dex-page">
+<div id="app"></div>
+<script type="module">
+/* Fragment 는 h 에 안 붙어 있다. h.Fragment 로 부르면 preact 가 진짜 태그를 만들어
+   격자(.facts) 칸을 하나 잡아먹는다. 따로 들여온다 */
+import { h, render, Fragment } from 'https://esm.sh/preact@10.24.3';
+import { useState, useEffect, useMemo } from 'https://esm.sh/preact@10.24.3/hooks';
+import htm from 'https://esm.sh/htm@3.1.1';
+import { WorkspaceHeader } from './lib/workspace-ui.js?v=myth1';
+const html = htm.bind(h);
+const W = window.W, IMG = window.AtelierImg;
+const FILTER_STORE = 'myth_dex_filters_v1', COMPACT_STORE = 'myth_dex_compact_v1';
+/* 지금 만드는 것은 여성체뿐이다. 파일 이름에는 _f 를 적어 두므로 나중에 m 을 더해도 옛 파일의 뜻이 안 바뀐다 */
+const V = 'f';
+const MAX = { hp: 1300, atk: 105 };   /* 막대의 꽉 찬 값. 카탈로그에서 가장 큰 값이다 */
+
+/* 썸네일을 먼저 걸고 없으면 원본으로 되돌아간다 */
+function Pic({ file, full, alt }) {
+  return html`<img loading=${full ? 'eager' : 'lazy'} alt=${alt || ''}
+    src=${full ? IMG.imgURL(file) : IMG.thumbURL(file)}
+    onError=${e => {
+      const t = e.currentTarget;
+      if (full || t.dataset.fallback) return;
+      t.dataset.fallback = '1';
+      t.src = IMG.imgURL(file);
+    }} />`;
+}
+
+/* 껍데기. lib/workspace.css 의 .dex-page 규칙이 화면을 100dvh 로 잠그고
+   .collection-scroll 한 곳만 구르게 한다. 굴리면 main 에 dex-scrolled 가 붙어 검색 도구만 간결해진다 */
+function Shell({ head, children }) {
+  const [scrolled, setScrolled] = useState(false);
+  return html`<main class=${scrolled ? 'dex-scrolled' : ''}>
+    <${WorkspaceHeader} page="dex" />
+    <header>${head}</header>
+    <div class="collection-scroll" tabindex="0"
+      onScroll=${e => { const on = e.currentTarget.scrollTop > 8; setScrolled(v => v === on ? v : on); }}>
+      ${children}
+    </div>
+  </main>`;
+}
+
+function useDex() {
+  const [state, set] = useState({ loading: true });
+  useEffect(() => {
+    const get = f => fetch(f, { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(f + ' ' + r.status); return r.json(); });
+    Promise.all([get('data/card.json'), get('data/style.json'), IMG.load(), get('data/group.json'), get('data/skill.json')])
+      .then(([card, style, img, group, skill]) => {
+        const styleName = {};
+        for (const r of style.styles || []) styleName[r.key] = r.name;
+        set({ cards: card.cards || [], styleName, img, group, skill: skill.skills || {} });
+      }).catch(e => set({ error: String((e && e.message) || e) }));
+  }, []);
+  return state;
+}
+
+const DEFAULTS = { q: '', myth: '', kind: '', cost: '', style: '', art: 'any' };
+function normalize(f) {
+  const out = { ...DEFAULTS };
+  for (const k of Object.keys(DEFAULTS)) if (f && typeof f[k] === 'string') out[k] = f[k];
+  return out;
+}
+/* 목록 차례: 신화권 차례 → 값 높은 것 → 이름. 시너지 축이 눈에 먼저 들어오게 */
+function sorted(cards, group) {
+  const order = group.myth.order || [];
+  return cards.slice().sort((a, b) => (order.indexOf(a.myth) - order.indexOf(b.myth)) || (b.cost - a.cost) || a.name.localeCompare(b.name, 'ko'));
+}
+function select(st, f) {
+  const q = f.q.trim().toLowerCase();
+  return sorted(st.cards, st.group).filter(c => {
+    if (f.myth && c.myth !== f.myth) return false;
+    if (f.kind && c.kind !== f.kind) return false;
+    if (f.cost && String(c.cost) !== f.cost) return false;
+    const entry = st.img[c.name];
+    const file = IMG.portraitOf(entry, V, f.style || undefined);
+    const has = f.style ? !!(IMG.styleMap(entry)[f.style] && IMG.styleMap(entry)[f.style][V]) : !!file;
+    if (f.art === 'yes' && !has) return false;
+    if (f.art === 'no' && has) return false;
+    if (q && !(c.name.toLowerCase().includes(q) || (c.en || '').toLowerCase().includes(q) || (c.wielder || '').toLowerCase().includes(q))) return false;
+    return true;
+  });
+}
+
+function Facts({ card, group, skill }) {
+  const sk = skill[card.skill] || { name: card.skill, text: '' };
+  const rows = [
+    [W('card.myth'), html`<span class="tag" style=${'--cc:' + (group.myth.color[card.myth] || 'var(--line)')}>${group.myth.name[card.myth] || card.myth}</span>`],
+    [W('card.kind'), html`<span class="tag" style=${'--cc:' + (group.kind.color[card.kind] || 'var(--line)')}>${group.kind.name[card.kind] || card.kind}</span>`],
+    [W('card.cost'), html`<b>${W('card.cost.n', { n: card.cost })}</b>`],
+    [W('card.range'), W('range.' + card.range)],
+    [W('card.skill'), html`<b>${sk.name}</b><small>${sk.text}</small>`],
+    card.wielder && [W('card.wielder'), card.wielder],
+    card.text && [W('card.text'), card.text],
+  ].filter(Boolean);
+  const bars = [['hp', card.hp, MAX.hp], ['atk', card.atk, MAX.atk]];
+  return html`
+    <dl class="facts">
+      ${rows.map(([k, v]) => html`<${Fragment} key=${k}><dt>${k}</dt><dd>${v}</dd><//>`)}
+    </dl>
+    <p class="sec">${W('card.stats')}</p>
+    <div class="bars" role="group" aria-label=${W('card.stats')}>
+      ${bars.map(([k, n, max]) => html`<${Fragment} key=${k}>
+        <span>${W('card.' + k)}</span>
+        <i><u style=${'width:' + Math.round(n / max * 100) + '%'}></u></i>
+        <b>${n}</b><//>`)}
+      <span>${W('card.spd')}</span>
+      <i><u style=${'width:' + Math.round((1 - (card.spd - 0.5) / 1.0) * 100) + '%'}></u></i>
+      <b>${W('card.spd.n', { n: card.spd })}</b>
+    </div>`;
+}
+
+function Detail({ card, entry, styleName, group, skill, selection, onClose }) {
+  const keys = IMG.styleKeys(entry || {});
+  const [wantStyle, setStyle] = useState(selection?.style || '');
+  const [focus, setFocus] = useState(selection?.file && selection.cut !== 'portrait' ? selection : null);
+  const style = keys.indexOf(wantStyle) >= 0 ? wantStyle : (keys[0] || '');
+  const bucket = (style && IMG.styleMap(entry)[style]) || {};
+  const portrait = bucket[V] || null, awaken = IMG.awakenOf(bucket, V);
+  const casual = IMG.cuts(bucket, 'casual', V);
+  const shown = focus || (portrait ? { file: portrait, cut: 'portrait' } : null);
+
+  const head = html`
+    <div class="bar">
+      <button class="back" onClick=${onClose}>${W('ui.back')}</button>
+      <h2>${card.name}<small>${card.en}</small></h2>
+      <span class="n">${W('card.cost.n', { n: card.cost })}</span>
+    </div>
+    ${keys.length > 1 && html`<div class="sw" role="group" aria-label=${W('dex.style')}>
+      ${keys.map(k => html`<button key=${k} class=${k === style ? 'on' : ''}
+        onClick=${() => { setStyle(k); setFocus(null); }}>${styleName[k] || k}</button>`)}
+    </div>`}`;
+
+  return html`<${Shell} head=${head}>
+    <div class="sw" role="group" aria-label=${W('dex.cut.portrait')}>
+      <button class=${shown && shown.cut === 'portrait' ? 'on' : ''} disabled=${!portrait} data-cut="portrait"
+        onClick=${() => setFocus(null)}>${W('dex.cut.portrait')}</button>
+      <button class=${shown && shown.cut === 'awaken' ? 'on' : ''} disabled=${!awaken} data-cut="awaken"
+        onClick=${() => setFocus({ file: awaken, cut: 'awaken' })}>${W('dex.cut.awaken')}</button>
+    </div>
+    ${shown ? html`
+      <p class="sec">${shotLabel(shown)}<span>${shown.cut === 'awaken' ? W('dex.awaken.note') : (styleName[style] || '')}</span></p>
+      <div class="big"><${Pic} full file=${shown.file} alt=${card.name} /></div>
+    ` : html`<div class="big"><span class="ph">${W('art.none')}</span></div>`}
+
+    <p class="sec">${W('kind.card')}</p>
+    <${Facts} card=${card} group=${group} skill=${skill} />
+
+    ${casual.length > 0 && html`
+      <p class="sec">${W('dex.casual')}<span>${W('art.count', { n: casual.length })}</span></p>
+      <div class="gal">${casual.map((f, i) => html`<button key=${f} class="cell"
+        onClick=${() => setFocus({ file: f, cut: 'casual', index: i + 1 })}><${Pic} file=${f} alt=${W('dex.cut.casual')} /></button>`)}</div>`}
+  <//>`;
+}
+
+function shotLabel(shot) {
+  const cut = W('dex.cut.' + shot.cut);
+  return shot.index ? W('dex.cut.number', { cut, n: shot.index }) : cut;
+}
+
+function List({ st, filters, onFilter, onOpen, compact, onCompact }) {
+  const f = normalize(filters);
+  const shown = useMemo(() => select(st, f), [st, filters]);
+  const update = (key, value) => onFilter(normalize({ ...f, [key]: value }));
+  const all = ['', W('dex.filter.all')];
+  const pick = (key, options) => html`<label for=${'dex-' + key}>${W('dex.filter.' + key)}
+    <select id=${'dex-' + key} value=${f[key]} onChange=${e => update(key, e.currentTarget.value)}>
+      ${options.map(([v, label]) => html`<option key=${v} value=${v}>${label}</option>`)}
+    </select></label>`;
+  const head = html`<div class="search-row">
+    <input type="search" value=${f.q} placeholder=${W('dex.filter.search')} aria-label=${W('dex.filter.search')}
+      onInput=${e => update('q', e.currentTarget.value)} />
+    <button class="dex-reset" id="dex-reset" onClick=${() => onFilter(normalize())}>${W('dex.filter.reset')}</button>
+  </div>`;
+  const images = shown.filter(c => IMG.portraitOf(st.img[c.name], V, f.style || undefined)).length;
+  return html`<${Shell} head=${head}>
+    <details class="dex-filters" open>
+      <summary>${W('dex.filter.title')}</summary>
+      <div class="dex-filter-grid">
+        ${pick('myth', [all, ...st.group.myth.order.map(k => [k, st.group.myth.name[k]])])}
+        ${pick('kind', [all, ...st.group.kind.order.map(k => [k, st.group.kind.name[k]])])}
+        ${pick('cost', [all, ...[1, 2, 3, 4, 5].map(n => [String(n), W('card.cost.n', { n })])])}
+        ${pick('style', [all, ...Object.entries(st.styleName)])}
+        ${pick('art', ['any', 'yes', 'no'].map(k => [k, W('dex.filter.art.' + k)]))}
+      </div>
+    </details>
+    <div class="dex-view-row"><p class="sec" role="status">${W('kind.card')}<span>${W('dex.filter.count', { cards: shown.length, images })}</span></p>
+      <button class="dex-reset" id="dex-size" aria-pressed=${compact} onClick=${onCompact}>${W(compact ? 'dex.view.normal' : 'dex.view.small')}</button>
+    </div>
+    ${shown.length === 0
+      ? html`<p class="empty">${W('dex.filter.empty')}</p>`
+      : html`<div class="grid">${shown.map(c => {
+          const entry = st.img[c.name], file = IMG.portraitOf(entry, V, f.style || undefined);
+          const awaken = file && IMG.awakenOf(IMG.styleMap(entry)[f.style] || Object.values(IMG.styleMap(entry)).find(b => b[V]), V);
+          return html`<button key=${c.name} class="cell" data-card=${c.name} data-myth=${c.myth} data-kind=${c.kind}
+            style=${'--cc:' + (st.group.myth.color[c.myth] || 'var(--line)')}
+            onClick=${() => onOpen({ card: c, style: f.style, file, cut: 'portrait' })}>
+            <span class="face">${file
+              ? html`<${Pic} file=${file} alt=${c.name} />`
+              : html`<span class="ph">${W('art.none')}</span>`}</span>
+            <span class="cap"><span class="cost">${W('card.cost.n', { n: c.cost })}</span>${c.name}
+              <i>${st.group.myth.name[c.myth]} · ${st.group.kind.name[c.kind]}</i>
+              <i>${file ? (awaken ? W('art.awaken.done') : W('art.done')) : W('art.missing')}</i>
+            </span>
+          </button>`;
+        })}</div>`}
+  <//>`;
+}
+
+function App() {
+  const st = useDex();
+  const [open, setOpen] = useState(null);
+  const [compact, setCompact] = useState(() => {
+    try { return localStorage.getItem(COMPACT_STORE) === 'true'; } catch { return false; }
+  });
+  useEffect(() => {
+    document.body.classList.toggle('dex-compact', compact);
+    try { localStorage.setItem(COMPACT_STORE, String(compact)); } catch {}
+    return () => document.body.classList.remove('dex-compact');
+  }, [compact]);
+  const [filters, setFilters] = useState(() => {
+    try { return normalize(JSON.parse(localStorage.getItem(FILTER_STORE))); } catch { return normalize(); }
+  });
+  useEffect(() => { try { localStorage.setItem(FILTER_STORE, JSON.stringify(filters)); } catch {} }, [filters]);
+
+  if (st.error) return html`<${Shell} head=${null}><p class="empty">${W('ui.error', { message: st.error })}</p><//>`;
+  if (!st.cards) return html`<${Shell} head=${null}><p class="empty">${W('ui.loading')}</p><//>`;
+
+  const card = st.cards.find(c => c.name === open?.card?.name);
+  if (card) return html`<${Detail} key=${card.name} card=${card} entry=${st.img[card.name] || null}
+    selection=${open} styleName=${st.styleName} group=${st.group} skill=${st.skill}
+    onClose=${() => setOpen(null)} />`;
+  return html`<${List} st=${st} filters=${filters} onFilter=${setFilters} onOpen=${setOpen}
+    compact=${compact} onCompact=${() => setCompact(v => !v)} />`;
+}
+
+render(html`<${App} />`, document.getElementById('app'));
+window.AtelierFresh.watch();
+</script>
+</body>
+</html>
