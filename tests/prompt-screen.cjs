@@ -40,6 +40,12 @@ const S = ctx.window.AtelierSpec;
     assert.equal(await p.locator('[data-color-picker="hairColor"] .pm-color[aria-pressed="true"]').getAttribute('data-value'), 'crimson');
     /* 견본 그림 — 헤어스타일 */
     assert.equal(await p.locator('[data-figure-picker="hairStyle"] .pm-figure').count(), S.FIGURE_VALUES.hairStyle.length, '헤어 견본');
+    /* 줄은 옆으로 구르고, 화면을 넓히지 않는다 */
+    const row = await p.locator('[data-figure-picker="hairStyle"] .pm-figure-row').evaluate(e => ({ sw: e.scrollWidth, cw: e.clientWidth, ov: getComputedStyle(e).overflowX }));
+    assert(row.sw > row.cw * 2 && row.ov === 'auto', '견본 줄이 옆으로 굴러야 한다: ' + JSON.stringify(row));
+    assert(await p.evaluate(() => document.body.scrollWidth <= innerWidth), '견본 줄이 화면을 넓혔다');
+    await p.locator('[data-figure-picker="hairStyle"] .pm-figure-row').evaluate(e => { e.scrollLeft = 400; });
+    assert((await p.locator('[data-figure-picker="hairStyle"] .pm-figure-row').evaluate(e => e.scrollLeft)) > 300, '실제로 구른다');
     const loaded = await p.locator('[data-figure-picker="hairStyle"] .pm-figure img').first().evaluate(i => new Promise(r => { if (i.complete) r(i.naturalWidth > 0); else { i.onload = () => r(i.naturalWidth > 0); i.onerror = () => r(false); } }));
     assert(loaded, '견본 png 가 뜬다 (img/figure-previews 가 있어야 한다)');
     await p.locator('[data-figure-picker="hairStyle"] .pm-figure[data-value="high ponytail"]').click();

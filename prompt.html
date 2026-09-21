@@ -15,7 +15,9 @@
 * {box-sizing:border-box}
 html,body {margin:0;padding:0}
 .pm-grid {display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
-.pm-panel {padding:14px;background:var(--card);border:1px solid var(--line);border-radius:12px;display:grid;gap:10px}
+.pm-panel {padding:14px;background:var(--card);border:1px solid var(--line);border-radius:12px;display:grid;gap:10px;min-width:0}
+/* 격자 칸은 기본이 min-width:auto 라 안의 긴 줄이 칸을 넓힌다 — 줄이 줄어들어 옆으로 구르게 0 으로 */
+.pm-panel > *,.pm-group > *,.pm-id > *,.pm-param > * {min-width:0;max-width:100%}
 .pm-panel h2 {margin:0;font:700 11px/1.6 ui-monospace,monospace;letter-spacing:.1em;color:var(--accent)}
 .pm-panel label {display:grid;gap:5px;font-size:12px;color:var(--muted)}
 .pm-panel select,.pm-panel input[type=text],.pm-panel input[type=number] {width:100%;min-height:44px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card2);color:var(--text);font:inherit;font-size:13px}
@@ -49,7 +51,8 @@ html,body {margin:0;padding:0}
 .pm-figures-head {display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11px;color:var(--muted)}
 .pm-figures-head .pm-btn {min-height:36px;padding:5px 10px;font-size:11px}
 .pm-figures-head .pm-btn[aria-pressed="true"] {border-color:var(--accent);color:var(--accent)}
-.pm-figure-row {display:flex;gap:8px;overflow-x:auto;overscroll-behavior-x:contain;padding:4px 2px 10px;scrollbar-width:thin;scroll-snap-type:x proximity}
+.pm-figures {min-width:0;max-width:100%;display:grid;gap:6px}
+.pm-figure-row {display:flex;width:100%;gap:8px;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;padding:4px 2px 10px;scrollbar-width:thin;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
 .pm-figure {flex:0 0 84px;width:84px;height:158px;padding:5px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;border:1px solid var(--line);border-radius:9px;background:var(--card);color:var(--muted);font:inherit;cursor:pointer;scroll-snap-align:start;overflow:hidden}
 .pm-figure img {display:block;width:auto;height:auto;max-width:72px;max-height:112px;object-fit:contain;pointer-events:none}
 .pm-figure b {display:block;width:72px;font-size:10px;line-height:13px;text-align:center;white-space:normal;overflow-wrap:anywhere;max-height:26px;overflow:hidden}
