@@ -34,7 +34,7 @@ const contrast=(a,b)=>{const x=luminance(a),y=luminance(b);return (Math.max(x,y)
   }
   assert.equal(backgrounds.size,8);assert.equal(marks.size,8);
   /* 화면이 늘면 여기 더한다 */
-  for(const [page,selector] of [['dex.html','.grid .cell'],['auto.html','.at-shop'],['index.html','.theme-card']]){
+  for(const [page,selector] of [['dex.html','.grid .cell'],['auto.html','.at-shop'],['prompt.html','#prompt-output'],['index.html','.theme-card']]){
    await p.goto(harness.base+'/'+page);await p.waitForSelector(selector);
    const nav=await p.locator('.workspace-nav a').evaluateAll(es=>es.map(e=>({
     href:e.getAttribute('href'),current:e.getAttribute('aria-current'),decoration:getComputedStyle(e).textDecorationLine

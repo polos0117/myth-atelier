@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow, noarchive, noimageindex">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#faf9f3">
+<title>신화 무기 공방</title>
+<!--
+  그림 프롬프트 생성기. 문장은 lib/prompt-spec.js(표)와 lib/prompt-myth.js(조립)에서 온다 —
+  여기는 고르고 보여 주고 복사할 뿐이다. 설정은 무기마다 이 브라우저에 남는다.
+-->
+<link rel="stylesheet" href="lib/workspace.css?v=myth1">
+<style>
+* {box-sizing:border-box}
+html,body {margin:0;padding:0}
+.pm-grid {display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+.pm-panel {padding:14px;background:var(--card);border:1px solid var(--line);border-radius:12px;display:grid;gap:10px}
+.pm-panel h2 {margin:0;font:700 11px/1.6 ui-monospace,monospace;letter-spacing:.1em;color:var(--accent)}
+.pm-panel label {display:grid;gap:5px;font-size:12px;color:var(--muted)}
+.pm-panel select,.pm-panel input[type=text],.pm-panel input[type=number] {width:100%;min-height:44px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card2);color:var(--text);font:inherit;font-size:13px}
+.pm-note {margin:0;color:var(--muted);font-size:12px;line-height:1.6;word-break:keep-all}
+.pm-id {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.pm-id .custom {grid-column:1/-1}
+.pm-out {display:grid;gap:8px}
+.pm-out textarea {width:100%;min-height:360px;padding:14px;border:1px solid var(--line);border-radius:10px;background:var(--card2);color:var(--text);font:13px/1.7 ui-monospace,monospace;resize:vertical}
+.pm-bar {display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12px;color:var(--muted)}
+.pm-bar .pm-btn {min-height:44px;padding:8px 14px;background:var(--accent);color:var(--on-accent);border:1px solid var(--accent);border-radius:8px;font:inherit;font-size:13px;font-weight:700}
+:is([data-theme="daylight"],[data-theme="blossom"],[data-theme="sand"]) .pm-bar .pm-btn {color:#fff}
+.pm-bar .pm-btn.quiet {background:var(--card2);color:var(--text);border-color:var(--line)}
+.pm-file {padding:10px 12px;border:1px dashed var(--line);border-radius:8px;font:700 13px ui-monospace,monospace;overflow-wrap:anywhere;color:var(--text)}
+.pm-card {display:flex;gap:12px;align-items:center;padding:10px;background:var(--card2);border-radius:10px}
+.pm-card .face {flex:none;width:64px;aspect-ratio:2/3;border-radius:8px;background:var(--card);overflow:hidden;display:grid;place-items:center;color:var(--muted);font:9px ui-monospace,monospace;text-align:center}
+.pm-card .face img {width:100%;height:100%;object-fit:cover;display:block}
+.pm-card b {display:block;font-size:15px}
+.pm-card small {display:block;color:var(--muted);font-size:12px;line-height:1.5}
+.pm-tag {display:inline-block;margin-top:4px;padding:2px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font:700 10px ui-monospace,monospace}
+@media(min-width:1000px){.pm-grid {grid-template-columns:360px minmax(0,1fr);align-items:start}}
+</style>
+<script src="lib/workspace-theme.js?v=myth1"></script>
+<script src="lib/words.js?v=myth1"></script>
+<script src="lib/fresh.js?v=4"></script>
+<script src="lib/img.js?v=myth1"></script>
+<script src="lib/prompt-spec.js?v=1"></script>
+<script src="lib/prompt-myth.js?v=1"></script>
+</head>
+<body class="prompt-page">
+<div class="wrap"><div id="app"></div></div>
+<script type="module">
+import { h, render } from 'https://esm.sh/preact@10.24.3';
+import { useState, useEffect, useMemo } from 'https://esm.sh/preact@10.24.3/hooks';
+import htm from 'https://esm.sh/htm@3.1.1';
+import { WorkspaceHeader } from './lib/workspace-ui.js?v=myth1';
+const html = htm.bind(h);
+const W = window.W, S = window.AtelierSpec, P = window.AtelierPrompt, IMG = window.AtelierImg;
+const STORE = 'myth_prompt_v1';
+
+function readStore() { try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch { return {}; } }
+function writeStore(v) { try { localStorage.setItem(STORE, JSON.stringify(v)); } catch {} }
+function useData() {
+  const [state, set] = useState(null);
+  useEffect(() => {
+    const get = f => fetch(f, { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(f + ' ' + r.status); return r.json(); });
+    Promise.all([get('data/card.json'), get('data/group.json'), get('data/skill.json'), IMG.load()])
+      .then(([card, group, skill, img]) => set({ data: { cards: card.cards, group, skills: skill.skills }, img }))
+      .catch(e => set({ error: String((e && e.message) || e) }));
+  }, []);
+  return state;
+}
+const DEFAULT = () => ({ style: S.DEFAULT_STYLE, output: 'portrait', action: '', casualIndex: 1, scene: '', params: {} });
+
+function Select({ id, label, value, options, onChange }) {
+  return html`<label for=${id}>${label}
+    <select id=${id} value=${value} onChange=${e => onChange(e.currentTarget.value)}>
+      ${options.map(([v, name]) => html`<option key=${v} value=${v}>${name}</option>`)}
+    </select></label>`;
+}
+
+function App() {
+  const loaded = useData();
+  const [store, setStore] = useState(readStore);
+  const [card, setCard] = useState(() => readStore().__card || '');
+  const [copied, setCopied] = useState(false);
+  const st = useMemo(() => ({ ...DEFAULT(), ...(store[card] || {}), card }), [store, card]);
+  const update = patch => {
+    const next = { ...store, [card]: { ...(store[card] || {}), ...patch }, __card: card };
+    setStore(next); writeStore(next);
+  };
+  const pickCard = name => { setCard(name); const next = { ...store, __card: name }; setStore(next); writeStore(next); };
+  if (!loaded) return html`<div><${WorkspaceHeader} page="prompt" /><p class="pm-note">${W('ui.loading')}</p></div>`;
+  if (loaded.error) return html`<div><${WorkspaceHeader} page="prompt" /><p class="pm-note">${W('ui.error', { message: loaded.error })}</p></div>`;
+  const { data, img } = loaded, g = data.group;
+  const c = P.cardOf(data, card);
+  const text = c ? P.build(st, data) : '';
+  const file = c ? P.fileName(st, c) : '';
+  const portrait = c && IMG.portraitOf(img[c.name], 'f', st.style);
+  const copy = () => { navigator.clipboard && navigator.clipboard.writeText(text).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1500); }); };
+  const cards = g.myth.order.flatMap(m => data.cards.filter(x => x.myth === m).slice().sort((a, b) => b.cost - a.cost || a.name.localeCompare(b.name, 'ko')));
+
+  return html`<div>
+    <${WorkspaceHeader} page="prompt" />
+    <div class="pm-grid">
+      <div class="pm-panel">
+        <h2>${W('prompt.card')}</h2>
+        <label for="pm-card">${W('prompt.card.pick')}
+          <select id="pm-card" value=${card} onChange=${e => pickCard(e.currentTarget.value)}>
+            <option value="">—</option>
+            ${g.myth.order.map(m => html`<optgroup key=${m} label=${g.myth.name[m]}>
+              ${cards.filter(x => x.myth === m).map(x => html`<option key=${x.name} value=${x.name}>${x.name} · ${g.kind.name[x.kind]} · ${W('card.cost.n', { n: x.cost })}</option>`)}
+            </optgroup>`)}
+          </select></label>
+        ${c && html`<div class="pm-card">
+          <span class="face">${portrait ? html`<img src=${IMG.thumbURL(portrait)} alt="" />` : W('art.none')}</span>
+          <div><b>${c.name}</b><small>${c.en} · ${g.myth.name[c.myth]} · ${g.kind.name[c.kind]}</small><small>${c.wielder}</small>
+            <span class="pm-tag">${portrait ? W('prompt.art.have') : W('prompt.art.none')}</span></div>
+        </div>`}
+        <${Select} id="pm-style" label=${W('prompt.style')} value=${st.style} options=${S.STYLES.map(s => [s[0], s[1]])} onChange=${v => update({ style: v })} />
+        <${Select} id="pm-output" label=${W('prompt.output')} value=${st.output} options=${Object.keys(S.OUTPUTS).map(k => [k, S.OUTPUTS[k].name])} onChange=${v => update({ output: v })} />
+        <p class="pm-note">${S.OUTPUTS[st.output].note}</p>
+        ${st.output === 'portrait' && c && html`<${Select} id="pm-action" label=${W('prompt.action')} value=${st.action || S.ACTIONS[c.kind][0][0]}
+          options=${S.ACTIONS[c.kind].map(a => [a[0], a[1]])} onChange=${v => update({ action: v })} />`}
+        ${st.output === 'casual' && html`<label for="pm-casual">${W('prompt.casual.index')}
+          <input id="pm-casual" type="number" min="1" max="9" value=${st.casualIndex} onInput=${e => update({ casualIndex: Math.max(1, +e.currentTarget.value || 1) })} /></label>`}
+        ${st.output === 'awaken' && html`<p class="pm-note">${W('prompt.awaken.note')}</p>`}
+        <label for="pm-scene">${W('prompt.scene')}
+          <input id="pm-scene" type="text" value=${st.scene} placeholder=${W('prompt.scene.hint')} onInput=${e => update({ scene: e.currentTarget.value })} /></label>
+
+        <h2>${W('prompt.identity')}</h2>
+        <p class="pm-note">${W('prompt.identity.note')}</p>
+        <div class="pm-id">${S.PARAMS.map(p => html`<${Select} key=${p.key} id=${'pm-' + p.key} label=${p.ko} value=${st.params[p.key] || ''}
+            options=${p.options} onChange=${v => update({ params: { ...st.params, [p.key]: v } })} />
+          ${st.params[p.key] === '__custom__' && html`<label class="custom" for=${'pm-' + p.key + '-custom'}>${p.ko} · ${W('prompt.custom')}
+            <input id=${'pm-' + p.key + '-custom'} type="text" value=${st.params[p.key + '_custom'] || ''}
+              onInput=${e => update({ params: { ...st.params, [p.key + '_custom']: e.currentTarget.value } })} /></label>`}`)}</div>
+        ${c && html`<button class="pm-btn quiet" id="pm-reset" type="button" onClick=${() => { const next = { ...store, __card: card }; delete next[card]; setStore(next); writeStore(next); }}>${W('prompt.reset')}</button>`}
+      </div>
+
+      <div class="pm-panel pm-out">
+        <h2>${W('prompt.result')}</h2>
+        <textarea id="prompt-output" readonly value=${text} placeholder=${W('prompt.card.pick')}></textarea>
+        <div class="pm-bar">
+          <button class="pm-btn" id="pm-copy" type="button" disabled=${!text} onClick=${copy}>${copied ? W('prompt.copied') : W('prompt.copy')}</button>
+          <span>${W('prompt.words', { n: P.words(text) })}</span>
+        </div>
+        ${c && html`<h2>${W('prompt.file')}</h2><div class="pm-file" id="pm-file">${file}</div><p class="pm-note">${W('prompt.file.note')}</p>`}
+      </div>
+    </div>
+  </div>`;
+}
+render(html`<${App} />`, document.getElementById('app'));
+window.AtelierFresh.watch();
+</script>
+</body>
+</html>
