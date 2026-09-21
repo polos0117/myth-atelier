@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "note": "Generated from lib/prompt-spec.js ART_STYLES. Do not edit separately. Run node tools/sync-styles.cjs --write after changing prompt styles. Keys are shared by prompts, gallery, image registration and filenames.",
+  "styles": [
+    {
+      "key": "cinematic_semi_real",
+      "name": "세미리얼 시네마틱"
+    },
+    {
+      "key": "game_keyart",
+      "name": "게임 키아트 2.5D"
+    },
+    {
+      "key": "glossy_kr_game",
+      "name": "한국형 글로시 게임 일러스트"
+    },
+    {
+      "key": "glossy_promo",
+      "name": "글로시 프로모 키아트"
+    },
+    {
+      "key": "mecha_cinematic_keyart",
+      "name": "메카 시네마틱 키아트"
+    },
+    {
+      "key": "game_cgi",
+      "name": "게임 시네마틱 CGI"
+    },
+    {
+      "key": "semi_real_paint",
+      "name": "세미리얼 유화"
+    },
+    {
+      "key": "photoreal",
+      "name": "사진풍"
+    },
+    {
+      "key": "anime_illust",
+      "name": "애니 일러스트"
+    },
+    {
+      "key": "cel_anime",
+      "name": "셀화 애니"
+    },
+    {
+      "key": "painterly",
+      "name": "회화적 컨셉아트"
+    },
+    {
+      "key": "retro_anime",
+      "name": "레트로 애니"
+    },
+    {
+      "key": "ink_wash",
+      "name": "수묵 담채"
+    },
+    {
+      "key": "bright_catalog",
+      "name": "밝은 카탈로그"
+    }
+  ]
+}
