@@ -3,12 +3,12 @@
  "note": "화풍 열쇠와 이름. lib/prompt-spec.js 의 STYLES 와 같아야 한다(tests/prompt-engine.cjs 가 맞춘다). 열쇠는 그림 파일 이름에 들어가므로 바꾸지 않는다. 차례는 화면 차례 — 앞의 다섯이 2026-09-21 궁니르 열넷을 견주고 고른 결, 첫 것이 기준.",
  "styles": [
   {
-   "key": "cinematic_semi_real",
-   "name": "세미리얼 시네마틱"
-  },
-  {
    "key": "game_keyart",
    "name": "게임 키아트 2.5D"
+  },
+  {
+   "key": "cinematic_semi_real",
+   "name": "세미리얼 시네마틱"
   },
   {
    "key": "glossy_kr_game",
