@@ -34,12 +34,12 @@ const contrast=(a,b)=>{const x=luminance(a),y=luminance(b);return (Math.max(x,y)
   }
   assert.equal(backgrounds.size,9);assert.equal(marks.size,9);
   /* 화면이 늘면 여기 더한다 */
-  for(const [page,selector] of [['dex.html','.grid .cell'],['auto.html','.at-shop'],['run.html','.rn-pick'],['prompt.html','#prompt-output'],['index.html','.theme-card']]){
+  for(const [page,selector] of [['dex.html','.grid .cell'],['auto.html','.at-shop'],['run.html','.rn-pick'],['draft.html','.df-setup'],['prompt.html','#prompt-output'],['index.html','.theme-card']]){
    await p.goto(harness.base+'/'+page);await p.waitForSelector(selector);
    const nav=await p.locator('.workspace-nav a').evaluateAll(es=>es.map(e=>({
     href:e.getAttribute('href'),current:e.getAttribute('aria-current'),decoration:getComputedStyle(e).textDecorationLine
    })));
-   assert.deepEqual(nav.map(x=>x.href),['index.html','dex.html','auto.html','run.html','prompt.html'],page+' common navigation');
+   assert.deepEqual(nav.map(x=>x.href),['index.html','dex.html','auto.html','run.html','draft.html','prompt.html'],page+' common navigation');
    assert.deepEqual(nav.filter(x=>x.current==='page').map(x=>x.href),[page],page+' selected tab');
    assert(nav.every(x=>x.decoration==='none'),page+' navigation underlines');
    assert(await p.evaluate(()=>{

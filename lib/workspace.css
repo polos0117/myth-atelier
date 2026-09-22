@@ -717,3 +717,63 @@ html:has(.dex-page) {height:100%;overflow:hidden;overscroll-behavior:none}
   .rn-card {min-height:96px;padding:8px 8px 8px 10px}
   .rn-card .nm {font-size:13px}
 }
+
+/* 항해가 여섯 — 폰에서는 글자를 조금 줄인다 */
+@media (max-width:599px) { .workspace-nav a {font-size:10px;letter-spacing:-.03em;padding:0 1px} .workspace-nav a[href="index.html"],.workspace-nav a[href="prompt.html"] {flex-grow:1} }
+/* 드래프트 — 팩 아홉 장이 가운데, 내 편성이 옆, 적은 접힌다 */
+.df-setup .rn-choice {grid-template-columns:repeat(2,minmax(0,1fr))}
+.df-opt {padding:12px 14px;border:1px solid var(--line);border-top:2px solid var(--gold);border-radius:8px;background:var(--card)}
+.df-opt b {display:block;font:700 14px var(--display);margin-bottom:4px}
+.df-opt p {margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.6}
+.df-seg {display:inline-flex;gap:4px;padding:4px;border:1px solid var(--line);border-radius:6px;background:var(--card2)}
+.df-seg button {min-height:36px;padding:0 12px;border:0;border-radius:4px;background:transparent;color:var(--muted);font:700 12px var(--display);cursor:pointer}
+.df-seg button[aria-pressed="true"] {background:var(--accent-soft);color:var(--text);box-shadow:inset 0 -2px var(--gold)}
+.df-top {display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:12px 0 8px}
+.df-top h2 {margin:0;font:700 22px/1.3 var(--display)}
+.df-top .df-round {font:700 11px var(--inscription);letter-spacing:.2em;color:var(--gold)}
+.df-seats {display:flex;gap:6px}
+.df-seat {padding:4px 9px;border:1px solid var(--line);border-radius:4px;font:700 10px var(--inscription);letter-spacing:.14em;color:var(--muted)}
+.df-seat.on {border-color:var(--gold);color:var(--text);box-shadow:0 0 12px var(--halo)}
+.df-layout {display:grid;grid-template-columns:minmax(0,3fr) minmax(260px,1.2fr);gap:14px;align-items:start}
+.df-pack {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.df-card {position:relative;padding:0;border:1px solid var(--line);border-radius:6px;background:var(--card);text-align:left;color:inherit;font:inherit;cursor:pointer;overflow:hidden;transition:transform .2s,box-shadow .25s,border-color .2s}
+.df-card:hover {transform:translateY(-3px);border-color:var(--gold);box-shadow:0 12px 26px #0005}
+.df-card.on {border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 0 22px var(--halo)}
+.df-card .face {display:block;aspect-ratio:2/3;background:var(--card2);overflow:hidden;position:relative}
+.df-card .face img {display:block;width:100%;height:100%;object-fit:cover;object-position:center top}
+.df-card .face .ph {position:absolute;inset:0;display:grid;place-items:center;padding:10px;text-align:center;color:var(--muted);font:700 22px/1.2 var(--display)}
+.df-card.wielder .face {aspect-ratio:auto;min-height:0;padding:14px 10px 6px;background:linear-gradient(180deg,var(--card2),var(--card))}
+.df-card.wielder .face .ph {position:static;padding:0}
+.df-card .cap {display:block;padding:7px 9px 9px;border-top:2px solid var(--cc,var(--line))}
+.df-card .cap b {display:block;font:700 13px var(--display)}
+.df-card .cap i {display:block;font:400 10px ui-monospace,monospace;font-style:normal;color:var(--muted);margin-top:2px}
+.df-card .cap .dl {display:block;margin-top:4px;font:700 11px ui-monospace,monospace;color:var(--gold)}
+.df-card .cap .dl.neg {color:#ff6b84}
+.df-bar {display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.df-side {display:grid;gap:10px}
+.df-panel {padding:10px 12px;border:1px solid var(--line);border-top:2px solid var(--gold);border-radius:8px;background:var(--card)}
+.df-panel h3 {margin:0 0 8px;font:600 11px var(--inscription);letter-spacing:.22em;color:var(--gold);text-transform:uppercase}
+.df-pairs {display:grid;gap:5px;margin:0;padding:0;list-style:none}
+.df-pair {display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;padding:5px 7px;border:1px solid var(--line);border-radius:4px;background:var(--card2);font-size:12px}
+.df-pair .tn {display:flex;gap:2px}
+.df-pair .tn img {width:26px;height:36px;object-fit:cover;object-position:center top;border-radius:3px;border:1px solid var(--line)}
+.df-pair .tn i {display:grid;place-items:center;width:26px;height:36px;border:1px solid var(--line);border-radius:3px;font:700 12px var(--display);color:var(--muted)}
+.df-pair .nm {overflow-wrap:anywhere}
+.df-pair .nm small {display:block;color:var(--muted);font:400 10px ui-monospace,monospace}
+.df-pair .sc {font:700 12px ui-monospace,monospace;color:var(--gold)}
+.df-rows {margin:0;padding:0;list-style:none;font:12px/1.7 ui-monospace,monospace;color:var(--muted)}
+.df-rows li {display:flex;justify-content:space-between;gap:8px}
+.df-rows li b {color:var(--text)}
+.df-rows li.total {border-top:1px solid var(--line);margin-top:4px;padding-top:4px;color:var(--gold);font-weight:700}
+.df-rows li.feud {color:#ff6b84}
+.df-log {max-height:180px;overflow:auto;margin:0;padding:0;list-style:none;font:11px/1.7 ui-monospace,monospace;color:var(--muted)}
+.df-log li span {color:var(--gold);margin-right:6px}
+.df-log li b {color:var(--text);margin-right:6px}
+.df-fired {padding:8px 12px;border:1px solid var(--gold);border-radius:6px;background:var(--accent-soft);color:var(--text);font-size:12px}
+.df-result {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:10px 0}
+.df-result .df-panel.me {border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 0 24px var(--halo)}
+.df-result h4 {margin:0 0 6px;font:700 16px var(--display)}
+.df-result h4 small {font:700 11px var(--inscription);letter-spacing:.18em;color:var(--gold);margin-left:8px}
+.df-records {color:var(--muted);font-size:12px}
+@media (max-width:860px) { .df-layout {grid-template-columns:1fr} .df-result {grid-template-columns:1fr} }
+@media (max-width:599px) { .df-pack {grid-template-columns:repeat(3,minmax(0,1fr));gap:6px} .df-card .cap {padding:6px 7px} .df-card .cap b {font-size:12px} .df-setup .rn-choice {grid-template-columns:1fr} }

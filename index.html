@@ -9,9 +9,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap">
-<link rel="stylesheet" href="lib/workspace.css?v=myth13">
+<link rel="stylesheet" href="lib/workspace.css?v=myth14">
 <script src="lib/workspace-theme.js?v=myth4"></script>
-<script src="lib/words.js?v=myth6"></script>
+<script src="lib/words.js?v=myth7"></script>
 <script src="lib/img.js?v=myth1"></script>
 <script src="lib/patch.js?v=1"></script>
 <script src="lib/fresh.js?v=4"></script>
@@ -21,7 +21,7 @@
 <script type="module">
 import {h,render} from 'https://esm.sh/preact@10.24.3';
 import {useState,useEffect,useRef} from 'https://esm.sh/preact@10.24.3/hooks';
-import {WorkspaceHeader,ThemeGallery} from './lib/workspace-ui.js?v=myth4';
+import {WorkspaceHeader,ThemeGallery} from './lib/workspace-ui.js?v=myth5';
 const W=window.W,IMG=window.AtelierImg;
 /* 패치 기록 — docs/PATCH.md 를 그대로 읽는다. 열 때 한 번만 받아 온다.
    닫혀 있으면 단추만 그려 집 화면의 자리를 건드리지 않는다. */
@@ -107,7 +107,7 @@ function App(){
     h(WorkspaceHeader,{page:'index'}),
     h(Hall),
     h(Patch),
-    h('div',{class:'lab-links'},['dex','auto','run','prompt'].map(key=>
+    h('div',{class:'lab-links'},['dex','auto','run','draft','prompt'].map(key=>
       h('a',{class:'lab-link',href:key+'.html',key},
         h('small',null,W('home.'+key+'.code')),h('h3',null,W('home.'+key+'.title')),
         h('p',null,W('home.'+key+'.note')),h('span',{class:'lab-arrow','aria-hidden':'true'},'↗')))),
