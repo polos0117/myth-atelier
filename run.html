@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow, noarchive, noimageindex">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#121016">
+<title>신화 무기 공방</title>
+<!-- 던전 — 로그라이크 덱빌딩. 무기 셋을 데려가 여덟 칸의 길을 간다.
+     규칙은 lib/run.js 가 갖고, 여기는 그리기와 저장뿐이다. 길은 이 브라우저(localStorage)에 남는다. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap">
+<link rel="stylesheet" href="lib/workspace.css?v=myth13">
+<style>
+.dex-page > #app {display:flex;flex-direction:column;min-height:0;height:100%}
+.dex-page > #app > main {flex:1 1 auto;min-height:0}
+.collection-scroll {display:block}
+.note {margin:8px 0 0;color:var(--muted);font-size:12px;line-height:1.6;word-break:keep-all}
+.empty {padding:36px 0;text-align:center;color:var(--muted);font-size:13px}
+</style>
+<script src="lib/workspace-theme.js?v=myth4"></script>
+<script src="lib/words.js?v=myth6"></script>
+<script src="lib/fresh.js?v=4"></script>
+<script src="lib/img.js?v=myth1"></script>
+<script src="lib/run.js?v=2"></script>
+</head>
+<body class="dex-page rn-page">
+<div id="app"></div>
+<script type="module">
+import { h, render } from 'https://esm.sh/preact@10.24.3';
+import { useState, useEffect } from 'https://esm.sh/preact@10.24.3/hooks';
+import htm from 'https://esm.sh/htm@3.1.1';
+import { WorkspaceHeader } from './lib/workspace-ui.js?v=myth4';
+const html = htm.bind(h);
+const W = window.W, IMG = window.AtelierImg, R = window.AtelierRun;
+const STORE = 'myth_run_v1', V = 'f';
+
+function Shell({ children }) {
+  return html`<main>
+    <${WorkspaceHeader} page="run" />
+    <div class="collection-scroll" tabindex="0">${children}</div>
+  </main>`;
+}
+function useData() {
+  const [state, set] = useState(null);
+  useEffect(() => {
+    const get = f => fetch(f, { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(f + ' ' + r.status); return r.json(); });
+    Promise.all([get('data/card.json'), get('data/skill.json'), get('data/run.json'), get('data/group.json'), IMG.load()])
+      .then(([card, skill, run, group, img]) => { const art = {}; card.cards.forEach(c => { if (IMG.portraitOf(img[c.name], V)) art[c.name] = 1; }); set({ data: { cards: card.cards, skills: skill.skills, run, art }, group, img }); })
+      .catch(e => set({ error: String((e && e.message) || e) }));
+  }, []);
+  return state;
+}
+function load() { try { const j = JSON.parse(localStorage.getItem(STORE)); return j && j.party ? j : null; } catch { return null; } }
+function save(st) { try { if (st) localStorage.setItem(STORE, JSON.stringify(st)); else localStorage.removeItem(STORE); } catch {} }
+function seed() { return (Date.now() ^ Math.floor(Math.random() * 1e9)) | 0; }
+function artOf(img, name, state) { return IMG.coverOf(img[name], V, undefined, state === 'awaken' ? 3 : 1, state === 'cursed'); }
+
+/* 전신 그림 한 장 — 상태에 따라 각성·저주 그림으로 넘어간다 */
+function Figure({ img, name, state, hp, maxHp, shield, dead, sub, gauge, gaugeMax, target, onClick, kindName }) {
+  const file = artOf(img, name, state), pct = Math.round(hp / maxHp * 100);
+  return html`<button type="button" class=${'rn-fig' + (dead ? ' dead' : '') + (target ? ' target' : '')} data-name=${name} data-state=${state}
+    onClick=${onClick} disabled=${!onClick}>
+    <span class="face">${file ? html`<img src=${IMG.imgURL(file)} alt="" />` : html`<span class="ph">${name}</span>`}
+      <span class="tag">${dead ? W('run.figure.dead') : W('run.state.' + state)}</span></span>
+    <span class="info">
+      <span class="nm">${name}<i>${sub || kindName}</i></span>
+      <span class="hp"><u class=${pct < 35 ? 'low' : ''} style=${'width:' + pct + '%'}></u></span>
+      <span class="num">${W('run.hp', { hp, max: maxHp })}${shield ? html`<span class="shield">+${shield}</span>` : ''}</span>
+      ${gaugeMax && !dead ? html`<span class="pips" title=${W('run.gauge', { n: Math.min(gauge, gaugeMax), max: gaugeMax })}>${Array.from({ length: gaugeMax }, (_, i) => html`<i key=${i} class=${(state === 'awaken' || i < gauge) ? 'on' : ''}></i>`)}</span>` : ''}
+    </span>
+  </button>`;
+}
+
+function Pick({ data, group, img, onStart }) {
+  const [sel, setSel] = useState([]);
+  const cards = data.cards.slice().sort((a, b) => (IMG.portraitOf(img[b.name], V) ? 1 : 0) - (IMG.portraitOf(img[a.name], V) ? 1 : 0) || b.cost - a.cost);
+  const toggle = n => setSel(s => s.includes(n) ? s.filter(x => x !== n) : s.length < 3 ? s.concat(n) : s);
+  return html`<div>
+    <div class="rn-head"><h2>${W('run.pick.title')}</h2><p>${W('run.pick.note')}</p></div>
+    <div class="rn-bar"><b>${W('run.pick.count', { n: sel.length })}</b>
+      <button type="button" class="rn-btn primary" disabled=${sel.length !== 3} onClick=${() => onStart(sel)}>${W('run.pick.start')}</button></div>
+    <div class="rn-pick">${cards.map(c => { const f = IMG.portraitOf(img[c.name], V); return html`<button type="button" key=${c.name} class=${'cell' + (sel.includes(c.name) ? ' on' : '')} data-name=${c.name} aria-pressed=${sel.includes(c.name)} onClick=${() => toggle(c.name)}>
+      <span class="face">${f ? html`<img src=${IMG.thumbURL(f)} alt="" loading="lazy" />` : ''}</span>
+      <span class="cap">${c.name}<i>${group.kind.name[c.kind]} · ${W('card.cost.n', { n: c.cost })}</i></span></button>`; })}</div>
+  </div>`;
+}
+
+function Map({ st, data, onGo }) {
+  const list = R.nodes(data);
+  return html`<div>
+    <div class="rn-head"><h2>${W('run.map.title')}</h2><p>${W('run.map.note')}</p></div>
+    <div class="rn-map">${list.map((k, i) => html`<div key=${i} class=${'rn-node ' + k + (i < st.node ? ' done' : '') + (i === st.node ? ' here' : '')} data-index=${i}><b>${i + 1}</b>${W('run.node.' + k)}</div>`)}</div>
+    <div class="rn-bar"><button type="button" class="rn-btn primary" onClick=${onGo}>${W('run.map.go')}</button></div>
+  </div>`;
+}
+
+function Party({ st, data, img, group, gaugeMax }) {
+  return html`<div class="rn-figs">${st.party.map(m => { const c = R.cardOf(data, m.name); return html`<${Figure} key=${m.name} img=${img} name=${m.name} state=${R.stateOf(st, m)}
+    hp=${m.hp} maxHp=${m.maxHp} shield=${m.shield} dead=${!m.alive} kindName=${group.kind.name[c.kind]}
+    gauge=${st.battle ? st.battle.gauge[m.name] : 0} gaugeMax=${gaugeMax} />`; })}</div>`;
+}
+
+function Log({ log }) {
+  const line = e => {
+    const p = { a: e.a, b: e.b, d: e.d, name: e.name, n: e.enemies ? e.enemies.join(' · ') : '' };
+    return W('run.log.' + e.k, p);
+  };
+  const bad = { ehit: 1, eskill: 1, fall: 1, curse: 1, bleed: 1, lose: 1 };
+  return html`<div class="rn-log">${log.slice(-8).map((e, i) => html`<div key=${i} class=${bad[e.k] ? 'bad' : ''}>${e.k === 'awaken' || e.k === 'win' ? html`<b>${line(e)}</b>` : line(e)}</div>`)}</div>`;
+}
+
+function Battle({ st, data, img, group, act }) {
+  const b = st.battle, T = R.tune(data), [pick, setPick] = useState(null);
+  const foes = b.enemies, alive = R.foes(st);
+  const playCard = (i) => {
+    const s = R.spec(data, b.hand[i]);
+    if (s.mult && !s.all && alive.length > 1) { setPick(pick === i ? null : i); return; }
+    setPick(null); act(x => R.play(x, data, i, 0));
+  };
+  const onEnemy = (idx) => { if (pick === null) return; const i = pick; setPick(null); act(x => R.play(x, data, i, idx)); };
+  return html`<div>
+    <div class="rn-head"><h2>${b.boss ? W('run.node.boss') : W('run.node.fight')} <small class="rn-note">${W('run.battle.turn', { n: b.turn })}</small></h2>
+      <p>${W('run.battle.deck', { n: b.deck.length, m: b.discard.length })}</p></div>
+    <div class="rn-arena">
+      <section class="rn-side rn-party"><h3>${W('run.party')}</h3><${Party} st=${st} data=${data} img=${img} group=${group} gaugeMax=${T.gauge} /></section>
+      <section class="rn-side rn-enemy"><h3>${W('run.enemy')}${b.boss ? ' · ' + W('run.battle.boss') : ''}</h3>
+        <div class="rn-figs">${foes.map((e, i) => { const c = R.cardOf(data, e.name); const idx = alive.indexOf(e); return html`<${Figure} key=${e.name} img=${img} name=${e.name} state="base" hp=${e.hp} maxHp=${e.maxHp} dead=${!e.alive}
+          kindName=${group.kind.name[c.kind]} target=${pick !== null && e.alive} onClick=${pick !== null && e.alive ? (() => onEnemy(idx)) : null} />`; })}</div></section>
+    </div>
+    <div class="rn-deck"><span class="rn-mana">${W('run.battle.mana')} ${Array.from({ length: T.mana }, (_, i) => html`<i key=${i} class=${i < b.mana ? 'on' : ''}></i>`)}</span>
+      <span>${pick !== null ? W('run.battle.target', { name: R.spec(data, b.hand[pick]).name }) : W('run.battle.hand')}</span>
+      <button type="button" class="rn-btn" onClick=${() => { setPick(null); act(x => R.endTurn(x, data)); }}>${W('run.battle.end')}</button></div>
+    <div class="rn-hand">${b.hand.map((c, i) => { const s = R.spec(data, c), owner = st.party.find(p => p.name === c.owner), card = R.cardOf(data, c.owner);
+      const can = owner && owner.alive && s.cost <= b.mana;
+      return html`<button type="button" key=${c.id} class=${'rn-card' + (pick === i ? ' on' : '')} data-key=${s.key} data-owner=${c.owner} style=${'--cc:' + (group.kind.color ? group.kind.color[card.kind] : 'var(--gold)')}
+        disabled=${!can} onClick=${() => playCard(i)}>
+        <span class="who">${c.owner}${s.unique ? html`<b>${W('run.card.unique')}</b>` : ''}</span>
+        <span class="nm">${s.name}</span><span class="tx">${s.text}</span><span class="cost">${s.cost}</span></button>`; })}</div>
+    <${Log} log=${st.log} />
+    ${b.ask && html`<div class="rn-ask" role="dialog"><div>
+      <h3>${W('run.ask.title', { name: b.ask })}</h3><p>${W('run.ask.text')}</p>
+      <div class="rn-bar"><button type="button" class="rn-btn primary" data-answer="yes" onClick=${() => act(x => R.answerCurse(x, data, true))}>${W('run.ask.yes')}</button>
+        <button type="button" class="rn-btn quiet" data-answer="no" onClick=${() => act(x => R.answerCurse(x, data, false))}>${W('run.ask.no')}</button></div>
+    </div></div>`}
+  </div>`;
+}
+
+function Choice({ st, data, img, group, kind, act }) {
+  const ok = m => m.alive && (kind === 'shrine' ? !m.awakened : !m.cursed);
+  const any = st.party.some(ok);
+  return html`<div>
+    <div class="rn-head"><h2>${W('run.' + kind + '.title')}</h2><p>${W('run.' + kind + '.note')}</p></div>
+    <div class="rn-choice">${st.party.map(m => { const c = R.cardOf(data, m.name); return html`<div key=${m.name}>
+      <${Figure} img=${img} name=${m.name} state=${R.stateOf(st, m)} hp=${m.hp} maxHp=${m.maxHp} dead=${!m.alive} kindName=${group.kind.name[c.kind]} />
+      <div class="rn-bar"><button type="button" class="rn-btn" data-choose=${m.name} disabled=${!ok(m)}
+        onClick=${() => act(x => kind === 'shrine' ? R.chooseShrine(x, data, m.name) : R.chooseGate(x, data, m.name))}>${W('run.' + kind + '.pick')}</button></div></div>`; })}</div>
+    <div class="rn-bar">${kind === 'gate' || !any ? html`<button type="button" class="rn-btn quiet" data-pass="1" onClick=${() => act(x => kind === 'gate' ? R.chooseGate(x, data, null) : (x.phase = 'map', { ok: true }))}>${W('run.pass')}</button>` : ''}
+      ${kind === 'shrine' && !any ? html`<span class="rn-note">${W('run.shrine.none')}</span>` : ''}</div>
+  </div>`;
+}
+
+function End({ st, kind, onAgain }) {
+  const a = st.party.filter(m => m.awakened).length, c = st.party.filter(m => m.cursed).length;
+  return html`<div class=${'rn-end ' + kind}><h2>${W('run.' + kind + '.title')}</h2>
+    <p>${W('run.' + kind + '.note', { n: st.node + 1, a, c })}</p>
+    <button type="button" class="rn-btn primary" onClick=${onAgain}>${W('run.again')}</button></div>`;
+}
+
+function App() {
+  const loaded = useData();
+  const [st, setSt] = useState(load);
+  if (!loaded) return html`<${Shell}><p class="empty">${W('ui.loading')}</p></${Shell}>`;
+  if (loaded.error) return html`<${Shell}><p class="empty">${W('ui.error', { message: loaded.error })}</p></${Shell}>`;
+  const { data, group, img } = loaded;
+  const act = fn => { const next = JSON.parse(JSON.stringify(st)); const r = fn(next); if (!r || r.ok !== false) { save(next); setSt(next); } };
+  const again = () => { save(null); setSt(null); };
+  let body;
+  if (!st) body = html`<${Pick} data=${data} group=${group} img=${img} onStart=${names => { const s = R.newRun(data, seed(), names); save(s); setSt(s); }} />`;
+  else if (st.phase === 'map') body = html`<${Map} st=${st} data=${data} onGo=${() => act(x => R.proceed(x, data))} />`;
+  else if (st.phase === 'battle') body = html`<${Battle} st=${st} data=${data} img=${img} group=${group} act=${act} />`;
+  else if (st.phase === 'result') body = html`<div>
+    <div class="rn-head"><h2>${W('run.result.win')}</h2><p>${W('run.result.note')}</p></div>
+    <${Party} st=${st} data=${data} img=${img} group=${group} />
+    <div class="rn-bar"><button type="button" class="rn-btn primary" onClick=${() => act(x => R.proceed(x, data))}>${W('run.result.next')}</button></div>
+    <${Log} log=${st.log} /></div>`;
+  else if (st.phase === 'shrine' || st.phase === 'gate') body = html`<${Choice} st=${st} data=${data} img=${img} group=${group} kind=${st.phase} act=${act} />`;
+  else if (st.phase === 'rest') body = html`<div>
+    <div class="rn-head"><h2>${W('run.rest.title')}</h2><p>${W('run.rest.note')}</p></div>
+    <${Party} st=${st} data=${data} img=${img} group=${group} />
+    <div class="rn-bar"><button type="button" class="rn-btn primary" data-rest="1" onClick=${() => act(x => R.rest(x, data))}>${W('run.rest.go')}</button></div></div>`;
+  else body = html`<${End} st=${st} kind=${st.phase} onAgain=${again} />`;
+  return html`<${Shell}>${body}
+    ${st && !['won', 'lost'].includes(st.phase) ? html`<div class="rn-bar"><span class="rn-note">${W('run.saved')}</span>
+      <button type="button" class="rn-btn quiet" data-abandon="1" onClick=${again}>${W('run.abandon')}</button></div>` : ''}
+  </${Shell}>`;
+}
+render(html`<${App} />`, document.getElementById('app'));
+window.AtelierFresh.watch();
+</script>
+</body>
+</html>

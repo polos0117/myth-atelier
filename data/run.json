@@ -1,0 +1,37 @@
+{
+ "version": 1,
+ "note": "던전(run.html) 자료. 공통 카드는 무기 종류마다 셋 — 무기는 자기 종류의 셋에 skill.json 의 고유 기술 한 장을 더해 넉 장을 덱에 낸다. 각성·저주는 카드가 아니라 규칙(배수·대가)이다. 길은 node 차례대로 간다.",
+ "nodes": ["fight", "fight", "shrine", "fight", "gate", "rest", "fight", "boss"],
+ "cards": {
+  "sword": [
+   {"key": "sword.slash", "name": "베기", "text": "한 상대를 벤다.", "cost": 1, "mult": 1.0},
+   {"key": "sword.twin", "name": "연격", "text": "두 번 벤다.", "cost": 2, "mult": 0.65, "hits": 2},
+   {"key": "sword.cleave", "name": "일섬", "text": "온 힘으로 크게 벤다.", "cost": 3, "mult": 1.9}
+  ],
+  "spear": [
+   {"key": "spear.thrust", "name": "찌르기", "text": "한 상대를 찌른다.", "cost": 1, "mult": 1.0},
+   {"key": "spear.sweep", "name": "휩쓸기", "text": "상대 전부를 꿰뚫는다.", "cost": 2, "mult": 1.1, "all": true},
+   {"key": "spear.hurl", "name": "투척", "text": "창을 던진다. 세다.", "cost": 3, "mult": 2.0}
+  ],
+  "blunt": [
+   {"key": "blunt.smash", "name": "내려치기", "text": "한 상대를 친다.", "cost": 1, "mult": 1.1},
+   {"key": "blunt.stun", "name": "강타", "text": "치고 다음 행동을 못 하게 한다.", "cost": 2, "mult": 0.8, "stun": true},
+   {"key": "blunt.crush", "name": "분쇄", "text": "온 무게로 내려찍는다.", "cost": 3, "mult": 1.9}
+  ],
+  "bow": [
+   {"key": "bow.shoot", "name": "쏘기", "text": "한 상대를 쏜다.", "cost": 1, "mult": 0.9},
+   {"key": "bow.rapid", "name": "연사", "text": "세 발을 쏜다.", "cost": 2, "mult": 0.5, "hits": 3},
+   {"key": "bow.snipe", "name": "저격", "text": "급소를 노린다. 아주 세다.", "cost": 3, "mult": 2.3}
+  ],
+  "relic": [
+   {"key": "relic.light", "name": "빛", "text": "치고, 자신에게 보호막을 두른다.", "cost": 1, "mult": 0.7, "shield": 0.2},
+   {"key": "relic.bless", "name": "축복", "text": "동료 전부의 피를 채운다. 저주받은 동료는 못 받는다.", "cost": 2, "heal": 0.2},
+   {"key": "relic.might", "name": "권능", "text": "상대 전부를 빛으로 친다.", "cost": 3, "mult": 1.4, "all": true}
+  ]
+ },
+ "tune": {
+  "hand": 5, "mana": 3, "gauge": 4, "awakenMult": 1.8, "curseAt": 0.35,
+  "partyHpDiv": 5, "enemyHpDiv": 5, "enemyAtk": 0.7, "enemyHpPerNode": 0.12, "enemyAtkPerNode": 0.08,
+  "bossHp": 1.7, "bossAtk": 1.2, "skillEvery": 3, "skillMult": 1.5, "restHeal": 0.3, "winHeal": 0.15
+ }
+}

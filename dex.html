@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap">
-<link rel="stylesheet" href="lib/workspace.css?v=myth11">
+<link rel="stylesheet" href="lib/workspace.css?v=myth13">
 <style>
 /* 색·밀도 토막은 lib/workspace.css 한 곳에 있다. 여기는 뼈대만 —
    workspace.css 의 .dex-page 규칙이 이 뼈대에 살을 붙인다. */
@@ -115,7 +115,7 @@ body {color:var(--text);font-size:15px}
 .zoom-layer .zoom-nav button:disabled {opacity:.2}
 </style>
 <script src="lib/workspace-theme.js?v=myth4"></script>
-<script src="lib/words.js?v=myth5"></script>
+<script src="lib/words.js?v=myth6"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth1"></script>
 </head>
@@ -127,7 +127,7 @@ body {color:var(--text);font-size:15px}
 import { h, render, Fragment } from 'https://esm.sh/preact@10.24.3';
 import { useState, useEffect, useMemo, useRef } from 'https://esm.sh/preact@10.24.3/hooks';
 import htm from 'https://esm.sh/htm@3.1.1';
-import { WorkspaceHeader } from './lib/workspace-ui.js?v=myth3';
+import { WorkspaceHeader } from './lib/workspace-ui.js?v=myth4';
 const html = htm.bind(h);
 const W = window.W, IMG = window.AtelierImg;
 const FILTER_STORE = 'myth_dex_filters_v1', COMPACT_STORE = 'myth_dex_compact_v1';

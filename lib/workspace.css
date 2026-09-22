@@ -617,3 +617,103 @@ html:has(.dex-page) {height:100%;overflow:hidden;overscroll-behavior:none}
   :is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="pantheon"]) .hall-col:nth-child(5),:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="pantheon"]) .hall-col:nth-child(6) {display:none}
 }
 @media (prefers-reduced-motion:reduce) {:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="pantheon"]) .hall-col > i {animation:none;opacity:.7}}
+
+/* 던전 — 동료 셋이 전신으로 서고, 카드는 아래 손패다. 그림이 주인공이라 칸을 크게 잡는다 */
+.rn-page .collection-scroll {padding-bottom:calc(24px + env(safe-area-inset-bottom))}
+.rn-head {display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:14px 0 8px;flex-wrap:wrap}
+.rn-head h2 {margin:0;font:700 22px/1.3 var(--display)}
+.rn-head p {margin:0;color:var(--muted);font-size:12px}
+.rn-note {margin:8px 0 0;color:var(--muted);font-size:12px;line-height:1.6}
+.rn-btn {min-height:44px;padding:0 18px;border:1px solid var(--gold);border-radius:6px;background:linear-gradient(180deg,var(--card2),var(--card));color:var(--text);font:700 13px var(--display);letter-spacing:.04em;cursor:pointer}
+.rn-btn.primary {background:linear-gradient(180deg,var(--gold),var(--accent));color:var(--on-accent);box-shadow:0 6px 20px var(--halo)}
+.rn-btn.quiet {border-color:var(--line);color:var(--muted)}
+.rn-btn:disabled {opacity:.45;cursor:default}
+.rn-bar {display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0}
+/* 고르기 */
+.rn-pick {display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px}
+.rn-pick .cell {cursor:pointer;border-radius:6px;border:1px solid var(--line);background:var(--card);overflow:hidden;padding:0;text-align:left;color:inherit;font:inherit}
+.rn-pick .cell.on {border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 0 22px var(--halo)}
+.rn-pick .cell .face {display:block;aspect-ratio:2/3;background:var(--card2);overflow:hidden}
+.rn-pick .cell img {display:block;width:100%;height:100%;object-fit:cover;object-position:center top}
+.rn-pick .cell .cap {display:block;padding:7px 8px;font-size:12px;font-weight:700}
+.rn-pick .cell .cap i {display:block;font:400 10px ui-monospace,monospace;font-style:normal;color:var(--muted)}
+/* 길 */
+.rn-map {display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px;margin:10px 0}
+.rn-node {position:relative;min-height:64px;padding:10px 6px;border:1px solid var(--line);border-radius:6px;background:var(--card);text-align:center;font-size:12px;font-weight:700;color:var(--muted)}
+.rn-node b {display:block;font:600 9px var(--inscription);letter-spacing:.16em;color:var(--gold);margin-bottom:5px}
+.rn-node.done {opacity:.45}
+.rn-node.here {border-color:var(--gold);color:var(--text);box-shadow:0 0 0 1px var(--gold),0 0 22px var(--halo)}
+.rn-node.boss {border-color:var(--signal)}
+/* 싸움터 */
+.rn-arena {display:grid;grid-template-columns:3fr 2fr;gap:14px;margin:10px 0}
+.rn-side {padding:10px;border:1px solid var(--line);border-top:2px solid var(--gold);border-radius:8px;background:linear-gradient(180deg,var(--deck),var(--bg))}
+.rn-side > h3 {margin:0 0 8px;font:600 11px var(--inscription);letter-spacing:.22em;color:var(--gold);text-transform:uppercase}
+.rn-figs {display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:10px;justify-content:center}
+.rn-party .rn-figs {grid-auto-columns:minmax(0,250px)}
+.rn-enemy .rn-figs {grid-auto-columns:minmax(0,250px)}
+.rn-fig {position:relative;padding:0;border:1px solid var(--line);border-radius:6px;background:var(--card);overflow:hidden;text-align:left;color:inherit;font:inherit;transition:border-color .3s,box-shadow .3s,filter .4s}
+.rn-fig .face {position:relative;display:block;aspect-ratio:2/3;background:var(--card2);overflow:hidden}
+.rn-fig .face img {display:block;width:100%;height:100%;object-fit:cover;object-position:center top;transition:opacity .5s}
+.rn-fig .face .ph {position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font:11px ui-monospace,monospace}
+.rn-fig .tag {position:absolute;left:8px;top:8px;padding:3px 8px;border-radius:4px;font:700 10px var(--inscription);letter-spacing:.14em;background:#0009;color:#fff;backdrop-filter:blur(4px)}
+.rn-fig[data-state="awaken"] {border-color:#f3dc9a;box-shadow:0 0 0 1px #f3dc9a,0 0 28px #f3dc9a66}
+.rn-fig[data-state="awaken"] .tag {background:linear-gradient(180deg,#fff1c0,#d9b56a);color:#2a1e08}
+.rn-fig[data-state="cursed"] {border-color:#ff4d6d;box-shadow:0 0 0 1px #ff4d6d,0 0 28px #c0143c88}
+.rn-fig[data-state="cursed"] .tag {background:linear-gradient(180deg,#e0304a,#8a0f2a);color:#fff}
+.rn-fig.dead {filter:grayscale(1) brightness(.5)}
+.rn-fig.target {cursor:pointer;border-color:var(--signal);box-shadow:0 0 0 2px var(--signal)}
+.rn-fig .info {padding:8px 9px 9px}
+.rn-fig .nm {display:block;font:700 13px var(--display);overflow-wrap:anywhere}
+.rn-fig .nm i {font:400 10px ui-monospace,monospace;font-style:normal;color:var(--muted);margin-left:5px}
+.rn-fig .hp {display:block;height:7px;margin:6px 0 4px;border-radius:99px;background:var(--accent-soft);overflow:hidden}
+.rn-fig .hp u {display:block;height:100%;background:var(--ok);text-decoration:none;transition:width .4s}
+.rn-fig[data-state="cursed"] .hp u {background:#ff4d6d}
+.rn-fig .hp u.low {background:var(--warn)}
+.rn-fig .num {font:700 11px ui-monospace,monospace;color:var(--muted)}
+.rn-fig .pips {display:flex;gap:3px;margin-top:5px}
+.rn-fig .pips i {width:12px;height:5px;border-radius:2px;background:var(--line)}
+.rn-fig .pips i.on {background:var(--gold);box-shadow:0 0 6px var(--gold)}
+.rn-fig .shield {font:700 10px ui-monospace,monospace;color:var(--signal);margin-left:6px}
+/* 손패 */
+.rn-deck {display:flex;justify-content:space-between;align-items:center;gap:10px;margin:10px 0 6px;color:var(--muted);font-size:12px;flex-wrap:wrap}
+.rn-mana {display:inline-flex;gap:4px;align-items:center;font:700 12px ui-monospace,monospace;color:var(--text)}
+.rn-mana i {width:12px;height:12px;border-radius:50%;background:var(--line)}
+.rn-mana i.on {background:var(--signal);box-shadow:0 0 8px var(--signal)}
+.rn-hand {display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.rn-card {position:relative;min-height:112px;padding:10px 10px 10px 12px;border:1px solid var(--line);border-left:3px solid var(--cc,var(--line));border-radius:6px;background:var(--card);text-align:left;color:inherit;font:inherit;cursor:pointer;transition:transform .2s,box-shadow .25s,border-color .2s}
+.rn-card:not(:disabled):hover {transform:translateY(-3px);border-color:var(--gold);box-shadow:0 12px 26px #0005}
+.rn-card.on {border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 0 18px var(--halo)}
+.rn-card:disabled {opacity:.4;cursor:default}
+.rn-card .who {display:block;font:400 10px ui-monospace,monospace;color:var(--muted)}
+.rn-card .who b {color:var(--gold);margin-left:4px;font-weight:700}
+.rn-card .nm {display:block;margin:3px 0 4px;font:700 14px var(--display)}
+.rn-card .tx {display:block;font-size:11px;line-height:1.5;color:var(--muted)}
+.rn-card .cost {position:absolute;right:8px;top:8px;width:24px;height:24px;display:grid;place-items:center;border-radius:50%;background:var(--signal);color:var(--on-accent);font:700 12px ui-monospace,monospace}
+.rn-log {margin:10px 0 0;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:var(--card);font:12px/1.7 ui-monospace,monospace;color:var(--muted);max-height:150px;overflow:auto}
+.rn-log b {color:var(--gold)}
+.rn-log .bad {color:#ff6b84}
+/* 묻기 */
+.rn-ask {position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:#000a;backdrop-filter:blur(4px);padding:16px}
+.rn-ask > div {max-width:440px;padding:22px;border:1px solid #ff4d6d;border-radius:8px;background:var(--card);box-shadow:0 0 0 1px #ff4d6d,0 0 48px #c0143c88}
+.rn-ask h3 {margin:0 0 8px;font:700 20px/1.3 var(--display)}
+.rn-ask p {margin:0 0 14px;color:var(--muted);font-size:13px;line-height:1.7}
+/* 제단·문·휴식·끝 */
+.rn-choice {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:10px 0}
+.rn-end {padding:26px;border:1px solid var(--gold);border-radius:8px;background:var(--card);text-align:center}
+.rn-end h2 {margin:0 0 8px;font:700 30px/1.2 var(--display);background:linear-gradient(180deg,var(--text) 30%,var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.rn-end.lost h2 {background-image:linear-gradient(180deg,var(--text) 30%,#ff4d6d)}
+.rn-end p {color:var(--muted);margin:0 0 14px}
+@media (max-width:760px) {
+  .rn-arena {grid-template-columns:1fr}
+  .rn-map {grid-template-columns:repeat(4,minmax(0,1fr))}
+  .rn-figs {grid-auto-columns:minmax(0,1fr)}
+  .rn-fig .nm {font-size:12px}
+  .rn-hand {grid-template-columns:repeat(2,minmax(0,1fr))}
+  .rn-choice {grid-template-columns:1fr}
+}
+@media (max-width:599px) {
+  .rn-fig .face {aspect-ratio:3/4}
+  .rn-fig .info {padding:6px 7px 7px}
+  .rn-card {min-height:96px;padding:8px 8px 8px 10px}
+  .rn-card .nm {font-size:13px}
+}

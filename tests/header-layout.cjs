@@ -1,10 +1,10 @@
 /* Tab changes must preserve the shared header's geometry, including native scrollbars. */
 const assert=require('node:assert/strict'),{start,FOLD}=require('./browser-harness.cjs');
 /* 화면이 늘면 여기 더한다. (파일, 다 그려졌다는 표시) */
-const PAGES=[['dex.html','.grid .cell'],['auto.html','.at-shop'],['prompt.html','#prompt-output'],['index.html','.theme-card']];
+const PAGES=[['dex.html','.grid .cell'],['auto.html','.at-shop'],['run.html','.rn-pick'],['prompt.html','#prompt-output'],['index.html','.theme-card']];
 const selectors=['.workspace-heading','.workspace-heading h1','.workspace-nav',
  '.workspace-nav a:nth-child(1)','.workspace-nav a:nth-child(2)','.workspace-nav a:nth-child(3)',
- '.workspace-nav a:nth-child(4)',
+ '.workspace-nav a:nth-child(4)','.workspace-nav a:nth-child(5)',
  '.appearance-controls','.appearance-controls label:first-child select','.appearance-controls label:last-child select'];
 async function geometry(p){
  return p.evaluate(ss=>Object.fromEntries(ss.map(s=>{
@@ -37,7 +37,7 @@ function same(actual,expected,label){
       await p.waitForSelector(ready);
       same(await geometry(p),reference,`${viewport.width} ${density} ${file}`);
       assert(await p.evaluate(()=>document.body.scrollWidth<=innerWidth),'horizontal overflow');
-      const scroll=p.locator(file==='dex.html'||file==='auto.html'?'.collection-scroll':'.wrap');
+      const scroll=p.locator(file==='dex.html'||file==='auto.html'||file==='run.html'?'.collection-scroll':'.wrap');
       assert((await scroll.boundingBox()).height>100,file+' usable scroll viewport');
       if(file==='dex.html'){
        await scroll.evaluate(e=>{e.scrollTop=300});
