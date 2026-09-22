@@ -2,7 +2,7 @@
 const fs = require('node:fs'), assert = require('node:assert/strict');
 const R = require('../lib/run.js');
 const d = n => JSON.parse(fs.readFileSync('data/' + n + '.json', 'utf8'));
-const data = { cards: d('card').cards, skills: d('skill').skills, run: d('run') };
+const data = { cards: d('card').cards, skills: d('skill').skills, run: d('run'), wielders: d('wielder').wielders, draft: d('draft') };
 const T = R.tune(data);
 let n = 0; const ok = (c, m) => { assert(c, m); n++; };
 
@@ -106,6 +106,34 @@ const st6 = R.newRun(data, 13, party); R.proceed(st6, data);
 st6.party.forEach(m => { m.hp = 1; }); st6.battle.enemies[0].atk = 999;
 for (let i = 0; i < 6 && st6.phase === 'battle'; i++) { if (st6.battle.ask) R.answerCurse(st6, data, false); else R.endTurn(st6, data); }
 ok(st6.phase === 'lost' && st6.party.every(m => !m.alive), '동료가 다 쓰러지면 진다');
+
+/* ── 드래프트에서 온 판 — 주인 보정·전용 게이지·악연·상대 차례·보스·예비 ── */
+const H = { pairs: [{ w: '궁니르', o: '오딘' }, { w: '묠니르', o: '토르' }, { w: '레바테인', o: '수르트' }], reserve: [{ w: '그람', o: '시구르드' }, { w: '흐룬팅', o: '베오울프' }],
+  foes: [{ w: '아이기스', o: '아테나' }, { w: '여의봉', o: '손오공' }, { w: '트리슐라', o: '시바' }], boss: { w: '케라우노스', o: '제우스' }, rank: 2 };
+const h = R.newRun(data, 21, null, H);
+ok(h.fromDraft && h.party[0].wielder === '오딘' && h.party[0].mult > 1 && h.party[0].maxHp > R.newRun(data, 21, ['궁니르', '묠니르', '아이기스']).party[0].maxHp, '주인이 붙으면 체력·위력이 오른다');
+ok(h.party[0].gaugeMax === T.gauge - 1 && h.party[1].gaugeMax === T.gauge - 1, '원래 주인이면 게이지가 하나 적다');
+ok(h.party[0].feud && h.party[2].feud && !h.party[1].feud, '수르트와 오딘은 악연');
+R.proceed(h, data);
+ok(h.battle.enemies.length === 1 && h.battle.enemies[0].name === '아이기스' && h.battle.enemies[0].wielder === '아테나', '첫 상대는 드래프트 적 편의 짝');
+ok(h.battle.enemies[0].maxHp > R.newRun(data, 21, ['그람', '묠니르', '아이기스']).party[0].maxHp, '3등이면 상대 체력이 ×1.2');
+/* 악연은 거절이 안 된다 */
+h.party[0].hp = 1; h.party[0].maxHp = 100; h.battle.enemies[0].atk = 0; R.endTurn(h, data);
+ok(h.battle.ask === '궁니르' && R.answerCurse(h, data, false).why === 'feud', '악연은 저주를 거절할 수 없다');
+ok(R.answerCurse(h, data, true).ok && h.party[0].cursed, '받는다');
+/* 예비 — 쓰러진 자리에 다음 칸부터 */
+h.party[1].alive = false; h.party[1].hp = 0;
+h.battle.enemies.forEach(e => { e.hp = 1; }); h.battle.mana = 9;
+while (h.battle.over !== 'win') { const i = h.battle.hand.findIndex(c => R.spec(data, c).mult && h.party.find(p => p.name === c.owner).alive); if (i < 0) { R.endTurn(h, data); h.battle.mana = 9; continue; } R.play(h, data, i, 0); }
+R.proceed(h, data);
+ok(h.party[1].name === '그람' && h.party[1].wielder === '시구르드' && h.party[1].alive && h.reserve.length === 1 && h.log.some(l => l.k === 'reserve' && l.a === '그람' && l.b === '묠니르'), '예비가 올라온다');
+ok(h.battle.enemies.map(e => e.name).join(',') === '여의봉', '둘째 싸움은 다음 짝');
+/* 보스 — 1등의 최고의 짝 */
+const hb = R.newRun(data, 22, null, H); hb.node = 6; hb.phase = 'map'; R.proceed(hb, data);
+ok(hb.battle.boss && hb.battle.enemies[0].name === '케라우노스' && hb.battle.enemies[0].wielder === '제우스' && hb.battle.enemies[0].boss, '보스는 넘겨받은 짝');
+/* 드래프트 없이도 그대로 */
+const plain = R.newRun(data, 3, ['궁니르', '묠니르', '아이기스']);
+ok(!plain.fromDraft && plain.party.every(m => !m.wielder && m.mult === 1 && m.gaugeMax === T.gauge), '드래프트 없이 오면 옛 규칙 그대로');
 
 console.log('PASS 던전 규칙 ' + n + '가지');
 

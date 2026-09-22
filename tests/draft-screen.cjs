@@ -38,6 +38,11 @@ const { start, FOLD } = require('./browser-harness.cjs');
     assert((await p.locator('.df-result [data-seat="0"] .df-pair').count()) >= 6, '짝 여섯');
     assert.deepEqual(a.errors, []);
     assert.deepEqual(await p.evaluate(() => window.AtelierWords.missing()), []);
+    assert.equal(await p.locator('[data-sortie]').count(), 1, '출정 단추');
+    await p.locator('[data-sortie]').click();
+    await p.waitForURL(/run\.html/); await p.waitForSelector('.rn-sortie .cell');
+    assert.equal(await p.locator('.rn-sortie .cell').count(), 6, '던전이 짝 여섯을 받았다');
+    await p.goto(harness.base + '/draft.html'); await p.waitForSelector('.rn-end');
     await p.locator('[data-again]').click(); await p.waitForSelector('.df-setup');
     assert(/1판/.test(await p.locator('.df-records').innerText()), '전적 한 판');
     /* 휴대폰 */

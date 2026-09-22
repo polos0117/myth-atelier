@@ -20,7 +20,7 @@
 .empty {padding:36px 0;text-align:center;color:var(--muted);font-size:13px}
 </style>
 <script src="lib/workspace-theme.js?v=myth4"></script>
-<script src="lib/words.js?v=myth7"></script>
+<script src="lib/words.js?v=myth8"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth1"></script>
 <script src="lib/draft.js?v=1"></script>
@@ -34,7 +34,7 @@ import htm from 'https://esm.sh/htm@3.1.1';
 import { WorkspaceHeader } from './lib/workspace-ui.js?v=myth5';
 const html = htm.bind(h);
 const W = window.W, IMG = window.AtelierImg, D = window.AtelierDraft;
-const STORE = 'myth_draft_v1', REC = 'myth_draft_rec_v1', V = 'f';
+const STORE = 'myth_draft_v1', REC = 'myth_draft_rec_v1', HANDOFF = 'myth_handoff_v1', V = 'f';
 
 function Shell({ children }) {
   return html`<main>
@@ -141,13 +141,28 @@ function Board({ st, data, group, img, act }) {
   </div>`;
 }
 
+/* 출정 — 내 짝 여섯과 적 두 편의 짝을 던전에 넘긴다. 상대는 강한 짝부터, 보스는 1등 적의 최고의 짝(내가 1등이면 2등의) */
+function handoff(st, data, res) {
+  const mine = res.evs[0].ev.units.filter(u => u.w && u.o).map(u => ({ w: u.w, o: u.o, s: Math.round(u.s) }));
+  const rivals = res.sorted.filter(x => x.ti !== 0);
+  const foes = [];
+  rivals.forEach(x => x.ev.units.filter(u => u.w && u.o).forEach(u => foes.push({ w: u.w, o: u.o, s: Math.round(u.s) })));
+  foes.sort((a, b) => a.s - b.s);
+  const top = rivals[0].ev.units.filter(u => u.w && u.o)[0];
+  const boss = top ? { w: top.w, o: top.o } : null;
+  const rest = boss ? foes.filter(f => !(f.w === boss.w && f.o === boss.o)) : foes;
+  try { localStorage.setItem(HANDOFF, JSON.stringify({ pairs: mine, foes: rest, boss, rank: res.rank, seed: st.seed })); } catch {}
+  location.href = 'run.html';
+}
 function Result({ st, data, group, img, onAgain }) {
   const res = D.result(st, data);
   const best = res.evs[0].ev.units.filter(u => u.w && u.o)[0];
   return html`<div>
     <div class="rn-end"><h2>${W('draft.result.rank', { rank: res.rank + 1 })}</h2>
       <p>${W('draft.result.gap', { n: res.gap })}${best ? ' · ' + W('draft.result.mvp') + ': ' + best.w + ' × ' + best.o + ' ' + Math.round(best.s) : ''}</p>
-      <button type="button" class="rn-btn primary" data-again="1" onClick=${onAgain}>${W('draft.again')}</button></div>
+      <div class="rn-bar" style="justify-content:center"><button type="button" class="rn-btn primary" data-sortie="1" onClick=${() => handoff(st, data, res)}>${W('draft.sortie')}</button>
+        <button type="button" class="rn-btn" data-again="1" onClick=${onAgain}>${W('draft.again')}</button></div>
+      <p class="note">${W('draft.sortie.note')}</p></div>
     <div class="df-result">${res.sorted.map(x => html`<div key=${x.ti} class=${'df-panel' + (x.ti === 0 ? ' me' : '')}>
       <h4>${W('draft.seat.' + x.ti)}<small>${x.ev.total}</small></h4>
       <${TeamPanel} st=${st} data=${data} group=${group} img=${img} ti=${x.ti} title=${W('draft.seat.' + x.ti)} open=${true} /></div>`)}</div>

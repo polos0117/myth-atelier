@@ -20,10 +20,10 @@
 .empty {padding:36px 0;text-align:center;color:var(--muted);font-size:13px}
 </style>
 <script src="lib/workspace-theme.js?v=myth4"></script>
-<script src="lib/words.js?v=myth7"></script>
+<script src="lib/words.js?v=myth8"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth1"></script>
-<script src="lib/run.js?v=2"></script>
+<script src="lib/run.js?v=3"></script>
 </head>
 <body class="dex-page rn-page">
 <div id="app"></div>
@@ -34,7 +34,7 @@ import htm from 'https://esm.sh/htm@3.1.1';
 import { WorkspaceHeader } from './lib/workspace-ui.js?v=myth5';
 const html = htm.bind(h);
 const W = window.W, IMG = window.AtelierImg, R = window.AtelierRun;
-const STORE = 'myth_run_v1', V = 'f';
+const STORE = 'myth_run_v1', HANDOFF = 'myth_handoff_v1', V = 'f';
 
 function Shell({ children }) {
   return html`<main>
@@ -46,8 +46,8 @@ function useData() {
   const [state, set] = useState(null);
   useEffect(() => {
     const get = f => fetch(f, { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(f + ' ' + r.status); return r.json(); });
-    Promise.all([get('data/card.json'), get('data/skill.json'), get('data/run.json'), get('data/group.json'), IMG.load()])
-      .then(([card, skill, run, group, img]) => { const art = {}; card.cards.forEach(c => { if (IMG.portraitOf(img[c.name], V)) art[c.name] = 1; }); set({ data: { cards: card.cards, skills: skill.skills, run, art }, group, img }); })
+    Promise.all([get('data/card.json'), get('data/skill.json'), get('data/run.json'), get('data/group.json'), get('data/wielder.json'), get('data/draft.json'), IMG.load()])
+      .then(([card, skill, run, group, wielder, draft, img]) => { const art = {}; card.cards.forEach(c => { if (IMG.portraitOf(img[c.name], V)) art[c.name] = 1; }); set({ data: { cards: card.cards, skills: skill.skills, run, art, wielders: wielder.wielders, draft }, group, img }); })
       .catch(e => set({ error: String((e && e.message) || e) }));
   }, []);
   return state;
@@ -55,6 +55,8 @@ function useData() {
 function load() { try { const j = JSON.parse(localStorage.getItem(STORE)); return j && j.party ? j : null; } catch { return null; } }
 function save(st) { try { if (st) localStorage.setItem(STORE, JSON.stringify(st)); else localStorage.removeItem(STORE); } catch {} }
 function seed() { return (Date.now() ^ Math.floor(Math.random() * 1e9)) | 0; }
+function loadHandoff() { try { const j = JSON.parse(localStorage.getItem(HANDOFF)); return j && j.pairs && j.pairs.length ? j : null; } catch { return null; } }
+function clearHandoff() { try { localStorage.removeItem(HANDOFF); } catch {} }
 function artOf(img, name, state) { return IMG.coverOf(img[name], V, undefined, state === 'awaken' ? 3 : 1, state === 'cursed'); }
 
 /* 전신 그림 한 장 — 상태에 따라 각성·저주 그림으로 넘어간다 */
@@ -87,6 +89,25 @@ function Pick({ data, group, img, onStart }) {
   </div>`;
 }
 
+/* 드래프트에서 온 짝 여섯 — 셋을 고르면 나머지는 예비 */
+function Sortie({ data, group, img, hand, onStart, onPlain }) {
+  const [sel, setSel] = useState([]);
+  const toggle = i => setSel(s => s.includes(i) ? s.filter(x => x !== i) : s.length < 3 ? s.concat(i) : s);
+  const tag = p => { const c = R.cardOf(data, p.w), o = R.wielderOf(data, p.o), t = [];
+    if (o && c.wielder === o.name) t.push(W('run.pair.own')); if (o && o.favor === c.kind) t.push(W('run.pair.favor')); return t.join(' · '); };
+  const kHp = [0.9, 1.0, 1.2][hand.rank] || 1;
+  return html`<div class="rn-sortie">
+    <div class="rn-head"><h2>${W('run.sortie.title')}</h2><p>${W('run.sortie.note')}</p></div>
+    <p class="rn-note">${W('run.sortie.rank', { rank: hand.rank + 1, k: kHp })}</p>
+    <div class="rn-bar"><b>${W('run.pick.count', { n: sel.length })}</b>
+      <button type="button" class="rn-btn primary" data-sortie-start="1" disabled=${sel.length !== 3} onClick=${() => onStart(sel.map(i => hand.pairs[i]), hand.pairs.filter((_, i) => !sel.includes(i)))}>${W('run.pick.start')}</button>
+      <button type="button" class="rn-btn quiet" data-plain="1" onClick=${onPlain}>${W('run.sortie.plain')}</button></div>
+    <div class="rn-pick">${hand.pairs.map((p, i) => { const f = IMG.portraitOf(img[p.w], V), c = R.cardOf(data, p.w); return html`<button type="button" key=${i} class=${'cell' + (sel.includes(i) ? ' on' : '')} data-name=${p.w} aria-pressed=${sel.includes(i)} onClick=${() => toggle(i)}>
+      <span class="face">${f ? html`<img src=${IMG.thumbURL(f)} alt="" loading="lazy" />` : ''}</span>
+      <span class="cap">${p.w} × ${p.o}<i>${group.kind.name[c.kind]} · ${p.s}</i>${tag(p) ? html`<i>${tag(p)}</i>` : ''}</span></button>`; })}</div>
+  </div>`;
+}
+
 function Map({ st, data, onGo }) {
   const list = R.nodes(data);
   return html`<div>
@@ -98,13 +119,15 @@ function Map({ st, data, onGo }) {
 
 function Party({ st, data, img, group, gaugeMax }) {
   return html`<div class="rn-figs">${st.party.map(m => { const c = R.cardOf(data, m.name); return html`<${Figure} key=${m.name} img=${img} name=${m.name} state=${R.stateOf(st, m)}
-    hp=${m.hp} maxHp=${m.maxHp} shield=${m.shield} dead=${!m.alive} kindName=${group.kind.name[c.kind]}
-    gauge=${st.battle ? st.battle.gauge[m.name] : 0} gaugeMax=${gaugeMax} />`; })}</div>`;
+    hp=${m.hp} maxHp=${m.maxHp} shield=${m.shield} dead=${!m.alive} kindName=${m.wielder || group.kind.name[c.kind]}
+    gauge=${st.battle ? st.battle.gauge[m.name] : 0} gaugeMax=${gaugeMax ? (m.gaugeMax || gaugeMax) : 0} />`; })}
+    ${st.reserve && st.reserve.length ? html`<p class="rn-note rn-reserve">${W('run.reserve', { n: st.reserve.length })} · ${st.reserve.map(r => r.w).join(' · ')}</p>` : ''}</div>`;
 }
 
 function Log({ log }) {
   const line = e => {
     const p = { a: e.a, b: e.b, d: e.d, name: e.name, n: e.enemies ? e.enemies.join(' · ') : '' };
+    if (e.k === 'ask') return W('run.log.ask', p) + (e.feud ? ' — ' + W('run.ask.feud') : '');
     return W('run.log.' + e.k, p);
   };
   const bad = { ehit: 1, eskill: 1, fall: 1, curse: 1, bleed: 1, lose: 1 };
@@ -127,7 +150,7 @@ function Battle({ st, data, img, group, act }) {
       <section class="rn-side rn-party"><h3>${W('run.party')}</h3><${Party} st=${st} data=${data} img=${img} group=${group} gaugeMax=${T.gauge} /></section>
       <section class="rn-side rn-enemy"><h3>${W('run.enemy')}${b.boss ? ' · ' + W('run.battle.boss') : ''}</h3>
         <div class="rn-figs">${foes.map((e, i) => { const c = R.cardOf(data, e.name); const idx = alive.indexOf(e); return html`<${Figure} key=${e.name} img=${img} name=${e.name} state="base" hp=${e.hp} maxHp=${e.maxHp} dead=${!e.alive}
-          kindName=${group.kind.name[c.kind]} target=${pick !== null && e.alive} onClick=${pick !== null && e.alive ? (() => onEnemy(idx)) : null} />`; })}</div></section>
+          kindName=${e.wielder || group.kind.name[c.kind]} target=${pick !== null && e.alive} onClick=${pick !== null && e.alive ? (() => onEnemy(idx)) : null} />`; })}</div></section>
     </div>
     <div class="rn-deck"><span class="rn-mana">${W('run.battle.mana')} ${Array.from({ length: T.mana }, (_, i) => html`<i key=${i} class=${i < b.mana ? 'on' : ''}></i>`)}</span>
       <span>${pick !== null ? W('run.battle.target', { name: R.spec(data, b.hand[pick]).name }) : W('run.battle.hand')}</span>
@@ -140,9 +163,9 @@ function Battle({ st, data, img, group, act }) {
         <span class="nm">${s.name}</span><span class="tx">${s.text}</span><span class="cost">${s.cost}</span></button>`; })}</div>
     <${Log} log=${st.log} />
     ${b.ask && html`<div class="rn-ask" role="dialog"><div>
-      <h3>${W('run.ask.title', { name: b.ask })}</h3><p>${W('run.ask.text')}</p>
+      <h3>${W('run.ask.title', { name: b.ask })}</h3><p>${W('run.ask.text')}${(st.party.find(p => p.name === b.ask) || {}).feud ? ' ' + W('run.ask.feud') : ''}</p>
       <div class="rn-bar"><button type="button" class="rn-btn primary" data-answer="yes" onClick=${() => act(x => R.answerCurse(x, data, true))}>${W('run.ask.yes')}</button>
-        <button type="button" class="rn-btn quiet" data-answer="no" onClick=${() => act(x => R.answerCurse(x, data, false))}>${W('run.ask.no')}</button></div>
+        ${(st.party.find(p => p.name === b.ask) || {}).feud ? '' : html`<button type="button" class="rn-btn quiet" data-answer="no" onClick=${() => act(x => R.answerCurse(x, data, false))}>${W('run.ask.no')}</button>`}</div>
     </div></div>`}
   </div>`;
 }
@@ -170,14 +193,17 @@ function End({ st, kind, onAgain }) {
 
 function App() {
   const loaded = useData();
-  const [st, setSt] = useState(load);
+  const [st, setSt] = useState(load), [hand, setHand] = useState(loadHandoff);
   if (!loaded) return html`<${Shell}><p class="empty">${W('ui.loading')}</p></${Shell}>`;
   if (loaded.error) return html`<${Shell}><p class="empty">${W('ui.error', { message: loaded.error })}</p></${Shell}>`;
   const { data, group, img } = loaded;
   const act = fn => { const next = JSON.parse(JSON.stringify(st)); const r = fn(next); if (!r || r.ok !== false) { save(next); setSt(next); } };
   const again = () => { save(null); setSt(null); };
   let body;
-  if (!st) body = html`<${Pick} data=${data} group=${group} img=${img} onStart=${names => { const s = R.newRun(data, seed(), names); save(s); setSt(s); }} />`;
+  if (!st && hand) body = html`<${Sortie} data=${data} group=${group} img=${img} hand=${hand}
+    onStart=${(pairs, reserve) => { const s = R.newRun(data, seed(), null, { pairs, reserve, foes: hand.foes, boss: hand.boss, rank: hand.rank }); clearHandoff(); setHand(null); save(s); setSt(s); }}
+    onPlain=${() => { clearHandoff(); setHand(null); }} />`;
+  else if (!st) body = html`<${Pick} data=${data} group=${group} img=${img} onStart=${names => { const s = R.newRun(data, seed(), names); save(s); setSt(s); }} />`;
   else if (st.phase === 'map') body = html`<${Map} st=${st} data=${data} onGo=${() => act(x => R.proceed(x, data))} />`;
   else if (st.phase === 'battle') body = html`<${Battle} st=${st} data=${data} img=${img} group=${group} act=${act} />`;
   else if (st.phase === 'result') body = html`<div>
