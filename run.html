@@ -120,8 +120,8 @@ function Map({ st, data, onGo }) {
 function Party({ st, data, img, group, gaugeMax }) {
   return html`<div class="rn-figs">${st.party.map(m => { const c = R.cardOf(data, m.name); return html`<${Figure} key=${m.name} img=${img} name=${m.name} state=${R.stateOf(st, m)}
     hp=${m.hp} maxHp=${m.maxHp} shield=${m.shield} dead=${!m.alive} kindName=${m.wielder || group.kind.name[c.kind]}
-    gauge=${st.battle ? st.battle.gauge[m.name] : 0} gaugeMax=${gaugeMax ? (m.gaugeMax || gaugeMax) : 0} />`; })}
-    ${st.reserve && st.reserve.length ? html`<p class="rn-note rn-reserve">${W('run.reserve', { n: st.reserve.length })} · ${st.reserve.map(r => r.w).join(' · ')}</p>` : ''}</div>`;
+    gauge=${st.battle ? st.battle.gauge[m.name] : 0} gaugeMax=${gaugeMax ? (m.gaugeMax || gaugeMax) : 0} />`; })}</div>
+    ${st.reserve && st.reserve.length ? html`<p class="rn-note rn-reserve">${W('run.reserve', { n: st.reserve.length })} · ${st.reserve.map(r => r.w + ' × ' + r.o).join(' · ')}</p>` : ''}`;
 }
 
 function Log({ log }) {
