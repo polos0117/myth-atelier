@@ -185,7 +185,7 @@ const ok = (cond, msg) => { assert(cond, msg); n++; };
   ok(st.phase === 'lost' && st.hp === 0 && !A.next(st, data).ok, '체력이 0이면 끝');
   const w = A.newGame(data, 12); w.round = A.ROUNDS; w.board[1] = { id: 99, name: '묠니르', star: 3 }; w.enemy = { myth: 'norse', units: [U('칸다', 1, 0, 1)] };
   A.fight(w, data);
-  ok(w.phase === 'won', '열 번째 라운드를 이기면 이긴다');
+  ok(w.phase === 'won', '마지막 라운드를 이기면 이긴다');
   /* 상대는 라운드가 갈수록 값이 오른다 */
   const v = r => { const s = A.newGame(data, 20); s.round = r; return A.makeEnemy(s, data).units.reduce((a, u) => a + A.value(by(u.name), u.star), 0); };
   ok(v(1) < v(5) && v(5) < v(10) && A.budget(10) > A.budget(1), '상대 값은 오른다');
@@ -235,7 +235,7 @@ for (let s = 1; s <= N; s++) {
   ends[st.round]++;
   if (st.phase === 'won') won++;
 }
-console.log('\n맡긴 손 ' + N + '판 — 완주(10라운드 승) ' + (won / N * 100).toFixed(0) + '%');
+console.log('\n맡긴 손 ' + N + '판 — 완주(' + A.ROUNDS + '라운드 승) ' + (won / N * 100).toFixed(0) + '%');
 console.log('라운드  승률   끝난 판');
 for (let r = 1; r <= A.ROUNDS; r++) console.log(String(r).padStart(4) + '   ' + (w[r] / p[r] * 100).toFixed(0).padStart(3) + '%   ' + ends[r]);
 console.log('\n시너지가 켜진 라운드의 승률 (켜진 판 수)');
