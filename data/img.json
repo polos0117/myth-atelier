@@ -1,7 +1,7 @@
 {
  "version": 1,
  "note": "tools/register-images.py 가 그림 저장소(myth-atelier-img/img)를 읽어 채운다. 손으로 고치지 않는다.",
- "count": 57,
+ "count": 58,
  "img": {
   "가다": {"byStyle": {"game_keyart": {"f": "가다_game_keyart_f.webp", "awaken": {"f": "가다_game_keyart_f_awaken.webp"}, "cursed": {"f": "가다_game_keyart_f_cursed.webp"}, "casual": {"f": ["가다_game_keyart_f_casual1.webp"]}}}},
   "간디바": {"byStyle": {"game_keyart": {"f": "간디바_game_keyart_f.webp", "awaken": {"f": "간디바_game_keyart_f_awaken.webp"}, "cursed": {"f": "간디바_game_keyart_f_cursed.webp"}, "casual": {"f": ["간디바_game_keyart_f_casual1.webp"]}}}},
@@ -52,6 +52,7 @@
   "티르핑": {"byStyle": {"game_keyart": {"f": "티르핑_game_keyart_f.webp", "awaken": {"f": "티르핑_game_keyart_f_awaken.webp"}, "cursed": {"f": "티르핑_game_keyart_f_cursed.webp"}, "casual": {"f": ["티르핑_game_keyart_f_casual1.webp"]}, "skin": {"f": {"frost": {"base": "티르핑_game_keyart_f_skin_frost.webp", "awaken": "티르핑_game_keyart_f_skin_frost_awaken.webp", "cursed": "티르핑_game_keyart_f_skin_frost_cursed.webp"}}}}}},
   "파라슈": {"byStyle": {"game_keyart": {"f": "파라슈_game_keyart_f.webp", "awaken": {"f": "파라슈_game_keyart_f_awaken.webp"}, "cursed": {"f": "파라슈_game_keyart_f_cursed.webp"}, "casual": {"f": ["파라슈_game_keyart_f_casual1.webp"]}}}},
   "파슈파타": {"byStyle": {"game_keyart": {"f": "파슈파타_game_keyart_f.webp", "awaken": {"f": "파슈파타_game_keyart_f_awaken.webp"}, "cursed": {"f": "파슈파타_game_keyart_f_cursed.webp"}, "casual": {"f": ["파슈파타_game_keyart_f_casual1.webp"]}}}},
+  "판차잔야": {"byStyle": {"game_keyart": {"f": "판차잔야_game_keyart_f.webp", "awaken": {"f": "판차잔야_game_keyart_f_awaken.webp"}, "cursed": {"f": "판차잔야_game_keyart_f_cursed.webp"}, "casual": {"f": ["판차잔야_game_keyart_f_casual1.webp"]}}}},
   "프라가라흐": {"byStyle": {"game_keyart": {"f": "프라가라흐_game_keyart_f.webp", "awaken": {"f": "프라가라흐_game_keyart_f_awaken.webp"}, "cursed": {"f": "프라가라흐_game_keyart_f_cursed.webp"}, "casual": {"f": ["프라가라흐_game_keyart_f_casual1.webp"]}, "extra": {"f": ["프라가라흐_game_keyart_f_extra1.webp"]}}}},
   "하르페": {"byStyle": {"game_keyart": {"f": "하르페_game_keyart_f.webp", "awaken": {"f": "하르페_game_keyart_f_awaken.webp"}, "cursed": {"f": "하르페_game_keyart_f_cursed.webp"}, "casual": {"f": ["하르페_game_keyart_f_casual1.webp"]}}}},
   "헌원검": {"byStyle": {"game_keyart": {"f": "헌원검_game_keyart_f.webp", "awaken": {"f": "헌원검_game_keyart_f_awaken.webp"}, "cursed": {"f": "헌원검_game_keyart_f_cursed.webp"}, "casual": {"f": ["헌원검_game_keyart_f_casual1.webp"]}}}},
