@@ -181,8 +181,13 @@ def main():
         try: d = json.loads(r.stdout)
         except ValueError: continue
         entry = d.get('img', {}).get(a.card, {}).get('byStyle', {}).get(a.style)
-        if entry and all((k == 'base' and entry.get('f')) or (k in ('awaken', 'cursed') and entry.get(k)) or
-                         (k.startswith('casual') and entry.get('casual')) or (k.startswith('extra') and entry.get('extra')) for k in written):
+        # 칸 꼴을 따지지 않고 올린 파일 이름이 다 적혔는지만 본다 — 스킨처럼 새 칸이 생겨도 그대로 맞는다
+        def names(v):
+            if isinstance(v, str): return {v}
+            if isinstance(v, list): return set().union(*map(names, v)) if v else set()
+            if isinstance(v, dict): return set().union(*map(names, v.values())) if v else set()
+            return set()
+        if entry and all(p.name in names(entry) for p in written.values()):
             print('   등록됨: %s %s %s' % (a.card, a.style, sorted(entry)))
             done = d['img']; tot = len(cards); by = {}
             for c in cards.values(): by.setdefault(c['myth'], [0, 0])[1] += 1
