@@ -1,7 +1,7 @@
 {
  "version": 1,
  "note": "tools/register-images.py 가 그림 저장소(myth-atelier-img/img)를 읽어 채운다. 손으로 고치지 않는다.",
- "count": 46,
+ "count": 47,
  "img": {
   "가다": {"byStyle": {"game_keyart": {"f": "가다_game_keyart_f.webp", "awaken": {"f": "가다_game_keyart_f_awaken.webp"}, "cursed": {"f": "가다_game_keyart_f_cursed.webp"}, "casual": {"f": ["가다_game_keyart_f_casual1.webp"]}}}},
   "간디바": {"byStyle": {"game_keyart": {"f": "간디바_game_keyart_f.webp", "awaken": {"f": "간디바_game_keyart_f_awaken.webp"}, "cursed": {"f": "간디바_game_keyart_f_cursed.webp"}, "casual": {"f": ["간디바_game_keyart_f_casual1.webp"]}}}},
@@ -34,6 +34,7 @@
   "카두케우스": {"byStyle": {"game_keyart": {"f": "카두케우스_game_keyart_f.webp", "awaken": {"f": "카두케우스_game_keyart_f_awaken.webp"}, "cursed": {"f": "카두케우스_game_keyart_f_cursed.webp"}, "casual": {"f": ["카두케우스_game_keyart_f_casual1.webp"]}}}},
   "칸다": {"byStyle": {"game_keyart": {"f": "칸다_game_keyart_f.webp", "awaken": {"f": "칸다_game_keyart_f_awaken.webp"}, "cursed": {"f": "칸다_game_keyart_f_cursed.webp"}, "casual": {"f": ["칸다_game_keyart_f_casual1.webp"]}}}},
   "케라우노스": {"byStyle": {"game_keyart": {"f": "케라우노스_game_keyart_f.webp", "awaken": {"f": "케라우노스_game_keyart_f_awaken.webp"}, "cursed": {"f": "케라우노스_game_keyart_f_cursed.webp"}, "casual": {"f": ["케라우노스_game_keyart_f_casual1.webp"]}}}},
+  "클라우 솔라스": {"byStyle": {"game_keyart": {"f": "클라우_솔라스_game_keyart_f.webp", "awaken": {"f": "클라우_솔라스_game_keyart_f_awaken.webp"}, "cursed": {"f": "클라우_솔라스_game_keyart_f_cursed.webp"}, "casual": {"f": ["클라우_솔라스_game_keyart_f_casual1.webp"]}}}},
   "타신편": {"byStyle": {"game_keyart": {"f": "타신편_game_keyart_f.webp", "awaken": {"f": "타신편_game_keyart_f_awaken.webp"}, "cursed": {"f": "타신편_game_keyart_f_cursed.webp"}, "casual": {"f": ["타신편_game_keyart_f_casual1.webp"]}, "extra": {"f": ["타신편_game_keyart_f_extra1.webp"]}}}},
   "탈라리아": {"byStyle": {"game_keyart": {"f": "탈라리아_game_keyart_f.webp", "awaken": {"f": "탈라리아_game_keyart_f_awaken.webp"}, "cursed": {"f": "탈라리아_game_keyart_f_cursed.webp"}, "casual": {"f": ["탈라리아_game_keyart_f_casual1.webp"]}}}},
   "트리슐라": {"byStyle": {"game_keyart": {"f": "트리슐라_game_keyart_f.webp", "awaken": {"f": "트리슐라_game_keyart_f_awaken.webp"}, "cursed": {"f": "트리슐라_game_keyart_f_cursed.webp"}, "casual": {"f": ["트리슐라_game_keyart_f_casual1.webp"]}}}},
