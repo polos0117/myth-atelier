@@ -8,6 +8,10 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-09-23 · claude · 안개의 선돌 기둥
+
+- lib/workspace.css — 켈트 신전 기둥을 빌린 발할라 것에서 제 그림으로(`hall_stone_col`·`hall_stone_runes`, 613×1394). 그림 저장소 `img/ui/` 에 올렸다 — 초록을 따고, 오검 한 줄·삼중 나선·갓의 매듭을 금 상감 마스크로(덮는 넓이 3.7%)
+
 ## 2026-09-23 · claude · 열 번째 신전 "안개의 선돌"(켈트) · 신전마다 모시기
 
 - lib/workspace.css · lib/workspace-theme.js · lib/workspace-ui.js · lib/words.js — 테마 `stone` 안개의 선돌(켈트 · 안개): 팔레트(AA 여섯 쌍 통과), 바닥 안개 배경, 옆으로 흐르는 안개 자락, 선돌 문장. 기둥은 그림이 오기 전까지 발할라의 룬 돌기둥을 빌린다 — 오면 `[data-theme="stone"] .hall-col` 한 줄만 `hall_stone_*` 로
