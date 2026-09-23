@@ -1,7 +1,7 @@
 {
  "version": 1,
  "note": "tools/register-images.py 가 그림 저장소(myth-atelier-img/img)를 읽어 채운다. 손으로 고치지 않는다.",
- "count": 55,
+ "count": 56,
  "img": {
   "가다": {"byStyle": {"game_keyart": {"f": "가다_game_keyart_f.webp", "awaken": {"f": "가다_game_keyart_f_awaken.webp"}, "cursed": {"f": "가다_game_keyart_f_cursed.webp"}, "casual": {"f": ["가다_game_keyart_f_casual1.webp"]}}}},
   "간디바": {"byStyle": {"game_keyart": {"f": "간디바_game_keyart_f.webp", "awaken": {"f": "간디바_game_keyart_f_awaken.webp"}, "cursed": {"f": "간디바_game_keyart_f_cursed.webp"}, "casual": {"f": ["간디바_game_keyart_f_casual1.webp"]}}}},
@@ -34,6 +34,7 @@
   "여의봉": {"byStyle": {"game_keyart": {"f": "여의봉_game_keyart_f.webp", "awaken": {"f": "여의봉_game_keyart_f_awaken.webp"}, "cursed": {"f": "여의봉_game_keyart_f_cursed.webp"}, "casual": {"f": ["여의봉_game_keyart_f_casual1.webp", "여의봉_game_keyart_f_casual2.webp"]}}}},
   "이순신의 활": {"byStyle": {"game_keyart": {"f": "이순신의_활_game_keyart_f.webp", "awaken": {"f": "이순신의_활_game_keyart_f_awaken.webp"}, "cursed": {"f": "이순신의_활_game_keyart_f_cursed.webp"}, "casual": {"f": ["이순신의_활_game_keyart_f_casual1.webp"]}}}},
   "찬드라하스": {"byStyle": {"game_keyart": {"f": "찬드라하스_game_keyart_f.webp", "awaken": {"f": "찬드라하스_game_keyart_f_awaken.webp"}, "cursed": {"f": "찬드라하스_game_keyart_f_cursed.webp"}, "casual": {"f": ["찬드라하스_game_keyart_f_casual1.webp"]}}}},
+  "천부인": {"byStyle": {"game_keyart": {"f": "천부인_game_keyart_f.webp", "awaken": {"f": "천부인_game_keyart_f_awaken.webp"}, "cursed": {"f": "천부인_game_keyart_f_cursed.webp"}, "casual": {"f": ["천부인_game_keyart_f_casual1.webp"]}}}},
   "천총운검": {"byStyle": {"game_keyart": {"f": "천총운검_game_keyart_f.webp", "awaken": {"f": "천총운검_game_keyart_f_awaken.webp"}, "cursed": {"f": "천총운검_game_keyart_f_cursed.webp"}, "casual": {"f": ["천총운검_game_keyart_f_casual1.webp", "천총운검_game_keyart_f_casual2.webp"]}}}},
   "청룡언월도": {"byStyle": {"game_keyart": {"f": "청룡언월도_game_keyart_f.webp", "awaken": {"f": "청룡언월도_game_keyart_f_awaken.webp"}, "cursed": {"f": "청룡언월도_game_keyart_f_cursed.webp"}, "casual": {"f": ["청룡언월도_game_keyart_f_casual1.webp"]}}}},
   "카두케우스": {"byStyle": {"game_keyart": {"f": "카두케우스_game_keyart_f.webp", "awaken": {"f": "카두케우스_game_keyart_f_awaken.webp"}, "cursed": {"f": "카두케우스_game_keyart_f_cursed.webp"}, "casual": {"f": ["카두케우스_game_keyart_f_casual1.webp"]}}}},
