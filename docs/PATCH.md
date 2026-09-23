@@ -8,6 +8,11 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-09-23 · claude · 스킨 둘 더
+
+- data/card.json — 헌원검 · 집행의 대검(`judge`), 찬드라하스 · 월광 대검(`moonlight`). 서리 룬검과 함께 첫 셋
+- docs/GAME_CONCEPT.md — 첫 스킨 목록
+
 ## 2026-09-23 · claude · 스킨
 
 - data/card.json — 카드에 `skins: [{key, name, look}]` 자리. 첫 스킨 티르핑 · 서리 룬검(`frost`)
