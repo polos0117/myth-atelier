@@ -8,6 +8,17 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-09-23 · claude · 스킨의 각성·저주
+
+- tools/register-images.py — `_f_skin_<열쇠>_awaken` · `_cursed` 를 받는다. `img.json` 의 스킨 칸이 `skin: {f: {열쇠: {base, awaken, cursed}}}` 꼴로(아직 등록된 스킨이 없어 옮길 것은 없었다)
+- lib/img.js — `skinSets`. `dressOf` 가 스킨의 상태 그림을 먼저 쓰고, 없을 때만 `fx` 로 효과를 덮게 알린다. 캐시 번호 myth3
+- run.html · auto.html — 효과 층은 `fx` 일 때만
+- dex.html — 스킨을 보면 기본·각성·저주 단추, 크게 보기에 스킨 상태 그림 포함
+- lib/prompt-spec.js · lib/prompt-myth.js · prompt.html — "스킨 상태"(기본·각성·저주). 각성·저주는 스킨 기본을 첨부하고 그 상태 문장에 스킨 묘사와 "장갑 색은 스킨 색 그대로" 한 줄. 파일 이름 `_skin_<열쇠>_awaken`
+- tools/upload-art.py — 칸 `skin_<열쇠>_awaken` · `_cursed`, 스킨 기본과 구도 대조, 스킨 묘사 출력
+- tests/skin-screen.cjs · tests/prompt-engine.cjs · tests/data.cjs — 스킨 각성 그림은 효과 없이, 없는 저주는 효과로. 스킨 상태 문장·파일 이름·칸 꼴
+- IMAGE_RULES.md · PROMPT_IMAGE_WORKFLOW.md · .claude/skills/upload-art/SKILL.md · docs/GAME_CONCEPT.md — 스킨 각성·저주
+
 ## 2026-09-23 · claude · 스킨 둘 더
 
 - data/card.json — 헌원검 · 집행의 대검(`judge`), 찬드라하스 · 월광 대검(`moonlight`). 서리 룬검과 함께 첫 셋

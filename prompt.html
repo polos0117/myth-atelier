@@ -81,11 +81,11 @@ html,body {margin:0;padding:0}
 @media(min-width:1000px){.pm-grid {grid-template-columns:360px minmax(0,1fr);align-items:start}}
 </style>
 <script src="lib/workspace-theme.js?v=myth4"></script>
-<script src="lib/words.js?v=myth10"></script>
+<script src="lib/words.js?v=myth11"></script>
 <script src="lib/fresh.js?v=4"></script>
-<script src="lib/img.js?v=myth2"></script>
-<script src="lib/prompt-spec.js?v=2"></script>
-<script src="lib/prompt-myth.js?v=2"></script>
+<script src="lib/img.js?v=myth3"></script>
+<script src="lib/prompt-spec.js?v=3"></script>
+<script src="lib/prompt-myth.js?v=3"></script>
 <script src="lib/prompt-random.js?v=1"></script>
 </head>
 <body class="prompt-page">
@@ -202,6 +202,7 @@ function App() {
         <p class="pm-note">${S.OUTPUTS[st.output].note}</p>
         ${st.output === 'skin' && c && ((c.skins || []).length
           ? html`<${Select} id="pm-skin" label=${W('prompt.skin')} value=${P.skinOf(st, c).key} options=${c.skins.map(k => [k.key, k.name])} onChange=${v => update({ skin: v })} />
+            <${Select} id="pm-skin-state" label=${W('prompt.skin.state')} value=${P.skinState(st)} options=${['base', 'awaken', 'cursed'].map(x => [x, W('prompt.skin.state.' + x)])} onChange=${v => update({ skinState: v })} />
             <p class="pm-note">${W('prompt.skin.note')}</p>`
           : html`<p class="pm-note">${W('prompt.skin.none')}</p>`)}
         ${st.output === 'casual' && html`<label for="pm-casual">${W('prompt.casual.index')}

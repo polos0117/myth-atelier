@@ -20,9 +20,9 @@
 .empty {padding:36px 0;text-align:center;color:var(--muted);font-size:13px}
 </style>
 <script src="lib/workspace-theme.js?v=myth4"></script>
-<script src="lib/words.js?v=myth10"></script>
+<script src="lib/words.js?v=myth11"></script>
 <script src="lib/fresh.js?v=4"></script>
-<script src="lib/img.js?v=myth2"></script>
+<script src="lib/img.js?v=myth3"></script>
 <script src="lib/run.js?v=4"></script>
 </head>
 <body class="dex-page rn-page">
@@ -57,16 +57,16 @@ function save(st) { try { if (st) localStorage.setItem(STORE, JSON.stringify(st)
 function seed() { return (Date.now() ^ Math.floor(Math.random() * 1e9)) | 0; }
 function loadHandoff() { try { const j = JSON.parse(localStorage.getItem(HANDOFF)); return j && j.pairs && j.pairs.length ? j : null; } catch { return null; } }
 function clearHandoff() { try { localStorage.removeItem(HANDOFF); } catch {} }
-/* 판 그림 — 고른 스킨이 있으면 스킨 한 장에 상태를 효과(.skin-fx)로 덮는다 */
+/* 판 그림 — 고른 스킨이 있으면 스킨의 상태 그림, 그 상태 그림이 없으면 스킨 기본에 효과(.skin-fx)를 덮는다 */
 function artOf(img, name, state) { return IMG.dressOf(img[name], name, V, state === 'awaken' ? 3 : 1, state === 'cursed'); }
 function faceOf(img, name) { return IMG.dressOf(img[name], name, V, 1, false).file; }
 
 /* 전신 그림 한 장 — 상태에 따라 각성·저주 그림으로 넘어간다 */
 function Figure({ img, name, state, hp, maxHp, shield, dead, sub, gauge, gaugeMax, target, onClick, kindName }) {
   const art = artOf(img, name, state), file = art.file, pct = Math.round(hp / maxHp * 100);
-  return html`<button type="button" class=${'rn-fig' + (dead ? ' dead' : '') + (target ? ' target' : '') + (art.skin ? ' skinned' : '')} data-name=${name} data-state=${state}
+  return html`<button type="button" class=${'rn-fig' + (dead ? ' dead' : '') + (target ? ' target' : '') + (art.fx ? ' skinned' : '')} data-name=${name} data-state=${state}
     data-skin=${art.skin || undefined} onClick=${onClick} disabled=${!onClick}>
-    <span class="face">${file ? html`<img src=${IMG.imgURL(file)} alt="" />` : html`<span class="ph">${name}</span>`}${art.skin ? html`<i class="skin-fx"></i>` : ''}
+    <span class="face">${file ? html`<img src=${IMG.imgURL(file)} alt="" />` : html`<span class="ph">${name}</span>`}${art.fx ? html`<i class="skin-fx"></i>` : ''}
       <span class="tag">${dead ? W('run.figure.dead') : W('run.state.' + state)}</span></span>
     <span class="info">
       <span class="nm">${name}<i>${sub || kindName}</i></span>

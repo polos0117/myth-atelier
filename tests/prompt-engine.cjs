@@ -45,6 +45,12 @@ for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for 
     assert(/attached/.test(text) && !text.includes('SUBJECT:') && !text.includes('IDENTITY'), '스킨은 첨부 그림을 따르고 뼈대·외형을 다시 말하지 않는다');
     assert(text.includes('SKIN LOOK') && text.includes(sk.look) && text.indexOf('WEAPON LOOK') < text.indexOf('SKIN LOOK'), '스킨 묘사가 무기 묘사 뒤에');
     assert.equal(P.fileName(st, card), card.name.replace(/ /g, '_') + '_' + style[0] + '_f_skin_' + sk.key + '.webp', '스킨 파일 이름');
+    for (const state of ['awaken', 'cursed']) {
+      const s2 = { ...st, skinState: state }, t2 = P.build(s2, data);
+      assert(t2.includes(S.OUTPUTS[state].text) && t2.includes('SKIN LOOK') && t2.includes('SKIN NOTE') && !t2.includes(S.OUTPUTS.skin.text), '스킨 ' + state + ' 은 그 상태 문장에 스킨 묘사');
+      assert(P.words(t2) <= 360, card.name + ' 스킨 ' + state + ' 낱말 ' + P.words(t2));
+      assert.equal(P.fileName(s2, card), card.name.replace(/ /g, '_') + '_' + style[0] + '_f_skin_' + sk.key + '_' + state + '.webp', '스킨 ' + state + ' 파일 이름');
+    }
   }
   if (output === 'awaken' || output === 'cursed') {
     assert(/attached/.test(text) && !text.includes('SUBJECT:') && !text.includes('IDENTITY'), '각성·저주는 첨부 그림을 따르고 뼈대·외형을 다시 말하지 않는다');

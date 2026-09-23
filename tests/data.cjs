@@ -78,7 +78,9 @@ for (const c of cards) {
     skinN++;
   }
   for (const b of Object.values((img.img[c.name] || {}).byStyle || {}))
-    for (const box of Object.values(b.skin || {})) for (const key of Object.keys(box))
+    for (const box of Object.values(b.skin || {})) for (const [key, one] of Object.entries(box)) {
       assert(keys.includes(key), c.name + ' 의 그림 스킨 ' + key + ' 이 card.json 에 없다');
+      assert(Object.keys(one).every(x => ['base', 'awaken', 'cursed'].includes(x)), c.name + ' 스킨 ' + key + ' 의 칸은 base·awaken·cursed');
+    }
 }
 console.log('PASS 자료: 카드 ' + cards.length + ' · 기술 ' + Object.keys(skill.skills).length + ' · 화풍 ' + style.styles.length + ' · 그림 ' + Object.keys(img.img || {}).length + ' · 스킨 ' + skinN);
