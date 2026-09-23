@@ -14,22 +14,22 @@ const A = require('../lib/auto.js');
     assert.equal(await p.locator('.at-bench .at-cell').count(), A.BENCH, '벤치 여섯');
     assert.equal(await gold(), 8, '시작 8금');
 
-    /* 이번 판의 신화권 — 다섯 중 셋이 켜져 있고, 빈손이면 바꿀 수 있다 */
+    /* 이번 판의 신화권 — MYTHS_PER_GAME 권이 켜져 있고, 빈손이면 바꿀 수 있다 */
     const fs = require('node:fs'), cards = JSON.parse(fs.readFileSync('data/card.json', 'utf8')).cards, mythOf = n => cards.find(c => c.name === n).myth;
-    assert.equal(await p.locator('.at-myth').count(), 5, '신화권 다섯');
+    assert.equal(await p.locator('.at-myth').count(), Object.keys(JSON.parse(fs.readFileSync('data/group.json', 'utf8')).myth.name).length, '신화권 전부');
     const onMyths = async () => p.locator('.at-myth.on').evaluateAll(els => els.map(e => e.dataset.myth));
     const before = await onMyths();
-    assert.equal(before.length, A.MYTHS_PER_GAME, '셋이 켜져 있다');
-    for (const n of await p.locator('.at-shop .at-card').evaluateAll(els => els.map(e => e.dataset.name))) assert(before.includes(mythOf(n)), '상점은 켜진 셋만: ' + n);
+    assert.equal(before.length, A.MYTHS_PER_GAME, A.MYTHS_PER_GAME + '권이 켜져 있다');
+    for (const n of await p.locator('.at-shop .at-card').evaluateAll(els => els.map(e => e.dataset.name))) assert(before.includes(mythOf(n)), '상점은 켜진 권만: ' + n);
     const off = await p.locator('.at-myth:not(.on)').first().getAttribute('data-myth');
     await p.locator('.at-myth.on').first().click();
-    assert(await p.locator('#at-myths-apply').isDisabled(), '둘이면 못 정한다');
+    assert(await p.locator('#at-myths-apply').isDisabled(), '모자라면 못 정한다');
     await p.locator('.at-myth[data-myth="' + off + '"]').click();
     await p.locator('#at-myths-apply').click();
     await p.waitForFunction(o => { const on = [...document.querySelectorAll('.at-myth.on')].map(e => e.dataset.myth); return on.includes(o); }, off);
     const after = await onMyths();
-    assert(after.includes(off) && after.length === A.MYTHS_PER_GAME, '바꾼 셋: ' + after.join(','));
-    for (const n of await p.locator('.at-shop .at-card').evaluateAll(els => els.map(e => e.dataset.name))) assert(after.includes(mythOf(n)), '바꾸면 상점도 새 셋: ' + n);
+    assert(after.includes(off) && after.length === A.MYTHS_PER_GAME, '바꾼 권: ' + after.join(','));
+    for (const n of await p.locator('.at-shop .at-card').evaluateAll(els => els.map(e => e.dataset.name))) assert(after.includes(mythOf(n)), '바꾸면 상점도 새 권: ' + n);
     assert.equal(await gold(), 8, '바꿔도 금은 그대로');
 
     /* 사기 → 벤치 */

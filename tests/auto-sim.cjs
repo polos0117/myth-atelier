@@ -23,12 +23,12 @@ const ok = (cond, msg) => { assert(cond, msg); n++; };
   ok(A.income(0) === 5 && A.income(10) === 6 && A.income(30) === 8 && A.income(50) === 8, '수입 5 + 이자 최대 3');
 }
 
-/* 판의 신화권 — 셋만 상점과 상대에, 첫 라운드 빈손일 때만 바꾼다 */
+/* 판의 신화권 — MYTHS_PER_GAME 권만 상점과 상대에, 첫 라운드 빈손일 때만 바꾼다 */
 {
   const all = Object.keys(data.synergy.myth), a = A.newGame(data, 42);
-  ok(a.myths.length === A.MYTHS_PER_GAME && a.myths.every(k => all.includes(k)) && new Set(a.myths).size === a.myths.length, '셋을 뽑는다: ' + a.myths.join(','));
+  ok(a.myths.length === A.MYTHS_PER_GAME && a.myths.every(k => all.includes(k)) && new Set(a.myths).size === a.myths.length, '권을 뽑는다: ' + a.myths.join(','));
   const seen = new Set(); for (let s = 1; s <= 40; s++) seen.add(A.newGame(data, s).myths.join());
-  ok(seen.size >= 5, '판마다 셋이 달라진다 (' + seen.size + '가지)');
+  ok(seen.size >= 5, '판마다 권이 달라진다 (' + seen.size + '가지)');
   const inPlay = st => new Set(A.inPlay(st, data).map(c => c.myth));
   ok([...inPlay(a)].every(k => a.myths.includes(k)) && A.inPlay(a, data).length < data.cards.length, '판의 카드는 그 셋뿐');
   const g = A.newGame(data, 7);
@@ -36,12 +36,12 @@ const ok = (cond, msg) => { assert(cond, msg); n++; };
   let e = A.newGame(data, 9); for (let r = 0; r < 10 && e.phase === 'plan'; r++) { ok(e.enemy.units.every(u => e.myths.includes(by(u.name).myth)), '상대도 판의 신화권만'); A.autoPlan(e, data); A.fight(e, data); if (e.phase === 'result') A.next(e, data); }
   const pick = all.filter(k => !a.myths.includes(k)).concat(a.myths).slice(0, A.MYTHS_PER_GAME);
   const f = A.newGame(data, 42, { myths: pick });
-  ok(f.myths.slice().sort().join() === pick.slice().sort().join(), '고른 셋으로 시작한다');
+  ok(f.myths.slice().sort().join() === pick.slice().sort().join(), '고른 권으로 시작한다');
   ok(A.newGame(data, 42, { myths: ['norse'] }).myths.length === A.MYTHS_PER_GAME, '틀린 고르기는 무시하고 뽑는다');
   const ch = A.newGame(data, 5), gold = ch.gold, other = all.filter(k => !ch.myths.includes(k)).concat(ch.myths).slice(0, A.MYTHS_PER_GAME);
   ok(A.setMyths(ch, data, other).ok && ch.myths.slice().sort().join() === other.slice().sort().join() && ch.gold === gold, '빈손 첫 라운드엔 바꾼다(금은 그대로)');
   ok(ch.shop.every(n => other.includes(by(n).myth)), '바꾸면 상점도 새로');
-  ok(A.setMyths(ch, data, ['norse', 'norse', 'greek']).why === 'myths', '같은 권 둘은 안 된다');
+  ok(A.setMyths(ch, data, Array(A.MYTHS_PER_GAME).fill('norse')).why === 'myths', '같은 권을 겹칠 수 없다');
   A.buy(ch, data, 0);
   ok(A.setMyths(ch, data, a.myths).why === 'late', '하나라도 사면 못 바꾼다');
   const old = A.newGame(data, 3); old.myths = null;

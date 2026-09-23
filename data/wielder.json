@@ -52,6 +52,22 @@
   {"name": "신문왕", "myth": "east", "might": 44, "art": 80, "divine": 70, "favor": "relic", "text": "통일 신라의 왕. 동해의 용에게서 대나무를 받아 피리를 만들었다."},
   {"name": "근초고왕", "myth": "east", "might": 80, "art": 72, "divine": 46, "favor": "sword", "text": "백제의 전성기를 연 왕. 바다 건너까지 칼을 보냈다."},
   {"name": "이순신", "myth": "east", "might": 84, "art": 98, "divine": 36, "favor": "bow", "text": "조선의 수군 통제사. 열두 척으로 바다를 지켰다."},
-  {"name": "환웅", "myth": "east", "might": 76, "art": 82, "divine": 98, "favor": "relic", "text": "하늘에서 내려와 신시를 연 천제의 아들. 단군의 아버지."}
+  {"name": "환웅", "myth": "east", "might": 76, "art": 82, "divine": 98, "favor": "relic", "text": "하늘에서 내려와 신시를 연 천제의 아들. 단군의 아버지."},
+  {"name": "티르", "myth": "norse", "might": 88, "art": 70, "divine": 80, "favor": "sword", "text": "외팔의 전쟁 신. 펜리르의 입에 손을 넣고 맹세했다."},
+  {"name": "울르", "myth": "norse", "might": 70, "art": 94, "divine": 72, "favor": "bow", "text": "겨울과 사냥의 신. 활과 스키의 명수."},
+  {"name": "흐룽니르", "myth": "norse", "might": 100, "art": 40, "divine": 50, "favor": "blunt", "text": "돌 심장의 거인. 토르와 겨뤄 쓰러졌다."},
+  {"name": "프레이", "myth": "norse", "might": 74, "art": 72, "divine": 90, "favor": "sword", "text": "풍요와 여름의 신. 사랑을 위해 검을 내주었다."},
+  {"name": "헤임달", "myth": "norse", "might": 82, "art": 78, "divine": 88, "favor": "relic", "text": "무지개다리의 파수꾼. 풀 자라는 소리도 듣는다."},
+  {"name": "에로스", "myth": "greek", "might": 40, "art": 90, "divine": 84, "favor": "bow", "text": "사랑의 신. 금화살과 납화살을 쏜다."},
+  {"name": "하데스", "myth": "greek", "might": 86, "art": 72, "divine": 96, "favor": "relic", "text": "저승의 왕. 모든 죽은 자를 다스린다."},
+  {"name": "크로노스", "myth": "greek", "might": 94, "art": 66, "divine": 92, "favor": "sword", "text": "티탄의 왕. 아버지를 베고 자식을 삼켰다."},
+  {"name": "아레스", "myth": "greek", "might": 100, "art": 70, "divine": 80, "favor": "spear", "text": "전쟁의 신. 싸움의 광기 그 자체."},
+  {"name": "오디세우스", "myth": "greek", "might": 72, "art": 98, "divine": 30, "favor": "bow", "text": "이타카의 왕. 꾀와 활로 스무 해 만에 돌아왔다."},
+  {"name": "카마", "myth": "india", "might": 40, "art": 88, "divine": 80, "favor": "bow", "text": "사랑의 신. 꽃 화살로 신들의 마음을 흔든다."},
+  {"name": "크리슈나", "myth": "india", "might": 78, "art": 96, "divine": 98, "favor": "relic", "text": "비슈누의 화신. 쿠룩셰트라에서 아르주나의 전차를 몰았다."},
+  {"name": "카르나", "myth": "india", "might": 94, "art": 92, "divine": 60, "favor": "bow", "text": "태양신의 아들. 갑옷을 내주고도 물러서지 않은 비운의 궁수."},
+  {"name": "디안 케흐트", "myth": "celtic", "might": 40, "art": 96, "divine": 78, "favor": "relic", "text": "투아하 데 다난의 의술의 신."},
+  {"name": "디어뮈드", "myth": "celtic", "might": 88, "art": 86, "divine": 40, "favor": "spear", "text": "피아나 기사단의 전사. 사랑의 점을 지녔다."},
+  {"name": "마나난", "myth": "celtic", "might": 84, "art": 88, "divine": 94, "favor": "sword", "text": "바다의 신. 안개와 파도의 주인, 루를 기른 아버지."}
  ]
 }

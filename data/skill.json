@@ -379,6 +379,141 @@
    "effect": "sweep",
    "mult": 1.8,
    "targets": 6
+  },
+  "bind_wolf": {
+   "name": "펜리르의 결박",
+   "text": "보이지 않는 끈이 앞의 상대를 오래 묶는다.",
+   "effect": "stun",
+   "mult": 1.0,
+   "dur": 2
+  },
+  "winter_hunt": {
+   "name": "겨울 사냥",
+   "text": "눈보라 속에서 약한 상대 둘을 쏜다.",
+   "effect": "volley",
+   "mult": 1.3,
+   "targets": 2
+  },
+  "giant_throw": {
+   "name": "거인의 투척",
+   "text": "숫돌을 던져 앞의 상대를 멈추게 한다.",
+   "effect": "stun",
+   "mult": 1.8,
+   "dur": 1
+  },
+  "self_fighting": {
+   "name": "스스로 싸우는 검",
+   "text": "검이 혼자 날아가 잇달아 세 번 벤다.",
+   "effect": "strike",
+   "mult": 1.2,
+   "hits": 3
+  },
+  "ragnarok_call": {
+   "name": "라그나로크의 나팔",
+   "text": "아홉 세계에 닿는 소리가 판 전체를 친다.",
+   "effect": "sweep",
+   "mult": 1.8,
+   "targets": 6
+  },
+  "lead_arrow": {
+   "name": "납화살",
+   "text": "미움을 심는 화살에 맞은 상대가 오래 멈춘다.",
+   "effect": "stun",
+   "mult": 1.0,
+   "dur": 2
+  },
+  "unseen": {
+   "name": "보이지 않는 자",
+   "text": "모습을 감춰 두꺼운 보호막을 두른다.",
+   "effect": "shield",
+   "mult": 1.8
+  },
+  "time_reaper": {
+   "name": "하늘을 벤 낫",
+   "text": "한 상대를 크게 벤다. 대가로 자기 피도 조금 잃는다.",
+   "effect": "strike",
+   "mult": 2.4,
+   "selfHurt": 0.1
+  },
+  "war_frenzy": {
+   "name": "전쟁의 광기",
+   "text": "피를 부르는 창이 앞줄 전부를 휩쓴다.",
+   "effect": "sweep",
+   "mult": 1.7,
+   "targets": 3
+  },
+  "twelve_axes": {
+   "name": "열두 도끼",
+   "text": "한 화살이 앞과 그 뒤까지 꿰뚫는다.",
+   "effect": "pierce",
+   "mult": 2.4
+  },
+  "flower_arrows": {
+   "name": "꽃 다섯 송이",
+   "text": "다섯 꽃화살이 무작위 다섯을 친다.",
+   "effect": "volley",
+   "mult": 0.7,
+   "targets": 5
+  },
+  "conch_call": {
+   "name": "쿠룩셰트라의 소라",
+   "text": "소라 소리에 아군 전체의 공격이 잠깐 오른다.",
+   "effect": "rally",
+   "pct": 0.25,
+   "dur": 2
+  },
+  "cosmic_mace": {
+   "name": "지혜의 철퇴",
+   "text": "철퇴를 휘둘러 앞줄 셋을 친다.",
+   "effect": "sweep",
+   "mult": 1.3,
+   "targets": 3
+  },
+  "undefeated": {
+   "name": "지지 않는 활",
+   "text": "급소를 노린 한 발. 반드시 치명타다.",
+   "effect": "strike",
+   "mult": 2.2,
+   "crit": true
+  },
+  "one_use": {
+   "name": "단 한 번",
+   "text": "반드시 죽이는 창을 한 상대에게 던진다.",
+   "effect": "strike",
+   "mult": 3.2
+  },
+  "silver_arm": {
+   "name": "은팔의 의술",
+   "text": "가장 다친 아군을 고친다.",
+   "effect": "heal",
+   "mult": 2.0
+  },
+  "red_spear": {
+   "name": "아물지 않는 상처",
+   "text": "찌른 상처가 한동안 피를 흘리게 한다.",
+   "effect": "strike",
+   "mult": 1.6,
+   "dot": 0.3,
+   "dur": 3
+  },
+  "club_of_life": {
+   "name": "죽이는 끝, 살리는 끝",
+   "text": "한 끝으로 치고 다른 끝으로 제 피를 되찾는다.",
+   "effect": "drain",
+   "mult": 2.0,
+   "ratio": 0.5
+  },
+  "kings_lance": {
+   "name": "왕의 창",
+   "text": "앞의 상대와 그 뒤를 한 번에 꿰뚫는다.",
+   "effect": "pierce",
+   "mult": 2.3
+  },
+  "answerer": {
+   "name": "응답자",
+   "text": "어떤 갑옷도 막지 못하는 칼이 앞과 뒤를 꿰뚫는다.",
+   "effect": "pierce",
+   "mult": 2.6
   }
  }
 }

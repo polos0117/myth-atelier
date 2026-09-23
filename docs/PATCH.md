@@ -8,6 +8,15 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-09-23 · claude · 권마다 열다섯 · 판의 신화권 둘
+
+- data/card.json — 북유럽·그리스·인도·켈트에 다섯씩 스물(글레이프니르·울르의 활·흐룽니르의 숫돌·프레이의 검·걀라르호른 / 에로스의 활·하데스의 투구·크로노스의 낫·아레스의 창·오디세우스의 활 / 카마의 활·판차잔야·카우모다키·비자야·바사비 샥티 / 누아다의 은팔·게이 데르그·다그다의 곤봉·론고미니아드·프라가라흐). 일흔다섯, 권마다 열다섯
+- data/skill.json · data/wielder.json · data/draft.json — 기술 스물, 주인 열여섯, 인연 열다섯(악연 넷), 원탁에 론고미니아드
+- lib/auto.js — `MYTHS_PER_GAME` 3 → 2. 75장에서 셋은 한 판 45장(완주 53%), 둘은 30장(완주 65%, 3금 3성까지 상점 51 → 34번). auto.js 캐시 번호 4
+- lib/words.js · auto.html — 신화권 줄 문구가 권 수를 표에서 받는다(`{all}권 중 {n}권`)
+- tests/auto-sim.cjs · tests/auto-screen.cjs — 권 수를 박지 않는다
+- README.md · docs/GAME_CONCEPT.md · .claude/skills/upload-art/SKILL.md — 일흔다섯, 판의 신화권 둘과 잰 값, "다음 권" 묶음 계획
+
 ## 2026-09-23 · claude · 판의 신화권 · 한국 무기 다섯
 
 - lib/auto.js — 판마다 다섯 권 중 셋만(`MYTHS_PER_GAME`·`st.myths`·`inPlay`). 상점과 상대가 그 셋에서만 나온다. `newGame(data, seed, {myths})`, 첫 라운드 빈손이면 `setMyths`. 옛 판(myths 없음)은 전부
