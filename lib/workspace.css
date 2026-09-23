@@ -651,7 +651,7 @@ html:has(.dex-page) {height:100%;overflow:hidden;overscroll-behavior:none}
 .rn-bar {display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0}
 /* 고르기 */
 .rn-pick {display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px}
-.rn-pick .cell {cursor:pointer;border-radius:6px;border:1px solid var(--line);background:var(--card);overflow:hidden;padding:0;text-align:left;color:inherit;font:inherit}
+.rn-pick .cell {display:flex;flex-direction:column;justify-content:flex-start;cursor:pointer;border-radius:6px;border:1px solid var(--line);background:var(--card);overflow:hidden;padding:0;text-align:left;color:inherit;font:inherit}
 .rn-pick .cell.on {border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 0 22px var(--halo)}
 .rn-pick .cell .face {display:block;aspect-ratio:2/3;background:var(--card2);overflow:hidden}
 .rn-pick .cell img {display:block;width:100%;height:100%;object-fit:cover;object-position:center top}
@@ -787,15 +787,16 @@ html:has(.dex-page) {height:100%;overflow:hidden;overscroll-behavior:none}
 .df-seat.on {border-color:var(--gold);color:var(--text);box-shadow:0 0 12px var(--halo)}
 .df-layout {display:grid;grid-template-columns:minmax(0,3fr) minmax(260px,1.2fr);gap:14px;align-items:start}
 .df-pack {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.df-card {position:relative;padding:0;border:1px solid var(--line);border-radius:6px;background:var(--card);text-align:left;color:inherit;font:inherit;cursor:pointer;overflow:hidden;transition:transform .2s,box-shadow .25s,border-color .2s}
+.df-card {position:relative;display:flex;flex-direction:column;justify-content:flex-start;padding:0;border:1px solid var(--line);border-radius:6px;background:var(--card);text-align:left;color:inherit;font:inherit;cursor:pointer;overflow:hidden;transition:transform .2s,box-shadow .25s,border-color .2s}
 .df-card:hover {transform:translateY(-3px);border-color:var(--gold);box-shadow:0 12px 26px #0005}
 .df-card.on {border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 0 22px var(--halo)}
 .df-card .face {display:block;aspect-ratio:2/3;background:var(--card2);overflow:hidden;position:relative}
 .df-card .face img {display:block;width:100%;height:100%;object-fit:cover;object-position:center top}
 .df-card .face .ph {position:absolute;inset:0;display:grid;place-items:center;padding:10px;text-align:center;color:var(--muted);font:700 22px/1.2 var(--display)}
-.df-card.wielder .face {aspect-ratio:auto;min-height:0;padding:14px 10px 6px;background:linear-gradient(180deg,var(--card2),var(--card))}
-.df-card.wielder .face .ph {position:static;padding:0}
-.df-card .cap {display:block;padding:7px 9px 9px;border-top:2px solid var(--cc,var(--line))}
+.df-card.wielder .face {aspect-ratio:auto;height:96px;display:grid;place-items:center;padding:8px 10px;background:linear-gradient(180deg,var(--card2),var(--card))}
+/* 주인 이름은 두 줄까지 — 길이에 따라 칸 높이가 달라지면 신화권 색 줄이 카드마다 들쭉날쭉해진다 */
+.df-card.wielder .face .ph {position:static;padding:0;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere}
+.df-card .cap {display:block;flex:1 1 auto;padding:7px 9px 9px;border-top:2px solid var(--cc,var(--line))}
 .df-card .cap b {display:block;font:700 13px var(--display)}
 .df-card .cap i {display:block;font:400 10px ui-monospace,monospace;font-style:normal;color:var(--muted);margin-top:2px}
 .df-card .cap .dl {display:block;margin-top:4px;font:700 11px ui-monospace,monospace;color:var(--gold)}
@@ -827,4 +828,4 @@ html:has(.dex-page) {height:100%;overflow:hidden;overscroll-behavior:none}
 .df-result h4 small {font:700 11px var(--inscription);letter-spacing:.18em;color:var(--gold);margin-left:8px}
 .df-records {color:var(--muted);font-size:12px}
 @media (max-width:860px) { .df-layout {grid-template-columns:1fr} .df-result {grid-template-columns:1fr} }
-@media (max-width:599px) { .df-pack {grid-template-columns:repeat(3,minmax(0,1fr));gap:6px} .df-card .cap {padding:6px 7px} .df-card .cap b {font-size:12px} .df-setup .rn-choice {grid-template-columns:1fr} }
+@media (max-width:599px) { .df-pack {grid-template-columns:repeat(3,minmax(0,1fr));gap:6px} .df-card.wielder .face {height:72px;padding:6px} .df-card.wielder .face .ph {font-size:15px} .df-card .cap {padding:6px 7px} .df-card .cap b {font-size:12px} .df-setup .rn-choice {grid-template-columns:1fr} }
