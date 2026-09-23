@@ -11,7 +11,20 @@ const S = ctx.window.AtelierSpec;
     await p.waitForSelector('#pm-card');
     assert.equal(await p.locator('#prompt-output').inputValue(), '', '고르기 전엔 빈칸');
     const N = JSON.parse(require('node:fs').readFileSync('data/card.json', 'utf8')).cards.length;
-    assert.equal(await p.locator('#pm-card option').count(), N + 1, '카드 전부 + 빈 칸');
+    /* 지역과 이름 — 지역마다 그 권의 무기만, 지역을 바꾸면 무기 칸이 빈다 */
+    const all = JSON.parse(require('node:fs').readFileSync('data/card.json', 'utf8')).cards;
+    const myths = await p.locator('#pm-myth option').evaluateAll(os => os.map(o => o.value));
+    assert.equal(myths.length, new Set(all.map(c => c.myth)).size, '지역 전부');
+    let seen = 0;
+    for (const m of myths) {
+      await p.selectOption('#pm-myth', m);
+      const opts = await p.locator('#pm-card option').evaluateAll(os => os.map(o => o.value).filter(Boolean));
+      assert.deepEqual(opts.slice().sort(), all.filter(c => c.myth === m).map(c => c.name).sort(), m + ' 의 무기만');
+      seen += opts.length;
+    }
+    assert.equal(seen, N, '지역을 다 돌면 카드 전부');
+    assert((await p.locator('#pm-myth option[value="celtic"]').innerText()).includes('그림'), '지역에 그림 수');
+    await p.selectOption('#pm-myth', 'norse');
 
     await p.selectOption('#pm-card', '묠니르');
     await p.waitForFunction(() => document.querySelector('#prompt-output').value.startsWith('WEAPON: Mjolnir'));
@@ -105,12 +118,15 @@ const S = ctx.window.AtelierSpec;
     await p.waitForFunction(() => document.querySelector('#prompt-output').value.includes('outfit and props: grey wool coat'));
 
     /* 다른 무기는 제 설정, 돌아오면 아까 것 */
-    await p.selectOption('#pm-card', '간디바');
+    await p.selectOption('#pm-myth', 'india'); await p.selectOption('#pm-card', '간디바');
     await p.waitForFunction(() => document.querySelector('#prompt-output').value.startsWith('WEAPON: Gandiva'));
     assert.equal(await p.locator('#pm-file').innerText(), '간디바_' + S.DEFAULT_STYLE + '_f.webp', '새 무기는 기본 설정');
     assert((await p.locator('#prompt-output').inputValue()).includes('Facial ethnicity: South Asian.'), '인도면 남아시아가 자동');
     await p.reload(); await p.waitForSelector('#pm-card');
     assert.equal(await p.locator('#pm-card').inputValue(), '간디바', '고른 무기가 남는다');
+    assert.equal(await p.locator('#pm-myth').inputValue(), 'india', '지역도 따라온다');
+    await p.selectOption('#pm-myth', 'norse');
+    assert.equal(await p.locator('#pm-card').inputValue(), '', '지역을 바꾸면 무기 칸이 빈다');
     await p.selectOption('#pm-card', '묠니르');
     await p.waitForFunction(() => document.querySelector('#pm-file').innerText === '묠니르_ink_wash_f_casual3.webp');
     assert.equal(await p.locator('#pm-casual-cat').inputValue(), 'heritage_visit', '일상컷 장면도 무기마다 남는다');

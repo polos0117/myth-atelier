@@ -72,6 +72,8 @@ html,body {margin:0;padding:0}
 :is([data-theme="daylight"],[data-theme="blossom"],[data-theme="sand"]) .pm-bar .pm-btn {color:#fff}
 .pm-bar .pm-btn.quiet {background:var(--card2);color:var(--text);border-color:var(--line)}
 .pm-file {padding:10px 12px;border:1px dashed var(--line);border-radius:8px;font:700 13px ui-monospace,monospace;overflow-wrap:anywhere;color:var(--text)}
+.pm-pick2 {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:8px}
+@media (max-width:420px) {.pm-pick2 {grid-template-columns:1fr}}
 .pm-card {display:flex;gap:12px;align-items:center;padding:10px;background:var(--card2);border-radius:10px}
 .pm-card .face {flex:none;width:64px;aspect-ratio:2/3;border-radius:8px;background:var(--card);overflow:hidden;display:grid;place-items:center;color:var(--muted);font:9px ui-monospace,monospace;text-align:center}
 .pm-card .face img {width:100%;height:100%;object-fit:cover;display:block}
@@ -81,7 +83,7 @@ html,body {margin:0;padding:0}
 @media(min-width:1000px){.pm-grid {grid-template-columns:360px minmax(0,1fr);align-items:start}}
 </style>
 <script src="lib/workspace-theme.js?v=myth5"></script>
-<script src="lib/words.js?v=myth17"></script>
+<script src="lib/words.js?v=myth18"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth5"></script>
 <script src="lib/prompt-spec.js?v=3"></script>
@@ -163,6 +165,7 @@ function App() {
   const loaded = useData();
   const [store, setStore] = useState(readStore);
   const [card, setCard] = useState(() => readStore().__card || '');
+  const [myth, setMyth] = useState(() => readStore().__myth || '');
   const [copied, setCopied] = useState(false);
   const st = useMemo(() => ({ ...DEFAULT(), ...(store[card] || {}), card }), [store, card]);
   const update = patch => {
@@ -170,6 +173,8 @@ function App() {
     setStore(next); writeStore(next);
   };
   const pickCard = name => { setCard(name); const next = { ...store, __card: name }; setStore(next); writeStore(next); };
+  /* 지역을 바꾸면 무기 칸은 비운다 — 다른 지역의 무기가 남아 있으면 헷갈린다 */
+  const pickMyth = m => { setMyth(m); setCard(''); const next = { ...store, __myth: m, __card: '' }; setStore(next); writeStore(next); };
   if (!loaded) return html`<div><${WorkspaceHeader} page="prompt" /><p class="pm-note">${W('ui.loading')}</p></div>`;
   if (loaded.error) return html`<div><${WorkspaceHeader} page="prompt" /><p class="pm-note">${W('ui.error', { message: loaded.error })}</p></div>`;
   const { data, img } = loaded, g = data.group;
@@ -179,19 +184,26 @@ function App() {
   const portrait = c && IMG.portraitOf(img[c.name], 'f', st.style);
   const copy = () => { navigator.clipboard && navigator.clipboard.writeText(text).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1500); }); };
   const cards = g.myth.order.flatMap(m => data.cards.filter(x => x.myth === m).slice().sort((a, b) => b.cost - a.cost || a.name.localeCompare(b.name, 'ko')));
+  const drawn = x => !!IMG.portraitOf(img[x.name], 'f');
+  /* 지역은 고른 무기의 것이 먼저, 없으면 저장된 것, 그것도 없으면 첫 지역 */
+  const region = (c && c.myth) || (g.myth.order.includes(myth) ? myth : g.myth.order[0]);
 
   return html`<div>
     <${WorkspaceHeader} page="prompt" />
     <div class="pm-grid">
       <div class="pm-panel">
         <h2>${W('prompt.card')}</h2>
-        <label for="pm-card">${W('prompt.card.pick')}
-          <select id="pm-card" value=${card} onChange=${e => pickCard(e.currentTarget.value)}>
-            <option value="">—</option>
-            ${g.myth.order.map(m => html`<optgroup key=${m} label=${g.myth.name[m]}>
-              ${cards.filter(x => x.myth === m).map(x => html`<option key=${x.name} value=${x.name}>${x.name} · ${g.kind.name[x.kind]} · ${W('card.cost.n', { n: x.cost })}</option>`)}
-            </optgroup>`)}
-          </select></label>
+        <div class="pm-pick2">
+          <label for="pm-myth">${W('prompt.card.region')}
+            <select id="pm-myth" value=${region} onChange=${e => pickMyth(e.currentTarget.value)}>
+              ${g.myth.order.map(m => { const list = cards.filter(x => x.myth === m); return html`<option key=${m} value=${m}>${W('prompt.card.region.n', { name: g.myth.name[m], n: list.filter(drawn).length, total: list.length })}</option>`; })}
+            </select></label>
+          <label for="pm-card">${W('prompt.card.pick')}
+            <select id="pm-card" value=${card} onChange=${e => pickCard(e.currentTarget.value)}>
+              <option value="">—</option>
+              ${cards.filter(x => x.myth === region).map(x => html`<option key=${x.name} value=${x.name}>${x.name} · ${g.kind.name[x.kind]} · ${W('card.cost.n', { n: x.cost })}${drawn(x) ? '' : ' · ' + W('prompt.card.noart')}</option>`)}
+            </select></label>
+        </div>
         ${c && html`<div class="pm-card">
           <span class="face">${portrait ? html`<img src=${IMG.thumbURL(portrait)} alt="" />` : W('art.none')}</span>
           <div><b>${c.name}</b><small>${c.en} · ${g.myth.name[c.myth]} · ${g.kind.name[c.kind]}</small><small>${c.wielder}</small>
