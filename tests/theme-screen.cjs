@@ -12,7 +12,7 @@ const contrast=(a,b)=>{const x=luminance(a),y=luminance(b);return (Math.max(x,y)
   const a=await harness.open('index.html',{viewport:{width:1280,height:900}});
   const p=a.page;
   await p.waitForSelector('.theme-card');
-  assert.equal(await p.locator('.theme-card').count(),9);
+  assert.equal(await p.locator('.theme-card').count(),await p.evaluate(()=>window.AtelierAppearance.themes.length),'a card for every temple');
   assert.equal(await p.evaluate(()=>document.documentElement.dataset.theme),'pantheon');
   const keys=await p.evaluate(()=>window.AtelierAppearance.themes);
   const marks=new Set(),backgrounds=new Set();
@@ -32,7 +32,7 @@ const contrast=(a,b)=>{const x=luminance(a),y=luminance(b);return (Math.max(x,y)
    backgrounds.add(colors.bg);
    marks.add(await p.locator('.workspace-title svg').innerHTML());
   }
-  assert.equal(backgrounds.size,9);assert.equal(marks.size,9);
+  assert.equal(backgrounds.size,keys.length);assert.equal(marks.size,keys.length);
   /* 화면이 늘면 여기 더한다 */
   for(const [page,selector] of [['dex.html','.grid .cell'],['auto.html','.at-shop'],['run.html','.rn-pick'],['draft.html','.df-setup'],['prompt.html','#prompt-output'],['index.html','.theme-card']]){
    await p.goto(harness.base+'/'+page);await p.waitForSelector(selector);
@@ -70,6 +70,6 @@ const contrast=(a,b)=>{const x=luminance(a),y=luminance(b);return (Math.max(x,y)
   assert.deepEqual(a.errors,[]);
   assert.deepEqual(await p.evaluate(()=>window.AtelierWords.missing()),[]);
   await a.close();
-  console.log('PASS theme screens: 9 palettes and motifs, AA text contrast, persisted navigation, unchanged prompts, 3 viewports');
+  console.log('PASS theme screens: '+keys.length+' palettes and motifs, AA text contrast, persisted navigation, unchanged prompts, 3 viewports');
  }finally{await harness.stop()}
 })().catch(e=>{console.error(e);process.exitCode=1});

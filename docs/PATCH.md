@@ -8,6 +8,15 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-09-23 · claude · 열 번째 신전 "안개의 선돌"(켈트) · 신전마다 모시기
+
+- lib/workspace.css · lib/workspace-theme.js · lib/workspace-ui.js · lib/words.js — 테마 `stone` 안개의 선돌(켈트 · 안개): 팔레트(AA 여섯 쌍 통과), 바닥 안개 배경, 옆으로 흐르는 안개 자락, 선돌 문장. 기둥은 그림이 오기 전까지 발할라의 룬 돌기둥을 빌린다 — 오면 `[data-theme="stone"] .hall-col` 한 줄만 `hall_stone_*` 로
+- data/group.json — `temple`: 신전(테마) → 신화권. 만신전은 null(전부)
+- lib/img.js — 신전 모시기를 신전마다(`myth_hall_v1` = {테마: [이름…]}), 처음 판(배열)은 만신전 몫으로. 캐시 번호 myth5
+- index.html — 지금 테마의 신전에 모신 무기를, 비었으면 그 신전의 신화권 그림에서 무작위로(여덟이 안 되면 다른 권으로 채움). 테마를 바꾸면 바로 다시 고른다
+- dex.html — 단추·개수·비우기에 신전 이름("발할라의 밤에 모신다"), 테마를 바꾸면 그 신전 몫으로 다시 읽는다
+- tests/hall-screen.cjs — 신전별 신화권·신전마다 따로·옛 저장. tests/theme-screen.cjs · tests/workspace-theme.cjs — 테마 수를 박지 않는다
+
 ## 2026-09-23 · claude · 신전에 모실 무기를 도감에서
 
 - lib/img.js — 신전 고르기(`myth_hall_v1`, 열둘까지): `hallPicks`·`setHallPicks`·`toggleHall`·`hallShotsOf`(입은 스킨이면 스킨의 기본·각성·저주). 캐시 번호 myth4

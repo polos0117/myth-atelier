@@ -37,6 +37,13 @@
   --signal:#e8e6dc;--gold:#d9c37a;--ok:#8fdb9f;--warn:#e9d27a;--pattern:#cfd88a12;--halo:#cfd88a1c;
   --shadow:0 10px 30px #00000059;
 }
+:root[data-theme="stone"],[data-theme-preview="stone"] {
+  color-scheme:dark;
+  --bg:#111a1c;--deck:#172226;--card:#1d2a2e;--card2:#253539;--text:#eef3ef;
+  --muted:#b3c3bd;--line:#3d5256;--accent:#94dcbc;--accent-soft:#223a37;--on-accent:#0d211a;
+  --signal:#e3d6a6;--gold:#d8c283;--ok:#9fe0b2;--warn:#e6cf7c;--pattern:#94dcbc12;--halo:#94dcbc1f;
+  --shadow:0 10px 30px #00000066;
+}
 :root[data-theme="plum"],[data-theme-preview="plum"] {
   color-scheme:dark;
   --bg:#170f2a;--deck:#1f1536;--card:#281c44;--card2:#332552;--text:#f6eefc;
@@ -118,8 +125,8 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
 .crest-signature i {width:100px;height:4px;border-radius:0;background:linear-gradient(to right,var(--accent) 0 52%,var(--card) 52% 57%,var(--signal) 57% 82%,var(--card) 82% 87%,var(--gold) 87%)}
 .crest-signature b {font-size:8px;font-weight:500;letter-spacing:.18em}
 /* 어두운 신전은 화면 가장자리가 어둠에 잠긴다 */
-:is([data-theme="midnight"],[data-theme="moss"],[data-theme="plum"],[data-theme="deep"],[data-theme="ember"],[data-theme="pantheon"]) body::before {content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 80% 70% at 50% 35%,transparent 50%,#0000008c 100%)}
-:is([data-theme="midnight"],[data-theme="moss"],[data-theme="plum"],[data-theme="deep"],[data-theme="ember"],[data-theme="pantheon"]) body > * {position:relative;z-index:1}
+:is([data-theme="midnight"],[data-theme="moss"],[data-theme="plum"],[data-theme="deep"],[data-theme="ember"],[data-theme="stone"],[data-theme="pantheon"]) body::before {content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 80% 70% at 50% 35%,transparent 50%,#0000008c 100%)}
+:is([data-theme="midnight"],[data-theme="moss"],[data-theme="plum"],[data-theme="deep"],[data-theme="ember"],[data-theme="stone"],[data-theme="pantheon"]) body > * {position:relative;z-index:1}
 /* 신전 배경 — 제단 위 후광 하나, 기둥처럼 선 세로 띠, 바닥 쪽으로 가라앉는 그늘.
    밤 신전은 별을 뿌리고, 낮 신전은 대리석 결을 비스듬히 넣는다 */
 body {background-color:var(--bg);background-image:
@@ -146,6 +153,11 @@ body {background-color:var(--bg);background-image:
   radial-gradient(ellipse 70% 40% at 50% -6%,var(--halo),transparent 70%),
   repeating-linear-gradient(90deg,transparent 0 118px,var(--pattern) 118px 120px),
   repeating-linear-gradient(0deg,transparent 0 118px,var(--pattern) 118px 119px)}
+/* 안개의 선돌 — 세로 띠 위로 바닥에 깔린 안개 */
+[data-theme="stone"] body {background-image:
+  radial-gradient(ellipse 70% 40% at 50% -6%,var(--halo),transparent 70%),
+  radial-gradient(ellipse 130% 28% at 50% 102%,var(--halo),transparent 72%),
+  repeating-linear-gradient(90deg,transparent 0 118px,var(--pattern) 118px 120px)}
 /* Archive: compact search deck above an image-led collection. */
 .dex-page main,.prompt-page .wrap {width:100%;max-width:1440px;margin:auto;padding:calc(16px + env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom));scrollbar-gutter:stable;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
 .dex-page header {margin:0;padding:0 14px 12px;border:1px solid var(--line);border-top:2px solid var(--gold);border-radius:8px;background:var(--deck);box-shadow:var(--shadow)}
@@ -501,6 +513,10 @@ html:has(.dex-page) {height:100%;overflow:hidden;overscroll-behavior:none}
 [data-theme="moss"] .hall-mote {width:4px;height:4px;background:#e4f58c;box-shadow:0 0 8px #cfd88a,0 0 18px #cfd88a88;animation-name:hall-firefly;animation-duration:calc(var(--d,9s) * 2.2)}
 @keyframes hall-firefly {0% {transform:translate(0,0);opacity:0} 15% {opacity:1} 30% {opacity:.1} 45% {opacity:1;transform:translate(18px,-30vh)} 60% {opacity:.2} 75% {opacity:1;transform:translate(-10px,-62vh)} 100% {transform:translate(6px,-95vh);opacity:0}}
 
+/* 안개의 선돌 — 룬 선돌(기둥 그림이 오기 전엔 발할라의 것을 빌린다). 안개 자락이 옆으로 흐른다 */
+[data-theme="stone"] .hall-mote {top:auto;bottom:4%;width:120px;height:26px;border-radius:50%;background:radial-gradient(ellipse at center,#d9ece6aa,transparent 70%);box-shadow:none;filter:blur(6px);animation-name:hall-mist;animation-duration:calc(var(--d,9s) * 2.6)}
+@keyframes hall-mist {0% {transform:translate(-30px,0) scale(.8);opacity:0} 20% {opacity:.55} 60% {transform:translate(60px,-8vh) scale(1.2);opacity:.35} 100% {transform:translate(120px,-14vh) scale(1.5);opacity:0}}
+
 /* 심해 신전 — 물결에 닳은 청록 돌기둥, 산호 갓. 물방울이 흔들리며 오른다 */
 [data-theme="deep"] .hall-floor {background-image:repeating-radial-gradient(ellipse at 50% 110%,transparent 0 46px,var(--accent) 46px 47px);background-size:auto;animation:hall-pulse 4s ease-in-out infinite alternate}
 @keyframes hall-pulse {from {opacity:.1} to {opacity:.26}}
@@ -585,41 +601,43 @@ html:has(.dex-page) {height:100%;overflow:hidden;overscroll-behavior:none}
 [data-theme="sand"] .hall-col {aspect-ratio:506/1508;--sprite:var(--hall-col-sand);--runes:var(--hall-runes-sand)}
 [data-theme="plum"] .hall-col {aspect-ratio:469/1479;--sprite:var(--hall-col-plum);--runes:var(--hall-runes-plum)}
 [data-theme="pantheon"] .hall-col {aspect-ratio:393/1461;--sprite:var(--hall-col-pantheon);--runes:var(--hall-runes-pantheon)}
-:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="pantheon"]) .hall-col {width:auto;height:80%;bottom:6%;border-radius:0;box-shadow:none;background:var(--sprite) center/100% 100% no-repeat;background-blend-mode:normal;filter:drop-shadow(0 22px 16px #00000099);transition:filter .5s}
-:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="pantheon"]) .hall-col::before {display:none}
-:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="pantheon"]) .hall-col::after {content:'';position:absolute;inset:0;left:0;right:0;bottom:0;top:0;height:auto;clip-path:none;border-radius:0;filter:none;z-index:1;
+/* 켈트 신전 기둥 그림이 오면 이 줄의 비율과 두 변수만 hall_stone_* 로 바꾼다 */
+[data-theme="stone"] .hall-col {aspect-ratio:535/1469;--sprite:var(--hall-col-midnight);--runes:var(--hall-runes-midnight)}
+:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="stone"],[data-theme="pantheon"]) .hall-col {width:auto;height:80%;bottom:6%;border-radius:0;box-shadow:none;background:var(--sprite) center/100% 100% no-repeat;background-blend-mode:normal;filter:drop-shadow(0 22px 16px #00000099);transition:filter .5s}
+:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="stone"],[data-theme="pantheon"]) .hall-col::before {display:none}
+:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="stone"],[data-theme="pantheon"]) .hall-col::after {content:'';position:absolute;inset:0;left:0;right:0;bottom:0;top:0;height:auto;clip-path:none;border-radius:0;filter:none;z-index:1;
   background:linear-gradient(90deg,#c0143c00 30%,#c0143ccc 100%);-webkit-mask:var(--sprite) center/100% 100% no-repeat;mask:var(--sprite) center/100% 100% no-repeat;opacity:0;transition:opacity .5s;mix-blend-mode:screen}
-:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="pantheon"]) .hall-col > i {display:block;position:absolute;inset:0;width:auto;height:auto;border-radius:0;box-shadow:none;pointer-events:none;
+:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="stone"],[data-theme="pantheon"]) .hall-col > i {display:block;position:absolute;inset:0;width:auto;height:auto;border-radius:0;box-shadow:none;pointer-events:none;
   -webkit-mask:var(--runes) center/100% 100% no-repeat;mask:var(--runes) center/100% 100% no-repeat;
   background:#ffd27a;opacity:.55;animation:rune-breathe 4.5s ease-in-out infinite;transition:background-color .6s,opacity .6s}
 @keyframes rune-breathe {0%,100% {opacity:.45} 50% {opacity:.8}}
-:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="pantheon"]) .hall[data-mode="awaken"] .hall-col {filter:drop-shadow(0 22px 16px #00000099) drop-shadow(0 0 22px #f3dc9a88) brightness(1.1)}
-:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="pantheon"]) .hall[data-mode="awaken"] .hall-col > i {background:linear-gradient(0deg,#fff6d0 0,#ffe08a 40%,#ffb347 100%) 0 0/100% 300%;opacity:1;
+:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="stone"],[data-theme="pantheon"]) .hall[data-mode="awaken"] .hall-col {filter:drop-shadow(0 22px 16px #00000099) drop-shadow(0 0 22px #f3dc9a88) brightness(1.1)}
+:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="stone"],[data-theme="pantheon"]) .hall[data-mode="awaken"] .hall-col > i {background:linear-gradient(0deg,#fff6d0 0,#ffe08a 40%,#ffb347 100%) 0 0/100% 300%;opacity:1;
   animation:rune-rise 2.6s ease-out infinite,rune-breathe-hi 1.8s ease-in-out infinite;filter:drop-shadow(0 0 6px #ffd27a) drop-shadow(0 0 16px #ffb34799)}
 @keyframes rune-rise {from {background-position:0 0} to {background-position:0 100%}}
 @keyframes rune-breathe-hi {0%,100% {opacity:.85} 50% {opacity:1}}
-:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="pantheon"]) .hall[data-mode="cursed"] .hall-col {box-shadow:none;filter:drop-shadow(0 22px 16px #00000099) drop-shadow(0 0 18px #c0143c66)}
-:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="pantheon"]) .hall[data-mode="cursed"] .hall-col::after {opacity:.75}
-:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="pantheon"]) .hall[data-mode="cursed"] .hall-col > i {background:#ff2d55;opacity:1;animation:rune-flicker 1.1s steps(1,end) infinite;filter:drop-shadow(0 0 6px #ff2d55) drop-shadow(0 0 18px #c0143c)}
+:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="stone"],[data-theme="pantheon"]) .hall[data-mode="cursed"] .hall-col {box-shadow:none;filter:drop-shadow(0 22px 16px #00000099) drop-shadow(0 0 18px #c0143c66)}
+:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="stone"],[data-theme="pantheon"]) .hall[data-mode="cursed"] .hall-col::after {opacity:.75}
+:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="stone"],[data-theme="pantheon"]) .hall[data-mode="cursed"] .hall-col > i {background:#ff2d55;opacity:1;animation:rune-flicker 1.1s steps(1,end) infinite;filter:drop-shadow(0 0 6px #ff2d55) drop-shadow(0 0 18px #c0143c)}
 @keyframes rune-flicker {0%,100% {opacity:1} 8% {opacity:.55} 12% {opacity:1} 40% {opacity:.9} 46% {opacity:.4} 50% {opacity:1} 78% {opacity:.7} 82% {opacity:1}}
 /* 자리 — 앞 둘은 크게, 가운데 둘은 물러나고, 뒤 둘은 작고 옅게 */
-:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="pantheon"]) .hall-col:nth-child(1) {left:1%;transform:translateZ(120px) scale(.92)}
-:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="pantheon"]) .hall-col:nth-child(2) {right:1%;transform:translateZ(120px) scale(.92)}
-:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="pantheon"]) .hall-col:nth-child(3) {left:15%;transform:translateZ(-80px) scale(.72)}
-:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="pantheon"]) .hall-col:nth-child(4) {right:15%;transform:translateZ(-80px) scale(.72)}
-:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="pantheon"]) .hall-col:nth-child(5) {left:29%;transform:translateZ(-260px) scale(.62);opacity:.75}
-:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="pantheon"]) .hall-col:nth-child(6) {right:29%;transform:translateZ(-260px) scale(.62);opacity:.75}
+:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="stone"],[data-theme="pantheon"]) .hall-col:nth-child(1) {left:1%;transform:translateZ(120px) scale(.92)}
+:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="stone"],[data-theme="pantheon"]) .hall-col:nth-child(2) {right:1%;transform:translateZ(120px) scale(.92)}
+:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="stone"],[data-theme="pantheon"]) .hall-col:nth-child(3) {left:15%;transform:translateZ(-80px) scale(.72)}
+:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="stone"],[data-theme="pantheon"]) .hall-col:nth-child(4) {right:15%;transform:translateZ(-80px) scale(.72)}
+:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="stone"],[data-theme="pantheon"]) .hall-col:nth-child(5) {left:29%;transform:translateZ(-260px) scale(.62);opacity:.75}
+:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="stone"],[data-theme="pantheon"]) .hall-col:nth-child(6) {right:29%;transform:translateZ(-260px) scale(.62);opacity:.75}
 /* 세계수는 잎 갓이 넓어 조금 작게, 심해 바닥은 격자 대신 물결 고리 */
 [data-theme="moss"] .hall-col {height:76%}
 @media (max-width:599px) {
-  :is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="pantheon"]) .hall-col {height:54%;bottom:30%}
-  :is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="pantheon"]) .hall-col:nth-child(1) {left:-6%;transform:translateZ(120px) scale(.85)}
-  :is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="pantheon"]) .hall-col:nth-child(2) {right:-6%;transform:translateZ(120px) scale(.85)}
-  :is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="pantheon"]) .hall-col:nth-child(3) {left:14%;transform:translateZ(-80px) scale(.7)}
-  :is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="pantheon"]) .hall-col:nth-child(4) {right:14%;transform:translateZ(-80px) scale(.7)}
-  :is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="pantheon"]) .hall-col:nth-child(5),:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="pantheon"]) .hall-col:nth-child(6) {display:none}
+  :is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="stone"],[data-theme="pantheon"]) .hall-col {height:54%;bottom:30%}
+  :is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="stone"],[data-theme="pantheon"]) .hall-col:nth-child(1) {left:-6%;transform:translateZ(120px) scale(.85)}
+  :is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="stone"],[data-theme="pantheon"]) .hall-col:nth-child(2) {right:-6%;transform:translateZ(120px) scale(.85)}
+  :is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="stone"],[data-theme="pantheon"]) .hall-col:nth-child(3) {left:14%;transform:translateZ(-80px) scale(.7)}
+  :is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="stone"],[data-theme="pantheon"]) .hall-col:nth-child(4) {right:14%;transform:translateZ(-80px) scale(.7)}
+  :is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="stone"],[data-theme="pantheon"]) .hall-col:nth-child(5),:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="stone"],[data-theme="pantheon"]) .hall-col:nth-child(6) {display:none}
 }
-@media (prefers-reduced-motion:reduce) {:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="pantheon"]) .hall-col > i {animation:none;opacity:.7}}
+@media (prefers-reduced-motion:reduce) {:is([data-theme="midnight"],[data-theme="moss"],[data-theme="daylight"],[data-theme="deep"],[data-theme="blossom"],[data-theme="ember"],[data-theme="sand"],[data-theme="plum"],[data-theme="stone"],[data-theme="pantheon"]) .hall-col > i {animation:none;opacity:.7}}
 
 /* 던전 — 동료 셋이 전신으로 서고, 카드는 아래 손패다. 그림이 주인공이라 칸을 크게 잡는다 */
 .rn-page .collection-scroll {padding-bottom:calc(24px + env(safe-area-inset-bottom))}

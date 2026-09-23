@@ -1,5 +1,5 @@
 {
- "note": "시너지 축의 이름표. myth 는 신화권, kind 는 무기 종류. order 는 화면 차례이고 color 는 카드 테두리. 효과 수치는 data/synergy.json 에 있다.",
+ "note": "시너지 축의 이름표. myth 는 신화권, kind 는 무기 종류. order 는 화면 차례이고 color 는 카드 테두리. 효과 수치는 data/synergy.json 에 있다. temple 은 신전(테마) → 신화권. 메인 신전이 비어 있으면 그 신화권 무기 중에서 무작위로 돌린다. null 은 모든 신화권(만신전).",
  "myth": {
   "order": ["norse", "greek", "east", "india", "celtic"],
   "name": {"norse": "북유럽", "greek": "그리스", "east": "동아시아", "india": "인도", "celtic": "켈트"},
@@ -11,5 +11,6 @@
   "name": {"sword": "검", "spear": "창", "blunt": "둔기", "bow": "활", "relic": "이형"},
   "en": {"sword": "Sword", "spear": "Spear", "blunt": "Blunt", "bow": "Bow", "relic": "Relic"},
   "color": {"sword": "#8fa3b8", "spear": "#7fb08a", "blunt": "#b0865f", "bow": "#a5a06a", "relic": "#9a86c4"}
- }
+ },
+ "temple": {"midnight": "norse", "moss": "norse", "daylight": "greek", "deep": "greek", "blossom": "east", "ember": "east", "sand": "india", "plum": "india", "stone": "celtic", "pantheon": null}
 }

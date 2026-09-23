@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap">
-<link rel="stylesheet" href="lib/workspace.css?v=myth17">
+<link rel="stylesheet" href="lib/workspace.css?v=myth18">
 <style>
 /* 색·밀도 토막은 lib/workspace.css 한 곳에 있다. 여기는 뼈대만 —
    workspace.css 의 .dex-page 규칙이 이 뼈대에 살을 붙인다. */
@@ -125,10 +125,10 @@ body {color:var(--text);font-size:15px}
 .zoom-layer .zoom-nav button {pointer-events:auto;opacity:.85}
 .zoom-layer .zoom-nav button:disabled {opacity:.2}
 </style>
-<script src="lib/workspace-theme.js?v=myth4"></script>
-<script src="lib/words.js?v=myth16"></script>
+<script src="lib/workspace-theme.js?v=myth5"></script>
+<script src="lib/words.js?v=myth17"></script>
 <script src="lib/fresh.js?v=4"></script>
-<script src="lib/img.js?v=myth4"></script>
+<script src="lib/img.js?v=myth5"></script>
 </head>
 <body class="dex-page">
 <div id="app"></div>
@@ -138,7 +138,7 @@ body {color:var(--text);font-size:15px}
 import { h, render, Fragment } from 'https://esm.sh/preact@10.24.3';
 import { useState, useEffect, useMemo, useRef } from 'https://esm.sh/preact@10.24.3/hooks';
 import htm from 'https://esm.sh/htm@3.1.1';
-import { WorkspaceHeader } from './lib/workspace-ui.js?v=myth5';
+import { WorkspaceHeader } from './lib/workspace-ui.js?v=myth6';
 const html = htm.bind(h);
 const W = window.W, IMG = window.AtelierImg;
 const FILTER_STORE = 'myth_dex_filters_v1', COMPACT_STORE = 'myth_dex_compact_v1';
@@ -258,7 +258,7 @@ function Detail({ card, entry, styleName, group, skill, selection, onClose }) {
   const skinShots = skins.flatMap(k => [k].concat(['awaken', 'cursed'].filter(x => skinSet[k.key][x]).map(x => ({ ...k, file: skinSet[k.key][x], state: x }))));
   const [worn, setWorn] = useState(() => IMG.skinPick(card.name));
   const [hall, setHall] = useState(() => IMG.hallPicks());
-  const inHall = hall.includes(card.name), hallFull = !inHall && hall.length >= IMG.HALL_MAX;
+  const inHall = hall.includes(card.name), hallFull = !inHall && hall.length >= IMG.HALL_MAX, temple = W('theme.' + IMG.hallTheme());
   const enshrine = () => { IMG.toggleHall(card.name); setHall(IMG.hallPicks()); };
   const wear = key => { IMG.setSkinPick(card.name, key); setWorn(key); };
   const shown = focus || (portrait ? { file: portrait, cut: 'portrait' } : null);
@@ -311,8 +311,8 @@ function Detail({ card, entry, styleName, group, skill, selection, onClose }) {
 
     <div class="sw hall-toggle" role="group" aria-label=${W('dex.hall')}>
       <button type="button" class=${inHall ? 'on' : ''} data-hall=${inHall ? 'on' : 'off'} aria-pressed=${inHall} disabled=${hallFull} title=${W('dex.hall.note')}
-        onClick=${enshrine}>${inHall ? W('dex.hall.remove') : hallFull ? W('dex.hall.full', { max: IMG.HALL_MAX }) : W('dex.hall.add')}</button>
-      <span class="hall-n">${W('dex.hall.count', { n: hall.length, max: IMG.HALL_MAX })}</span>
+        onClick=${enshrine}>${inHall ? W('dex.hall.remove', { temple }) : hallFull ? W('dex.hall.full', { temple, max: IMG.HALL_MAX }) : W('dex.hall.add', { temple })}</button>
+      <span class="hall-n">${W('dex.hall.count', { temple, n: hall.length, max: IMG.HALL_MAX })}</span>
     </div>
 
     <p class="sec">${W('kind.card')}</p>
@@ -380,6 +380,7 @@ function List({ st, filters, onFilter, onOpen, compact, onCompact }) {
   </div>`;
   const images = shown.filter(c => IMG.portraitOf(st.img[c.name], V, f.style || undefined)).length;
   const [hall, setHall] = useState(() => IMG.hallPicks());
+  const temple = W('theme.' + IMG.hallTheme());
   return html`<${Shell} head=${head}>
     <details class="dex-filters" open>
       <summary>${W('dex.filter.title')}</summary>
@@ -392,8 +393,8 @@ function List({ st, filters, onFilter, onOpen, compact, onCompact }) {
       </div>
     </details>
     <div class="dex-view-row"><p class="sec" role="status">${W('kind.card')}<span>${W('dex.filter.count', { cards: shown.length, images })}</span></p>
-      <span class="dex-hall" title=${W('dex.hall.note')}>${W('dex.hall.count', { n: hall.length, max: IMG.HALL_MAX })}
-        <button class="dex-reset" id="dex-hall-clear" disabled=${!hall.length} onClick=${() => { IMG.setHallPicks([]); setHall([]); }}>${W('dex.hall.clear')}</button></span>
+      <span class="dex-hall" title=${W('dex.hall.note')}>${W('dex.hall.count', { temple, n: hall.length, max: IMG.HALL_MAX })}
+        <button class="dex-reset" id="dex-hall-clear" disabled=${!hall.length} onClick=${() => { IMG.setHallPicks([]); setHall([]); }}>${W('dex.hall.clear', { temple })}</button></span>
       <button class="dex-reset" id="dex-size" aria-pressed=${compact} onClick=${onCompact}>${W(compact ? 'dex.view.normal' : 'dex.view.small')}</button>
     </div>
     ${shown.length === 0
@@ -420,6 +421,9 @@ function List({ st, filters, onFilter, onOpen, compact, onCompact }) {
 
 function App() {
   const st = useDex();
+  /* 신전 고르기는 지금 테마의 신전 몫이다 — 테마가 바뀌면 다시 읽는다 */
+  const [theme, setTheme] = useState(() => IMG.hallTheme());
+  useEffect(() => { const on = () => setTheme(IMG.hallTheme()); addEventListener('atelier-appearance', on); return () => removeEventListener('atelier-appearance', on); }, []);
   const [open, setOpen] = useState(null);
   const [compact, setCompact] = useState(() => {
     try { return localStorage.getItem(COMPACT_STORE) === 'true'; } catch { return false; }
@@ -438,10 +442,10 @@ function App() {
   if (!st.cards) return html`<${Shell} head=${null}><p class="empty">${W('ui.loading')}</p><//>`;
 
   const card = st.cards.find(c => c.name === open?.card?.name);
-  if (card) return html`<${Detail} key=${card.name} card=${card} entry=${st.img[card.name] || null}
+  if (card) return html`<${Detail} key=${card.name + ':' + theme} card=${card} entry=${st.img[card.name] || null}
     selection=${open} styleName=${st.styleName} group=${st.group} skill=${st.skill}
     onClose=${() => setOpen(null)} />`;
-  return html`<${List} st=${st} filters=${filters} onFilter=${setFilters} onOpen=${setOpen}
+  return html`<${List} key=${theme} st=${st} filters=${filters} onFilter=${setFilters} onOpen=${setOpen}
     compact=${compact} onCompact=${() => setCompact(v => !v)} />`;
 }
 
