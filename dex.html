@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap">
-<link rel="stylesheet" href="lib/workspace.css?v=myth15">
+<link rel="stylesheet" href="lib/workspace.css?v=myth16">
 <style>
 /* 색·밀도 토막은 lib/workspace.css 한 곳에 있다. 여기는 뼈대만 —
    workspace.css 의 .dex-page 규칙이 이 뼈대에 살을 붙인다. */
@@ -100,6 +100,11 @@ body {color:var(--text);font-size:15px}
   border:1px solid var(--cc);color:var(--text);font:700 11px ui-monospace,monospace;vertical-align:middle}
 .gal {display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
 .gal img {display:block;width:100%;border:1px solid var(--line);border-radius:8px}
+.gal .cell.skin {display:flex;flex-direction:column;gap:4px;text-align:left}
+.gal .cell.skin .cap {font-size:11px;font-weight:700;color:var(--muted)}
+.gal .cell.skin.worn img {border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 0 14px var(--halo)}
+.gal .cell.skin.worn .cap {color:var(--gold)}
+.skin-wear {margin-top:8px}
 .empty {padding:36px 0;text-align:center;color:var(--muted);font-size:13px}
 /* 크게 보기 — 큰 그림을 누르면 화면을 덮는다. 원본을 contain 으로, 좌우 화살표로 같은 화풍의 다른 컷 */
 .big button.zoom {display:block;width:100%;height:100%;padding:0;border:0;background:transparent;cursor:zoom-in}
@@ -115,9 +120,9 @@ body {color:var(--text);font-size:15px}
 .zoom-layer .zoom-nav button:disabled {opacity:.2}
 </style>
 <script src="lib/workspace-theme.js?v=myth4"></script>
-<script src="lib/words.js?v=myth9"></script>
+<script src="lib/words.js?v=myth10"></script>
 <script src="lib/fresh.js?v=4"></script>
-<script src="lib/img.js?v=myth1"></script>
+<script src="lib/img.js?v=myth2"></script>
 </head>
 <body class="dex-page">
 <div id="app"></div>
@@ -241,11 +246,16 @@ function Detail({ card, entry, styleName, group, skill, selection, onClose }) {
   const bucket = (style && IMG.styleMap(entry)[style]) || {};
   const portrait = bucket[V] || null, awaken = IMG.awakenOf(bucket, V), cursed = IMG.cursedOf(bucket, V);
   const casual = IMG.cuts(bucket, 'casual', V), extra = IMG.cuts(bucket, 'extra', V);
+  /* 스킨 — 화풍을 가리지 않는다. 이름은 카드 자료에서, 그림이 있는 것만 */
+  const skinFile = IMG.skinFiles(entry || {}, V);
+  const skins = (card.skins || []).filter(k => skinFile[k.key]).map(k => ({ file: skinFile[k.key], cut: 'skin', key: k.key, name: k.name }));
+  const [worn, setWorn] = useState(() => IMG.skinPick(card.name));
+  const wear = key => { IMG.setSkinPick(card.name, key); setWorn(key); };
   const shown = focus || (portrait ? { file: portrait, cut: 'portrait' } : null);
   /* 크게 보기 — 같은 화풍의 컷 전부를 한 줄로: 액션 → 각성 → 저주 → 특별 → 일상 */
   const [zoom, setZoom] = useState(false);
   const shots = [].concat(portrait ? [{ file: portrait, cut: 'portrait' }] : [], awaken ? [{ file: awaken, cut: 'awaken' }] : [],
-    cursed ? [{ file: cursed, cut: 'cursed' }] : [], extra.map((f, i) => ({ file: f, cut: 'extra', index: i + 1 })), casual.map((f, i) => ({ file: f, cut: 'casual', index: i + 1 })));
+    cursed ? [{ file: cursed, cut: 'cursed' }] : [], extra.map((f, i) => ({ file: f, cut: 'extra', index: i + 1 })), casual.map((f, i) => ({ file: f, cut: 'casual', index: i + 1 })), skins);
   const zoomAt = shown ? Math.max(0, shots.findIndex(x => x.file === shown.file)) : 0;
   const move = d => { const n = shots[zoomAt + d]; if (n) setFocus(n.cut === 'portrait' ? null : n); };
   useEffect(() => { document.body.classList.toggle('zoomed', zoom); return () => document.body.classList.remove('zoomed'); }, [zoom]);
@@ -279,8 +289,10 @@ function Detail({ card, entry, styleName, group, skill, selection, onClose }) {
         onClick=${() => setFocus({ file: cursed, cut: 'cursed' })}>${W('dex.cut.cursed')}</button>
     </div>
     ${shown ? html`
-      <p class="sec">${shotLabel(shown)}<span>${shown.cut === 'awaken' ? W('dex.awaken.note') : shown.cut === 'cursed' ? W('dex.cursed.note') : (styleName[style] || '')}</span></p>
+      <p class="sec">${shotLabel(shown)}<span>${shown.cut === 'awaken' ? W('dex.awaken.note') : shown.cut === 'cursed' ? W('dex.cursed.note') : shown.cut === 'skin' ? W('dex.skin.note') : (styleName[style] || '')}</span></p>
       <div class="big"><button type="button" class="zoom" aria-label=${W('dex.zoom')} onClick=${() => setZoom(true)}><${Pic} full file=${shown.file} alt=${card.name} /></button></div>
+      ${shown.cut === 'skin' && html`<div class="sw skin-wear"><button type="button" class=${worn === shown.key ? 'on' : ''} data-wear=${shown.key}
+        onClick=${() => wear(worn === shown.key ? null : shown.key)}>${worn === shown.key ? W('dex.skin.using') : W('dex.skin.use')}</button></div>`}
     ` : html`<div class="big"><span class="ph">${W('art.none')}</span></div>`}
     ${zoom && shown && html`<${Zoom} card=${card} shots=${shots} at=${zoomAt} onMove=${move} onClose=${() => setZoom(false)} />`}
 
@@ -291,6 +303,10 @@ function Detail({ card, entry, styleName, group, skill, selection, onClose }) {
       <p class="sec">${W('dex.extra')}<span>${W('art.count', { n: extra.length })}</span></p>
       <div class="gal">${extra.map((f, i) => html`<button key=${f} class="cell" data-cut="extra"
         onClick=${() => setFocus({ file: f, cut: 'extra', index: i + 1 })}><${Pic} file=${f} alt=${W('dex.cut.extra')} /></button>`)}</div>`}
+    ${skins.length > 0 && html`
+      <p class="sec">${W('dex.skin')}<span>${W('art.count', { n: skins.length })}</span></p>
+      <div class="gal">${skins.map(k => html`<button key=${k.key} class=${'cell skin' + (worn === k.key ? ' worn' : '')} data-cut="skin" data-skin=${k.key}
+        onClick=${() => setFocus(k)}><${Pic} file=${k.file} alt=${k.name} /><span class="cap">${k.name}${worn === k.key ? ' · ' + W('dex.skin.on') : ''}</span></button>`)}</div>`}
     ${casual.length > 0 && html`
       <p class="sec">${W('dex.casual')}<span>${W('art.count', { n: casual.length })}</span></p>
       <div class="gal">${casual.map((f, i) => html`<button key=${f} class="cell" data-cut="casual"
@@ -324,6 +340,7 @@ function Zoom({ card, shots, at, onMove, onClose }) {
 }
 
 function shotLabel(shot) {
+  if (shot.cut === 'skin') return W('dex.cut.skin', { name: shot.name });
   const cut = W('dex.cut.' + shot.cut);
   return shot.index ? W('dex.cut.number', { cut, n: shot.index }) : cut;
 }

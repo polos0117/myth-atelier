@@ -8,6 +8,19 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-09-23 · claude · 스킨
+
+- data/card.json — 카드에 `skins: [{key, name, look}]` 자리. 첫 스킨 티르핑 · 서리 룬검(`frost`)
+- tools/register-images.py — `_f_skin_<열쇠>.webp` 를 `img.json` 의 `skin: {f: {열쇠: 파일}}` 로. card.json 에 없는 열쇠는 안 받는다. `--prune` 도 스킨을 본다
+- lib/img.js — `skinFiles`·`skinPick`·`setSkinPick`·`dressOf`. 고른 스킨은 `myth_skin_v1`(카드 → 열쇠). 캐시 번호 myth2
+- dex.html — 상세에 스킨 칸, 크게 보기에 스킨 포함, "판에서 이 스킨으로" 입기·벗기
+- run.html · auto.html · draft.html — 고른 스킨으로 그린다. 각성·저주는 스킨 그림 위에 `.skin-fx` 효과로
+- lib/workspace.css — `.skin-fx` 각성(금빛 테두리·빛줄기)·저주(심홍 테두리·바랜 색). 던전 초상이 45% 로 흐리던 것 고침 — 누를 수 없는 초상이 `button:disabled` 의 투명도를 받고 있었다(던전을 만든 때부터)
+- lib/prompt-spec.js · lib/prompt-myth.js · prompt.html — 출력 "스킨": 첨부 그림의 같은 구도에서 장갑만 스킨 `look` 으로, 파일 이름 `_f_skin_<열쇠>`
+- tools/upload-art.py — 칸 `skin_<열쇠>=경로`, 열쇠 확인, 기본과 구도 대조
+- tests/skin-screen.cjs(새) · tests/data.cjs · tests/prompt-engine.cjs — 스킨 칸·입기·던전 효과·벗기, 열쇠 꼴, 스킨 문장·파일 이름
+- IMAGE_RULES.md · PROMPT_IMAGE_WORKFLOW.md · .claude/skills/upload-art/SKILL.md · docs/GAME_CONCEPT.md — 스킨 규칙. 뒷모습이어도 평상시 장면은 일상컷
+
 ## 2026-09-23 · claude · 던전 전리품과 상점
 
 - lib/run.js — 덱이 길 내내 이어진다(`st.deck`, 싸움마다 새로 만들지 않는다). 이기면 금화와 전리품 셋 중 한 장(`takeReward`), 새 칸 상점(`buy`·`removeCard`·`shopHeal`·`purify`·`leaveShop`). 예비가 올라오면 쓰러진 무기의 카드가 빠지고 새 무기의 넉 장이 든다. 덱·금화 없이 저장된 길은 `ensure` 가 그때의 동료로 덱을 만든다

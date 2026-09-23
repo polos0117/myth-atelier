@@ -3,14 +3,15 @@
 등록 시늉을 돌려 이름이 맞는지 본 뒤, 그림 저장소에 커밋·푸시하고 자동 등록을 기다린다.
 
     python3 tools/upload-art.py <카드> [--style game_keyart] \
-        base=/경로/1.png awaken=/경로/2.png cursed=/경로/3.png casual1=/경로/4.png [extra1=…]
+        base=/경로/1.png awaken=/경로/2.png cursed=/경로/3.png casual1=/경로/4.png [extra1=…] [skin_frost=…]
 
     --dry        바꾸고 대조만 한다. 저장소에 아무것도 안 쓴다
     --no-push    커밋까지만
     --trailer L  커밋 메시지 끝에 붙일 줄. 여러 번 줄 수 있다 (Co-Authored-By 같은 것)
     --img-repo   그림 저장소 경로. 기본은 옆 폴더 ../myth-atelier-img
 
-칸 이름은 IMAGE_RULES.md 와 같다: base(=_f) · awaken · cursed · casualN · extraN.
+칸 이름은 IMAGE_RULES.md 와 같다: base(=_f) · awaken · cursed · casualN · extraN · skin_<열쇠>.
+스킨 열쇠는 data/card.json 의 그 카드 skins 에 먼저 적혀 있어야 한다(등록기가 거기 없는 열쇠는 안 받는다).
 같은 칸을 다시 주면 덮어쓴다 — 썸네일 워크플로가 바뀐 파일만 다시 만든다.
 
 대조 수치는 이렇게 읽는다. 구도 일치(각성·저주 대 기본)는 흑백 96×144 로 줄여 정규화한 뒤 내적한 값이다.
@@ -22,7 +23,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SIZE = (1024, 1536)
-SLOT = re.compile(r'^(base|awaken|cursed|casual\d+|extra\d+)$')
+SLOT = re.compile(r'^(base|awaken|cursed|casual\d+|extra\d+|skin_[a-z0-9]+)$')
 
 def die(msg):
     print('!! ' + msg); sys.exit(1)
@@ -85,6 +86,8 @@ def main():
         if '=' not in p: die('칸=경로 꼴이어야 한다: ' + p)
         k, v = p.split('=', 1)
         if not SLOT.match(k): die('칸 이름이 이상하다: ' + k)
+        if k.startswith('skin_') and k[5:] not in [x['key'] for x in cards[a.card].get('skins') or []]:
+            die('스킨 열쇠 %s 가 data/card.json 의 %s skins 에 없다 — 먼저 적는다 (있는 것: %s)' % (k[5:], a.card, ', '.join(x['key'] for x in cards[a.card].get('skins') or []) or '없음'))
         if not os.path.isfile(v): die('파일이 없다: ' + v)
         pairs[k] = v
     if not pairs: die('그림이 하나도 없다')
@@ -115,7 +118,7 @@ def main():
     for k, p in written.items():
         if k == 'base': continue
         line = '   %-8s 명암 %.1f' % (k, contrast(p))
-        if base and k in ('awaken', 'cursed'):
+        if base and (k in ('awaken', 'cursed') or k.startswith('skin_')):
             c = corr(base, p)
             flag = '' if c >= .6 else ('  ← 눈으로 볼 것' if c >= .3 else '  ← 다른 구도!')
             warn = warn or c < .6

@@ -27,11 +27,12 @@ for (const p of S.PARAMS) {
 }
 assert.equal(new Set(S.PARAMS.map(p => p.key)).size, S.PARAMS.length, '열쇠가 겹친다');
 
-const BUDGET = { portrait: 320, awaken: 260, cursed: 290, casual: 560 };
+const BUDGET = { portrait: 320, awaken: 260, cursed: 290, casual: 560, skin: 300 };
 let n = 0, longest = { w: 0 };
 for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for (const style of S.STYLES) {
   const st = { card: card.name, style: style[0], output, params: {} };
   const text = P.build(st, data), w = P.words(text);
+  if (output === 'skin' && !(card.skins || []).length) { assert.equal(text, '', card.name + ' — 스킨이 없으면 스킨 문장도 없다'); continue; }
   n++;
   assert(text.startsWith((output === 'casual' ? 'CHARACTER: ' : 'WEAPON: ') + card.en + ' (' + card.name + ')'), card.name + ' 이름이 앞에');
   assert(text.includes(style[2]), card.name + ' ' + style[0] + ' 화풍 문장');
@@ -39,6 +40,12 @@ for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for 
   assert(w <= BUDGET[output], card.name + ' ' + output + ' ' + style[0] + ' 낱말 ' + w + ' > ' + BUDGET[output]);
   if (w > longest.w) longest = { w, card: card.name, output, style: style[0] };
   assert(!/포켓몬|armor form|pokemon|overdrive/i.test(text), '앞 저장소의 말이 남았다');
+  if (output === 'skin') {
+    const sk = card.skins[0];
+    assert(/attached/.test(text) && !text.includes('SUBJECT:') && !text.includes('IDENTITY'), '스킨은 첨부 그림을 따르고 뼈대·외형을 다시 말하지 않는다');
+    assert(text.includes('SKIN LOOK') && text.includes(sk.look) && text.indexOf('WEAPON LOOK') < text.indexOf('SKIN LOOK'), '스킨 묘사가 무기 묘사 뒤에');
+    assert.equal(P.fileName(st, card), card.name.replace(/ /g, '_') + '_' + style[0] + '_f_skin_' + sk.key + '.webp', '스킨 파일 이름');
+  }
   if (output === 'awaken' || output === 'cursed') {
     assert(/attached/.test(text) && !text.includes('SUBJECT:') && !text.includes('IDENTITY'), '각성·저주는 첨부 그림을 따르고 뼈대·외형을 다시 말하지 않는다');
     if (output === 'cursed') assert(text.includes('red-violet') && text.includes('silver plates stay silver'), '저주는 룬이 오염되고 장갑은 그대로');

@@ -7,6 +7,7 @@
     <카드>_<화풍>_f_awaken.webp     각성 한 장(3성일 때 대신 뜬다) — 선택
     <카드>_<화풍>_f_cursed.webp     저주 한 장(저주 발현 때 대신 뜬다) — 선택
     <카드>_<화풍>_f_casual3.webp    일상컷 3 — 선택
+    <카드>_<화풍>_f_skin_frost.webp 스킨 frost — 선택. 열쇠는 data/card.json 의 그 카드 skins 에 있어야 한다
 카드 이름의 공백은 밑줄로 써도 된다(아킬레우스의_창_glossy_promo_f.webp).
 화풍 key 는 data/style.json 목록만 쓰고, 그 밖의 토막이 끼면 카드 이름으로
 읽히다 실패해 "그런 카드가 없다"로 남는다 — 오타를 잡으려고 일부러 통과시키지 않는다.
@@ -28,7 +29,7 @@ import roster
 # img.json 에는 폴더 없이 파일 이름만 적는다 — 경로는 lib/img.js 의 BASE 가 붙인다.
 IMG_DIR = "img"
 
-PAT = re.compile(r"^(.+?)_(m|f|awaken|cursed|casual(\d+)|extra(\d+))\.webp$", re.I)
+PAT = re.compile(r"^(.+?)_(m|f|awaken|cursed|casual(\d+)|extra(\d+)|skin_([a-z0-9]+))\.webp$", re.I)
 # 화풍 견본. 카드 그림이 아니다
 SKIP = re.compile(r"^style-")
 
@@ -68,7 +69,7 @@ def buckets(img):
             yield b
 
 
-SLOTS = ("m", "f", "awaken", "cursed", "casual", "extra")
+SLOTS = ("m", "f", "awaken", "cursed", "casual", "extra", "skin")
 
 
 def tidy(img, styles):
@@ -102,6 +103,10 @@ def listed_files(img):
             for lst in shots(d, k).values():
                 for f in lst or []:
                     out.add(f)
+        for box in (d.get("skin") or {}).values():
+            for f in box.values():
+                if f:
+                    out.add(f)
     return out
 
 
@@ -115,6 +120,7 @@ def main():
     img = doc["img"]
     idx = card_index()
     styles = roster.styles()
+    skin_keys = {n: {k["key"] for k in (c.get("skins") or [])} for n, c in roster.cards().items()}
     # 그림이 하나도 없으면 폴더 자체가 없다(git 은 빈 폴더를 안 올린다). 그것도 정상이다
     disk = {f for f in (os.listdir(IMG_DIR) if os.path.isdir(IMG_DIR) else [])
             if f.lower().endswith(".webp")}
@@ -129,6 +135,8 @@ def main():
             unknown.append((f, "이름 꼴이 안 맞는다"))
             continue
         kind = m.group(2).lower()
+        if kind.startswith("skin_"):
+            kind, skin = "skin", m.group(5).lower()
         head, gender = split_gender(m.group(1))
         if kind in ("m", "f"):
             gender = kind
@@ -149,6 +157,16 @@ def main():
                 unknown.append((f, "액션 자리 중복: " + e[kind]))
                 continue
             e[kind] = f
+        elif kind == "skin":
+            if skin not in skin_keys.get(card, ()):
+                unknown.append((f, "스킨 열쇠 '%s' 가 data/card.json 의 %s skins 에 없다" % (skin, card)))
+                continue
+            box = e.setdefault("skin", {}).setdefault(gender, {})
+            if box.get(skin):
+                unknown.append((f, "스킨 자리 중복: " + box[skin]))
+                continue
+            box[skin] = f
+            e["skin"] = {g: dict(sorted(b.items())) for g, b in sorted(e["skin"].items())}
         elif kind in ("awaken", "cursed"):
             box = e.setdefault(kind, {})
             if box.get(gender):
@@ -174,7 +192,7 @@ def main():
             lst.append(f)
             lst.sort(key=lambda x: int(re.search(r"_(?:casual|extra)(\d+)\.webp$", x, re.I).group(1)))
         added.append((card + " · " + styles[style]
-                      + ("" if kind in ("m", "f") else " · " + kind), f))
+                      + ("" if kind in ("m", "f") else " · " + kind + (":" + skin if kind == "skin" else "")), f))
 
     ghosts = sorted(listed_files(img) - disk)
     if a.prune and ghosts:
@@ -188,6 +206,11 @@ def main():
                     e[slot] = {g: f for g, f in e[slot].items() if f not in gone}
                     if not e[slot]:
                         del e[slot]
+            if "skin" in e:
+                e["skin"] = {g: {k: f for k, f in b.items() if f not in gone} for g, b in e["skin"].items()}
+                e["skin"] = {g: b for g, b in e["skin"].items() if b}
+                if not e["skin"]:
+                    del e["skin"]
             for k in ("casual", "extra"):
                 if k not in e:
                     continue

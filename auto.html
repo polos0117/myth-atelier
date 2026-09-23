@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap">
-<link rel="stylesheet" href="lib/workspace.css?v=myth15">
+<link rel="stylesheet" href="lib/workspace.css?v=myth16">
 <style>
 :root {--cc:var(--line)}
 * {box-sizing:border-box}
@@ -94,9 +94,9 @@ body {color:var(--text);font-size:15px}
 }
 </style>
 <script src="lib/workspace-theme.js?v=myth4"></script>
-<script src="lib/words.js?v=myth9"></script>
+<script src="lib/words.js?v=myth10"></script>
 <script src="lib/fresh.js?v=4"></script>
-<script src="lib/img.js?v=myth1"></script>
+<script src="lib/img.js?v=myth2"></script>
 <script src="lib/auto.js?v=2"></script>
 </head>
 <body class="dex-page auto-page">
@@ -130,11 +130,13 @@ function load() { try { const j = JSON.parse(localStorage.getItem(STORE)); retur
 function save(st) { try { localStorage.setItem(STORE, JSON.stringify(st)); } catch {} }
 function seed() { return (Date.now() ^ Math.floor(Math.random() * 1e9)) | 0; }
 
-/* 카드 그림 — 있으면 깔고 없으면 이름만. 3성이면 각성 그림 */
+/* 카드 그림 — 있으면 깔고 없으면 이름만. 3성이면 각성 그림, 저주면 저주 그림.
+   고른 스킨이 있으면 스킨 한 장에 상태를 효과(.skin-fx)로 덮는다 */
 function Art({ img, name, star, cursed }) {
-  const file = IMG.coverOf(img[name], V, undefined, star || 1, !!cursed);
-  return file ? html`<img src=${IMG.thumbURL(file)} alt="" loading="lazy"
-    onError=${e => { const t = e.currentTarget; if (t.dataset.f) return; t.dataset.f = '1'; t.src = IMG.imgURL(file); }} />` : null;
+  const art = IMG.dressOf(img[name], name, V, star || 1, !!cursed), file = art.file;
+  const fx = art.skin && (cursed ? 'cursed' : star >= 3 ? 'awaken' : '');
+  return file ? html`<img src=${IMG.thumbURL(file)} alt="" loading="lazy" class=${fx ? 'skin-' + fx : undefined} data-skin=${art.skin || undefined}
+    onError=${e => { const t = e.currentTarget; if (t.dataset.f) return; t.dataset.f = '1'; t.src = IMG.imgURL(file); }} />${fx ? html`<i class=${'skin-fx ' + fx}></i>` : ''}` : null;
 }
 function Stars({ n }) { return html`<span class="st">${W('auto.star').repeat(n)}</span>`; }
 
@@ -237,7 +239,7 @@ function Plan({ st, data, group, img, act }) {
     <div class="at-shop">${st.shop.map((name, i) => {
       const c = name && A.cardOf(data, name);
       if (!c) return html`<div key=${i} class="at-card gone"><span class="cap">${W('auto.sold')}</span></div>`;
-      const file = IMG.portraitOf(img[name], V);
+      const file = IMG.dressOf(img[name], name, V, 1, false).file;
       return html`<div key=${i} class="at-card" data-name=${name} style=${'--cc:' + group.myth.color[c.myth]}>
         <span class="face">${file ? html`<img src=${IMG.thumbURL(file)} alt="" loading="lazy" />` : html`<span class="ph">${W('art.none')}</span>`}</span>
         <span class="cap">${c.name}<i>${group.myth.name[c.myth]} · ${group.kind.name[c.kind]} · ${W('range.short.' + c.range)}</i></span>

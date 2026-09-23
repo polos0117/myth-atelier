@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap">
-<link rel="stylesheet" href="lib/workspace.css?v=myth15">
+<link rel="stylesheet" href="lib/workspace.css?v=myth16">
 <style>
 .dex-page > #app {display:flex;flex-direction:column;min-height:0;height:100%}
 .dex-page > #app > main {flex:1 1 auto;min-height:0}
@@ -20,9 +20,9 @@
 .empty {padding:36px 0;text-align:center;color:var(--muted);font-size:13px}
 </style>
 <script src="lib/workspace-theme.js?v=myth4"></script>
-<script src="lib/words.js?v=myth9"></script>
+<script src="lib/words.js?v=myth10"></script>
 <script src="lib/fresh.js?v=4"></script>
-<script src="lib/img.js?v=myth1"></script>
+<script src="lib/img.js?v=myth2"></script>
 <script src="lib/draft.js?v=1"></script>
 </head>
 <body class="dex-page df-page">
@@ -62,7 +62,7 @@ const signed = n => (n > 0 ? '+' : '') + n;
 /* 카드 한 장 — 무기는 그림, 주인은 이름표. 색 테두리는 신화권 */
 function Card({ data, group, img, type, name, delta, on, onClick, compact }) {
   const c = type === 'weapon' ? D.weapon(data, name) : D.wielder(data, name);
-  const file = type === 'weapon' ? IMG.portraitOf(img[name], V) : null;
+  const file = type === 'weapon' ? IMG.dressOf(img[name], name, V, 1, false).file : null;
   const color = group.myth.color[c.myth];
   return html`<button type="button" class=${'df-card ' + type + (on ? ' on' : '')} data-name=${name} data-type=${type} style=${'--cc:' + color} onClick=${onClick} disabled=${!onClick}>
     <span class="face">${file ? html`<img src=${IMG.thumbURL(file)} alt="" loading="lazy" />` : html`<span class="ph">${name}</span>`}</span>
@@ -82,7 +82,7 @@ function Rows({ rows, total, group }) {
 }
 function Thumb({ data, img, type, name }) {
   if (!name) return html`<i>·</i>`;
-  const file = type === 'weapon' ? IMG.portraitOf(img[name], V) : null;
+  const file = type === 'weapon' ? IMG.dressOf(img[name], name, V, 1, false).file : null;
   return file ? html`<img src=${IMG.thumbURL(file)} alt="" loading="lazy" />` : html`<i>${name.charAt(0)}</i>`;
 }
 function TeamPanel({ st, data, group, img, ti, title, open }) {

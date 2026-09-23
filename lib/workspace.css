@@ -672,7 +672,22 @@ html:has(.dex-page) {height:100%;overflow:hidden;overscroll-behavior:none}
 .rn-fig[data-state="awaken"] .tag {background:linear-gradient(180deg,#fff1c0,#d9b56a);color:#2a1e08}
 .rn-fig[data-state="cursed"] {border-color:#ff4d6d;box-shadow:0 0 0 1px #ff4d6d,0 0 28px #c0143c88}
 .rn-fig[data-state="cursed"] .tag {background:linear-gradient(180deg,#e0304a,#8a0f2a);color:#fff}
+.rn-fig:disabled {opacity:1;cursor:default}
 .rn-fig.dead {filter:grayscale(1) brightness(.5)}
+/* 스킨 — 그림이 한 장뿐이라 각성·저주를 효과로 덮는다. 던전은 data-state, 오토 배틀은 .skin-fx.awaken/.cursed */
+.skin-fx {position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .5s}
+[data-state="awaken"] .skin-fx, .skin-fx.awaken {opacity:1;mix-blend-mode:screen;
+  background:linear-gradient(112deg,transparent 38%,#fff3c8aa 48%,#ffd98a55 52%,transparent 62%) 0 0/260% 100% no-repeat,
+    linear-gradient(0deg,#ffb84a77,transparent 42%),radial-gradient(60% 40% at 50% 100%,#ffe7a066,transparent 70%);
+  box-shadow:inset 0 0 0 2px #f3dc9a,inset 0 0 28px #ffd27acc,inset 0 -40px 60px -20px #ffc85a88;animation:skin-sweep 3.2s ease-in-out infinite}
+[data-state="cursed"] .skin-fx, .skin-fx.cursed {opacity:1;mix-blend-mode:multiply;
+  background:radial-gradient(95% 62% at 50% 42%,transparent 38%,#4a0016dd 100%),linear-gradient(180deg,#c0143c44,#2a000877);
+  box-shadow:inset 0 0 0 2px #ff4d6d,inset 0 0 38px #c0143cbb;animation:skin-cursed 1.3s steps(1,end) infinite}
+.rn-fig.skinned[data-state="awaken"] .face img, img.skin-awaken {filter:saturate(1.25) brightness(1.1) contrast(1.05)}
+.rn-fig.skinned[data-state="cursed"] .face img, img.skin-cursed {filter:saturate(.55) contrast(1.15) hue-rotate(-10deg) brightness(.85)}
+@keyframes skin-sweep {0% {background-position:130% 0,0 0,0 0} 60%, 100% {background-position:-40% 0,0 0,0 0}}
+@keyframes skin-cursed {0%, 100% {opacity:1} 46% {opacity:.72} 49% {opacity:1}}
+@media (prefers-reduced-motion:reduce) {.skin-fx {animation:none !important}}
 .rn-fig.target {cursor:pointer;border-color:var(--signal);box-shadow:0 0 0 2px var(--signal)}
 .rn-fig .info {padding:8px 9px 9px}
 .rn-fig .nm {display:block;font:700 13px var(--display);overflow-wrap:anywhere}

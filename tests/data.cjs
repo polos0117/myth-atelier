@@ -64,7 +64,21 @@ for (const [name, e] of Object.entries(img.img || {})) {
   assert(!e.byForm, name + ' 에 폼이 있다 — 이 놀이에 폼은 없다');
   for (const [k, b] of Object.entries(e.byStyle || {})) {
     assert(styleKeys.has(k), name + ' 의 화풍 ' + k + ' 는 style.json 에 없다');
-    for (const slot of Object.keys(b)) assert(['m', 'f', 'awaken', 'cursed', 'casual', 'extra'].includes(slot), name + '/' + k + ' 의 칸 ' + slot);
+    for (const slot of Object.keys(b)) assert(['m', 'f', 'awaken', 'cursed', 'casual', 'extra', 'skin'].includes(slot), name + '/' + k + ' 의 칸 ' + slot);
   }
 }
-console.log('PASS 자료: 카드 ' + cards.length + ' · 기술 ' + Object.keys(skill.skills).length + ' · 화풍 ' + style.styles.length + ' · 그림 ' + Object.keys(img.img || {}).length);
+/* 스킨 — 열쇠는 영문 소문자·숫자, 카드 안에서 겹치지 않고, 이름·묘사가 있다. img.json 의 스킨은 적힌 열쇠만 */
+let skinN = 0;
+for (const c of cards) {
+  const keys = (c.skins || []).map(k => k.key);
+  assert.equal(new Set(keys).size, keys.length, c.name + ' 스킨 열쇠가 겹친다');
+  for (const k of c.skins || []) {
+    assert(/^[a-z0-9]+$/.test(k.key), c.name + ' 스킨 열쇠 ' + k.key + ' — 영문 소문자·숫자만(파일 이름이 된다)');
+    assert(k.name && k.look && k.look.length > 40, c.name + ' 스킨 ' + k.key + ' 에 이름·묘사가 있어야 한다');
+    skinN++;
+  }
+  for (const b of Object.values((img.img[c.name] || {}).byStyle || {}))
+    for (const box of Object.values(b.skin || {})) for (const key of Object.keys(box))
+      assert(keys.includes(key), c.name + ' 의 그림 스킨 ' + key + ' 이 card.json 에 없다');
+}
+console.log('PASS 자료: 카드 ' + cards.length + ' · 기술 ' + Object.keys(skill.skills).length + ' · 화풍 ' + style.styles.length + ' · 그림 ' + Object.keys(img.img || {}).length + ' · 스킨 ' + skinN);
