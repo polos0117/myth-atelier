@@ -275,6 +275,74 @@
    "effect": "strike",
    "mult": 1.4,
    "hits": 2
+  },
+  "stone_roar": {
+   "name": "왕의 외침",
+   "text": "돌이 울어 아군 전체의 공격을 잠깐 올린다.",
+   "effect": "rally",
+   "pct": 0.2,
+   "dur": 3
+  },
+  "never_miss": {
+   "name": "빗나가지 않는 화살",
+   "text": "가장 약한 상대 하나를 반드시 맞힌다.",
+   "effect": "volley",
+   "mult": 1.6,
+   "targets": 1
+  },
+  "balor_eye": {
+   "name": "발로르의 눈",
+   "text": "약해진 상대의 눈을 꿰뚫는다. 체력이 낮을수록 세다.",
+   "effect": "execute",
+   "mult": 2.0,
+   "threshold": 0.4
+  },
+  "good_striker": {
+   "name": "잘 치는 자",
+   "text": "땅을 두드려 앞의 상대를 멈추게 한다.",
+   "effect": "stun",
+   "mult": 1.5,
+   "dur": 1
+  },
+  "bottomless": {
+   "name": "마르지 않는 솥",
+   "text": "가장 다친 아군을 크게 채운다.",
+   "effect": "heal",
+   "mult": 3.0
+  },
+  "hill_cleaver": {
+   "name": "세 언덕 베기",
+   "text": "무지개 호를 그려 앞줄을 한꺼번에 벤다.",
+   "effect": "sweep",
+   "mult": 1.5,
+   "targets": 3
+  },
+  "five_rays": {
+   "name": "다섯 갈래 빛",
+   "text": "창이 다섯 갈래로 갈라져 무작위 다섯을 친다.",
+   "effect": "volley",
+   "mult": 1.0,
+   "targets": 5
+  },
+  "sword_of_light": {
+   "name": "빛의 검",
+   "text": "누구도 피하지 못하는 빛으로 한 상대를 크게 벤다.",
+   "effect": "strike",
+   "mult": 2.8
+  },
+  "thirty_barbs": {
+   "name": "서른 개의 가시",
+   "text": "약해진 상대에 박혀 가시로 벌어진다. 체력이 낮을수록 세다.",
+   "effect": "execute",
+   "mult": 2.6,
+   "threshold": 0.45
+  },
+  "lake_blade": {
+   "name": "호수의 검",
+   "text": "왕의 빛으로 앞줄 전부를 벤다.",
+   "effect": "sweep",
+   "mult": 2.2,
+   "targets": 3
   }
  }
 }

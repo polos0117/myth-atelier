@@ -1,4 +1,4 @@
-/* 프롬프트가 화면 없이 끝까지 나오나 — 마흔 자루 × 출력 셋 × 화풍 열넷.
+/* 프롬프트가 화면 없이 끝까지 나오나 — 카드 전부 × 출력 다섯 × 화풍 열넷.
    Run: node tests/prompt-engine.cjs */
 const fs = require('node:fs'), vm = require('node:vm'), assert = require('node:assert/strict');
 const ctx = { window: {}, console };

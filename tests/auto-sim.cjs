@@ -132,6 +132,13 @@ const ok = (cond, msg) => { assert(cond, msg); n++; };
   const n2 = A.simulate(data, st, [U('다인슬레이프', 1, 0, 1), U('야른그레이프', 1, 0, 0)], [U('묠니르', 3, 0, 1)]);
   const rev = n2.log.filter(e => e.k === 'revive');
   ok(rev.length === 2 && rev.every(e => e.hp === Math.round(by(n2.ents[e.b - 1].name).hp * 0.3)), '북유럽 둘: 각자 한 번, 최대 체력의 30%');
+  /* 켈트 둘 — 투혼: 잃은 체력만큼 평타가 세진다(저주 발현 전까지만 본다 — 저주도 공격을 올린다) */
+  const preCurse = (r, id) => { const c = r.log.find(e => e.k === 'curse' && e.b === id); return r.log.filter(e => e.k === 'hit' && e.a === id && (!c || e.t < c.t)).map(e => e.d); };
+  const ce = A.simulate(data, st, [U('칼라드볼그', 1, 0, 1), U('페일노트', 1, 1, 1)], [U('묠니르', 3, 0, 1)]);
+  const cd = preCurse(ce, 1);
+  ok(cd.length >= 2 && cd[0] === by('칼라드볼그').atk && Math.max(...cd) > cd[0], '켈트 둘: 다치면 평타가 오른다 ' + cd.join(','));
+  const nc = A.simulate(data, st, [U('칼라드볼그', 1, 0, 1), U('가다', 1, 1, 1)], [U('묠니르', 3, 0, 1)]);
+  ok(preCurse(nc, 1).length >= 2 && preCurse(nc, 1).every(d => d === by('칼라드볼그').atk), '켈트 하나면 투혼이 없다 ' + preCurse(nc, 1).join(','));
   /* 이형 둘 — 아군 전체 보호막으로 시작 */
   const sh = A.simulate(data, st, [U('아이기스', 1, 0, 0), U('탈라리아', 1, 1, 0), U('칸다', 1, 0, 1)], [U('묠니르', 1, 0, 1)]);
   const firstOnKanda = sh.log.find(e => e.k === 'hit' && e.b === 3);

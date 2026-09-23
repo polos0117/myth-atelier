@@ -6,7 +6,8 @@ const { start, FOLD } = require('./browser-harness.cjs');
   try {
     const a = await harness.open('run.html', { viewport: { width: 1280, height: 900 } }), p = a.page;
     await p.waitForSelector('.rn-pick .cell');
-    assert.equal(await p.locator('.rn-pick .cell').count(), 40, '마흔 자루');
+    const N = JSON.parse(require('node:fs').readFileSync('data/card.json', 'utf8')).cards.length;
+    assert.equal(await p.locator('.rn-pick .cell').count(), N, '카드 전부 — ' + N + '자루');
     assert(await p.locator('.rn-btn.primary').isDisabled(), '셋을 고르기 전엔 못 나선다');
     for (const n of ['궁니르', '묠니르', '아이기스']) await p.locator('.rn-pick .cell[data-name="' + n + '"]').click();
     assert.equal(await p.locator('.rn-pick .cell.on').count(), 3, '셋 골랐다');

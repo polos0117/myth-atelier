@@ -10,7 +10,8 @@ const S = ctx.window.AtelierSpec;
     const a = await harness.open('prompt.html', { viewport: { width: 1280, height: 900 } }), p = a.page;
     await p.waitForSelector('#pm-card');
     assert.equal(await p.locator('#prompt-output').inputValue(), '', '고르기 전엔 빈칸');
-    assert.equal(await p.locator('#pm-card option').count(), 41, '마흔 자루 + 빈 칸');
+    const N = JSON.parse(require('node:fs').readFileSync('data/card.json', 'utf8')).cards.length;
+    assert.equal(await p.locator('#pm-card option').count(), N + 1, '카드 전부 + 빈 칸');
 
     await p.selectOption('#pm-card', '묠니르');
     await p.waitForFunction(() => document.querySelector('#prompt-output').value.startsWith('WEAPON: Mjolnir'));

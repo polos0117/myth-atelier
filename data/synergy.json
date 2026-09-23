@@ -5,7 +5,8 @@
   "norse": {"at": [2, 4], "effect": "revive", "value": [0.3, 0.5], "scope": "self", "name": "발할라", "text": "죽을 때 한 번 되살아난다 — 최대 체력의 {a}% / {b}%"},
   "greek": {"at": [2, 4], "effect": "firstcrit", "value": [1.6, 2.2], "scope": "self", "name": "신의 가호", "text": "첫 공격이 치명타 — ×{a} / ×{b}"},
   "east": {"at": [2, 4], "effect": "manaRate", "value": [0.3, 0.6], "scope": "self", "name": "기", "text": "마나가 더 빨리 찬다 — +{a}% / +{b}%"},
-  "india": {"at": [2, 4], "effect": "skillPower", "value": [0.25, 0.5], "scope": "self", "name": "아스트라", "text": "기술 위력이 오른다 — +{a}% / +{b}%"}
+  "india": {"at": [2, 4], "effect": "skillPower", "value": [0.25, 0.5], "scope": "self", "name": "아스트라", "text": "기술 위력이 오른다 — +{a}% / +{b}%"},
+  "celtic": {"at": [2, 4], "effect": "frenzy", "value": [0.4, 0.8], "scope": "self", "name": "투혼", "text": "피가 줄수록 공격력이 오른다 — 최대 +{a}% / +{b}%"}
  },
  "kind": {
   "sword": {"at": [2, 4], "effect": "atk", "value": [0.15, 0.35], "scope": "self", "name": "검의 맹세", "text": "공격력 — +{a}% / +{b}%"},

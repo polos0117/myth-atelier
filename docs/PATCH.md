@@ -8,6 +8,18 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-09-23 · claude · 켈트 열 자루
+
+- data/card.json — 켈트 열 자루(리아 팔·페일노트·타슬럼·수켈루스의 망치·다그다의 솥·칼라드볼그·브류나크·클라우 솔라스·게이 볼그·엑스칼리버). 값·체력·공격은 같은 금액대의 기존 띠 안
+- data/skill.json — 기술 열(새 효과 없이 기존 종류만)
+- data/group.json — 신화권 `celtic` 켈트, 색 #4fae7e
+- data/synergy.json · lib/auto.js — 켈트 시너지 투혼(`frenzy`): 잃은 체력 비율만큼 공격 +40% / +80%
+- data/wielder.json — 주인 아홉. data/draft.json — 인연 일곱(악연 하나)
+- lib/prompt-spec.js — 켈트 신화권 문양 문단, 얼굴 계통 자동값
+- lib/words.js · README.md · docs/GAME_CONCEPT.md · .claude/skills/upload-art/SKILL.md — 마흔 → 쉰, 카탈로그 칸
+- tests/auto-sim.cjs — 투혼 검사. tests/run-screen.cjs · tests/prompt-screen.cjs — 카드 수를 박지 않고 card.json 에서 센다
+- 값: 오토 배틀 맡긴 손 완주 58% → 55%(상점이 묽어졌다). 드래프트·던전은 거의 그대로
+
 ## 2026-09-23 · claude · 월광 대검 스킨을 뺀다
 
 - data/card.json — 찬드라하스의 `moonlight` 스킨을 뺐다. 곡도에 곧은 대검을 입히는 건 치장이 아니라 다른 무기다. 그림은 아직 없었다
