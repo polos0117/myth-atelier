@@ -73,6 +73,12 @@ body {color:var(--text);font-size:15px}
 .at-syn.on {border-color:var(--cc);color:var(--text);background:var(--accent-soft)}
 .at-syn b {display:flex;justify-content:space-between;gap:6px}
 .at-syn small {font-size:11px;line-height:1.4}
+.at-myths {display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.at-myth {min-height:36px;padding:0 14px;border:1px solid var(--line);border-radius:99px;background:var(--card);color:var(--muted);font:700 12px var(--display);cursor:pointer}
+.at-myth.on {border-color:var(--cc);color:var(--text);background:var(--accent-soft);box-shadow:inset 0 -2px var(--cc)}
+.at-myth:disabled {opacity:1;cursor:default}
+.at-myth:disabled:not(.on) {opacity:.4}
+.at-myth-n {font:700 11px ui-monospace,monospace;color:var(--muted)}
 .at-pick {display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 0;padding:8px 10px;background:var(--accent-soft);border-radius:9px;font-size:12px}
 .at-pick .at-btn {margin-left:auto}
 /* 결과 */
@@ -94,10 +100,10 @@ body {color:var(--text);font-size:15px}
 }
 </style>
 <script src="lib/workspace-theme.js?v=myth4"></script>
-<script src="lib/words.js?v=myth12"></script>
+<script src="lib/words.js?v=myth14"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth3"></script>
-<script src="lib/auto.js?v=2"></script>
+<script src="lib/auto.js?v=3"></script>
 </head>
 <body class="dex-page auto-page">
 <div id="app"></div>
@@ -189,6 +195,22 @@ function Synergy({ data, group, units }) {
       <small>${r.text}</small></li>`)}</ul>`;
 }
 
+/* 이번 판의 신화권 — 첫 라운드에 아무것도 사기 전이면 셋을 다시 고를 수 있다 */
+function Myths({ st, group, act }) {
+  const max = A.MYTHS_PER_GAME, free = st.round === 1 && !st.board.some(Boolean) && !st.bench.some(Boolean);
+  const [want, setWant] = useState(st.myths || []);
+  if (!st.myths) return html`<p class="sec">${W('auto.myths')}<span>${W('auto.myths.all')}</span></p>`;
+  const toggle = k => setWant(w => w.includes(k) ? w.filter(x => x !== k) : w.length < max ? w.concat(k) : w);
+  const changed = want.length === max && want.slice().sort().join() !== st.myths.slice().sort().join();
+  return html`<p class="sec">${W('auto.myths')}<span>${free ? W('auto.myths.note') : W('auto.myths.locked')}</span></p>
+    <div class="at-myths" role="group" aria-label=${W('auto.myths')}>
+      ${group.myth.order.map(k => { const on = free ? want.includes(k) : st.myths.includes(k); return html`<button key=${k} type="button" class=${'at-myth' + (on ? ' on' : '')}
+        data-myth=${k} aria-pressed=${on} disabled=${!free} style=${'--cc:' + group.myth.color[k]} onClick=${() => toggle(k)}>${group.myth.name[k]}</button>`; })}
+      ${free && html`<span class="at-myth-n">${W('auto.myths.count', { n: want.length, max })}</span>
+        <button type="button" class="at-btn" id="at-myths-apply" disabled=${!changed} onClick=${() => act('myths', want)}>${W('auto.myths.apply')}</button>`}
+    </div>`;
+}
+
 function Plan({ st, data, group, img, act }) {
   const [pick, setPick] = useState(null);   /* 고른 유닛 id */
   const [why, setWhy] = useState('');
@@ -216,6 +238,8 @@ function Plan({ st, data, group, img, act }) {
         <button class="at-btn" id="at-new" title=${W('auto.new.note')} onClick=${() => act('new')}>${W('auto.new')}</button>
       </span>
     </div>
+
+    <${Myths} key=${st.seed + ':' + (st.myths || []).join()} st=${st} group=${group} act=${act} />
 
     <p class="sec">${W('auto.enemy')}<span>${W('auto.enemy.note', { myth: group.myth.name[st.enemy.myth] })}</span></p>
     <${Board} cells=${boardCells(st.enemy.units)} side="them" color=${color} img=${img} />
@@ -305,6 +329,7 @@ function App() {
     if (what === 'fight') r = A.fight(next, data);
     if (what === 'next') r = A.next(next, data);
     if (what === 'autoplan') A.autoPlan(next, data);
+    if (what === 'myths') r = A.setMyths(next, data, args[0]);
     if (r.ok) { save(next); setSt(next); }
     return r;
   };

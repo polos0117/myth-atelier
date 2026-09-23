@@ -56,7 +56,7 @@ for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for 
     assert(/attached/.test(text) && !text.includes('SUBJECT:') && !text.includes('IDENTITY'), '각성·저주는 첨부 그림을 따르고 뼈대·외형을 다시 말하지 않는다');
     if (output === 'cursed') assert(text.includes('red-violet') && text.includes('silver plates stay silver'), '저주는 룬이 오염되고 장갑은 그대로');
   } else if (output === 'portrait') {
-    assert(text.includes('Facial ethnicity: ' + S.PARAMS[0].auto[card.myth]), '자동이면 신화권이 얼굴 계통을 정한다');
+    assert(text.includes('Facial ethnicity: ' + (card.ethnicity || S.PARAMS[0].auto[card.myth])), '자동이면 카드(없으면 신화권)가 얼굴 계통을 정한다');
   }
   assert(!text.includes('POSTURE:'), '자세는 고를 때만 붙는다');
   assert(!text.includes('fused to a limb'), '팔이 창이 되게 한 문장은 지웠다');

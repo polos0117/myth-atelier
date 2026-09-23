@@ -47,6 +47,11 @@
   {"name": "아서", "myth": "celtic", "might": 80, "art": 84, "divine": 62, "favor": "sword", "text": "바위에서 검을 뽑은 브리튼의 왕."},
   {"name": "트리스탄", "myth": "celtic", "might": 70, "art": 92, "divine": 24, "favor": "bow", "text": "콘월의 기사. 하프와 활의 명수, 이졸데의 연인."},
   {"name": "수켈루스", "myth": "celtic", "might": 76, "art": 58, "divine": 80, "favor": "blunt", "text": "갈리아의 '잘 치는 자'. 땅과 포도주의 신."},
-  {"name": "콘", "myth": "celtic", "might": 74, "art": 62, "divine": 46, "favor": "relic", "text": "백 번 싸운 콘. 리아 팔이 그를 왕이라 외쳤다."}
+  {"name": "콘", "myth": "celtic", "might": 74, "art": 62, "divine": 46, "favor": "relic", "text": "백 번 싸운 콘. 리아 팔이 그를 왕이라 외쳤다."},
+  {"name": "도깨비", "myth": "east", "might": 82, "art": 44, "divine": 62, "favor": "blunt", "text": "씨름과 장난을 좋아하는 도깨비. 착한 이에겐 금을, 욕심쟁이에겐 혹을 준다."},
+  {"name": "신문왕", "myth": "east", "might": 44, "art": 80, "divine": 70, "favor": "relic", "text": "통일 신라의 왕. 동해의 용에게서 대나무를 받아 피리를 만들었다."},
+  {"name": "근초고왕", "myth": "east", "might": 80, "art": 72, "divine": 46, "favor": "sword", "text": "백제의 전성기를 연 왕. 바다 건너까지 칼을 보냈다."},
+  {"name": "이순신", "myth": "east", "might": 84, "art": 98, "divine": 36, "favor": "bow", "text": "조선의 수군 통제사. 열두 척으로 바다를 지켰다."},
+  {"name": "환웅", "myth": "east", "might": 76, "art": 82, "divine": 98, "favor": "relic", "text": "하늘에서 내려와 신시를 연 천제의 아들. 단군의 아버지."}
  ]
 }

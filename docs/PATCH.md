@@ -8,6 +8,16 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-09-23 · claude · 판의 신화권 · 한국 무기 다섯
+
+- lib/auto.js — 판마다 다섯 권 중 셋만(`MYTHS_PER_GAME`·`st.myths`·`inPlay`). 상점과 상대가 그 셋에서만 나온다. `newGame(data, seed, {myths})`, 첫 라운드 빈손이면 `setMyths`. 옛 판(myths 없음)은 전부
+- auto.html — "이번 판의 신화권" 줄: 켜진 셋, 첫 라운드 빈손이면 골라 "이 셋으로", 사면 잠긴다. auto.js 캐시 번호 3
+- data/card.json — 한국 무기 다섯(도깨비 방망이·만파식적·칠지도·이순신의 활·천부인)을 동아시아에. 한국 무기 일곱에 `ethnicity: "Korean"`
+- data/skill.json · data/wielder.json · data/draft.json — 기술 다섯, 주인 다섯(도깨비·신문왕·근초고왕·이순신·환웅), 인연 셋
+- lib/prompt-myth.js — 얼굴 계통 자동값을 카드의 `ethnicity` 가 먼저 정한다. 캐시 번호 4
+- lib/words.js · README.md · docs/GAME_CONCEPT.md · .claude/skills/upload-art/SKILL.md — 신화권 줄 낱말, 무기 수를 박지 않는 문구, "판의 신화권" 칸과 잰 값
+- tests/auto-sim.cjs · tests/auto-screen.cjs · tests/prompt-engine.cjs — 신화권 셋·상점·상대·바꾸기·잠김·옛 판, 화면 줄, 카드 얼굴 계통
+
 ## 2026-09-23 · claude · 켈트 열 자루
 
 - data/card.json — 켈트 열 자루(리아 팔·페일노트·타슬럼·수켈루스의 망치·다그다의 솥·칼라드볼그·브류나크·클라우 솔라스·게이 볼그·엑스칼리버). 값·체력·공격은 같은 금액대의 기존 띠 안

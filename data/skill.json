@@ -343,6 +343,42 @@
    "effect": "sweep",
    "mult": 2.2,
    "targets": 3
+  },
+  "ttukttak": {
+   "name": "금 나와라 뚝딱",
+   "text": "두드린 만큼 잠시 공격이 크게 오른다.",
+   "effect": "buff",
+   "pct": 0.45,
+   "dur": 3
+  },
+  "calm_waves": {
+   "name": "만파를 잠재우다",
+   "text": "피리 소리에 상대 셋이 잠깐 멈춘다.",
+   "effect": "stun",
+   "mult": 0.6,
+   "targets": 3,
+   "dur": 1
+  },
+  "seven_branches": {
+   "name": "일곱 갈래",
+   "text": "가지 돋친 칼날이 잇달아 세 번 벤다.",
+   "effect": "strike",
+   "mult": 1.0,
+   "hits": 3
+  },
+  "crane_wing": {
+   "name": "학익진",
+   "text": "학의 날개처럼 펼친 화살이 상대 넷을 친다.",
+   "effect": "volley",
+   "mult": 1.2,
+   "targets": 4
+  },
+  "heavenly_seals": {
+   "name": "풍백·우사·운사",
+   "text": "바람과 비와 구름이 판 전체를 친다.",
+   "effect": "sweep",
+   "mult": 1.8,
+   "targets": 6
   }
  }
 }
