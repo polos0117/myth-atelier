@@ -1,37 +1,50 @@
 {
  "version": 1,
- "note": "던전(run.html) 자료. 공통 카드는 무기 종류마다 셋 — 무기는 자기 종류의 셋에 skill.json 의 고유 기술 한 장을 더해 넉 장을 덱에 낸다. 각성·저주는 카드가 아니라 규칙(배수·대가)이다. 길은 node 차례대로 간다.",
- "nodes": ["fight", "fight", "shrine", "fight", "gate", "rest", "fight", "boss"],
+ "note": "던전(run.html) 자료. 공통 카드는 무기 종류마다 — basic 셋(첫 장이 1마나 기본)을 무기가 들고 오고, basic 이 아닌 것(rare 포함)은 싸움 뒤 전리품과 상점에서만 나온다. 무기는 자기 종류의 basic 셋에 skill.json 의 고유 기술 한 장을 더해 넉 장으로 시작한다. 덱은 길 내내 이어진다. 각성·저주는 카드가 아니라 규칙(배수·대가)이다. 길은 node 차례대로 간다.",
+ "nodes": ["fight", "fight", "shrine", "fight", "gate", "shop", "fight", "rest", "boss"],
  "cards": {
   "sword": [
-   {"key": "sword.slash", "name": "베기", "text": "한 상대를 벤다.", "cost": 1, "mult": 1.0},
-   {"key": "sword.twin", "name": "연격", "text": "두 번 벤다.", "cost": 2, "mult": 0.65, "hits": 2},
-   {"key": "sword.cleave", "name": "일섬", "text": "온 힘으로 크게 벤다.", "cost": 3, "mult": 1.9}
+   {"key": "sword.slash", "name": "베기", "text": "한 상대를 벤다.", "cost": 1, "mult": 1.0, "basic": true},
+   {"key": "sword.twin", "name": "연격", "text": "두 번 벤다.", "cost": 2, "mult": 1.35, "hits": 2, "basic": true},
+   {"key": "sword.cleave", "name": "일섬", "text": "온 힘으로 크게 벤다.", "cost": 3, "mult": 4.3, "basic": true},
+   {"key": "sword.parry", "name": "받아치기", "text": "치고, 자신에게 보호막을 두른다.", "cost": 1, "mult": 1.1, "shield": 0.2},
+   {"key": "sword.flurry", "name": "난도질", "text": "세 번 벤다.", "cost": 2, "mult": 1.1, "hits": 3},
+   {"key": "sword.iai", "name": "발도", "text": "단숨에 벤다. 피가 35% 아래인 상대에겐 두 배.", "cost": 2, "mult": 3.4, "execute": 0.35, "rare": true}
   ],
   "spear": [
-   {"key": "spear.thrust", "name": "찌르기", "text": "한 상대를 찌른다.", "cost": 1, "mult": 1.0},
-   {"key": "spear.sweep", "name": "휩쓸기", "text": "상대 전부를 꿰뚫는다.", "cost": 2, "mult": 1.1, "all": true},
-   {"key": "spear.hurl", "name": "투척", "text": "창을 던진다. 세다.", "cost": 3, "mult": 2.0}
+   {"key": "spear.thrust", "name": "찌르기", "text": "한 상대를 찌른다.", "cost": 1, "mult": 1.0, "basic": true},
+   {"key": "spear.sweep", "name": "휩쓸기", "text": "상대 전부를 꿰뚫는다.", "cost": 2, "mult": 1.6, "all": true, "basic": true},
+   {"key": "spear.hurl", "name": "투척", "text": "창을 던진다. 세다.", "cost": 3, "mult": 4.3, "basic": true},
+   {"key": "spear.brace", "name": "방진", "text": "찌르고, 보호막을 두르고, 한 장 뽑는다.", "cost": 1, "mult": 0.7, "shield": 0.35, "draw": 1},
+   {"key": "spear.pierce", "name": "관통", "text": "상대 전부를 깊게 꿰뚫는다.", "cost": 2, "mult": 1.9, "all": true},
+   {"key": "spear.charge", "name": "돌격", "text": "꿰뚫고 다음 행동을 못 하게 한다.", "cost": 2, "mult": 3.2, "stun": true, "rare": true}
   ],
   "blunt": [
-   {"key": "blunt.smash", "name": "내려치기", "text": "한 상대를 친다.", "cost": 1, "mult": 1.1},
-   {"key": "blunt.stun", "name": "강타", "text": "치고 다음 행동을 못 하게 한다.", "cost": 2, "mult": 0.8, "stun": true},
-   {"key": "blunt.crush", "name": "분쇄", "text": "온 무게로 내려찍는다.", "cost": 3, "mult": 1.9}
+   {"key": "blunt.smash", "name": "내려치기", "text": "한 상대를 친다.", "cost": 1, "mult": 1.1, "basic": true},
+   {"key": "blunt.stun", "name": "강타", "text": "치고 다음 행동을 못 하게 한다.", "cost": 2, "mult": 2.0, "stun": true, "basic": true},
+   {"key": "blunt.crush", "name": "분쇄", "text": "온 무게로 내려찍는다.", "cost": 3, "mult": 4.3, "basic": true},
+   {"key": "blunt.guard", "name": "버티기", "text": "치고 크게 버틴다.", "cost": 1, "mult": 0.9, "shield": 0.35},
+   {"key": "blunt.hammer", "name": "망치질", "text": "한 상대를 무겁게 두 번 친다.", "cost": 2, "mult": 1.6, "hits": 2},
+   {"key": "blunt.quake", "name": "지진", "text": "상대 전부를 치고 전부 못 움직이게 한다.", "cost": 3, "mult": 2.4, "all": true, "stun": true, "rare": true}
   ],
   "bow": [
-   {"key": "bow.shoot", "name": "쏘기", "text": "한 상대를 쏜다.", "cost": 1, "mult": 0.9},
-   {"key": "bow.rapid", "name": "연사", "text": "세 발을 쏜다.", "cost": 2, "mult": 0.5, "hits": 3},
-   {"key": "bow.snipe", "name": "저격", "text": "급소를 노린다. 아주 세다.", "cost": 3, "mult": 2.3}
+   {"key": "bow.shoot", "name": "쏘기", "text": "한 상대를 쏜다.", "cost": 1, "mult": 0.9, "basic": true},
+   {"key": "bow.rapid", "name": "연사", "text": "세 발을 쏜다.", "cost": 2, "mult": 0.9, "hits": 3, "basic": true},
+   {"key": "bow.snipe", "name": "저격", "text": "급소를 노린다. 아주 세다.", "cost": 3, "mult": 4.6, "basic": true},
+   {"key": "bow.aim", "name": "조준", "text": "쏘고, 이 싸움 동안 자신의 위력 +50%. 한 장 뽑는다.", "cost": 1, "mult": 0.6, "buff": 0.5, "draw": 1},
+   {"key": "bow.volley", "name": "일제 사격", "text": "상대 전부에게 두 발씩.", "cost": 2, "mult": 1.0, "hits": 2, "all": true},
+   {"key": "bow.rain", "name": "화살비", "text": "상대 전부에게 세 발씩.", "cost": 3, "mult": 1.2, "hits": 3, "all": true, "rare": true}
   ],
   "relic": [
-   {"key": "relic.light", "name": "빛", "text": "치고, 자신에게 보호막을 두른다.", "cost": 1, "mult": 0.7, "shield": 0.2},
-   {"key": "relic.bless", "name": "축복", "text": "동료 전부의 피를 채운다. 저주받은 동료는 못 받는다.", "cost": 2, "heal": 0.2},
-   {"key": "relic.might", "name": "권능", "text": "상대 전부를 빛으로 친다.", "cost": 3, "mult": 1.4, "all": true}
+   {"key": "relic.light", "name": "빛", "text": "치고, 자신에게 보호막을 두른다.", "cost": 1, "mult": 0.7, "shield": 0.2, "basic": true},
+   {"key": "relic.bless", "name": "축복", "text": "동료 전부의 피를 채운다. 저주받은 동료는 못 받는다.", "cost": 2, "heal": 0.25, "basic": true},
+   {"key": "relic.might", "name": "권능", "text": "상대 전부를 빛으로 친다.", "cost": 3, "mult": 2.3, "all": true, "basic": true},
+   {"key": "relic.ward", "name": "가호", "text": "이 싸움 동안 동료 전부의 위력 +30%.", "cost": 1, "rally": 0.3},
+   {"key": "relic.halo", "name": "후광", "text": "상대 하나를 치고 동료 전부의 피를 조금 채운다.", "cost": 2, "mult": 2.4, "heal": 0.12},
+   {"key": "relic.drain", "name": "흡수", "text": "치고, 준 피해의 절반을 되찾는다. 저주받았으면 못 되찾는다.", "cost": 2, "mult": 3.4, "drain": 0.5, "rare": true}
   ]
  },
- "tune": {
-  "hand": 5, "mana": 3, "gauge": 4, "awakenMult": 1.8, "curseAt": 0.35,
-  "partyHpDiv": 5, "enemyHpDiv": 5, "enemyAtk": 0.7, "enemyHpPerNode": 0.12, "enemyAtkPerNode": 0.08,
-  "bossHp": 1.7, "bossAtk": 1.2, "skillEvery": 3, "skillMult": 1.5, "restHeal": 0.3, "winHeal": 0.15
- }
+ "loot": {"start": 0, "fight": 16, "perNode": 3, "spread": 8, "choices": 3, "commonWeight": 2, "rareWeight": 1},
+ "shop": {"cards": 3, "common": 30, "rare": 55, "remove": 40, "heal": 30, "healRatio": 0.3, "purify": 90},
+ "tune": {"hand": 5, "mana": 3, "gauge": 4, "awakenMult": 1.8, "curseAt": 0.35, "partyHpDiv": 5, "enemyHpDiv": 3, "enemyAtk": 0.46, "enemyHpPerNode": 0.18, "enemyAtkPerNode": 0.08, "bossHp": 1.25, "bossAtk": 1.2, "skillEvery": 3, "skillMult": 1.5, "restHeal": 0.3, "winHeal": 0.15}
 }

@@ -1,4 +1,4 @@
-/* 던전 화면 — 고르고, 길에 서고, 싸우고, 저장되는지. 규칙은 안 본다(그건 run-sim). */
+/* 던전 화면 — 고르고, 길에 서고, 싸우고, 전리품·상점, 저장되는지. 규칙은 안 본다(그건 run-sim). */
 const assert = require('node:assert/strict');
 const { start, FOLD } = require('./browser-harness.cjs');
 (async () => {
@@ -14,7 +14,9 @@ const { start, FOLD } = require('./browser-harness.cjs');
     assert.equal(await p.locator('.rn-pick .cell.on').count(), 3, '넷째는 안 들어간다');
     await p.locator('.rn-btn.primary').click();
     await p.waitForSelector('.rn-map');
-    assert.equal(await p.locator('.rn-node').count(), 8, '길 여덟 칸');
+    assert.equal(await p.locator('.rn-node').count(), 9, '길 아홉 칸');
+    assert.equal(await p.locator('.rn-node.shop').count(), 1, '상점 한 칸');
+    assert((await p.locator('.rn-purse').innerText()).includes('12'), '금화·덱 열둘');
     assert.equal(await p.locator('.rn-node.here').count(), 0, '아직 첫 칸 앞');
     await p.locator('.rn-btn.primary').click();
     await p.waitForSelector('.rn-hand .rn-card');
@@ -37,6 +39,43 @@ const { start, FOLD } = require('./browser-harness.cjs');
     /* 저장 — 다시 열어도 싸움 중 */
     await p.reload(); await p.waitForSelector('.rn-hand .rn-card');
     assert.equal(await p.locator('.rn-party .rn-fig').count(), 3, '길이 남는다');
+    /* 이긴다 → 금화와 전리품 셋, 한 장 고르면 덱에 */
+    await p.evaluate(() => { const j = JSON.parse(localStorage.getItem('myth_run_v1')); j.battle.enemies.forEach(e => { e.hp = 1; }); j.battle.mana = 3; localStorage.setItem('myth_run_v1', JSON.stringify(j)); });
+    await p.reload(); await p.waitForSelector('.rn-hand .rn-card');
+    for (let k = 0; k < 6 && !(await p.locator('.rn-loot').count()); k++) {
+      const hit = p.locator('.rn-hand .rn-card:not(:disabled)').first();
+      if (await hit.count()) await hit.click(); else await p.locator('.rn-deck .rn-btn').click();
+      if (await p.locator('.rn-fig.target').count()) await p.locator('.rn-fig.target').first().click();
+      await p.waitForTimeout(80);
+    }
+    await p.waitForSelector('.rn-loot');
+    assert.equal(await p.locator('.rn-loot .rn-card').count(), 3, '전리품 셋');
+    assert(/\+\d+/.test(await p.locator('.rn-gold').innerText()), '금화가 들어온다');
+    await p.locator('.rn-loot .rn-card[data-loot="1"]').click();
+    await p.waitForSelector('.rn-loot .rn-card.on');
+    assert.equal(await p.locator('.rn-loot .rn-card:not(:disabled)').count(), 0, '한 장만');
+    assert((await p.locator('.rn-purse').innerText()).includes('13'), '덱 열셋');
+    /* 상점 — 칸을 옮겨서 */
+    await p.evaluate(() => { const j = JSON.parse(localStorage.getItem('myth_run_v1')); j.node = 4; j.phase = 'map'; j.gold = 300; j.party[0].hp = 3; j.party[1].cursed = true; localStorage.setItem('myth_run_v1', JSON.stringify(j)); });
+    await p.reload(); await p.waitForSelector('.rn-map');
+    await p.locator('.rn-btn.primary').click(); await p.waitForSelector('.rn-shop');
+    assert.equal(await p.locator('.rn-shop .rn-ware').count(), 3, '카드 셋을 판다');
+    await p.locator('[data-buy="0"]').click();
+    await p.waitForFunction(() => document.querySelector('[data-buy="0"]').disabled);
+    assert((await p.locator('.rn-purse').innerText()).includes('14'), '산 카드가 덱에');
+    await p.locator('[data-remove]').click(); await p.waitForSelector('.rn-remove [data-deck]');
+    await p.locator('.rn-remove [data-deck]:not(:disabled)').first().click();
+    await p.waitForFunction(() => !document.querySelector('.rn-remove') && document.querySelector('[data-remove]').disabled);
+    assert((await p.locator('.rn-purse').innerText()).includes('13'), '한 장 뺐다');
+    await p.locator('[data-heal]').click(); await p.waitForFunction(() => document.querySelector('[data-heal]').disabled);
+    const purify = p.locator('[data-purify]');
+    assert.equal(await purify.count(), 1, '저주받은 동료에게 정화');
+    await purify.click();
+    await p.waitForFunction(() => !document.querySelector('[data-purify]'));
+    assert.equal(await p.locator('.rn-shop .rn-fig[data-state="cursed"]').count(), 0, '저주가 풀려 그림이 기본으로');
+    assert.deepEqual(a.errors, []);
+    await p.locator('[data-leave]').click(); await p.waitForSelector('.rn-map');
+    assert.equal(await p.locator('.rn-node.here').count() + await p.locator('.rn-node.done').count(), 6, '상점을 지나 길로');
     /* 버리기 → 다시 고르기 */
     await p.locator('[data-abandon]').click();
     await p.waitForSelector('.rn-pick .cell');
@@ -62,6 +101,6 @@ const { start, FOLD } = require('./browser-harness.cjs');
     assert((await p.locator('.rn-reserve').innerText()).includes('그람'), '예비가 보인다');
     assert.equal(await p.evaluate(() => localStorage.getItem('myth_handoff_v1')), null, '넘겨받은 것은 한 번 쓰고 지운다');
     await a.close();
-    console.log('PASS 던전 화면: 고르기·길·싸움·카드·턴·저장·버리기·휴대폰·출정');
+    console.log('PASS 던전 화면: 고르기·길·싸움·카드·턴·저장·전리품·상점·버리기·휴대폰·출정');
   } finally { await harness.stop(); }
 })().catch(e => { console.error(e); process.exitCode = 1; });

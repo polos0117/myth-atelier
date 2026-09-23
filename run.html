@@ -6,12 +6,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#121016">
 <title>신화 무기 공방</title>
-<!-- 던전 — 로그라이크 덱빌딩. 무기 셋을 데려가 여덟 칸의 길을 간다.
+<!-- 던전 — 로그라이크 덱빌딩. 무기 셋을 데려가 아홉 칸의 길을 간다. 이기면 금화와 전리품, 상점에서 덱을 다듬는다.
      규칙은 lib/run.js 가 갖고, 여기는 그리기와 저장뿐이다. 길은 이 브라우저(localStorage)에 남는다. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap">
-<link rel="stylesheet" href="lib/workspace.css?v=myth14">
+<link rel="stylesheet" href="lib/workspace.css?v=myth15">
 <style>
 .dex-page > #app {display:flex;flex-direction:column;min-height:0;height:100%}
 .dex-page > #app > main {flex:1 1 auto;min-height:0}
@@ -20,10 +20,10 @@
 .empty {padding:36px 0;text-align:center;color:var(--muted);font-size:13px}
 </style>
 <script src="lib/workspace-theme.js?v=myth4"></script>
-<script src="lib/words.js?v=myth8"></script>
+<script src="lib/words.js?v=myth9"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth1"></script>
-<script src="lib/run.js?v=3"></script>
+<script src="lib/run.js?v=4"></script>
 </head>
 <body class="dex-page rn-page">
 <div id="app"></div>
@@ -75,6 +75,20 @@ function Figure({ img, name, state, hp, maxHp, shield, dead, sub, gauge, gaugeMa
   </button>`;
 }
 
+/* 카드 한 장 — 손패·전리품·상점·덱 빼기가 같은 모양을 쓴다 */
+function Card({ data, group, c, on, disabled, onClick, tag, attr }) {
+  const s = R.spec(data, c), card = R.cardOf(data, c.owner);
+  return html`<button type="button" class=${'rn-card' + (on ? ' on' : '') + (s.rare ? ' rare' : '')} data-key=${s.key} data-owner=${c.owner} ...${attr || {}}
+    style=${'--cc:' + (group.kind.color ? group.kind.color[card.kind] : 'var(--gold)')} disabled=${disabled} onClick=${onClick}>
+    <span class="who">${c.owner}${s.unique ? html`<b>${W('run.card.unique')}</b>` : ''}${s.rare ? html`<b>${W('run.card.rare')}</b>` : ''}</span>
+    <span class="nm">${s.name}</span><span class="tx">${s.text}</span><span class="cost">${s.cost}</span>${tag ? html`<span class="got">${tag}</span>` : ''}</button>`;
+}
+/* 금화와 덱 — 쓰러진 무기의 카드는 싸움에 안 나오니 세지 않는다 */
+function Purse({ st }) {
+  const alive = new Set(R.living(st).map(m => m.name)), n = (st.deck || []).filter(c => alive.has(c.owner)).length;
+  return html`<p class="rn-purse" data-gold=${st.gold || 0}><b>${W('run.purse', { g: st.gold || 0, n })}</b></p>`;
+}
+
 function Pick({ data, group, img, onStart }) {
   const [sel, setSel] = useState([]);
   const cards = data.cards.slice().sort((a, b) => (IMG.portraitOf(img[b.name], V) ? 1 : 0) - (IMG.portraitOf(img[a.name], V) ? 1 : 0) || b.cost - a.cost);
@@ -112,6 +126,7 @@ function Map({ st, data, onGo }) {
   const list = R.nodes(data);
   return html`<div>
     <div class="rn-head"><h2>${W('run.map.title')}</h2><p>${W('run.map.note')}</p></div>
+    <${Purse} st=${st} />
     <div class="rn-map">${list.map((k, i) => html`<div key=${i} class=${'rn-node ' + k + (i < st.node ? ' done' : '') + (i === st.node ? ' here' : '')} data-index=${i}><b>${i + 1}</b>${W('run.node.' + k)}</div>`)}</div>
     <div class="rn-bar"><button type="button" class="rn-btn primary" onClick=${onGo}>${W('run.map.go')}</button></div>
   </div>`;
@@ -155,12 +170,9 @@ function Battle({ st, data, img, group, act }) {
     <div class="rn-deck"><span class="rn-mana">${W('run.battle.mana')} ${Array.from({ length: T.mana }, (_, i) => html`<i key=${i} class=${i < b.mana ? 'on' : ''}></i>`)}</span>
       <span>${pick !== null ? W('run.battle.target', { name: R.spec(data, b.hand[pick]).name }) : W('run.battle.hand')}</span>
       <button type="button" class="rn-btn" onClick=${() => { setPick(null); act(x => R.endTurn(x, data)); }}>${W('run.battle.end')}</button></div>
-    <div class="rn-hand">${b.hand.map((c, i) => { const s = R.spec(data, c), owner = st.party.find(p => p.name === c.owner), card = R.cardOf(data, c.owner);
+    <div class="rn-hand">${b.hand.map((c, i) => { const s = R.spec(data, c), owner = st.party.find(p => p.name === c.owner);
       const can = owner && owner.alive && s.cost <= b.mana;
-      return html`<button type="button" key=${c.id} class=${'rn-card' + (pick === i ? ' on' : '')} data-key=${s.key} data-owner=${c.owner} style=${'--cc:' + (group.kind.color ? group.kind.color[card.kind] : 'var(--gold)')}
-        disabled=${!can} onClick=${() => playCard(i)}>
-        <span class="who">${c.owner}${s.unique ? html`<b>${W('run.card.unique')}</b>` : ''}</span>
-        <span class="nm">${s.name}</span><span class="tx">${s.text}</span><span class="cost">${s.cost}</span></button>`; })}</div>
+      return html`<${Card} key=${c.id} data=${data} group=${group} c=${c} on=${pick === i} disabled=${!can} onClick=${() => playCard(i)} />`; })}</div>
     <${Log} log=${st.log} />
     ${b.ask && html`<div class="rn-ask" role="dialog"><div>
       <h3>${W('run.ask.title', { name: b.ask })}</h3><p>${W('run.ask.text')}${(st.party.find(p => p.name === b.ask) || {}).feud ? ' ' + W('run.ask.feud') : ''}</p>
@@ -182,6 +194,53 @@ function Choice({ st, data, img, group, kind, act }) {
     <div class="rn-bar">${kind === 'gate' || !any ? html`<button type="button" class="rn-btn quiet" data-pass="1" onClick=${() => act(x => kind === 'gate' ? R.chooseGate(x, data, null) : (x.phase = 'map', { ok: true }))}>${W('run.pass')}</button>` : ''}
       ${kind === 'shrine' && !any ? html`<span class="rn-note">${W('run.shrine.none')}</span>` : ''}</div>
   </div>`;
+}
+
+/* 이긴 뒤 — 금화, 그리고 셋 중 한 장 */
+function Result({ st, data, img, group, act }) {
+  const rw = st.reward, taken = rw ? rw.taken : null, offer = rw && rw.cards.length;
+  return html`<div class="rn-result">
+    <div class="rn-head"><h2>${W('run.result.win')}</h2><p>${W('run.result.note')}</p></div>
+    ${rw ? html`<p class="rn-gold">${W('run.loot.gold', { n: rw.gold })}</p>` : ''}
+    <${Purse} st=${st} />
+    ${offer ? html`<section class="rn-loot"><h3 class="rn-sub">${W('run.loot.title')}</h3><p class="rn-note">${W('run.loot.note')}</p>
+      <div class="rn-offer">${rw.cards.map((c, i) => html`<${Card} key=${i} data=${data} group=${group} c=${c} attr=${{ 'data-loot': i }}
+        on=${taken === i} tag=${taken === i ? W('run.loot.taken') : ''} disabled=${taken !== null}
+        onClick=${() => act(x => R.takeReward(x, data, i))} />`)}</div></section>` : ''}
+    <div class="rn-bar"><button type="button" class=${'rn-btn' + (offer && taken === null ? ' quiet' : ' primary')} data-next="1" onClick=${() => act(x => R.proceed(x, data))}>
+      ${offer && taken === null ? W('run.loot.skip') : W('run.result.next')}</button></div>
+    <${Party} st=${st} data=${data} img=${img} group=${group} />
+    <${Log} log=${st.log} /></div>`;
+}
+
+/* 상점 — 카드 사기, 그리고 빼기·치유·정화 한 번씩 */
+function Shop({ st, data, img, group, act }) {
+  const [rm, setRm] = useState(false);
+  const S = data.run.shop, sh = st.shop, gold = st.gold || 0;
+  const alive = new Set(R.living(st).map(m => m.name)), cursed = st.party.filter(m => m.alive && m.cursed);
+  const canHeal = R.living(st).some(p => !p.cursed && p.hp < p.maxHp);
+  const mine = o => st.deck.filter(x => x.owner === o).length;
+  return html`<div class="rn-shop">
+    <div class="rn-head"><h2>${W('run.shop.title')}</h2><p>${W('run.shop.note')}</p></div>
+    <${Purse} st=${st} />
+    <h3 class="rn-sub">${W('run.shop.cards')}</h3>
+    <div class="rn-offer">${sh.cards.map((c, i) => html`<div class="rn-ware" key=${i}>
+      <${Card} data=${data} group=${group} c=${c} on=${c.sold} tag=${c.sold ? W('run.shop.sold') : ''} disabled=${true} />
+      <button type="button" class="rn-btn" data-buy=${i} disabled=${c.sold || gold < c.price} onClick=${() => act(x => R.buy(x, data, i))}>${c.sold ? W('run.shop.sold') : W('run.shop.price', { n: c.price })}</button></div>`)}</div>
+    <h3 class="rn-sub">${W('run.shop.care')}</h3>
+    <div class="rn-bar rn-care">
+      <button type="button" class="rn-btn" data-remove="1" aria-pressed=${rm} disabled=${sh.removed || gold < S.remove} onClick=${() => setRm(!rm)}>${sh.removed ? W('run.shop.done') : W('run.shop.remove', { n: S.remove })}</button>
+      <button type="button" class="rn-btn" data-heal="1" disabled=${sh.healed || !canHeal || gold < S.heal} onClick=${() => act(x => R.shopHeal(x, data))}>${sh.healed ? W('run.shop.done') : W('run.shop.heal', { p: Math.round(S.healRatio * 100), n: S.heal })}</button>
+      ${cursed.length ? cursed.map(m => html`<button type="button" key=${m.name} class="rn-btn" data-purify=${m.name} disabled=${sh.purified || gold < S.purify} onClick=${() => act(x => R.purify(x, data, m.name))}>${W('run.shop.purify', { name: m.name, n: S.purify })}</button>`)
+        : html`<button type="button" class="rn-btn" disabled>${W('run.shop.purify.none')}</button>`}
+    </div>
+    ${rm && !sh.removed ? html`<div class="rn-remove"><div class="rn-bar"><span class="rn-note">${W('run.shop.remove.note')}</span>
+        <button type="button" class="rn-btn quiet" onClick=${() => setRm(false)}>${W('run.shop.remove.cancel')}</button></div>
+      <div class="rn-offer small">${st.deck.map((c, i) => alive.has(c.owner) ? html`<${Card} key=${i} data=${data} group=${group} c=${c} attr=${{ 'data-deck': i }}
+        disabled=${mine(c.owner) <= 1} onClick=${() => { setRm(false); act(x => R.removeCard(x, data, i)); }} />` : '')}</div></div>` : ''}
+    <div class="rn-bar"><button type="button" class="rn-btn primary" data-leave="1" onClick=${() => act(x => R.leaveShop(x))}>${W('run.shop.leave')}</button></div>
+    <${Party} st=${st} data=${data} img=${img} group=${group} />
+    <${Log} log=${st.log} /></div>`;
 }
 
 function End({ st, kind, onAgain }) {
@@ -206,11 +265,8 @@ function App() {
   else if (!st) body = html`<${Pick} data=${data} group=${group} img=${img} onStart=${names => { const s = R.newRun(data, seed(), names); save(s); setSt(s); }} />`;
   else if (st.phase === 'map') body = html`<${Map} st=${st} data=${data} onGo=${() => act(x => R.proceed(x, data))} />`;
   else if (st.phase === 'battle') body = html`<${Battle} st=${st} data=${data} img=${img} group=${group} act=${act} />`;
-  else if (st.phase === 'result') body = html`<div>
-    <div class="rn-head"><h2>${W('run.result.win')}</h2><p>${W('run.result.note')}</p></div>
-    <${Party} st=${st} data=${data} img=${img} group=${group} />
-    <div class="rn-bar"><button type="button" class="rn-btn primary" onClick=${() => act(x => R.proceed(x, data))}>${W('run.result.next')}</button></div>
-    <${Log} log=${st.log} /></div>`;
+  else if (st.phase === 'result') body = html`<${Result} st=${st} data=${data} img=${img} group=${group} act=${act} />`;
+  else if (st.phase === 'shop' && st.shop) body = html`<${Shop} st=${st} data=${data} img=${img} group=${group} act=${act} />`;
   else if (st.phase === 'shrine' || st.phase === 'gate') body = html`<${Choice} st=${st} data=${data} img=${img} group=${group} kind=${st.phase} act=${act} />`;
   else if (st.phase === 'rest') body = html`<div>
     <div class="rn-head"><h2>${W('run.rest.title')}</h2><p>${W('run.rest.note')}</p></div>

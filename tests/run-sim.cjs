@@ -1,4 +1,4 @@
-/* 던전 규칙 — 덱·마나·게이지·각성·저주·제단·문·휴식·길의 끝. 화면은 안 본다(그건 run-screen). */
+/* 던전 규칙 — 덱·마나·게이지·각성·저주·제단·문·전리품·상점·휴식·길의 끝. 화면은 안 본다(그건 run-screen). */
 const fs = require('node:fs'), assert = require('node:assert/strict');
 const R = require('../lib/run.js');
 const d = n => JSON.parse(fs.readFileSync('data/' + n + '.json', 'utf8'));
@@ -76,7 +76,16 @@ st5.battle.enemies.forEach(e => { e.hp = 1; });
 const first = st5.battle.hand.findIndex(c => R.spec(data, c).mult);
 R.play(st5, data, first, 0);
 ok(st5.battle.over === 'win' && st5.phase === 'result', '상대가 쓰러지면 이김');
+/* 전리품 — 금화와 카드 셋 중 한 장 */
+const L = data.run.loot, rw = st5.reward;
+ok(rw && rw.gold >= L.fight && rw.gold <= L.fight + L.spread && st5.gold === rw.gold, '첫 싸움 금화 ' + rw.gold);
+ok(rw.cards.length === L.choices && new Set(rw.cards.map(c => c.key + c.owner)).size === L.choices, '전리품 셋, 겹치지 않는다');
+ok(rw.cards.every(c => party.includes(c.owner) && data.run.cards[R.cardOf(data, c.owner).kind].some(k => k.key === c.key && !(k.basic && k.cost === 1))), '전리품은 동료 종류의 카드, 1마나 기본기는 없다');
+const deck0 = st5.deck.length;
+ok(R.takeReward(st5, data, 1).ok && st5.deck.length === deck0 + 1 && st5.deck[deck0].key === rw.cards[1].key, '한 장이 덱에 들어간다');
+ok(R.takeReward(st5, data, 0).why === 'once', '전리품은 한 장');
 ok(R.proceed(st5, data).kind === 'fight' && st5.node === 1, '둘째 칸도 싸움');
+ok(st5.battle.deck.length + st5.battle.hand.length === 13 && !st5.reward, '덱이 이어진다 — 열셋');
 st5.battle.enemies.forEach(e => { e.hp = 1; }); R.play(st5, data, st5.battle.hand.findIndex(c => R.spec(data, c).mult), 0); R.proceed(st5, data);
 ok(st5.phase === 'shrine', '셋째 칸은 제단');
 ok(R.chooseShrine(st5, data, '묠니르').ok && st5.party[1].awakened && st5.phase === 'map', '제단에서 영구 각성');
@@ -88,18 +97,46 @@ while (st5.battle.over !== 'win') { const i = st5.battle.hand.findIndex(c => R.s
 R.proceed(st5, data);
 ok(st5.phase === 'gate', '다섯째 칸은 저주의 문');
 ok(R.chooseGate(st5, data, null).ok && st5.phase === 'map' && !st5.party.some(m => m.cursed), '문은 지나칠 수 있다');
-R.proceed(st5, data);
-ok(st5.phase === 'rest', '여섯째 칸은 휴식');
-st5.party[0].hp = 10; const mh = st5.party[0].maxHp;
-ok(R.rest(st5, data).ok && st5.party[0].hp === 10 + Math.round(mh * T.restHeal) && st5.phase === 'map', '휴식은 30%');
+/* 상점 — 사기·빼기·치유·정화, 셋 다 한 번씩 */
+const S = data.run.shop;
+st5.party[2].cursed = true; st5.party[0].hp = 5;
+ok(R.proceed(st5, data).kind === 'shop' && st5.phase === 'shop' && st5.shop.cards.length === S.cards, '여섯째 칸은 상점 — 카드 셋');
+ok(st5.shop.cards.every(c => c.price === (c.rare ? S.rare : S.common)), '값은 희귀 ' + S.rare + ' · 보통 ' + S.common);
+st5.gold = 0;
+ok(R.buy(st5, data, 0).why === 'gold' && R.shopHeal(st5, data).why === 'gold', '금화가 없으면 못 산다');
+st5.gold = 500; const dk = st5.deck.length;
+ok(R.buy(st5, data, 0).ok && st5.shop.cards[0].sold && st5.deck.length === dk + 1 && st5.gold === 500 - st5.shop.cards[0].price, '산다');
+ok(R.buy(st5, data, 0).why === 'card', '판 것은 다시 못 산다');
+const g1 = st5.gold, gone = st5.deck[0];
+ok(R.removeCard(st5, data, 0).ok && st5.deck.length === dk && st5.gold === g1 - S.remove, '한 장 뺀다: ' + gone.key);
+ok(R.removeCard(st5, data, 0).why === 'once', '빼기는 한 번');
+const hp0s = st5.party[0].hp, hpC = st5.party[2].hp;
+ok(R.shopHeal(st5, data).ok && st5.party[0].hp === Math.min(st5.party[0].maxHp, hp0s + Math.round(st5.party[0].maxHp * S.healRatio)) && st5.party[2].hp === hpC, '치유 — 저주받은 동료는 못 받는다');
+ok(R.shopHeal(st5, data).why === 'once', '치유는 한 번');
+ok(R.purify(st5, data, st5.party[0].name).why === 'who', '저주 없는 동료는 정화할 것이 없다');
+ok(R.purify(st5, data, st5.party[2].name).ok && !st5.party[2].cursed && R.stateOf(st5, st5.party[2]) === 'base', '정화 — 저주가 풀리고 그림도 기본으로');
+ok(R.leaveShop(st5).ok && st5.phase === 'map', '상점을 떠난다');
+/* 빼기는 무기마다 한 장을 남긴다 */
+const sh = R.newRun(data, 31, party); sh.node = 4; sh.phase = 'map'; R.proceed(sh, data); sh.gold = 999;
+sh.deck = sh.deck.filter((c, i) => c.owner !== party[0] || i === sh.deck.findIndex(x => x.owner === party[0]));
+ok(R.removeCard(sh, data, sh.deck.findIndex(c => c.owner === party[0])).why === 'last', '마지막 한 장은 못 뺀다');
 R.proceed(st5, data); ok(st5.phase === 'battle', '일곱째 칸 싸움');
 st5.battle.enemies.forEach(e => { e.hp = 1; }); st5.battle.mana = 9;
 while (st5.battle.over !== 'win') { const i = st5.battle.hand.findIndex(c => R.spec(data, c).mult); if (i < 0) { R.endTurn(st5, data); st5.battle.mana = 9; continue; } R.play(st5, data, i, 0); }
+ok(st5.reward.gold >= L.fight + L.perNode * 6, '뒤 칸일수록 금화가 많다');
 R.proceed(st5, data);
-ok(st5.phase === 'battle' && st5.battle.boss && st5.battle.enemies[0].boss && st5.battle.enemies.every(e => R.cardOf(data, e.name).cost === 5), '여덟째 칸은 보스 — 5금');
+ok(st5.phase === 'rest', '여덟째 칸은 휴식');
+st5.party[0].hp = 10; const mh = st5.party[0].maxHp;
+ok(R.rest(st5, data).ok && st5.party[0].hp === 10 + Math.round(mh * T.restHeal) && st5.phase === 'map', '휴식은 30%');
+R.proceed(st5, data);
+ok(st5.phase === 'battle' && st5.battle.boss && st5.battle.enemies[0].boss && st5.battle.enemies.every(e => R.cardOf(data, e.name).cost === 5), '아홉째 칸은 보스 — 5금');
 st5.battle.enemies.forEach(e => { e.hp = 1; }); st5.battle.mana = 9;
 while (st5.battle.over !== 'win') { const i = st5.battle.hand.findIndex(c => R.spec(data, c).mult); if (i < 0) { R.endTurn(st5, data); st5.battle.mana = 9; continue; } R.play(st5, data, i, 0); }
-ok(st5.phase === 'won', '보스를 이기면 길의 끝');
+ok(st5.phase === 'won' && !st5.reward, '보스를 이기면 길의 끝 — 전리품은 없다');
+
+/* 예전 저장 — 덱·금화가 없는 길도 이어진다 */
+const old = R.newRun(data, 41, party); delete old.deck; delete old.gold; R.proceed(old, data);
+ok(old.deck.length === 12 && old.gold === L.start && old.battle.deck.length + old.battle.hand.length === 12, '덱 없던 저장은 동료로 덱을 만든다');
 
 /* 짐 */
 const st6 = R.newRun(data, 13, party); R.proceed(st6, data);
@@ -128,8 +165,9 @@ while (h.battle.over !== 'win') { const i = h.battle.hand.findIndex(c => R.spec(
 R.proceed(h, data);
 ok(h.party[1].name === '그람' && h.party[1].wielder === '시구르드' && h.party[1].alive && h.reserve.length === 1 && h.log.some(l => l.k === 'reserve' && l.a === '그람' && l.b === '묠니르'), '예비가 올라온다');
 ok(h.battle.enemies.map(e => e.name).join(',') === '여의봉', '둘째 싸움은 다음 짝');
+ok(!h.deck.some(c => c.owner === '묠니르') && h.deck.filter(c => c.owner === '그람').length === 4, '쓰러진 무기의 카드는 빠지고 예비의 넉 장이 들어온다');
 /* 보스 — 1등의 최고의 짝 */
-const hb = R.newRun(data, 22, null, H); hb.node = 6; hb.phase = 'map'; R.proceed(hb, data);
+const hb = R.newRun(data, 22, null, H); hb.node = 7; hb.phase = 'map'; R.proceed(hb, data);
 ok(hb.battle.boss && hb.battle.enemies[0].name === '케라우노스' && hb.battle.enemies[0].wielder === '제우스' && hb.battle.enemies[0].boss, '보스는 넘겨받은 짝');
 /* 드래프트 없이도 그대로 */
 const plain = R.newRun(data, 3, ['궁니르', '묠니르', '아이기스']);
@@ -139,11 +177,15 @@ console.log('PASS 던전 규칙 ' + n + '가지');
 
 /* ── 균형 표 — 실패가 아니라 보고. 맡긴 손: 마나 되는 카드 아무거나, 저주는 받는다, 제단은 첫 동료, 문은 지나친다 ── */
 if (process.argv.includes('--quick')) process.exit(0);
-const N = 300; let won = 0, awk = 0, cur = 0, reach = 0;
+const N = 300;
+for (const TAKE of [false, true]) {
+let won = 0, awk = 0, cur = 0, reach = 0, gold = 0, deck = 0;
 for (let s = 1; s <= N; s++) {
   const r = R.newRun(data, s, party); let g = 0;
   while (!['won', 'lost'].includes(r.phase) && g++ < 600) {
-    if (r.phase === 'map' || r.phase === 'result') R.proceed(r, data);
+    if (r.phase === 'result') { if (TAKE) R.takeReward(r, data, 0); R.proceed(r, data); }
+    else if (r.phase === 'map') R.proceed(r, data);
+    else if (r.phase === 'shop') { if (TAKE) { R.shopHeal(r, data); r.shop.cards.forEach((c, i) => R.buy(r, data, i)); } R.leaveShop(r); }
     else if (r.phase === 'shrine') R.chooseShrine(r, data, R.living(r)[0].name);
     else if (r.phase === 'gate') R.chooseGate(r, data, null);
     else if (r.phase === 'rest') R.rest(r, data);
@@ -153,5 +195,7 @@ for (let s = 1; s <= N; s++) {
   }
   if (r.phase === 'won') won++; reach += r.node + 1;
   if (r.log.some(l => l.k === 'awaken') || r.party.some(m => m.awakened)) awk++; if (r.party.some(m => m.cursed)) cur++;
+  gold += r.gold; deck += r.deck.length;
 }
-console.log('\n맡긴 손 ' + N + '판 — 완주 ' + (won / N * 100).toFixed(0) + '% · 평균 ' + (reach / N).toFixed(1) + '칸 · 각성 본 판 ' + awk + ' · 저주 받은 판 ' + cur);
+console.log((TAKE ? '' : '\n') + '맡긴 손 ' + N + '판 · ' + (TAKE ? '전리품 첫 장·상점 치유와 살 수 있는 것' : '전리품·상점 안 씀') + ' — 완주 ' + (won / N * 100).toFixed(0) + '% · 평균 ' + (reach / N).toFixed(1) + '칸 · 각성 본 판 ' + awk + ' · 저주 받은 판 ' + cur + ' · 남은 금화 ' + (gold / N).toFixed(0) + ' · 덱 ' + (deck / N).toFixed(1));
+}
