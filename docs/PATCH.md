@@ -8,6 +8,11 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-09-23 · claude · 월광 대검 스킨을 뺀다
+
+- data/card.json — 찬드라하스의 `moonlight` 스킨을 뺐다. 곡도에 곧은 대검을 입히는 건 치장이 아니라 다른 무기다. 그림은 아직 없었다
+- docs/GAME_CONCEPT.md — 스킨은 원래 무기와 형태가 맞을 때만
+
 ## 2026-09-23 · claude · 스킨의 각성·저주
 
 - tools/register-images.py — `_f_skin_<열쇠>_awaken` · `_cursed` 를 받는다. `img.json` 의 스킨 칸이 `skin: {f: {열쇠: {base, awaken, cursed}}}` 꼴로(아직 등록된 스킨이 없어 옮길 것은 없었다)
