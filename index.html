@@ -9,10 +9,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap">
-<link rel="stylesheet" href="lib/workspace.css?v=myth16">
+<link rel="stylesheet" href="lib/workspace.css?v=myth17">
 <script src="lib/workspace-theme.js?v=myth4"></script>
-<script src="lib/words.js?v=myth15"></script>
-<script src="lib/img.js?v=myth3"></script>
+<script src="lib/words.js?v=myth16"></script>
+<script src="lib/img.js?v=myth4"></script>
 <script src="lib/patch.js?v=1"></script>
 <script src="lib/fresh.js?v=4"></script>
 </head>
@@ -53,21 +53,26 @@ function Patch(){
    CSS 3D 뿐이라 라이브러리가 없고, 손이 닿으면 홀이 그쪽으로 살짝 기운다 */
 const MOTES=[[8,11,0],[17,13,2],[26,9,5],[35,14,1],[44,10,7],[53,12,3],[62,9,6],[71,13,2],[80,11,8],[89,10,4],[95,12,1],[3,14,6]];
 function Hall(){
-  const [cards,setCards]=useState(null),[broken,setBroken]=useState({}),[mode,setMode]=useState('base'),box=useRef(null);
+  const [cards,setCards]=useState(null),[picked,setPicked]=useState(false),[broken,setBroken]=useState({}),[mode,setMode]=useState('base'),box=useRef(null);
   useEffect(()=>{
     let live=true;
     Promise.all([fetch('data/card.json',{cache:'no-cache'}).then(r=>r.ok?r.json():{cards:[]}),IMG.load().catch(()=>({}))])
       .then(([cj,img])=>{
         if(!live)return;
         /* 기본·각성·저주 세 장. coverOf 는 없으면 한 단계 아래로 내려오므로 기본과 같으면 없는 것으로 친다 */
-        const all=(cj.cards||[]).map(c=>{
-          const e=img[c.name],base=IMG.portraitOf(e,'f');
-          const aw=base&&IMG.coverOf(e,'f',undefined,3,false),cu=base&&IMG.coverOf(e,'f',undefined,1,true);
-          return {name:c.name,file:base,awaken:aw&&aw!==base?aw:null,cursed:cu&&cu!==base?cu:null};
-        });
-        const shot=all.filter(c=>c.file).slice(0,12),rest=all.filter(c=>!c.file);
-        while(shot.length<8&&rest.length)shot.push(rest.shift());
-        setCards(shot);
+        /* 기본·각성·저주 세 장 — 입은 스킨이 있으면 스킨의 것(hallShotsOf) */
+        const all=(cj.cards||[]).map(c=>({name:c.name,...IMG.hallShotsOf(img[c.name],c.name)}));
+        /* 도감에서 모신 무기가 있으면 그 차례로, 없으면 그림 있는 무기 중에서 매번 무작위로 열둘 */
+        const by=Object.fromEntries(all.map(c=>[c.name,c])),picked=IMG.hallPicks().map(n=>by[n]).filter(Boolean);
+        let shot;
+        if(picked.length)shot=picked;
+        else{
+          const pool=all.filter(c=>c.file);
+          for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+          shot=pool.slice(0,IMG.HALL_MAX);
+          const rest=all.filter(c=>!c.file);while(shot.length<8&&rest.length)shot.push(rest.shift());
+        }
+        setPicked(!!picked.length);setCards(shot);
       }).catch(()=>{if(live)setCards([]);});
     return()=>{live=false};
   },[]);
@@ -79,8 +84,9 @@ function Hall(){
   const rest=()=>{const el=box.current;if(el){el.style.setProperty('--tx','0deg');el.style.setProperty('--ty','0deg');}};
   const toggle=m=>setMode(v=>v===m?'base':m);
   const n=cards?cards.length:0;
+  /* 썸네일이 아직 없으면(막 올린 그림) 원본으로 한 번 더, 그래도 안 되면 이름표 */
   const pic=(c,slot,file)=>h('img',{key:slot,class:(slot===(c[mode]&&!broken[c.name+mode]?mode:'file')?'on':''),src:IMG.thumbURL(file),alt:'',loading:'lazy',decoding:'async',
-    onError:()=>setBroken(b=>({...b,[c.name+slot]:true}))});
+    onError:e=>{const t=e.currentTarget;if(!t.dataset.full){t.dataset.full='1';t.src=IMG.imgURL(file);return;}setBroken(b=>({...b,[c.name+slot]:true}));}});
   return h('section',{class:'hall',ref:box,'data-mode':mode,'aria-label':W('home.hall'),onPointerMove:tilt,onPointerLeave:rest},
     h('div',{class:'hall-halo','aria-hidden':'true'}),
     h('div',{class:'hall-fog','aria-hidden':'true'}),
@@ -90,8 +96,8 @@ function Hall(){
       h('div',{class:'hall-rings'},h('div',{class:'hall-ring'}),h('div',{class:'hall-ring'}),h('div',{class:'hall-ring'})),
       h('div',{class:'hall-carousel'},(cards||[]).map((c,i)=>{
         const a='--a:'+Math.round(i*360/n)+'deg';
-        if(!c.file||broken[c.name+'file'])return h('div',{class:'hall-card blank',key:c.name,style:a},c.name);
-        return h('div',{class:'hall-card',key:c.name,style:a},
+        if(!c.file||broken[c.name+'file'])return h('div',{class:'hall-card blank',key:c.name,style:a,'data-name':c.name,'data-file':c.file||undefined},c.name);
+        return h('div',{class:'hall-card',key:c.name,style:a,'data-name':c.name,'data-file':c.file},
           pic(c,'file',c.file),c.awaken&&pic(c,'awaken',c.awaken),c.cursed&&pic(c,'cursed',c.cursed),h('b',null,c.name));
       })),
       MOTES.map(([x,d,w],i)=>h('span',{class:'hall-mote',key:i,style:'--x:'+x+'%;--d:'+d+'s;--w:-'+w+'s'}))),
@@ -100,7 +106,8 @@ function Hall(){
       h('h2',null,W('home.title')),h('p',null,W('home.intro')),
       h('span',{class:'lab-tag'},W('home.tag')),
       h('span',{class:'hall-modes',role:'group','aria-label':W('home.hall.modes')},
-        ['awaken','cursed'].map(m=>h('button',{key:m,type:'button',class:'hall-mode','data-mode':m,'aria-pressed':mode===m,onClick:()=>toggle(m)},W('home.hall.'+m))))));
+        ['awaken','cursed'].map(m=>h('button',{key:m,type:'button',class:'hall-mode','data-mode':m,'aria-pressed':mode===m,onClick:()=>toggle(m)},W('home.hall.'+m)))),
+      h('a',{class:'hall-pick',href:'dex.html'},W(picked?'home.hall.picked':'home.hall.pick'),' ↗')));
 }
 function App(){
   return h('div',null,

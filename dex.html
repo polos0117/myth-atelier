@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap">
-<link rel="stylesheet" href="lib/workspace.css?v=myth16">
+<link rel="stylesheet" href="lib/workspace.css?v=myth17">
 <style>
 /* 색·밀도 토막은 lib/workspace.css 한 곳에 있다. 여기는 뼈대만 —
    workspace.css 의 .dex-page 규칙이 이 뼈대에 살을 붙인다. */
@@ -105,6 +105,11 @@ body {color:var(--text);font-size:15px}
 .gal .cell.skin.worn img {border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 0 14px var(--halo)}
 .gal .cell.skin.worn .cap {color:var(--gold)}
 .skin-state {margin-top:8px}
+.hall-toggle {margin-top:8px;align-items:center}
+.hall-toggle .hall-n {padding:0 10px;font:700 11px ui-monospace,monospace;color:var(--muted)}
+.dex-hall {display:inline-flex;align-items:center;gap:8px;margin-left:auto;font:700 11px ui-monospace,monospace;color:var(--muted)}
+.cell.hall-on .face::after {content:"";position:absolute;inset:0;box-shadow:inset 0 0 0 2px var(--gold);pointer-events:none}
+.hall-mark {position:absolute;right:6px;top:6px;padding:2px 7px;border-radius:4px;background:var(--gold);color:var(--on-accent);font:700 10px var(--display)}
 .skin-wear {margin-top:8px}
 .empty {padding:36px 0;text-align:center;color:var(--muted);font-size:13px}
 /* 크게 보기 — 큰 그림을 누르면 화면을 덮는다. 원본을 contain 으로, 좌우 화살표로 같은 화풍의 다른 컷 */
@@ -121,9 +126,9 @@ body {color:var(--text);font-size:15px}
 .zoom-layer .zoom-nav button:disabled {opacity:.2}
 </style>
 <script src="lib/workspace-theme.js?v=myth4"></script>
-<script src="lib/words.js?v=myth15"></script>
+<script src="lib/words.js?v=myth16"></script>
 <script src="lib/fresh.js?v=4"></script>
-<script src="lib/img.js?v=myth3"></script>
+<script src="lib/img.js?v=myth4"></script>
 </head>
 <body class="dex-page">
 <div id="app"></div>
@@ -252,6 +257,9 @@ function Detail({ card, entry, styleName, group, skill, selection, onClose }) {
   const skins = (card.skins || []).filter(k => skinSet[k.key]).map(k => ({ file: skinSet[k.key].base, cut: 'skin', key: k.key, name: k.name, state: 'base' }));
   const skinShots = skins.flatMap(k => [k].concat(['awaken', 'cursed'].filter(x => skinSet[k.key][x]).map(x => ({ ...k, file: skinSet[k.key][x], state: x }))));
   const [worn, setWorn] = useState(() => IMG.skinPick(card.name));
+  const [hall, setHall] = useState(() => IMG.hallPicks());
+  const inHall = hall.includes(card.name), hallFull = !inHall && hall.length >= IMG.HALL_MAX;
+  const enshrine = () => { IMG.toggleHall(card.name); setHall(IMG.hallPicks()); };
   const wear = key => { IMG.setSkinPick(card.name, key); setWorn(key); };
   const shown = focus || (portrait ? { file: portrait, cut: 'portrait' } : null);
   /* 크게 보기 — 같은 화풍의 컷 전부를 한 줄로: 액션 → 각성 → 저주 → 특별 → 일상 */
@@ -300,6 +308,12 @@ function Detail({ card, entry, styleName, group, skill, selection, onClose }) {
         onClick=${() => wear(worn === shown.key ? null : shown.key)}>${worn === shown.key ? W('dex.skin.using') : W('dex.skin.use')}</button></div>`}
     ` : html`<div class="big"><span class="ph">${W('art.none')}</span></div>`}
     ${zoom && shown && html`<${Zoom} card=${card} shots=${shots} at=${zoomAt} onMove=${move} onClose=${() => setZoom(false)} />`}
+
+    <div class="sw hall-toggle" role="group" aria-label=${W('dex.hall')}>
+      <button type="button" class=${inHall ? 'on' : ''} data-hall=${inHall ? 'on' : 'off'} aria-pressed=${inHall} disabled=${hallFull} title=${W('dex.hall.note')}
+        onClick=${enshrine}>${inHall ? W('dex.hall.remove') : hallFull ? W('dex.hall.full', { max: IMG.HALL_MAX }) : W('dex.hall.add')}</button>
+      <span class="hall-n">${W('dex.hall.count', { n: hall.length, max: IMG.HALL_MAX })}</span>
+    </div>
 
     <p class="sec">${W('kind.card')}</p>
     <${Facts} card=${card} group=${group} skill=${skill} />
@@ -365,6 +379,7 @@ function List({ st, filters, onFilter, onOpen, compact, onCompact }) {
     <button class="dex-reset" id="dex-reset" onClick=${() => onFilter(normalize())}>${W('dex.filter.reset')}</button>
   </div>`;
   const images = shown.filter(c => IMG.portraitOf(st.img[c.name], V, f.style || undefined)).length;
+  const [hall, setHall] = useState(() => IMG.hallPicks());
   return html`<${Shell} head=${head}>
     <details class="dex-filters" open>
       <summary>${W('dex.filter.title')}</summary>
@@ -377,6 +392,8 @@ function List({ st, filters, onFilter, onOpen, compact, onCompact }) {
       </div>
     </details>
     <div class="dex-view-row"><p class="sec" role="status">${W('kind.card')}<span>${W('dex.filter.count', { cards: shown.length, images })}</span></p>
+      <span class="dex-hall" title=${W('dex.hall.note')}>${W('dex.hall.count', { n: hall.length, max: IMG.HALL_MAX })}
+        <button class="dex-reset" id="dex-hall-clear" disabled=${!hall.length} onClick=${() => { IMG.setHallPicks([]); setHall([]); }}>${W('dex.hall.clear')}</button></span>
       <button class="dex-reset" id="dex-size" aria-pressed=${compact} onClick=${onCompact}>${W(compact ? 'dex.view.normal' : 'dex.view.small')}</button>
     </div>
     ${shown.length === 0
@@ -385,12 +402,13 @@ function List({ st, filters, onFilter, onOpen, compact, onCompact }) {
           const entry = st.img[c.name], file = IMG.portraitOf(entry, V, f.style || undefined);
           const bucket = file && (IMG.styleMap(entry)[f.style] || Object.values(IMG.styleMap(entry)).find(b => b[V]));
           const states = file ? [W('art.done')].concat(IMG.awakenOf(bucket, V) ? [W('art.awaken.done')] : [], IMG.cursedOf(bucket, V) ? [W('art.cursed.done')] : []).join(' ') : W('art.missing');
-          return html`<button key=${c.name} class="cell" data-card=${c.name} data-myth=${c.myth} data-kind=${c.kind}
+          const enshrined = hall.includes(c.name);
+          return html`<button key=${c.name} class=${'cell' + (enshrined ? ' hall-on' : '')} data-card=${c.name} data-myth=${c.myth} data-kind=${c.kind} data-hall=${enshrined ? 'on' : undefined}
             style=${'--cc:' + (st.group.myth.color[c.myth] || 'var(--line)')}
             onClick=${() => onOpen({ card: c, style: f.style, file, cut: 'portrait' })}>
             <span class="face">${file
               ? html`<${Pic} file=${file} alt=${c.name} />`
-              : html`<span class="ph">${W('art.none')}</span>`}</span>
+              : html`<span class="ph">${W('art.none')}</span>`}${enshrined ? html`<span class="hall-mark">${W('dex.hall.on')}</span>` : ''}</span>
             <span class="cap"><span class="cost">${W('card.cost.n', { n: c.cost })}</span>${c.name}
               <i>${st.group.myth.name[c.myth]} · ${st.group.kind.name[c.kind]}</i>
               <i>${states}</i>
