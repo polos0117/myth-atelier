@@ -38,6 +38,11 @@ const ok = (cond, msg) => { assert(cond, msg); n++; };
   const f = A.newGame(data, 42, { myths: pick });
   ok(f.myths.slice().sort().join() === pick.slice().sort().join(), '고른 권으로 시작한다');
   ok(A.newGame(data, 42, { myths: ['norse'] }).myths.length === A.MYTHS_PER_GAME, '틀린 고르기는 무시하고 뽑는다');
+  /* 동아시아가 나뉘기 전 판 — east 는 한국·중국·일본 셋으로 */
+  const pre = A.newGame(data, 5); pre.myths = ['norse', 'east'];
+  ok(A.liveMyths(pre, data).slice().sort().join() === 'china,japan,korea,norse' && A.inPlay(pre, data).length === 60, '옛 판의 동아시아는 셋으로 받는다');
+  A.reroll(Object.assign(pre, { gold: 99 }), data);
+  ok(pre.shop.every(n => !n || ['norse', 'korea', 'china', 'japan'].includes(by(n).myth)), '옛 판 상점도 그 넷에서');
   const ch = A.newGame(data, 5), gold = ch.gold, other = all.filter(k => !ch.myths.includes(k)).concat(ch.myths).slice(0, A.MYTHS_PER_GAME);
   ok(A.setMyths(ch, data, other).ok && ch.myths.slice().sort().join() === other.slice().sort().join() && ch.gold === gold, '빈손 첫 라운드엔 바꾼다(금은 그대로)');
   ok(ch.shop.every(n => other.includes(by(n).myth)), '바꾸면 상점도 새로');
@@ -164,6 +169,15 @@ const ok = (cond, msg) => { assert(cond, msg); n++; };
   ok(cd.length >= 2 && cd[0] === by('칼라드볼그').atk && Math.max(...cd) > cd[0], '켈트 둘: 다치면 평타가 오른다 ' + cd.join(','));
   const nc = A.simulate(data, st, [U('칼라드볼그', 1, 0, 1), U('가다', 1, 1, 1)], [U('묠니르', 3, 0, 1)]);
   ok(preCurse(nc, 1).length >= 2 && preCurse(nc, 1).every(d => d === by('칼라드볼그').atk), '켈트 하나면 투혼이 없다 ' + preCurse(nc, 1).join(','));
+  /* 한국 둘 — 호국: 받는 피해가 15% 준다 */
+  const taken = r => r.log.find(e => e.k === 'hit' && e.b === 1).d;
+  const kg = taken(A.simulate(data, st, [U('칠지도', 1, 0, 1), U('김유신의 보검', 1, 1, 1)], [U('묠니르', 3, 0, 1)]));
+  const kn = taken(A.simulate(data, st, [U('칠지도', 1, 0, 1), U('가다', 1, 1, 1)], [U('묠니르', 3, 0, 1)]));
+  ok(kg === Math.round(kn * 0.85), '한국 둘: 받는 평타 ×0.85 ' + kg + ' / ' + kn);
+  /* 일본 둘 — 일섬: 평타가 가끔 두 배. 하나면 안 난다 */
+  const crits = pair => { let n = 0; for (let s = 1; s < 8; s++) n += A.simulate(data, A.newGame(data, s), pair, [U('묠니르', 3, 0, 1)]).log.filter(e => e.k === 'crit' && e.a === 1).length; return n; };
+  ok(crits([U('무라마사', 1, 0, 1), U('동자절 야스츠나', 1, 1, 1)]) > 0, '일본 둘: 평타 두 배가 난다');
+  ok(crits([U('무라마사', 1, 0, 1), U('가다', 1, 1, 1)]) === 0, '일본 하나면 일섬이 없다');
   /* 이형 둘 — 아군 전체 보호막으로 시작 */
   const sh = A.simulate(data, st, [U('아이기스', 1, 0, 0), U('탈라리아', 1, 1, 0), U('칸다', 1, 0, 1)], [U('묠니르', 1, 0, 1)]);
   const firstOnKanda = sh.log.find(e => e.k === 'hit' && e.b === 3);

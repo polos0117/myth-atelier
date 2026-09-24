@@ -165,7 +165,7 @@
    "name": "천명",
    "text": "황제의 검이 아군 전체의 공격을 올린다.",
    "effect": "rally",
-   "pct": 0.25,
+   "pct": 0.3,
    "dur": 3
   },
   "dragon_sweep": {
@@ -514,6 +514,210 @@
    "text": "어떤 갑옷도 막지 못하는 칼이 앞과 뒤를 꿰뚫는다.",
    "effect": "pierce",
    "mult": 2.6
+  },
+  "star_measure": {
+   "name": "하늘의 도수",
+   "text": "별의 길을 재어 가장 다친 아군에게 보호막을 준다.",
+   "effect": "shield",
+   "mult": 1.8
+  },
+  "hwacha_fire": {
+   "name": "화차",
+   "text": "불화살 여럿이 한꺼번에 날아가 상대 넷을 친다.",
+   "effect": "volley",
+   "mult": 0.8,
+   "targets": 4
+  },
+  "thunder_shell": {
+   "name": "진천뢰",
+   "text": "떨어진 쇠공이 터져 앞줄을 치고 잠깐 멈춘다.",
+   "effect": "stun",
+   "mult": 1.1,
+   "targets": 3,
+   "dur": 1
+  },
+  "great_arrow": {
+   "name": "대우전",
+   "text": "큰 화살이 앞의 상대와 그 뒤를 꿰뚫는다.",
+   "effect": "pierce",
+   "mult": 2.0
+  },
+  "seven_stars": {
+   "name": "칠성 검광",
+   "text": "약해진 상대를 별빛으로 벤다. 체력이 낮을수록 세다.",
+   "effect": "execute",
+   "mult": 2.2,
+   "threshold": 0.4
+  },
+  "right_sounds": {
+   "name": "바른 소리",
+   "text": "누구나 읽는 글이 아군 전체의 공격을 올린다.",
+   "effect": "rally",
+   "pct": 0.3,
+   "dur": 3
+  },
+  "jumong_shot": {
+   "name": "명궁",
+   "text": "활 잘 쏘는 이의 한 발. 반드시 급소에 들어간다.",
+   "effect": "strike",
+   "mult": 3.0,
+   "crit": true
+  },
+  "dragon_head": {
+   "name": "용머리 포화",
+   "text": "용머리에서 불을 뿜어 앞줄을 쓸어 낸다.",
+   "effect": "sweep",
+   "mult": 1.8,
+   "targets": 3
+  },
+  "rake_feast": {
+   "name": "먹보의 쇠스랑",
+   "text": "긁어 낸 만큼 제 배를 채운다.",
+   "effect": "drain",
+   "mult": 1.6,
+   "ratio": 0.5
+  },
+  "hundred_paces": {
+   "name": "백보천양",
+   "text": "백 걸음 밖 버들잎을 맞히는 한 발.",
+   "effect": "strike",
+   "mult": 2.0
+  },
+  "hundred_herbs": {
+   "name": "백초",
+   "text": "약초를 가려 가장 다친 아군을 고친다.",
+   "effect": "heal",
+   "mult": 2.0
+  },
+  "palm_gale": {
+   "name": "팔만 리 바람",
+   "text": "한 번 부쳐 판 전체를 바람으로 친다.",
+   "effect": "sweep",
+   "mult": 0.8,
+   "targets": 6
+  },
+  "heaven_ring": {
+   "name": "건곤권",
+   "text": "던진 금고리가 앞의 상대를 맞혀 멈추게 한다.",
+   "effect": "stun",
+   "mult": 1.6,
+   "dur": 1
+  },
+  "bitter_gall": {
+   "name": "와신상담",
+   "text": "쓸개를 맛보며 벼른 칼. 잠시 공격이 크게 오른다.",
+   "effect": "buff",
+   "pct": 0.4,
+   "dur": 3
+  },
+  "fire_tip": {
+   "name": "불꽃 창끝",
+   "text": "찔린 자리에 불이 남아 잠시 계속 탄다.",
+   "effect": "strike",
+   "mult": 1.6,
+   "dot": 0.35,
+   "dur": 3
+  },
+  "mend_heaven": {
+   "name": "하늘을 깁다",
+   "text": "다섯 빛깔 돌로 가장 다친 아군에게 두꺼운 보호막을 씌운다.",
+   "effect": "shield",
+   "mult": 2.4
+  },
+  "nine_suns": {
+   "name": "아홉 해",
+   "text": "하늘을 향해 쏜 화살이 상대 여섯에게 떨어진다.",
+   "effect": "volley",
+   "mult": 1.4,
+   "targets": 6
+  },
+  "demon_break": {
+   "name": "파마",
+   "text": "마를 깨뜨리는 화살. 맞은 몸의 묶임도 함께 풀린다.",
+   "effect": "strike",
+   "mult": 1.8,
+   "cleanse": true
+  },
+  "tengu_gale": {
+   "name": "텐구 바람",
+   "text": "깃털 부채가 일으킨 바람이 상대 셋을 친다.",
+   "effect": "volley",
+   "mult": 0.9,
+   "targets": 3
+  },
+  "crow_edge": {
+   "name": "까마귀 날",
+   "text": "양날 끝으로 두 번 벤다.",
+   "effect": "strike",
+   "mult": 1.2,
+   "hits": 2
+  },
+  "oni_smash": {
+   "name": "오니의 일격",
+   "text": "쇠몽둥이를 힘껏 내려친다.",
+   "effect": "strike",
+   "mult": 2.3
+  },
+  "fan_target": {
+   "name": "부채 과녁",
+   "text": "흔들리는 과녁도 맞히는 한 발. 반드시 급소에 들어간다.",
+   "effect": "strike",
+   "mult": 1.6,
+   "crit": true
+  },
+  "tide_wall": {
+   "name": "밀물",
+   "text": "조수를 불러 가장 다친 아군에게 물의 보호막을 두른다.",
+   "effect": "shield",
+   "mult": 2.0
+  },
+  "curved_jewel": {
+   "name": "굽은 구슬",
+   "text": "구슬의 빛이 가장 다친 아군을 크게 고친다.",
+   "effect": "heal",
+   "mult": 2.8
+  },
+  "lucky_mallet": {
+   "name": "커져라",
+   "text": "두드릴수록 몸이 커져 잠시 공격이 크게 오른다.",
+   "effect": "buff",
+   "pct": 0.5,
+   "dur": 3
+  },
+  "bloodthirst": {
+   "name": "요도",
+   "text": "피를 본 만큼 제 상처를 채운다.",
+   "effect": "drain",
+   "mult": 2.2,
+   "ratio": 0.5
+  },
+  "oni_cutter": {
+   "name": "오니 베기",
+   "text": "약해진 상대의 목을 친다. 체력이 낮을수록 세다.",
+   "effect": "execute",
+   "mult": 2.4,
+   "threshold": 0.4
+  },
+  "dragonfly_cut": {
+   "name": "잠자리 베기",
+   "text": "닿기만 해도 갈라지는 창끝이 앞과 뒤를 꿰뚫는다.",
+   "effect": "pierce",
+   "mult": 2.3
+  },
+  "sun_mirror": {
+   "name": "해의 거울",
+   "text": "해를 비춘 빛에 판 전체가 눈이 멀어 잠깐 멈춘다.",
+   "effect": "stun",
+   "mult": 1.2,
+   "targets": 6,
+   "dur": 1
+  },
+  "island_churn": {
+   "name": "섬을 휘젓다",
+   "text": "바다를 휘저어 판 전체를 친다.",
+   "effect": "sweep",
+   "mult": 1.5,
+   "targets": 6
   }
  }
 }

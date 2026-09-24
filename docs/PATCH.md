@@ -8,6 +8,18 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-09-24 · claude · 동아시아를 한국·중국·일본 셋으로, 새 무기 서른
+- data/card.json — `east` 를 `korea`(일곱) · `china`(여섯) · `japan`(둘)로 옮기고 새 서른(한국 8 · 중국 9 · 일본 13)으로 권마다 열다섯, 금액대마다 셋. 헌원검은 5금으로(중국 4금이 넷이었다). 한국 무기의 `ethnicity` 는 지웠다
+- data/skill.json — 새 기술 서른(효과는 있는 것만), 천명 +25% → +30%
+- data/synergy.json · lib/auto.js — 한국 호국(`guard`, 받는 피해 −15% / −30%), 일본 일섬(`critChance`, 평타 20% / 40% 두 배), 중국은 기 그대로
+- lib/auto.js · auto.html — 옛 판의 `east` 는 한국·중국·일본으로 받는다(`liveMyths`). 신화권 고르개도 그것으로
+- data/wielder.json · data/draft.json — 주인 스물일곱, 인연 열다섯(세종의 발명·서유기·삼황·삼종신기·요술 방망이·동방의 명궁 등, 악연 둘), 무라마사는 저주받은 검에도
+- data/group.json — 이름표·색(한국 청록 · 중국 주홍 그대로 · 일본 벚꽃 분홍), 신전 blossom → 일본 · ember → 중국
+- lib/prompt-spec.js — 옷 언어와 얼굴 계통 자동값을 셋으로
+- lib/words.js · dex.html — 문구, 도감 옛 거르개 `east` 는 거르지 않는다. 캐시 번호 올림
+- tests/auto-sim.cjs · tests/hall-screen.cjs — 호국·일섬·옛 판 검사. 신전 검사의 "그림 없는 무기"는 자료에서 찾는다(천부인에 그림이 생겼다)
+- docs/GAME_CONCEPT.md · README.md · PROMPT_IMAGE_WORKFLOW.md · .claude/skills/upload-art/SKILL.md — 셋 떼기 기록, 105장
+
 ## 2026-09-24 · claude · 그림 검수에서 "무기 안 보임"을 흠으로 잡지 않게
 - .claude/skills/upload-art/SKILL.md — 인물이 곧 무기라 손에 무기가 없는 게 규칙대로다. 없다고 짚지 말고, 든 무기가 생겼을 때만 흠으로 본다
 

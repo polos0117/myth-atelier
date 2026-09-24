@@ -100,10 +100,10 @@ body {color:var(--text);font-size:15px}
 }
 </style>
 <script src="lib/workspace-theme.js?v=myth5"></script>
-<script src="lib/words.js?v=myth18"></script>
+<script src="lib/words.js?v=myth19"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth5"></script>
-<script src="lib/auto.js?v=4"></script>
+<script src="lib/auto.js?v=5"></script>
 </head>
 <body class="dex-page auto-page">
 <div id="app"></div>
@@ -196,16 +196,17 @@ function Synergy({ data, group, units }) {
 }
 
 /* 이번 판의 신화권 — 첫 라운드에 아무것도 사기 전이면 셋을 다시 고를 수 있다 */
-function Myths({ st, group, act }) {
+function Myths({ st, data, group, act }) {
   const max = A.MYTHS_PER_GAME, free = st.round === 1 && !st.board.some(Boolean) && !st.bench.some(Boolean);
-  const [want, setWant] = useState(st.myths || []);
-  if (!st.myths) return html`<p class="sec">${W('auto.myths')}<span>${W('auto.myths.all')}</span></p>`;
+  const cur = A.liveMyths(st, data);
+  const [want, setWant] = useState(cur || []);
+  if (!cur) return html`<p class="sec">${W('auto.myths')}<span>${W('auto.myths.all')}</span></p>`;
   const toggle = k => setWant(w => w.includes(k) ? w.filter(x => x !== k) : w.length < max ? w.concat(k) : w);
-  const changed = want.length === max && want.slice().sort().join() !== st.myths.slice().sort().join();
+  const changed = want.length === max && want.slice().sort().join() !== cur.slice().sort().join();
   const say = { all: group.myth.order.length, n: max };
   return html`<p class="sec">${W('auto.myths')}<span>${free ? W('auto.myths.note', say) : W('auto.myths.locked', say)}</span></p>
     <div class="at-myths" role="group" aria-label=${W('auto.myths')}>
-      ${group.myth.order.map(k => { const on = free ? want.includes(k) : st.myths.includes(k); return html`<button key=${k} type="button" class=${'at-myth' + (on ? ' on' : '')}
+      ${group.myth.order.map(k => { const on = free ? want.includes(k) : cur.includes(k); return html`<button key=${k} type="button" class=${'at-myth' + (on ? ' on' : '')}
         data-myth=${k} aria-pressed=${on} disabled=${!free} style=${'--cc:' + group.myth.color[k]} onClick=${() => toggle(k)}>${group.myth.name[k]}</button>`; })}
       ${free && html`<span class="at-myth-n">${W('auto.myths.count', { n: want.length, max })}</span>
         <button type="button" class="at-btn" id="at-myths-apply" disabled=${!changed} onClick=${() => act('myths', want)}>${W('auto.myths.apply')}</button>`}
@@ -240,7 +241,7 @@ function Plan({ st, data, group, img, act }) {
       </span>
     </div>
 
-    <${Myths} key=${st.seed + ':' + (st.myths || []).join()} st=${st} group=${group} act=${act} />
+    <${Myths} key=${st.seed + ':' + (st.myths || []).join()} st=${st} data=${data} group=${group} act=${act} />
 
     <p class="sec">${W('auto.enemy')}<span>${W('auto.enemy.note', { myth: group.myth.name[st.enemy.myth] })}</span></p>
     <${Board} cells=${boardCells(st.enemy.units)} side="them" color=${color} img=${img} />

@@ -126,7 +126,7 @@ body {color:var(--text);font-size:15px}
 .zoom-layer .zoom-nav button:disabled {opacity:.2}
 </style>
 <script src="lib/workspace-theme.js?v=myth5"></script>
-<script src="lib/words.js?v=myth18"></script>
+<script src="lib/words.js?v=myth19"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth5"></script>
 </head>
@@ -200,7 +200,7 @@ function sorted(cards, group) {
 function select(st, f) {
   const q = f.q.trim().toLowerCase();
   return sorted(st.cards, st.group).filter(c => {
-    if (f.myth && c.myth !== f.myth) return false;
+    if (f.myth && st.group.myth.order.includes(f.myth) && c.myth !== f.myth) return false;   /* 옛 열쇠(east)는 거르지 않는다 */
     if (f.kind && c.kind !== f.kind) return false;
     if (f.cost && String(c.cost) !== f.cost) return false;
     const entry = st.img[c.name];

@@ -28,7 +28,8 @@ const drawn = new Set(Object.keys(img).filter(n => Object.values(img[n].byStyle 
 
     /* 도감에서 모신다 */
     await p.goto(harness.base + '/dex.html'); await p.waitForSelector('.grid .cell');
-    const pick = ['묠니르', '티르핑', '천부인'];   /* 천부인은 아직 그림이 없다 — 이름표로 선다 */
+    const bare = cards.find(c => !drawn.has(c.name)).name;   /* 아직 그림이 없는 무기 — 이름표로 선다 */
+    const pick = ['묠니르', '티르핑', bare];
     for (const n of pick) {
       await p.click('.grid .cell[data-card="' + n + '"]'); await p.waitForSelector('[data-hall]');
       assert.equal(await p.locator('[data-hall]').getAttribute('data-hall'), 'off');
@@ -48,7 +49,7 @@ const drawn = new Set(Object.keys(img).filter(n => Object.values(img[n].byStyle 
     /* 메인 — 모신 차례대로 셋 */
     await p.goto(harness.base + '/index.html');
     assert.deepEqual(await names(), pick, '모신 무기가 돈다');
-    assert.equal(await p.locator('.hall-card[data-name="천부인"]').getAttribute('data-file'), null, '그림 없는 무기는 이름표');
+    assert.equal(await p.locator('.hall-card[data-name="' + bare + '"]').getAttribute('data-file'), null, '그림 없는 무기는 이름표');
     /* 스킨을 입으면 신전도 스킨 그림 */
     await p.evaluate(() => localStorage.setItem('myth_skin_v1', JSON.stringify({ '티르핑': 'frost' })));
     await p.reload(); await names();
