@@ -8,6 +8,13 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-09-24 · claude · 열한째 신전 단청 전각(한국 · 달밤)
+- lib/workspace.css — 달밤 팔레트(남빛 바탕, 뇌록 강조, 주홍 신호), 별 뿌린 밤하늘, 오르는 연등, 기둥 그림 `hall_dancheong_col`(452×1497)과 금 상감 마스크. 어두운 신전·기둥 목록에 더함
+- 그림 저장소 img/ui — 사용자가 뽑은 기둥. 단청의 초록이 뚫리지 않게 이번만 자홍 바탕으로 받아 땄다. 마스크는 금 메달리온과 금 띠, 주춧돌은 뺐다
+- lib/workspace-theme.js · lib/workspace-ui.js · lib/words.js — 테마 열쇠 `dancheong`, 문장(기와 지붕 아래 두 기둥과 달), 이름표
+- data/group.json — 신전 dancheong → 한국
+- tests/workspace-theme.cjs — 테마 열하나. 캐시 번호 올림
+
 ## 2026-09-24 · claude · 동아시아를 한국·중국·일본 셋으로, 새 무기 서른
 - data/card.json — `east` 를 `korea`(일곱) · `china`(여섯) · `japan`(둘)로 옮기고 새 서른(한국 8 · 중국 9 · 일본 13)으로 권마다 열다섯, 금액대마다 셋. 헌원검은 5금으로(중국 4금이 넷이었다). 한국 무기의 `ethnicity` 는 지웠다
 - data/skill.json — 새 기술 서른(효과는 있는 것만), 천명 +25% → +30%

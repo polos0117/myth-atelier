@@ -12,5 +12,5 @@
   "en": {"sword": "Sword", "spear": "Spear", "blunt": "Blunt", "bow": "Bow", "relic": "Relic"},
   "color": {"sword": "#8fa3b8", "spear": "#7fb08a", "blunt": "#b0865f", "bow": "#a5a06a", "relic": "#9a86c4"}
  },
- "temple": {"midnight": "norse", "moss": "norse", "daylight": "greek", "deep": "greek", "blossom": "japan", "ember": "china", "sand": "india", "plum": "india", "stone": "celtic", "pantheon": null}
+ "temple": {"midnight": "norse", "moss": "norse", "daylight": "greek", "deep": "greek", "blossom": "japan", "ember": "china", "sand": "india", "plum": "india", "stone": "celtic", "dancheong": "korea", "pantheon": null}
 }
