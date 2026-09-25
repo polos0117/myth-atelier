@@ -1,7 +1,7 @@
 {
  "version": 1,
  "note": "tools/register-images.py 가 그림 저장소(myth-atelier-img/img)를 읽어 채운다. 손으로 고치지 않는다.",
- "count": 84,
+ "count": 85,
  "img": {
   "가다": {"byStyle": {"game_keyart": {"f": "가다_game_keyart_f.webp", "awaken": {"f": "가다_game_keyart_f_awaken.webp"}, "cursed": {"f": "가다_game_keyart_f_cursed.webp"}, "casual": {"f": ["가다_game_keyart_f_casual1.webp"]}}}},
   "간디바": {"byStyle": {"game_keyart": {"f": "간디바_game_keyart_f.webp", "awaken": {"f": "간디바_game_keyart_f_awaken.webp"}, "cursed": {"f": "간디바_game_keyart_f_cursed.webp"}, "casual": {"f": ["간디바_game_keyart_f_casual1.webp"]}}}},
@@ -61,6 +61,7 @@
   "칸다": {"byStyle": {"game_keyart": {"f": "칸다_game_keyart_f.webp", "awaken": {"f": "칸다_game_keyart_f_awaken.webp"}, "cursed": {"f": "칸다_game_keyart_f_cursed.webp"}, "casual": {"f": ["칸다_game_keyart_f_casual1.webp"]}}}},
   "칼라드볼그": {"byStyle": {"game_keyart": {"f": "칼라드볼그_game_keyart_f.webp", "awaken": {"f": "칼라드볼그_game_keyart_f_awaken.webp"}, "cursed": {"f": "칼라드볼그_game_keyart_f_cursed.webp"}, "casual": {"f": ["칼라드볼그_game_keyart_f_casual1.webp"]}}}},
   "케라우노스": {"byStyle": {"game_keyart": {"f": "케라우노스_game_keyart_f.webp", "awaken": {"f": "케라우노스_game_keyart_f_awaken.webp"}, "cursed": {"f": "케라우노스_game_keyart_f_cursed.webp"}, "casual": {"f": ["케라우노스_game_keyart_f_casual1.webp"]}}}},
+  "코가라스마루": {"byStyle": {"game_keyart": {"f": "코가라스마루_game_keyart_f.webp", "awaken": {"f": "코가라스마루_game_keyart_f_awaken.webp"}, "cursed": {"f": "코가라스마루_game_keyart_f_cursed.webp"}, "casual": {"f": ["코가라스마루_game_keyart_f_casual1.webp", "코가라스마루_game_keyart_f_casual2.webp"]}}}},
   "크로노스의 낫": {"byStyle": {"game_keyart": {"f": "크로노스의_낫_game_keyart_f.webp", "awaken": {"f": "크로노스의_낫_game_keyart_f_awaken.webp"}, "cursed": {"f": "크로노스의_낫_game_keyart_f_cursed.webp"}, "casual": {"f": ["크로노스의_낫_game_keyart_f_casual1.webp"]}, "extra": {"f": ["크로노스의_낫_game_keyart_f_extra1.webp", "크로노스의_낫_game_keyart_f_extra2.webp"]}}}},
   "클라우 솔라스": {"byStyle": {"game_keyart": {"f": "클라우_솔라스_game_keyart_f.webp", "awaken": {"f": "클라우_솔라스_game_keyart_f_awaken.webp"}, "cursed": {"f": "클라우_솔라스_game_keyart_f_cursed.webp"}, "casual": {"f": ["클라우_솔라스_game_keyart_f_casual1.webp"]}}}},
   "타슬럼": {"byStyle": {"game_keyart": {"f": "타슬럼_game_keyart_f.webp", "awaken": {"f": "타슬럼_game_keyart_f_awaken.webp"}, "cursed": {"f": "타슬럼_game_keyart_f_cursed.webp"}, "casual": {"f": ["타슬럼_game_keyart_f_casual1.webp"]}}}},
