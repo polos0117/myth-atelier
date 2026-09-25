@@ -1,7 +1,7 @@
 {
  "version": 1,
  "note": "tools/register-images.py 가 그림 저장소(myth-atelier-img/img)를 읽어 채운다. 손으로 고치지 않는다.",
- "count": 77,
+ "count": 78,
  "img": {
   "가다": {"byStyle": {"game_keyart": {"f": "가다_game_keyart_f.webp", "awaken": {"f": "가다_game_keyart_f_awaken.webp"}, "cursed": {"f": "가다_game_keyart_f_cursed.webp"}, "casual": {"f": ["가다_game_keyart_f_casual1.webp"]}}}},
   "간디바": {"byStyle": {"game_keyart": {"f": "간디바_game_keyart_f.webp", "awaken": {"f": "간디바_game_keyart_f_awaken.webp"}, "cursed": {"f": "간디바_game_keyart_f_cursed.webp"}, "casual": {"f": ["간디바_game_keyart_f_casual1.webp"]}}}},
@@ -40,6 +40,7 @@
   "아이기스": {"byStyle": {"game_keyart": {"f": "아이기스_game_keyart_f.webp", "awaken": {"f": "아이기스_game_keyart_f_awaken.webp"}, "cursed": {"f": "아이기스_game_keyart_f_cursed.webp"}, "casual": {"f": ["아이기스_game_keyart_f_casual1.webp", "아이기스_game_keyart_f_casual2.webp"]}}}},
   "아킬레우스의 창": {"byStyle": {"game_keyart": {"f": "아킬레우스의_창_game_keyart_f.webp", "awaken": {"f": "아킬레우스의_창_game_keyart_f_awaken.webp"}, "cursed": {"f": "아킬레우스의_창_game_keyart_f_cursed.webp"}, "casual": {"f": ["아킬레우스의_창_game_keyart_f_casual1.webp"]}}}},
   "야른그레이프": {"byStyle": {"game_keyart": {"f": "야른그레이프_game_keyart_f.webp", "awaken": {"f": "야른그레이프_game_keyart_f_awaken.webp"}, "cursed": {"f": "야른그레이프_game_keyart_f_cursed.webp"}, "casual": {"f": ["야른그레이프_game_keyart_f_casual1.webp"]}}}},
+  "야타노카가미": {"byStyle": {"game_keyart": {"f": "야타노카가미_game_keyart_f.webp", "awaken": {"f": "야타노카가미_game_keyart_f_awaken.webp"}, "cursed": {"f": "야타노카가미_game_keyart_f_cursed.webp"}, "casual": {"f": ["야타노카가미_game_keyart_f_casual1.webp"]}, "extra": {"f": ["야타노카가미_game_keyart_f_extra1.webp"]}}}},
   "에로스의 활": {"byStyle": {"game_keyart": {"f": "에로스의_활_game_keyart_f.webp", "awaken": {"f": "에로스의_활_game_keyart_f_awaken.webp"}, "cursed": {"f": "에로스의_활_game_keyart_f_cursed.webp"}, "casual": {"f": ["에로스의_활_game_keyart_f_casual1.webp", "에로스의_활_game_keyart_f_casual2.webp", "에로스의_활_game_keyart_f_casual3.webp"]}, "extra": {"f": ["에로스의_활_game_keyart_f_extra1.webp"]}}}},
   "엑스칼리버": {"byStyle": {"game_keyart": {"f": "엑스칼리버_game_keyart_f.webp", "awaken": {"f": "엑스칼리버_game_keyart_f_awaken.webp"}, "cursed": {"f": "엑스칼리버_game_keyart_f_cursed.webp"}, "casual": {"f": ["엑스칼리버_game_keyart_f_casual1.webp"]}}}},
   "여의봉": {"byStyle": {"game_keyart": {"f": "여의봉_game_keyart_f.webp", "awaken": {"f": "여의봉_game_keyart_f_awaken.webp"}, "cursed": {"f": "여의봉_game_keyart_f_cursed.webp"}, "casual": {"f": ["여의봉_game_keyart_f_casual1.webp", "여의봉_game_keyart_f_casual2.webp"]}}}},
