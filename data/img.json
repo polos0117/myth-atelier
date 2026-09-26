@@ -1,7 +1,7 @@
 {
  "version": 1,
  "note": "tools/register-images.py 가 그림 저장소(myth-atelier-img/img)를 읽어 채운다. 손으로 고치지 않는다.",
- "count": 96,
+ "count": 97,
  "img": {
   "가다": {"byStyle": {"game_keyart": {"f": "가다_game_keyart_f.webp", "awaken": {"f": "가다_game_keyart_f_awaken.webp"}, "cursed": {"f": "가다_game_keyart_f_cursed.webp"}, "casual": {"f": ["가다_game_keyart_f_casual1.webp"]}}}},
   "간디바": {"byStyle": {"game_keyart": {"f": "간디바_game_keyart_f.webp", "awaken": {"f": "간디바_game_keyart_f_awaken.webp"}, "cursed": {"f": "간디바_game_keyart_f_cursed.webp"}, "casual": {"f": ["간디바_game_keyart_f_casual1.webp"]}}}},
@@ -52,6 +52,7 @@
   "엑스칼리버": {"byStyle": {"game_keyart": {"f": "엑스칼리버_game_keyart_f.webp", "awaken": {"f": "엑스칼리버_game_keyart_f_awaken.webp"}, "cursed": {"f": "엑스칼리버_game_keyart_f_cursed.webp"}, "casual": {"f": ["엑스칼리버_game_keyart_f_casual1.webp"]}}}},
   "여의봉": {"byStyle": {"game_keyart": {"f": "여의봉_game_keyart_f.webp", "awaken": {"f": "여의봉_game_keyart_f_awaken.webp"}, "cursed": {"f": "여의봉_game_keyart_f_cursed.webp"}, "casual": {"f": ["여의봉_game_keyart_f_casual1.webp", "여의봉_game_keyart_f_casual2.webp"]}}}},
   "오디세우스의 활": {"byStyle": {"game_keyart": {"f": "오디세우스의_활_game_keyart_f.webp", "awaken": {"f": "오디세우스의_활_game_keyart_f_awaken.webp"}, "cursed": {"f": "오디세우스의_활_game_keyart_f_cursed.webp"}, "casual": {"f": ["오디세우스의_활_game_keyart_f_casual1.webp"]}}}},
+  "요이치의 활": {"byStyle": {"game_keyart": {"f": "요이치의_활_game_keyart_f.webp", "awaken": {"f": "요이치의_활_game_keyart_f_awaken.webp"}, "cursed": {"f": "요이치의_활_game_keyart_f_cursed.webp"}, "casual": {"f": ["요이치의_활_game_keyart_f_casual1.webp"]}}}},
   "우치데노코즈치": {"byStyle": {"game_keyart": {"f": "우치데노코즈치_game_keyart_f.webp", "awaken": {"f": "우치데노코즈치_game_keyart_f_awaken.webp"}, "cursed": {"f": "우치데노코즈치_game_keyart_f_cursed.webp"}, "casual": {"f": ["우치데노코즈치_game_keyart_f_casual1.webp"]}}}},
   "울르의 활": {"byStyle": {"game_keyart": {"f": "울르의_활_game_keyart_f.webp", "awaken": {"f": "울르의_활_game_keyart_f_awaken.webp"}, "cursed": {"f": "울르의_활_game_keyart_f_cursed.webp"}, "casual": {"f": ["울르의_활_game_keyart_f_casual1.webp"]}}}},
   "월왕구천검": {"byStyle": {"game_keyart": {"f": "월왕구천검_game_keyart_f.webp", "awaken": {"f": "월왕구천검_game_keyart_f_awaken.webp"}, "cursed": {"f": "월왕구천검_game_keyart_f_cursed.webp"}, "casual": {"f": ["월왕구천검_game_keyart_f_casual1.webp", "월왕구천검_game_keyart_f_casual2.webp", "월왕구천검_game_keyart_f_casual3.webp"]}, "extra": {"f": ["월왕구천검_game_keyart_f_extra1.webp"]}}}},
