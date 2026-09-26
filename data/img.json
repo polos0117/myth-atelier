@@ -1,7 +1,7 @@
 {
  "version": 1,
  "note": "tools/register-images.py 가 그림 저장소(myth-atelier-img/img)를 읽어 채운다. 손으로 고치지 않는다.",
- "count": 107,
+ "count": 108,
  "img": {
   "가다": {"byStyle": {"game_keyart": {"f": "가다_game_keyart_f.webp", "awaken": {"f": "가다_game_keyart_f_awaken.webp"}, "cursed": {"f": "가다_game_keyart_f_cursed.webp"}, "casual": {"f": ["가다_game_keyart_f_casual1.webp"]}}}},
   "간디바": {"byStyle": {"game_keyart": {"f": "간디바_game_keyart_f.webp", "awaken": {"f": "간디바_game_keyart_f_awaken.webp"}, "cursed": {"f": "간디바_game_keyart_f_cursed.webp"}, "casual": {"f": ["간디바_game_keyart_f_casual1.webp"]}}}},
@@ -85,6 +85,7 @@
   "타신편": {"byStyle": {"game_keyart": {"f": "타신편_game_keyart_f.webp", "awaken": {"f": "타신편_game_keyart_f_awaken.webp"}, "cursed": {"f": "타신편_game_keyart_f_cursed.webp"}, "casual": {"f": ["타신편_game_keyart_f_casual1.webp"]}, "extra": {"f": ["타신편_game_keyart_f_extra1.webp"]}}}},
   "탈라리아": {"byStyle": {"game_keyart": {"f": "탈라리아_game_keyart_f.webp", "awaken": {"f": "탈라리아_game_keyart_f_awaken.webp"}, "cursed": {"f": "탈라리아_game_keyart_f_cursed.webp"}, "casual": {"f": ["탈라리아_game_keyart_f_casual1.webp"]}}}},
   "텐구의 부채": {"byStyle": {"game_keyart": {"f": "텐구의_부채_game_keyart_f.webp", "awaken": {"f": "텐구의_부채_game_keyart_f_awaken.webp"}, "cursed": {"f": "텐구의_부채_game_keyart_f_cursed.webp"}, "casual": {"f": ["텐구의_부채_game_keyart_f_casual1.webp"]}}}},
+  "토트의 서": {"byStyle": {"game_keyart": {"f": "토트의_서_game_keyart_f.webp", "awaken": {"f": "토트의_서_game_keyart_f_awaken.webp"}, "cursed": {"f": "토트의_서_game_keyart_f_cursed.webp"}, "casual": {"f": ["토트의_서_game_keyart_f_casual1.webp", "토트의_서_game_keyart_f_casual2.webp"]}, "extra": {"f": ["토트의_서_game_keyart_f_extra1.webp"]}}}},
   "톤보키리": {"byStyle": {"game_keyart": {"f": "톤보키리_game_keyart_f.webp", "awaken": {"f": "톤보키리_game_keyart_f_awaken.webp"}, "cursed": {"f": "톤보키리_game_keyart_f_cursed.webp"}, "casual": {"f": ["톤보키리_game_keyart_f_casual1.webp"]}, "extra": {"f": ["톤보키리_game_keyart_f_extra1.webp"]}}}},
   "트리슐라": {"byStyle": {"game_keyart": {"f": "트리슐라_game_keyart_f.webp", "awaken": {"f": "트리슐라_game_keyart_f_awaken.webp"}, "cursed": {"f": "트리슐라_game_keyart_f_cursed.webp"}, "casual": {"f": ["트리슐라_game_keyart_f_casual1.webp"]}}}},
   "트리아이나": {"byStyle": {"game_keyart": {"f": "트리아이나_game_keyart_f.webp", "awaken": {"f": "트리아이나_game_keyart_f_awaken.webp"}, "cursed": {"f": "트리아이나_game_keyart_f_cursed.webp"}, "casual": {"f": ["트리아이나_game_keyart_f_casual1.webp"]}}}},
