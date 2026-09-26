@@ -8,6 +8,13 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-09-26 · claude · 열두째 신전 나일 열주(이집트 · 황혼), 헌원검 집행의 대검 그림
+- lib/workspace.css — 황혼 팔레트(보랏빛 밤, 금 강조, 청록 신호), 별 뿌린 하늘, 비스듬히 흐르는 금빛 별똥, 기둥 그림 `hall_nile_col`(532×1504)과 금 상감 마스크. 어두운 신전·기둥 목록에 더함
+- 그림 저장소 img/ui — 사용자가 뽑은 파피루스 기둥, 자홍 바탕을 땄다. 상형 문양과 사암이 거의 같은 색이라 마스크는 가운데 판·날개 해 안의 밝은 금만
+- lib/workspace-theme.js · lib/workspace-ui.js · lib/words.js — 테마 열쇠 `nile`, 문장(피라미드·해·강물), 이름표. data/group.json 신전 nile → 이집트
+- 그림 저장소 img — 헌원검 `judge` 스킨 기본·각성·저주 셋
+- tests/workspace-theme.cjs — 테마 열둘. 캐시 번호 올림
+
 ## 2026-09-26 · claude · 여덟째 신화권 이집트, 무기 열다섯
 - data/card.json · data/skill.json — 이집트 열다섯, 종류마다 셋, 금액대마다 셋. 새 기술 열다섯(효과는 있는 것만)
 - data/synergy.json · lib/auto.js — 영생(`regen`): 박자마다 최대 체력 2.5% / 4.5% 회복, 저주 중엔 없다. 기록에 `regen`
