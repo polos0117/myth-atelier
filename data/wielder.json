@@ -95,6 +95,21 @@
   {"name": "미나모토노 요리미쓰", "myth": "japan", "might": 88, "art": 86, "divine": 50, "favor": "sword", "text": "네 장수를 거느리고 오니를 벤 무사."},
   {"name": "혼다 다다카쓰", "myth": "japan", "might": 96, "art": 84, "divine": 30, "favor": "spear", "text": "쉰일곱 싸움에 상처 하나 없던 무장."},
   {"name": "아마테라스", "myth": "japan", "might": 50, "art": 70, "divine": 100, "favor": "relic", "text": "해의 여신. 동굴에 숨어 세상을 어둡게 한 적이 있다."},
-  {"name": "이자나기", "myth": "japan", "might": 70, "art": 80, "divine": 98, "favor": "spear", "text": "창으로 바다를 휘저어 섬을 낳은 창조의 신."}
+  {"name": "이자나기", "myth": "japan", "might": 70, "art": 80, "divine": 98, "favor": "spear", "text": "창으로 바다를 휘저어 섬을 낳은 창조의 신."},
+  {"name": "람세스", "myth": "egypt", "might": 88, "art": 76, "divine": 60, "favor": "sword", "text": "카데시에서 전차를 몰고 적진에 뛰어든 파라오."},
+  {"name": "나르메르", "myth": "egypt", "might": 84, "art": 60, "divine": 50, "favor": "blunt", "text": "위아래 이집트를 처음 하나로 묶은 왕."},
+  {"name": "네이트", "myth": "egypt", "might": 70, "art": 90, "divine": 88, "favor": "bow", "text": "가장 먼저 태어났다는 사냥과 전쟁의 여신."},
+  {"name": "프타", "myth": "egypt", "might": 50, "art": 96, "divine": 92, "favor": "blunt", "text": "말로 세상을 지은 멤피스의 장인 신."},
+  {"name": "몬투", "myth": "egypt", "might": 92, "art": 66, "divine": 80, "favor": "spear", "text": "테베의 전쟁신. 매의 머리에 해와 두 깃을 얹었다."},
+  {"name": "이시스", "myth": "egypt", "might": 44, "art": 94, "divine": 96, "favor": "relic", "text": "흩어진 남편을 모아 되살린 마법의 여신."},
+  {"name": "투탕카멘", "myth": "egypt", "might": 40, "art": 60, "divine": 70, "favor": "sword", "text": "아홉 살에 왕위에 올라 열아홉에 떠난 어린 파라오."},
+  {"name": "세크메트", "myth": "egypt", "might": 94, "art": 70, "divine": 88, "favor": "bow", "text": "사자 머리를 한 전쟁과 역병의 여신. 라의 눈."},
+  {"name": "아누비스", "myth": "egypt", "might": 60, "art": 90, "divine": 92, "favor": "relic", "text": "자칼 머리의 저승 안내자. 심장을 저울에 단다."},
+  {"name": "호루스", "myth": "egypt", "might": 88, "art": 84, "divine": 92, "favor": "spear", "text": "매의 신. 아버지의 원수 세트를 꺾고 왕이 되었다."},
+  {"name": "아멘호테프 2세", "myth": "egypt", "might": 96, "art": 92, "divine": 40, "favor": "bow", "text": "아무도 당기지 못한 활을 당겼다는 활의 파라오."},
+  {"name": "오시리스", "myth": "egypt", "might": 60, "art": 80, "divine": 98, "favor": "blunt", "text": "저승의 왕. 죽었다가 되살아나 죽은 자를 다스린다."},
+  {"name": "라", "myth": "egypt", "might": 80, "art": 80, "divine": 100, "favor": "sword", "text": "해의 배를 타고 매일 하늘과 저승을 건너는 태양신."},
+  {"name": "세트", "myth": "egypt", "might": 96, "art": 70, "divine": 84, "favor": "spear", "text": "사막과 폭풍의 신. 형 오시리스를 죽였다."},
+  {"name": "토트", "myth": "egypt", "might": 40, "art": 100, "divine": 94, "favor": "relic", "text": "따오기 머리의 지혜와 글의 신. 달을 다스린다."}
  ]
 }

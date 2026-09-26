@@ -1,10 +1,10 @@
 {
  "note": "시너지 축의 이름표. myth 는 신화권, kind 는 무기 종류. order 는 화면 차례이고 color 는 카드 테두리. 효과 수치는 data/synergy.json 에 있다. temple 은 신전(테마) → 신화권. 메인 신전이 비어 있으면 그 신화권 무기 중에서 무작위로 돌린다. null 은 모든 신화권(만신전).",
  "myth": {
-  "order": ["norse", "greek", "korea", "china", "japan", "india", "celtic"],
-  "name": {"norse": "북유럽", "greek": "그리스", "korea": "한국", "china": "중국", "japan": "일본", "india": "인도", "celtic": "켈트"},
-  "en": {"norse": "Norse", "greek": "Greek", "korea": "Korea", "china": "China", "japan": "Japan", "india": "India", "celtic": "Celtic"},
-  "color": {"norse": "#5b8fd6", "greek": "#d6a24a", "korea": "#3f9fb0", "china": "#c9494f", "japan": "#e07fa3", "india": "#c07bd6", "celtic": "#4fae7e"}
+  "order": ["norse", "greek", "korea", "china", "japan", "india", "egypt", "celtic"],
+  "name": {"norse": "북유럽", "greek": "그리스", "korea": "한국", "china": "중국", "japan": "일본", "india": "인도", "egypt": "이집트", "celtic": "켈트"},
+  "en": {"norse": "Norse", "greek": "Greek", "korea": "Korea", "china": "China", "japan": "Japan", "india": "India", "egypt": "Egypt", "celtic": "Celtic"},
+  "color": {"norse": "#5b8fd6", "greek": "#d6a24a", "korea": "#3f9fb0", "china": "#c9494f", "japan": "#e07fa3", "india": "#c07bd6", "egypt": "#e07b39", "celtic": "#4fae7e"}
  },
  "kind": {
   "order": ["sword", "spear", "blunt", "bow", "relic"],

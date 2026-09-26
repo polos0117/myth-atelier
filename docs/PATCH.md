@@ -8,6 +8,16 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-09-26 · claude · 여덟째 신화권 이집트, 무기 열다섯
+- data/card.json · data/skill.json — 이집트 열다섯, 종류마다 셋, 금액대마다 셋. 새 기술 열다섯(효과는 있는 것만)
+- data/synergy.json · lib/auto.js — 영생(`regen`): 박자마다 최대 체력 2.5% / 4.5% 회복, 저주 중엔 없다. 기록에 `regen`
+- auto.html — 시너지 설명의 % 를 소수 한 자리까지(2.5%)
+- data/wielder.json · data/draft.json — 주인 열다섯, 인연 여덟(악연 둘), 활의 명수에 아멘호테프의 활
+- data/group.json — 이름표·색(홍옥수 주황 #e07b39), 인도 다음 차례
+- lib/prompt-spec.js · lib/words.js — 이집트 옷 언어와 얼굴 계통, 집 문구. 캐시 번호 올림
+- tests/auto-sim.cjs — 영생 검사(둘이면 회복, 저주 중·하나일 땐 없음)
+- docs/GAME_CONCEPT.md · README.md · PROMPT_IMAGE_WORKFLOW.md · .claude/skills/upload-art/SKILL.md — 120장
+
 ## 2026-09-26 · claude · 그림 검수에 손 보기를 넣음
 - .claude/skills/upload-art/SKILL.md — 손가락이 이상한 그림이 여럿 그대로 올라갔다. 올리기 전에 장마다 손(손가락 수·녹은 마디·물건과 섞임)을 보고, 틀리면 어느 장인지 짚는다
 

@@ -178,6 +178,14 @@ const ok = (cond, msg) => { assert(cond, msg); n++; };
   const crits = pair => { let n = 0; for (let s = 1; s < 8; s++) n += A.simulate(data, A.newGame(data, s), pair, [U('묠니르', 3, 0, 1)]).log.filter(e => e.k === 'crit' && e.a === 1).length; return n; };
   ok(crits([U('무라마사', 1, 0, 1), U('동자절 야스츠나', 1, 1, 1)]) > 0, '일본 둘: 평타 두 배가 난다');
   ok(crits([U('무라마사', 1, 0, 1), U('가다', 1, 1, 1)]) === 0, '일본 하나면 일섬이 없다');
+  /* 이집트 둘 — 영생: 박자마다 최대 체력의 일부를 되찾는다. 저주 중엔 없다 */
+  const regen1 = data.synergy.myth.egypt.value[0];
+  const eg = A.simulate(data, st, [U('갈고리와 도리깨', 1, 0, 1), U('앙크', 1, 1, 1)], [U('묠니르', 3, 0, 1)]);
+  const rg = eg.log.filter(e => e.k === 'regen' && e.b === 1);
+  ok(rg.length > 0 && rg.every(e => e.d <= Math.round(by('갈고리와 도리깨').hp * regen1)), '이집트 둘: 박자마다 ' + regen1 * 100 + '% 회복');
+  const egc = eg.log.find(e => e.k === 'curse' && e.b === 1);
+  ok(!egc || !eg.log.some(e => e.k === 'regen' && e.b === 1 && e.t > egc.t), '저주 중엔 영생이 없다');
+  ok(!A.simulate(data, st, [U('갈고리와 도리깨', 1, 0, 1), U('가다', 1, 1, 1)], [U('묠니르', 3, 0, 1)]).log.some(e => e.k === 'regen'), '이집트 하나면 영생이 없다');
   /* 이형 둘 — 아군 전체 보호막으로 시작 */
   const sh = A.simulate(data, st, [U('아이기스', 1, 0, 0), U('탈라리아', 1, 1, 0), U('칸다', 1, 0, 1)], [U('묠니르', 1, 0, 1)]);
   const firstOnKanda = sh.log.find(e => e.k === 'hit' && e.b === 3);
