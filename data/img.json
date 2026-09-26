@@ -1,7 +1,7 @@
 {
  "version": 1,
  "note": "tools/register-images.py 가 그림 저장소(myth-atelier-img/img)를 읽어 채운다. 손으로 고치지 않는다.",
- "count": 103,
+ "count": 104,
  "img": {
   "가다": {"byStyle": {"game_keyart": {"f": "가다_game_keyart_f.webp", "awaken": {"f": "가다_game_keyart_f_awaken.webp"}, "cursed": {"f": "가다_game_keyart_f_cursed.webp"}, "casual": {"f": ["가다_game_keyart_f_casual1.webp"]}}}},
   "간디바": {"byStyle": {"game_keyart": {"f": "간디바_game_keyart_f.webp", "awaken": {"f": "간디바_game_keyart_f_awaken.webp"}, "cursed": {"f": "간디바_game_keyart_f_cursed.webp"}, "casual": {"f": ["간디바_game_keyart_f_casual1.webp"]}}}},
@@ -95,6 +95,7 @@
   "프레이의 검": {"byStyle": {"game_keyart": {"f": "프레이의_검_game_keyart_f.webp", "awaken": {"f": "프레이의_검_game_keyart_f_awaken.webp"}, "cursed": {"f": "프레이의_검_game_keyart_f_cursed.webp"}, "casual": {"f": ["프레이의_검_game_keyart_f_casual1.webp", "프레이의_검_game_keyart_f_casual2.webp"]}}}},
   "하데스의 투구": {"byStyle": {"game_keyart": {"f": "하데스의_투구_game_keyart_f.webp", "awaken": {"f": "하데스의_투구_game_keyart_f_awaken.webp"}, "cursed": {"f": "하데스의_투구_game_keyart_f_cursed.webp"}, "casual": {"f": ["하데스의_투구_game_keyart_f_casual1.webp", "하데스의_투구_game_keyart_f_casual2.webp"]}}}},
   "하르페": {"byStyle": {"game_keyart": {"f": "하르페_game_keyart_f.webp", "awaken": {"f": "하르페_game_keyart_f_awaken.webp"}, "cursed": {"f": "하르페_game_keyart_f_cursed.webp"}, "casual": {"f": ["하르페_game_keyart_f_casual1.webp"]}}}},
+  "하마야": {"byStyle": {"game_keyart": {"f": "하마야_game_keyart_f.webp", "awaken": {"f": "하마야_game_keyart_f_awaken.webp"}, "cursed": {"f": "하마야_game_keyart_f_cursed.webp"}, "casual": {"f": ["하마야_game_keyart_f_casual1.webp"]}, "extra": {"f": ["하마야_game_keyart_f_extra1.webp", "하마야_game_keyart_f_extra2.webp"]}}}},
   "헌원검": {"byStyle": {"game_keyart": {"f": "헌원검_game_keyart_f.webp", "awaken": {"f": "헌원검_game_keyart_f_awaken.webp"}, "cursed": {"f": "헌원검_game_keyart_f_cursed.webp"}, "casual": {"f": ["헌원검_game_keyart_f_casual1.webp"]}}}},
   "헤라클레스의 곤봉": {"byStyle": {"game_keyart": {"f": "헤라클레스의_곤봉_game_keyart_f.webp", "awaken": {"f": "헤라클레스의_곤봉_game_keyart_f_awaken.webp"}, "cursed": {"f": "헤라클레스의_곤봉_game_keyart_f_cursed.webp"}, "casual": {"f": ["헤라클레스의_곤봉_game_keyart_f_casual1.webp"]}}}},
   "헤파이스토스의 망치": {"byStyle": {"game_keyart": {"f": "헤파이스토스의_망치_game_keyart_f.webp", "awaken": {"f": "헤파이스토스의_망치_game_keyart_f_awaken.webp"}, "cursed": {"f": "헤파이스토스의_망치_game_keyart_f_cursed.webp"}, "casual": {"f": ["헤파이스토스의_망치_game_keyart_f_casual1.webp"]}}}},
