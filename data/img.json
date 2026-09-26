@@ -1,7 +1,7 @@
 {
  "version": 1,
  "note": "tools/register-images.py 가 그림 저장소(myth-atelier-img/img)를 읽어 채운다. 손으로 고치지 않는다.",
- "count": 118,
+ "count": 119,
  "img": {
   "가다": {"byStyle": {"game_keyart": {"f": "가다_game_keyart_f.webp", "awaken": {"f": "가다_game_keyart_f_awaken.webp"}, "cursed": {"f": "가다_game_keyart_f_cursed.webp"}, "casual": {"f": ["가다_game_keyart_f_casual1.webp"]}}}},
   "간디바": {"byStyle": {"game_keyart": {"f": "간디바_game_keyart_f.webp", "awaken": {"f": "간디바_game_keyart_f_awaken.webp"}, "cursed": {"f": "간디바_game_keyart_f_cursed.webp"}, "casual": {"f": ["간디바_game_keyart_f_casual1.webp"]}}}},
@@ -18,6 +18,7 @@
   "글레이프니르": {"byStyle": {"game_keyart": {"f": "글레이프니르_game_keyart_f.webp", "awaken": {"f": "글레이프니르_game_keyart_f_awaken.webp"}, "cursed": {"f": "글레이프니르_game_keyart_f_cursed.webp"}, "casual": {"f": ["글레이프니르_game_keyart_f_casual1.webp", "글레이프니르_game_keyart_f_casual2.webp"]}}}},
   "김유신의 보검": {"byStyle": {"game_keyart": {"f": "김유신의_보검_game_keyart_f.webp", "awaken": {"f": "김유신의_보검_game_keyart_f_awaken.webp"}, "cursed": {"f": "김유신의_보검_game_keyart_f_cursed.webp"}, "casual": {"f": ["김유신의_보검_game_keyart_f_casual1.webp"]}, "extra": {"f": ["김유신의_보검_game_keyart_f_extra1.webp"]}}}},
   "나르메르의 철퇴": {"byStyle": {"game_keyart": {"f": "나르메르의_철퇴_game_keyart_f.webp", "awaken": {"f": "나르메르의_철퇴_game_keyart_f_awaken.webp"}, "cursed": {"f": "나르메르의_철퇴_game_keyart_f_cursed.webp"}, "casual": {"f": ["나르메르의_철퇴_game_keyart_f_casual1.webp", "나르메르의_철퇴_game_keyart_f_casual2.webp"]}}}},
+  "네이트의 활": {"byStyle": {"game_keyart": {"f": "네이트의_활_game_keyart_f.webp", "awaken": {"f": "네이트의_활_game_keyart_f_awaken.webp"}, "cursed": {"f": "네이트의_활_game_keyart_f_cursed.webp"}, "casual": {"f": ["네이트의_활_game_keyart_f_casual1.webp"]}}}},
   "누아다의 은팔": {"byStyle": {"game_keyart": {"f": "누아다의_은팔_game_keyart_f.webp", "awaken": {"f": "누아다의_은팔_game_keyart_f_awaken.webp"}, "cursed": {"f": "누아다의_은팔_game_keyart_f_cursed.webp"}, "casual": {"f": ["누아다의_은팔_game_keyart_f_casual1.webp"]}}}},
   "다그다의 곤봉": {"byStyle": {"game_keyart": {"f": "다그다의_곤봉_game_keyart_f.webp", "awaken": {"f": "다그다의_곤봉_game_keyart_f_awaken.webp"}, "cursed": {"f": "다그다의_곤봉_game_keyart_f_cursed.webp"}, "casual": {"f": ["다그다의_곤봉_game_keyart_f_casual1.webp"]}, "extra": {"f": ["다그다의_곤봉_game_keyart_f_extra1.webp"]}}}},
   "다그다의 솥": {"byStyle": {"game_keyart": {"f": "다그다의_솥_game_keyart_f.webp", "awaken": {"f": "다그다의_솥_game_keyart_f_awaken.webp"}, "cursed": {"f": "다그다의_솥_game_keyart_f_cursed.webp"}, "casual": {"f": ["다그다의_솥_game_keyart_f_casual1.webp"]}}}},
