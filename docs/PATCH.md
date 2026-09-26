@@ -8,6 +8,15 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-09-27 · claude · 아홉째 신화권 서아시아(메소포타미아·레반트·페르시아), 무기 열다섯
+- data/card.json · data/skill.json — 서아시아 열다섯, 종류마다 셋, 금액대마다 셋. 새 기술 열다섯(효과는 있는 것만)
+- data/synergy.json · lib/auto.js — 눈에는 눈(`thorns`): 맞은 피해의 15% / 30% 를 때린 쪽에 되돌린다. 되돌림은 다시 안 돌아온다. 기록에 `thorns`
+- data/wielder.json · data/draft.json — 주인 열여섯, 인연 여덟(악연 하나), 천둥의 형제에 아다드의 번개·바알의 쌍곤봉
+- data/group.json — 이름표·색(청금석 #4a57b8), 이집트 다음 차례
+- lib/prompt-spec.js · lib/words.js — 서아시아 옷 언어와 얼굴 계통(Middle Eastern), 집 문구. 캐시 번호 올림
+- tests/auto-sim.cjs — 눈에는 눈 검사
+- docs/GAME_CONCEPT.md · README.md · PROMPT_IMAGE_WORKFLOW.md · .claude/skills/upload-art/SKILL.md — 135장
+
 ## 2026-09-26 · claude · 열두째 신전 나일 열주(이집트 · 황혼), 헌원검 집행의 대검 그림
 - lib/workspace.css — 황혼 팔레트(보랏빛 밤, 금 강조, 청록 신호), 별 뿌린 하늘, 비스듬히 흐르는 금빛 별똥, 기둥 그림 `hall_nile_col`(532×1504)과 금 상감 마스크. 어두운 신전·기둥 목록에 더함
 - 그림 저장소 img/ui — 사용자가 뽑은 파피루스 기둥, 자홍 바탕을 땄다. 상형 문양과 사암이 거의 같은 색이라 마스크는 가운데 판·날개 해 안의 밝은 금만

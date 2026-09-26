@@ -822,6 +822,111 @@
    "effect": "rally",
    "pct": 0.35,
    "dur": 3
+  },
+  "sky_splitter": {
+   "name": "하늘 가르기",
+   "text": "톱니 날로 앞의 상대와 그 뒤를 가른다.",
+   "effect": "pierce",
+   "mult": 1.8
+  },
+  "crafted_bow": {
+   "name": "장인의 활",
+   "text": "신이 벼린 활의 한 발. 반드시 급소에 들어간다.",
+   "effect": "strike",
+   "mult": 1.5,
+   "crit": true
+  },
+  "binding_net": {
+   "name": "네 바람의 그물",
+   "text": "그물을 던져 상대 셋을 잠깐 묶는다.",
+   "effect": "stun",
+   "mult": 0.6,
+   "targets": 3,
+   "dur": 1
+  },
+  "ox_head": {
+   "name": "소머리 일격",
+   "text": "소머리 철퇴로 내리쳐 앞의 상대를 멈추게 한다.",
+   "effect": "stun",
+   "mult": 1.5,
+   "dur": 1
+  },
+  "seven_rings": {
+   "name": "일곱 고리",
+   "text": "잔을 비춰 가장 다친 아군을 고친다.",
+   "effect": "heal",
+   "mult": 2.4
+  },
+  "lion_hunt": {
+   "name": "사자 사냥",
+   "text": "약해진 상대의 목에 창을 꽂는다. 체력이 낮을수록 세다.",
+   "effect": "execute",
+   "mult": 2.0,
+   "threshold": 0.4
+  },
+  "cedar_cutter": {
+   "name": "삼나무 베기",
+   "text": "큰 칼을 휘둘러 앞줄 전부를 벤다.",
+   "effect": "sweep",
+   "mult": 1.5,
+   "targets": 3
+  },
+  "blacksmith_banner": {
+   "name": "대장장이의 깃발",
+   "text": "깃발을 세워 아군 전체의 공격을 올린다.",
+   "effect": "rally",
+   "pct": 0.25,
+   "dur": 3
+  },
+  "tamarisk_arrow": {
+   "name": "위성류 화살",
+   "text": "갈래진 화살이 불사의 몸도 꿰뚫는다. 체력이 낮을수록 세다.",
+   "effect": "execute",
+   "mult": 2.2,
+   "threshold": 0.4
+  },
+  "storm_fork": {
+   "name": "갈래 번개",
+   "text": "번개가 갈라져 상대 넷을 친다.",
+   "effect": "volley",
+   "mult": 1.1,
+   "targets": 4
+  },
+  "plague_blade": {
+   "name": "역병의 날",
+   "text": "베인 자리에 열병이 남아 잠시 계속 아프다.",
+   "effect": "strike",
+   "mult": 1.6,
+   "dot": 0.45,
+   "dur": 3
+  },
+  "drive_away": {
+   "name": "몰아내는 자, 쫓아내는 자",
+   "text": "두 곤봉이 번갈아 두 번 내리친다.",
+   "effect": "strike",
+   "mult": 1.4,
+   "hits": 2
+  },
+  "thousand_smiter": {
+   "name": "천 명을 치는 자",
+   "text": "날아간 철퇴가 앞줄을 부수고 멈추게 한다.",
+   "effect": "stun",
+   "mult": 1.8,
+   "targets": 3,
+   "dur": 1
+  },
+  "tiamat_splitter": {
+   "name": "티아마트 가르기",
+   "text": "하늘을 가른 화살이 상대 여섯에게 떨어진다.",
+   "effect": "volley",
+   "mult": 1.4,
+   "targets": 6
+  },
+  "decree": {
+   "name": "운명의 결정",
+   "text": "서판에 적힌 대로 가장 다친 아군에게 두꺼운 보호막을 두른다.",
+   "effect": "shield",
+   "mult": 2.6
   }
  }
 }

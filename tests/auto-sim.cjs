@@ -186,6 +186,12 @@ const ok = (cond, msg) => { assert(cond, msg); n++; };
   const egc = eg.log.find(e => e.k === 'curse' && e.b === 1);
   ok(!egc || !eg.log.some(e => e.k === 'regen' && e.b === 1 && e.t > egc.t), '저주 중엔 영생이 없다');
   ok(!A.simulate(data, st, [U('갈고리와 도리깨', 1, 0, 1), U('가다', 1, 1, 1)], [U('묠니르', 3, 0, 1)]).log.some(e => e.k === 'regen'), '이집트 하나면 영생이 없다');
+  /* 서아시아 둘 — 눈에는 눈: 맞은 피해의 일부를 때린 쪽에 되돌린다 */
+  const th = data.synergy.myth.westasia.value[0];
+  const wa = A.simulate(data, st, [U('바알의 쌍곤봉', 1, 0, 1), U('로스탐의 활', 1, 1, 1)], [U('묠니르', 3, 0, 1)]);
+  const hit1 = wa.log.find(e => e.k === 'hit' && e.b === 1), back = wa.log.find(e => e.k === 'thorns' && e.t === hit1.t && e.a === 1);
+  ok(back && back.d === Math.round((hit1.d - hit1.s) * th) && !wa.log.some(e => e.k === 'thorns' && e.b === 1), '서아시아 둘: 맞은 평타의 ' + th * 100 + '% 를 되돌리고, 되돌림은 다시 안 돌아온다');
+  ok(!A.simulate(data, st, [U('바알의 쌍곤봉', 1, 0, 1), U('가다', 1, 1, 1)], [U('묠니르', 3, 0, 1)]).log.some(e => e.k === 'thorns'), '서아시아 하나면 눈에는 눈이 없다');
   /* 이형 둘 — 아군 전체 보호막으로 시작 */
   const sh = A.simulate(data, st, [U('아이기스', 1, 0, 0), U('탈라리아', 1, 1, 0), U('칸다', 1, 0, 1)], [U('묠니르', 1, 0, 1)]);
   const firstOnKanda = sh.log.find(e => e.k === 'hit' && e.b === 3);

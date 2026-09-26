@@ -110,6 +110,22 @@
   {"name": "오시리스", "myth": "egypt", "might": 60, "art": 80, "divine": 98, "favor": "blunt", "text": "저승의 왕. 죽었다가 되살아나 죽은 자를 다스린다."},
   {"name": "라", "myth": "egypt", "might": 80, "art": 80, "divine": 100, "favor": "sword", "text": "해의 배를 타고 매일 하늘과 저승을 건너는 태양신."},
   {"name": "세트", "myth": "egypt", "might": 96, "art": 70, "divine": 84, "favor": "spear", "text": "사막과 폭풍의 신. 형 오시리스를 죽였다."},
-  {"name": "토트", "myth": "egypt", "might": 40, "art": 100, "divine": 94, "favor": "relic", "text": "따오기 머리의 지혜와 글의 신. 달을 다스린다."}
+  {"name": "토트", "myth": "egypt", "might": 40, "art": 100, "divine": 94, "favor": "relic", "text": "따오기 머리의 지혜와 글의 신. 달을 다스린다."},
+  {"name": "엔키", "myth": "westasia", "might": 40, "art": 96, "divine": 94, "favor": "sword", "text": "단물과 지혜의 신. 사람을 빚고 신들의 꾀를 냈다."},
+  {"name": "아크하트", "myth": "westasia", "might": 70, "art": 88, "divine": 30, "favor": "bow", "text": "신이 만든 활을 받은 우가리트의 젊은 사냥꾼."},
+  {"name": "아나트", "myth": "westasia", "might": 94, "art": 70, "divine": 88, "favor": "spear", "text": "피에 발목까지 잠겨 싸웠다는 우가리트의 전쟁 여신."},
+  {"name": "마르두크", "myth": "westasia", "might": 88, "art": 86, "divine": 98, "favor": "bow", "text": "티아마트를 쓰러뜨리고 신들의 왕이 된 바빌론의 신."},
+  {"name": "페리둔", "myth": "westasia", "might": 86, "art": 70, "divine": 60, "favor": "blunt", "text": "폭군 자하크를 쓰러뜨리고 다마반드 산에 묶은 왕."},
+  {"name": "잠시드", "myth": "westasia", "might": 50, "art": 92, "divine": 80, "favor": "relic", "text": "황금시대를 연 페르시아의 왕. 끝내 오만으로 무너졌다."},
+  {"name": "아슈르바니팔", "myth": "westasia", "might": 80, "art": 84, "divine": 30, "favor": "spear", "text": "사자를 사냥하고 니네베에 서고를 세운 아시리아 왕."},
+  {"name": "길가메시", "myth": "westasia", "might": 96, "art": 76, "divine": 66, "favor": "sword", "text": "삼분의 이는 신, 삼분의 일은 사람인 우루크의 왕."},
+  {"name": "엔키두", "myth": "westasia", "might": 92, "art": 50, "divine": 40, "favor": "blunt", "text": "들짐승과 살다 길가메시의 벗이 된 사람."},
+  {"name": "카베", "myth": "westasia", "might": 78, "art": 70, "divine": 20, "favor": "spear", "text": "앞치마를 깃발 삼아 폭군에 맞선 대장장이."},
+  {"name": "로스탐", "myth": "westasia", "might": 100, "art": 88, "divine": 40, "favor": "bow", "text": "일곱 난관을 넘은 페르시아 최고의 영웅."},
+  {"name": "아다드", "myth": "westasia", "might": 86, "art": 60, "divine": 90, "favor": "spear", "text": "황소를 탄 폭풍과 비의 신."},
+  {"name": "네르갈", "myth": "westasia", "might": 90, "art": 66, "divine": 88, "favor": "sword", "text": "저승과 역병, 전쟁의 신. 저승의 여왕과 짝을 맺었다."},
+  {"name": "바알", "myth": "westasia", "might": 92, "art": 74, "divine": 92, "favor": "blunt", "text": "구름을 타는 자. 바다의 신 얌을 꺾은 폭풍의 신."},
+  {"name": "니누르타", "myth": "westasia", "might": 94, "art": 80, "divine": 90, "favor": "blunt", "text": "안주를 쫓아 운명의 서판을 되찾은 전쟁과 농사의 신."},
+  {"name": "엔릴", "myth": "westasia", "might": 60, "art": 84, "divine": 100, "favor": "relic", "text": "하늘과 땅을 가른 바람의 신. 운명의 서판의 본래 주인."}
  ]
 }

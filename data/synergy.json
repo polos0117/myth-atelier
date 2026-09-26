@@ -1,6 +1,6 @@
 {
  "version": 1,
- "note": "시너지 표. axis(myth·kind)의 열쇠마다 at(켜지는 장 수 둘)과 value(그때 값 둘). scope 가 self 면 그 축의 카드에만, team 이면 아군 전체에 걸린다. effect 는 엔진(lib/auto.js)이 아는 종류 — revive(죽을 때 한 번, 최대 체력의 value 로) firstcrit(첫 공격 배수) manaRate(마나 더 참) skillPower(기술 배수 더함) atk(공격력 더함) splash(창의 뒤 칸 피해 비율) stunChance(평타 멈춤 확률) spd(공격 간격 줄임) shield(시작 보호막, 최대 체력 비율) frenzy(잃은 체력만큼 공격) guard(받는 피해 줄임) critChance(평타가 두 배로 들어갈 확률) regen(박자마다 최대 체력 비율만큼 회복, 저주 중엔 없음). 같은 축의 카드 수는 별과 무관하게 이름으로 센다.",
+ "note": "시너지 표. axis(myth·kind)의 열쇠마다 at(켜지는 장 수 둘)과 value(그때 값 둘). scope 가 self 면 그 축의 카드에만, team 이면 아군 전체에 걸린다. effect 는 엔진(lib/auto.js)이 아는 종류 — revive(죽을 때 한 번, 최대 체력의 value 로) firstcrit(첫 공격 배수) manaRate(마나 더 참) skillPower(기술 배수 더함) atk(공격력 더함) splash(창의 뒤 칸 피해 비율) stunChance(평타 멈춤 확률) spd(공격 간격 줄임) shield(시작 보호막, 최대 체력 비율) frenzy(잃은 체력만큼 공격) guard(받는 피해 줄임) critChance(평타가 두 배로 들어갈 확률) regen(박자마다 최대 체력 비율만큼 회복, 저주 중엔 없음) thorns(맞은 피해의 비율을 때린 쪽에 되돌림). 같은 축의 카드 수는 별과 무관하게 이름으로 센다.",
  "myth": {
   "norse": {"at": [2, 4], "effect": "revive", "value": [0.3, 0.5], "scope": "self", "name": "발할라", "text": "죽을 때 한 번 되살아난다 — 최대 체력의 {a}% / {b}%"},
   "greek": {"at": [2, 4], "effect": "firstcrit", "value": [1.6, 2.2], "scope": "self", "name": "신의 가호", "text": "첫 공격이 치명타 — ×{a} / ×{b}"},
@@ -9,6 +9,7 @@
   "japan": {"at": [2, 4], "effect": "critChance", "value": [0.2, 0.4], "scope": "self", "name": "일섬", "text": "평타가 두 배로 들어갈 확률 — {a}% / {b}%"},
   "india": {"at": [2, 4], "effect": "skillPower", "value": [0.25, 0.5], "scope": "self", "name": "아스트라", "text": "기술 위력이 오른다 — +{a}% / +{b}%"},
   "egypt": {"at": [2, 4], "effect": "regen", "value": [0.025, 0.045], "scope": "self", "name": "영생", "text": "박자마다 최대 체력을 되찾는다 — {a}% / {b}%"},
+  "westasia": {"at": [2, 4], "effect": "thorns", "value": [0.15, 0.3], "scope": "self", "name": "눈에는 눈", "text": "맞은 피해의 일부를 때린 쪽에 되돌린다 — {a}% / {b}%"},
   "celtic": {"at": [2, 4], "effect": "frenzy", "value": [0.4, 0.8], "scope": "self", "name": "투혼", "text": "피가 줄수록 공격력이 오른다 — 최대 +{a}% / +{b}%"}
  },
  "kind": {
