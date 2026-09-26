@@ -1,7 +1,7 @@
 {
  "version": 1,
  "note": "tools/register-images.py 가 그림 저장소(myth-atelier-img/img)를 읽어 채운다. 손으로 고치지 않는다.",
- "count": 110,
+ "count": 111,
  "img": {
   "가다": {"byStyle": {"game_keyart": {"f": "가다_game_keyart_f.webp", "awaken": {"f": "가다_game_keyart_f_awaken.webp"}, "cursed": {"f": "가다_game_keyart_f_cursed.webp"}, "casual": {"f": ["가다_game_keyart_f_casual1.webp"]}}}},
   "간디바": {"byStyle": {"game_keyart": {"f": "간디바_game_keyart_f.webp", "awaken": {"f": "간디바_game_keyart_f_awaken.webp"}, "cursed": {"f": "간디바_game_keyart_f_cursed.webp"}, "casual": {"f": ["간디바_game_keyart_f_casual1.webp"]}}}},
@@ -105,6 +105,7 @@
   "헌원검": {"byStyle": {"game_keyart": {"f": "헌원검_game_keyart_f.webp", "awaken": {"f": "헌원검_game_keyart_f_awaken.webp"}, "cursed": {"f": "헌원검_game_keyart_f_cursed.webp"}, "casual": {"f": ["헌원검_game_keyart_f_casual1.webp"]}, "skin": {"f": {"judge": {"base": "헌원검_game_keyart_f_skin_judge.webp", "awaken": "헌원검_game_keyart_f_skin_judge_awaken.webp", "cursed": "헌원검_game_keyart_f_skin_judge_cursed.webp"}}}}}},
   "헤라클레스의 곤봉": {"byStyle": {"game_keyart": {"f": "헤라클레스의_곤봉_game_keyart_f.webp", "awaken": {"f": "헤라클레스의_곤봉_game_keyart_f_awaken.webp"}, "cursed": {"f": "헤라클레스의_곤봉_game_keyart_f_cursed.webp"}, "casual": {"f": ["헤라클레스의_곤봉_game_keyart_f_casual1.webp"]}}}},
   "헤파이스토스의 망치": {"byStyle": {"game_keyart": {"f": "헤파이스토스의_망치_game_keyart_f.webp", "awaken": {"f": "헤파이스토스의_망치_game_keyart_f_awaken.webp"}, "cursed": {"f": "헤파이스토스의_망치_game_keyart_f_cursed.webp"}, "casual": {"f": ["헤파이스토스의_망치_game_keyart_f_casual1.webp"]}}}},
+  "호루스의 작살": {"byStyle": {"game_keyart": {"f": "호루스의_작살_game_keyart_f.webp", "awaken": {"f": "호루스의_작살_game_keyart_f_awaken.webp"}, "cursed": {"f": "호루스의_작살_game_keyart_f_cursed.webp"}, "casual": {"f": ["호루스의_작살_game_keyart_f_casual1.webp"]}, "extra": {"f": ["호루스의_작살_game_keyart_f_extra1.webp"]}}}},
   "혼천의": {"byStyle": {"game_keyart": {"f": "혼천의_game_keyart_f.webp", "awaken": {"f": "혼천의_game_keyart_f_awaken.webp"}, "cursed": {"f": "혼천의_game_keyart_f_cursed.webp"}, "casual": {"f": ["혼천의_game_keyart_f_casual1.webp", "혼천의_game_keyart_f_casual2.webp"]}}}},
   "화첨창": {"byStyle": {"game_keyart": {"f": "화첨창_game_keyart_f.webp", "awaken": {"f": "화첨창_game_keyart_f_awaken.webp"}, "cursed": {"f": "화첨창_game_keyart_f_cursed.webp"}, "casual": {"f": ["화첨창_game_keyart_f_casual1.webp"]}}}},
   "환두대도": {"byStyle": {"game_keyart": {"f": "환두대도_game_keyart_f.webp", "awaken": {"f": "환두대도_game_keyart_f_awaken.webp"}, "cursed": {"f": "환두대도_game_keyart_f_cursed.webp"}, "casual": {"f": ["환두대도_game_keyart_f_casual1.webp"]}}}},
