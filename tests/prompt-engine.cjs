@@ -97,6 +97,14 @@ for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for 
   }
   assert(t.includes('BASE \u2014 Facial ethnicity: Sami.') && t.includes('HAIR \u2014 Hair color: crimson.') && t.includes('FACE \u2014 Expression: fierce.'), t);
   assert(!t.includes('Apparent age:') && !t.includes('BUILD \u2014') && !t.includes('SHOT \u2014'), '비운 것은 줄도 묶음도 없다');
+  /* RGB 로 고른 색 — 코드와 색 이름이 같이. 팔레트 색은 이름대로 읽힌다 */
+  {
+    const h = P.build({ ...st, params: { hairColor: '#3a7bd5', eyeColor: '#8E1B2B', eyeColor2: '#ffd700' } }, data);
+    assert(h.includes('Hair color: #3A7BD5 (medium azure blue).') && h.includes('Eye color: #8E1B2B (crimson).') && h.includes('#FFD700 (vivid medium golden yellow)'), h);
+    assert(!P.isHex('#12345') && !P.isHex('3a7bd5') && P.isHex('#AbCdEf'), 'hex 모양만');
+    const names = { white: 'white', silver: 'silver', crimson: 'crimson', brown: 'brown', black: 'black', teal: 'teal', lavender: 'lavender', pink: 'pink', green: 'green', gray: 'gray' };
+    for (const k in names) assert(P.hexName(S.COLOR_HEX[k]).endsWith(names[k]), k + ' → ' + P.hexName(S.COLOR_HEX[k]));
+  }
   /* 서른아홉 칸을 다 채워도 예산 안 */
   const all = {}; for (const p of S.PARAMS) { const o = p.options.find(x => x[0] && x[0] !== '__custom__'); if (o) all[p.key] = o[0]; }
   const full = P.build({ card: '묠니르', style: 'glossy_promo', output: 'portrait', params: all, scene: 'stormy cliff at dusk', action: 'overhead', extras: { embodiment: true, silhouette: true, myth: true } }, data);

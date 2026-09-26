@@ -47,10 +47,30 @@ html,body {margin:0;padding:0}
 .pm-check input {width:18px;height:18px;margin:2px 0 0;flex:none}
 .pm-check b {display:block;font-size:12px}
 .pm-check small {display:block;color:var(--muted);font-size:11px;line-height:1.5}
-/* 팔레트 — 색 동그라미. 자동은 빗금, 직접 입력은 무지개 */
-.pm-colors {display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:6px}
-.pm-color {display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0;min-height:70px;padding:6px 3px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--text);font:inherit;cursor:pointer}
-.pm-color i {display:block;flex:none;width:26px;height:26px;border-radius:50%;box-shadow:inset 0 0 0 1px #0004;background:var(--card2)}
+/* 색 — RGB 로 고른다. 색 상자(브라우저 색 선택) · HEX 칸 · R/G/B 막대와 숫자. 아래 동그라미는 빠른 시작점 */
+.pm-rgb {display:grid;gap:8px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--card2)}
+.pm-rgb-head {display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted)}
+.pm-rgb-head .pm-btn {min-height:36px;padding:5px 10px;font-size:11px}
+.pm-rgb-head .pm-btn[aria-pressed="true"] {border-color:var(--accent);color:var(--accent)}
+.pm-rgb-main {display:grid;grid-template-columns:56px minmax(0,1fr);gap:4px 10px;align-items:center}
+.pm-rgb-main input[type=color] {grid-row:span 2;width:56px;height:56px;padding:0;border:1px solid var(--line);border-radius:10px;background:none;cursor:pointer}
+.pm-rgb-main input[type=color]::-webkit-color-swatch-wrapper {padding:3px}
+.pm-rgb-main input[type=color]::-webkit-color-swatch {border:0;border-radius:7px}
+.pm-rgb[data-auto] .pm-rgb-main input[type=color] {opacity:.45}
+.pm-rgb-main label {display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted)}
+.pm-rgb-main label input {flex:1;min-width:0;font:13px ui-monospace,monospace;text-transform:uppercase}
+.pm-rgb-name {font-size:11px;color:var(--muted);overflow-wrap:anywhere}
+.pm-rgb-name b {color:var(--text);font-weight:600}
+.pm-rgb-bars {display:grid;gap:4px}
+.pm-rgb-bars label {display:grid;grid-template-columns:14px minmax(0,1fr) 58px;gap:8px;align-items:center;font:600 11px ui-monospace,monospace;color:var(--muted)}
+.pm-rgb-bars input[type=range] {width:100%;height:14px;margin:0;border-radius:7px;-webkit-appearance:none;appearance:none;background:var(--bar);box-shadow:inset 0 0 0 1px #0005}
+.pm-rgb-bars input[type=range]::-webkit-slider-thumb {-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#fff;border:2px solid #0008;box-shadow:0 1px 3px #0008}
+.pm-rgb-bars input[type=range]::-moz-range-thumb {width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid #0008}
+.pm-rgb-bars input[type=number] {width:100%;min-width:0;padding:4px 6px;font:12px ui-monospace,monospace}
+/* 빠른 시작 — 색 동그라미. 누르면 그 색 이름이 그대로 들어가고, 막대를 움직이면 RGB 로 바뀐다 */
+.pm-colors {display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:5px}
+.pm-color {display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;min-height:58px;padding:5px 3px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--text);font:inherit;cursor:pointer}
+.pm-color i {display:block;flex:none;width:22px;height:22px;border-radius:50%;box-shadow:inset 0 0 0 1px #0004;background:var(--card2)}
 .pm-color.auto i {background:repeating-linear-gradient(45deg,var(--card2) 0 4px,var(--line) 4px 8px)}
 .pm-color.custom i {background:conic-gradient(#e08aa8,#e3c574,#7fd8c0,#2f6fd0,#7e5aa8,#e08aa8)}
 .pm-color span {font-size:10px;line-height:13px;text-align:center;overflow-wrap:anywhere}
@@ -83,11 +103,11 @@ html,body {margin:0;padding:0}
 @media(min-width:1000px){.pm-grid {grid-template-columns:360px minmax(0,1fr);align-items:start}}
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
-<script src="lib/words.js?v=myth24"></script>
+<script src="lib/words.js?v=myth25"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth5"></script>
 <script src="lib/prompt-spec.js?v=6"></script>
-<script src="lib/prompt-myth.js?v=4"></script>
+<script src="lib/prompt-myth.js?v=5"></script>
 <script src="lib/prompt-random.js?v=1"></script>
 </head>
 <body class="prompt-page">
@@ -120,6 +140,38 @@ function Select({ id, label, value, options, onChange }) {
     <select id=${id} value=${value} onChange=${e => onChange(e.currentTarget.value)}>
       ${options.map(([v, name]) => html`<option key=${v} value=${v}>${name}</option>`)}
     </select></label>`;
+}
+
+/* 색 고르기 — 값은 팔레트 이름("crimson") 또는 RGB 코드("#8e1b2b"). 비면 자동 */
+const toHex = a => '#' + a.map(n => Math.max(0, Math.min(255, Math.round(+n || 0))).toString(16).padStart(2, '0')).join('');
+function ColorPick({ p, val, setP }) {
+  const hex = (P.isHex(val) ? val : S.COLOR_HEX[val] || '').toLowerCase();
+  const [draft, setDraft] = useState(hex);
+  useEffect(() => setDraft(hex), [hex]);
+  const rgb = hex ? [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)) : [128, 128, 128];
+  const autoLabel = W(p.key === 'eyeColor2' ? 'prompt.eye.same' : 'prompt.auto');
+  const presets = p.options.filter(([v]) => v && v !== '__custom__');
+  const named = presets.find(o => o[0] === val);
+  const bar = i => { const lo = rgb.slice(), hi = rgb.slice(); lo[i] = 0; hi[i] = 255; return '--bar:linear-gradient(90deg,' + toHex(lo) + ',' + toHex(hi) + ')'; };
+  const setCh = (i, n) => { const a = rgb.slice(); a[i] = n; setP(toHex(a)); };
+  const typed = t => { setDraft(t); const m = /^#?([0-9a-f]{6})$/i.exec(t.trim()); if (m) setP('#' + m[1].toLowerCase()); else if (!t.trim()) setP(''); };
+  return html`<div class="pm-rgb" data-color-picker=${p.key} data-auto=${!hex || undefined}>
+    <div class="pm-rgb-head"><span>${W('prompt.color.rgb', { label: p.ko })}</span>
+      <button type="button" class="pm-btn quiet" data-value="" aria-pressed=${!val} onClick=${() => setP('')}>${autoLabel}</button></div>
+    <div class="pm-rgb-main">
+      <input type="color" id=${'pm-' + p.key + '-wheel'} aria-label=${W('prompt.color.wheel', { label: p.ko })} value=${hex || '#808080'} onInput=${e => setP(e.currentTarget.value)} />
+      <label for=${'pm-' + p.key}>HEX<input id=${'pm-' + p.key} type="text" maxlength="7" spellcheck="false" autocomplete="off" placeholder=${autoLabel} value=${draft} onInput=${e => typed(e.currentTarget.value)} /></label>
+      <span class="pm-rgb-name">${!val ? autoLabel : val === '__custom__' ? W('prompt.custom') : named ? html`<b>${named[1].split(' — ').pop()}</b> · ${W('prompt.color.says')} ${val}` : html`${W('prompt.color.says')} <b>${P.paramValue(p, { [p.key]: val }, {})}</b>`}</span>
+    </div>
+    <div class="pm-rgb-bars">${['R', 'G', 'B'].map((c, i) => html`<label key=${c} style=${bar(i)}>${c}
+      <input type="range" min="0" max="255" id=${'pm-' + p.key + '-' + c.toLowerCase()} aria-label=${p.ko + ' ' + c} value=${rgb[i]} onInput=${e => setCh(i, +e.currentTarget.value)} />
+      <input type="number" min="0" max="255" aria-label=${p.ko + ' ' + c + ' 0–255'} value=${hex ? rgb[i] : ''} placeholder="—"
+        onChange=${e => { const n = e.currentTarget.value; if (n !== '') setCh(i, +n); }} /></label>`)}</div>
+    <div class="pm-colors" role="group" aria-label=${W('prompt.color.pick', { label: p.ko })}>
+      ${presets.map(([v, t]) => html`<button key=${v} type="button" data-value=${v} aria-pressed=${val === v} title=${t} class="pm-color" onClick=${() => setP(v)}>
+        <i aria-hidden="true" style=${S.COLOR_HEX[v] ? 'background:' + S.COLOR_HEX[v] : ''}></i><span>${t.split(' — ').pop()}</span></button>`)}
+    </div>
+  </div>`;
 }
 
 /* 일상컷 장면 — 갈래·예시·자세·방향·표정·의상·장소·강도 축. 칸마다 랜덤과 잠금 */
@@ -248,13 +300,7 @@ function App() {
               const setP = v => update({ params: { ...st.params, [p.key]: v } }), val = st.params[p.key] || '';
               const visual = S.FIGURE_VALUES[p.key], color = S.COLOR_KEYS[p.key];
               return html`<div key=${p.key} class=${'pm-param' + (visual || color ? ' wide' : '')}>
-                <${Select} id=${'pm-' + p.key} label=${p.ko} value=${val} options=${p.options} onChange=${setP} />
-                ${color && html`<div class="pm-colors" role="group" data-color-picker=${p.key} aria-label=${W('prompt.color.pick', { label: p.ko })}>
-                  ${p.options.map(([v, t]) => html`<button key=${v} type="button" data-value=${v} aria-pressed=${val === v} title=${t}
-                    class=${'pm-color' + (!v ? ' auto' : v === '__custom__' ? ' custom' : '')} onClick=${() => setP(v)}>
-                    <i aria-hidden="true" style=${S.COLOR_HEX[v] ? 'background:' + S.COLOR_HEX[v] : ''}></i>
-                    <span>${!v ? W(p.key === 'eyeColor2' ? 'prompt.eye.same' : 'prompt.auto') : v === '__custom__' ? W('prompt.custom') : t.split(' — ').pop()}</span></button>`)}
-                </div>`}
+                ${color ? html`<${ColorPick} p=${p} val=${val} setP=${setP} />` : html`<${Select} id=${'pm-' + p.key} label=${p.ko} value=${val} options=${p.options} onChange=${setP} />`}
                 ${visual && html`<div class="pm-figures" data-figure-picker=${p.key}>
                   <div class="pm-figures-head"><span>${W('prompt.figure.pick', { label: p.ko })}</span>
                     <button type="button" class="pm-btn quiet" data-value="" aria-pressed=${!val} onClick=${() => setP('')}>${W('prompt.auto')}</button></div>

@@ -8,6 +8,12 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-09-27 · claude · 프롬프트 생성기 눈색·머리색을 RGB 로 고른다
+- prompt.html — 눈동자(오른쪽·오드아이)·머리색 칸을 RGB 고르개로: 색 상자, HEX 칸, R/G/B 막대와 0–255 숫자. 옛 동그라미는 아래 "빠른 선택"으로 남아 누르면 그 이름이 들어간다. 드롭다운은 뺐다
+- lib/prompt-myth.js — 값이 `#rrggbb` 면 프롬프트에 코드와 영어 색 이름을 같이 넣는다(`#3A7BD5 (medium azure blue)`). 이름은 색상·명도·채도에서 만든다
+- lib/words.js — 고르개 문구. 캐시 번호 올림
+- tests/prompt-engine.cjs · tests/prompt-screen.cjs — hex 문장, 색 이름, HEX↔막대↔색 상자 연동, 빠른 선택
+
 ## 2026-09-27 · claude · 열셋째 신전 청금석 성문(서아시아 · 황혼), 가운데 뒤에 지구라트
 - lib/workspace.css — 황혼 팔레트(청금석 남색, 금 강조, 푸른 신호), 별 뿌린 하늘, 천천히 가라앉는 금가루, 기둥 그림 `hall_lapis_col`(457×1497)과 금 부조 마스크. 어두운 신전·기둥 목록에 더함
 - index.html · lib/workspace.css — 새 층 `.hall-back`: 기둥 뒤·카드 뒤 가운데에 서는 큰 건물 하나. 평소엔 숨고 lapis 에서만 지구라트 그림 `hall_lapis_back`(1412×931)이 선다. 각성엔 부조가 금으로 차오르고 저주엔 핏빛으로 깜박인다

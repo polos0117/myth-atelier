@@ -47,10 +47,19 @@ const S = ctx.window.AtelierSpec;
     assert.equal(await p.locator('.pm-group').count(), S.PARAM_GROUPS.length, '외형 묶음 다섯');
     assert.equal(await p.locator('#pm-hairColor').isVisible(), false, '머리 묶음은 접혀 있다');
     await p.locator('.pm-group[data-group="hair"] summary').click();
-    /* 팔레트 — 동그라미를 누르면 select 도 따라온다 */
-    assert.equal(await p.locator('[data-color-picker="hairColor"] .pm-color').count(), S.PARAMS.find(x => x.key === 'hairColor').options.length, '머리색 팔레트');
+    /* 색 — RGB. HEX 를 치면 막대가 따라오고, 프롬프트엔 코드와 색 이름이 들어간다 */
+    await p.fill('#pm-hairColor', '#3a7bd5');
+    await p.waitForFunction(() => document.querySelector('#prompt-output').value.includes('Hair color: #3A7BD5 ('));
+    assert.equal(await p.locator('#pm-hairColor-r').inputValue(), String(0x3a), 'R 막대');
+    assert.equal(await p.locator('#pm-hairColor-b').inputValue(), String(0xd5), 'B 막대');
+    await p.locator('#pm-hairColor-g').fill('0');
+    await p.waitForFunction(() => document.querySelector('#pm-hairColor').value === '#3a00d5');
+    assert.equal(await p.locator('#pm-hairColor-wheel').inputValue(), '#3a00d5', '색 상자도 따라온다');
+    /* 빠른 선택 — 동그라미를 누르면 이름이 그대로, HEX 칸엔 그 색 코드 */
+    assert.equal(await p.locator('[data-color-picker="hairColor"] .pm-color').count(), S.PARAMS.find(x => x.key === 'hairColor').options.filter(o => o[0] && o[0] !== '__custom__').length, '머리색 빠른 선택');
     await p.locator('[data-color-picker="hairColor"] .pm-color[data-value="crimson"]').click();
-    await p.waitForFunction(() => document.querySelector('#pm-hairColor').value === 'crimson');
+    await p.waitForFunction(h => document.querySelector('#pm-hairColor').value === h, S.COLOR_HEX.crimson.toLowerCase());
+    await p.waitForFunction(() => document.querySelector('#prompt-output').value.includes('Hair color: crimson.'));
     assert.equal(await p.locator('[data-color-picker="hairColor"] .pm-color[aria-pressed="true"]').getAttribute('data-value'), 'crimson');
     /* 견본 그림 — 헤어스타일 */
     assert.equal(await p.locator('[data-figure-picker="hairStyle"] .pm-figure').count(), S.FIGURE_VALUES.hairStyle.length, '헤어 견본');
@@ -133,7 +142,7 @@ const S = ctx.window.AtelierSpec;
     await p.selectOption('#pm-output', 'portrait');
     await p.waitForSelector('.pm-group[data-group="hair"] summary');
     await p.locator('.pm-group[data-group="hair"] summary').click();
-    assert.equal(await p.locator('#pm-hairColor').inputValue(), 'crimson', '무기마다 설정이 남는다');
+    assert.equal(await p.locator('[data-color-picker="hairColor"] .pm-color[aria-pressed="true"]').getAttribute('data-value'), 'crimson', '무기마다 설정이 남는다');
     await p.locator('#pm-reset').click();
     await p.waitForFunction(d => document.querySelector('#pm-file').innerText === '묠니르_' + d + '_f.webp', S.DEFAULT_STYLE);
 
