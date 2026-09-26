@@ -1,7 +1,7 @@
 {
  "version": 1,
  "note": "tools/register-images.py 가 그림 저장소(myth-atelier-img/img)를 읽어 채운다. 손으로 고치지 않는다.",
- "count": 105,
+ "count": 106,
  "img": {
   "가다": {"byStyle": {"game_keyart": {"f": "가다_game_keyart_f.webp", "awaken": {"f": "가다_game_keyart_f_awaken.webp"}, "cursed": {"f": "가다_game_keyart_f_cursed.webp"}, "casual": {"f": ["가다_game_keyart_f_casual1.webp"]}}}},
   "간디바": {"byStyle": {"game_keyart": {"f": "간디바_game_keyart_f.webp", "awaken": {"f": "간디바_game_keyart_f_awaken.webp"}, "cursed": {"f": "간디바_game_keyart_f_cursed.webp"}, "casual": {"f": ["간디바_game_keyart_f_casual1.webp"]}}}},
@@ -23,6 +23,7 @@
   "도깨비 방망이": {"byStyle": {"game_keyart": {"f": "도깨비_방망이_game_keyart_f.webp", "awaken": {"f": "도깨비_방망이_game_keyart_f_awaken.webp"}, "cursed": {"f": "도깨비_방망이_game_keyart_f_cursed.webp"}, "casual": {"f": ["도깨비_방망이_game_keyart_f_casual1.webp"]}, "extra": {"f": ["도깨비_방망이_game_keyart_f_extra1.webp"]}}}},
   "동자절 야스츠나": {"byStyle": {"game_keyart": {"f": "동자절_야스츠나_game_keyart_f.webp", "awaken": {"f": "동자절_야스츠나_game_keyart_f_awaken.webp"}, "cursed": {"f": "동자절_야스츠나_game_keyart_f_cursed.webp"}, "casual": {"f": ["동자절_야스츠나_game_keyart_f_casual1.webp", "동자절_야스츠나_game_keyart_f_casual2.webp"]}}}},
   "드라우프니르": {"byStyle": {"game_keyart": {"f": "드라우프니르_game_keyart_f.webp", "awaken": {"f": "드라우프니르_game_keyart_f_awaken.webp"}, "cursed": {"f": "드라우프니르_game_keyart_f_cursed.webp"}, "casual": {"f": ["드라우프니르_game_keyart_f_casual1.webp"]}}}},
+  "라의 칼": {"byStyle": {"game_keyart": {"f": "라의_칼_game_keyart_f.webp", "awaken": {"f": "라의_칼_game_keyart_f_awaken.webp"}, "cursed": {"f": "라의_칼_game_keyart_f_cursed.webp"}, "casual": {"f": ["라의_칼_game_keyart_f_casual1.webp", "라의_칼_game_keyart_f_casual2.webp"]}, "extra": {"f": ["라의_칼_game_keyart_f_extra1.webp"]}}}},
   "레바테인": {"byStyle": {"game_keyart": {"f": "레바테인_game_keyart_f.webp", "awaken": {"f": "레바테인_game_keyart_f_awaken.webp"}, "cursed": {"f": "레바테인_game_keyart_f_cursed.webp"}, "casual": {"f": ["레바테인_game_keyart_f_casual1.webp"]}}}},
   "론고미니아드": {"byStyle": {"game_keyart": {"f": "론고미니아드_game_keyart_f.webp", "awaken": {"f": "론고미니아드_game_keyart_f_awaken.webp"}, "cursed": {"f": "론고미니아드_game_keyart_f_cursed.webp"}, "casual": {"f": ["론고미니아드_game_keyart_f_casual1.webp"]}}}},
   "리아 팔": {"byStyle": {"game_keyart": {"f": "리아_팔_game_keyart_f.webp", "awaken": {"f": "리아_팔_game_keyart_f_awaken.webp"}, "cursed": {"f": "리아_팔_game_keyart_f_cursed.webp"}, "casual": {"f": ["리아_팔_game_keyart_f_casual1.webp"]}, "extra": {"f": ["리아_팔_game_keyart_f_extra1.webp"]}}}},
