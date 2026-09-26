@@ -8,6 +8,14 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-09-27 · claude · 열셋째 신전 청금석 성문(서아시아 · 황혼), 가운데 뒤에 지구라트
+- lib/workspace.css — 황혼 팔레트(청금석 남색, 금 강조, 푸른 신호), 별 뿌린 하늘, 천천히 가라앉는 금가루, 기둥 그림 `hall_lapis_col`(457×1497)과 금 부조 마스크. 어두운 신전·기둥 목록에 더함
+- index.html · lib/workspace.css — 새 층 `.hall-back`: 기둥 뒤·카드 뒤 가운데에 서는 큰 건물 하나. 평소엔 숨고 lapis 에서만 지구라트 그림 `hall_lapis_back`(1412×931)이 선다. 각성엔 부조가 금으로 차오르고 저주엔 핏빛으로 깜박인다
+- 그림 저장소 img/ui — 사용자가 뽑은 이슈타르 문 기둥과 지구라트, 자홍 바탕을 땄다. 마스크는 청금석 띠 안에 든 금(사자·황소·로제트)만
+- lib/workspace-theme.js · lib/workspace-ui.js · lib/words.js — 테마 열쇠 `lapis`, 문장(계단 탑·별), 이름표. data/group.json 신전 lapis → 서아시아
+- tests/workspace-theme.cjs — 테마 열셋. 캐시 번호 올림
+- docs/GAME_CONCEPT.md — 서아시아 신전 기록
+
 ## 2026-09-27 · claude · 아홉째 신화권 서아시아(메소포타미아·레반트·페르시아), 무기 열다섯
 - data/card.json · data/skill.json — 서아시아 열다섯, 종류마다 셋, 금액대마다 셋. 새 기술 열다섯(효과는 있는 것만)
 - data/synergy.json · lib/auto.js — 눈에는 눈(`thorns`): 맞은 피해의 15% / 30% 를 때린 쪽에 되돌린다. 되돌림은 다시 안 돌아온다. 기록에 `thorns`

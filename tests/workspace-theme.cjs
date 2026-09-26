@@ -11,7 +11,7 @@ vm.runInNewContext(source,{window,document:{documentElement:root,querySelector:(
 while(frames.length)frames.shift()();
 assert.equal(root.dataset.theme,'pantheon','new visitors start in the pantheon');
 assert.equal(properties.get('--atelier-vh'),'704px');
-const themes=['midnight','daylight','blossom','moss','plum','sand','deep','ember','stone','dancheong','nile','pantheon'];
+const themes=['midnight','daylight','blossom','moss','plum','sand','deep','ember','stone','dancheong','nile','lapis','pantheon'];
 assert.deepEqual(Array.from(window.AtelierAppearance.themes),themes,'saved theme keys stay stable');
 for(const key of themes){
  window.AtelierAppearance.set('theme',key);
