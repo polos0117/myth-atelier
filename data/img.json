@@ -1,7 +1,7 @@
 {
  "version": 1,
  "note": "tools/register-images.py 가 그림 저장소(myth-atelier-img/img)를 읽어 채운다. 손으로 고치지 않는다.",
- "count": 112,
+ "count": 113,
  "img": {
   "가다": {"byStyle": {"game_keyart": {"f": "가다_game_keyart_f.webp", "awaken": {"f": "가다_game_keyart_f_awaken.webp"}, "cursed": {"f": "가다_game_keyart_f_cursed.webp"}, "casual": {"f": ["가다_game_keyart_f_casual1.webp"]}}}},
   "간디바": {"byStyle": {"game_keyart": {"f": "간디바_game_keyart_f.webp", "awaken": {"f": "간디바_game_keyart_f_awaken.webp"}, "cursed": {"f": "간디바_game_keyart_f_cursed.webp"}, "casual": {"f": ["간디바_game_keyart_f_casual1.webp"]}}}},
@@ -41,6 +41,7 @@
   "비격진천뢰": {"byStyle": {"game_keyart": {"f": "비격진천뢰_game_keyart_f.webp", "awaken": {"f": "비격진천뢰_game_keyart_f_awaken.webp"}, "cursed": {"f": "비격진천뢰_game_keyart_f_cursed.webp"}, "casual": {"f": ["비격진천뢰_game_keyart_f_casual1.webp"]}, "extra": {"f": ["비격진천뢰_game_keyart_f_extra1.webp", "비격진천뢰_game_keyart_f_extra2.webp"]}}}},
   "비자야": {"byStyle": {"game_keyart": {"f": "비자야_game_keyart_f.webp", "awaken": {"f": "비자야_game_keyart_f_awaken.webp"}, "cursed": {"f": "비자야_game_keyart_f_cursed.webp"}, "casual": {"f": ["비자야_game_keyart_f_casual1.webp"]}}}},
   "사인검": {"byStyle": {"game_keyart": {"f": "사인검_game_keyart_f.webp", "awaken": {"f": "사인검_game_keyart_f_awaken.webp"}, "cursed": {"f": "사인검_game_keyart_f_cursed.webp"}, "casual": {"f": ["사인검_game_keyart_f_casual1.webp", "사인검_game_keyart_f_casual2.webp"]}}}},
+  "세크메트의 화살": {"byStyle": {"game_keyart": {"f": "세크메트의_화살_game_keyart_f.webp", "awaken": {"f": "세크메트의_화살_game_keyart_f_awaken.webp"}, "cursed": {"f": "세크메트의_화살_game_keyart_f_cursed.webp"}, "casual": {"f": ["세크메트의_화살_game_keyart_f_casual1.webp", "세크메트의_화살_game_keyart_f_casual2.webp"]}}}},
   "세트의 창": {"byStyle": {"game_keyart": {"f": "세트의_창_game_keyart_f.webp", "awaken": {"f": "세트의_창_game_keyart_f_awaken.webp"}, "cursed": {"f": "세트의_창_game_keyart_f_cursed.webp"}, "casual": {"f": ["세트의_창_game_keyart_f_casual1.webp", "세트의_창_game_keyart_f_casual2.webp"]}, "extra": {"f": ["세트의_창_game_keyart_f_extra1.webp"]}}}},
   "수다르샤나": {"byStyle": {"game_keyart": {"f": "수다르샤나_game_keyart_f.webp", "awaken": {"f": "수다르샤나_game_keyart_f_awaken.webp"}, "cursed": {"f": "수다르샤나_game_keyart_f_cursed.webp"}, "casual": {"f": ["수다르샤나_game_keyart_f_casual1.webp"]}}}},
   "수켈루스의 망치": {"byStyle": {"game_keyart": {"f": "수켈루스의_망치_game_keyart_f.webp", "awaken": {"f": "수켈루스의_망치_game_keyart_f_awaken.webp"}, "cursed": {"f": "수켈루스의_망치_game_keyart_f_cursed.webp"}, "casual": {"f": ["수켈루스의_망치_game_keyart_f_casual1.webp"]}}}},
