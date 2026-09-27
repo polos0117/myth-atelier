@@ -92,6 +92,35 @@ body {color:var(--text);font-size:15px}
 .at-end {padding:24px 14px;text-align:center;border:1px solid var(--line);border-radius:12px;background:var(--card);margin-top:12px}
 .at-end h3 {margin:0 0 8px;font-size:22px}
 .empty {padding:36px 0;text-align:center;color:var(--muted);font-size:13px}
+/* 다시 보기 — 판 위에서 싸움이 돈다. 맞으면 붉게 번쩍이고 숫자가 떠오르고, 친 쪽은 앞으로 한 걸음, 기술은 이름이 뜬다 */
+.at-play {display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0 4px;padding:10px 12px;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;background:var(--card)}
+.at-play b {font-size:14px}
+.at-play .clock {font:700 12px ui-monospace,monospace;color:var(--muted)}
+.at-play .bar {flex:1 1 120px;height:4px;border-radius:99px;background:var(--accent-soft);overflow:hidden;min-width:80px}
+.at-play .bar u {display:block;height:100%;background:var(--accent);text-decoration:none}
+.at-play .at-btn[aria-pressed="true"] {border-color:var(--accent);color:var(--accent)}
+.at-cell {transition:transform .16s ease-out}
+.at-board[data-side="me"] .at-cell.fx-act {transform:translateY(-7px) scale(1.03)}
+.at-board[data-side="them"] .at-cell.fx-act {transform:translateY(7px) scale(1.03)}
+.at-cell .flash {position:absolute;inset:0;background:radial-gradient(circle at 50% 45%,#ff4d4d88,transparent 70%);animation:at-flash .38s ease-out forwards;pointer-events:none}
+.at-cell .flash.crit {background:radial-gradient(circle at 50% 45%,#ffd24dcc,#ff4d4d55 45%,transparent 75%)}
+.at-cell.fx-hurt {animation:at-shake .22s linear}
+@keyframes at-flash {from {opacity:1} to {opacity:0}}
+@keyframes at-shake {0%,100% {translate:0} 25% {translate:-3px 0} 75% {translate:3px 0}}
+.at-pop {position:absolute;left:calc(50% + var(--dx,0px));top:calc(22% + var(--dy,0px));z-index:2;font:800 15px ui-monospace,monospace;color:#ff6b6b;text-shadow:0 1px 3px #000,0 0 6px #000;pointer-events:none;animation:at-pop .75s ease-out forwards;white-space:nowrap}
+.at-pop.crit {color:#ffd24d;font-size:18px}
+.at-pop.tick {color:#e08aa8;font-size:12px}
+.at-pop.heal {color:var(--ok)}
+.at-pop.shield {color:#8fc7ff}
+@keyframes at-pop {from {opacity:1;transform:translate(-50%,0)} to {opacity:0;transform:translate(-50%,-26px)}}
+.at-cast {position:absolute;left:4px;right:4px;top:4px;z-index:2;padding:2px 4px;border-radius:6px;background:#000a;color:var(--gold);font-size:10px;line-height:1.3;overflow-wrap:anywhere;animation:at-flash 1s ease-in forwards;pointer-events:none}
+.at-cell.fx-cast {box-shadow:0 0 0 2px var(--gold),0 0 18px #f3dc9a88}
+.at-cell.fx-curse {box-shadow:0 0 0 2px #ff2d55,0 0 22px #c0143c}
+.at-cell.fx-revive {box-shadow:0 0 0 2px #fff3c0,0 0 22px #f3dc9a}
+.at-cell.stunned::after {content:'✶';position:absolute;top:4px;left:6px;color:#ffd24d;font-size:13px;animation:at-flash .9s ease-in-out infinite alternate}
+.at-cell .hpbar i {position:absolute;right:0;top:0;height:100%;background:#8fc7ffcc}
+.at-cell.dead {transition:opacity .4s}
+@media (prefers-reduced-motion:reduce) {.at-cell,.at-cell.fx-hurt,.at-pop,.at-cast,.at-cell .flash {animation:none;transition:none}}
 @media(max-width:599px){
   .at-bench {grid-template-columns:repeat(3,minmax(0,1fr))}
   .at-shop {grid-template-columns:repeat(3,minmax(0,1fr))}
@@ -100,10 +129,10 @@ body {color:var(--text);font-size:15px}
 }
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
-<script src="lib/words.js?v=myth27"></script>
+<script src="lib/words.js?v=myth28"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth5"></script>
-<script src="lib/auto.js?v=7"></script>
+<script src="lib/auto.js?v=8"></script>
 </head>
 <body class="dex-page auto-page">
 <div id="app"></div>
@@ -146,22 +175,32 @@ function Art({ img, name, star, cursed }) {
 }
 function Stars({ n }) { return html`<span class="st">${W('auto.star').repeat(n)}</span>`; }
 
-function Cell({ unit, index, zone, color, img, picked, target, onClick, side, hp }) {
+function Cell({ unit, index, zone, color, img, picked, target, onClick, side, hp, skills }) {
   if (!unit) return html`<button class=${'at-cell empty' + (target ? ' target' : '')} data-index=${index} data-zone=${zone}
     onClick=${onClick} disabled=${!onClick}>${W('auto.empty')}</button>`;
-  const dead = hp && !hp.alive;
-  return html`<button class=${'at-cell' + (picked ? ' on' : '') + (side ? ' ' + side : '') + (dead ? ' dead' : '') + (hp && hp.cursed ? ' cursed' : '')}
+  const dead = hp && !hp.alive, fx = (hp && hp.fx) || [];
+  /* 번쩍임·한 걸음은 짧게(q), 떠오르는 숫자·기술 이름은 길게 */
+  const q = (hp && hp.q) || 1, has = k => fx.some(f => f.k === k && f.age <= q), last = k => fx.filter(f => k.includes(f.k) && f.age <= q).pop();
+  const hit = last(['hurt', 'crit']), cast = fx.filter(f => f.k === 'cast').pop();
+  const cls = 'at-cell' + (picked ? ' on' : '') + (side ? ' ' + side : '') + (dead ? ' dead' : '') + (hp && hp.cursed ? ' cursed' : '')
+    + (hp && hp.stunned ? ' stunned' : '') + (has('act') ? ' fx-act' : '') + (hit ? ' fx-hurt' : '') + (cast ? ' fx-cast' : '')
+    + (has('curse') ? ' fx-curse' : '') + (has('revive') ? ' fx-revive' : '');
+  const pct = hp ? Math.round(hp.hp / hp.maxHp * 100) : 0, sh = hp && hp.shield ? Math.min(100, Math.round(hp.shield / hp.maxHp * 100)) : 0;
+  return html`<button class=${cls}
     data-index=${index} data-zone=${zone} data-name=${unit.name} data-star=${unit.star} data-cursed=${hp && hp.cursed ? '1' : undefined}
-    style=${'--cc:' + (color || 'var(--line)')} onClick=${onClick} disabled=${!onClick}>
+    data-hp=${hp ? hp.hp : undefined} style=${'--cc:' + (color || 'var(--line)')} onClick=${onClick} disabled=${!onClick}>
     <${Art} img=${img} name=${unit.name} star=${unit.star} cursed=${hp && hp.cursed} />
+    ${hit && html`<i class=${'flash' + (hit.k === 'crit' ? ' crit' : '')} key=${'f' + hit.i}></i>`}
+    ${cast && html`<span class="at-cast" key=${'c' + cast.i}>${(skills && skills[cast.skill] && skills[cast.skill].name) || ''}</span>`}
+    ${fx.filter(f => f.n).map(f => html`<span class=${'at-pop ' + f.k} key=${'n' + f.i} style=${'--dx:' + ((f.i % 3) - 1) * 22 + 'px;--dy:' + ((f.i >> 1) % 2) * 12 + 'px'}>${f.n > 0 ? '+' + f.n : f.n}</span>`)}
     <span class="nm">${unit.name}</span>
     <${Stars} n=${unit.star} />
-    ${hp && html`<span class="hpbar"><u style=${'width:' + Math.round(hp.hp / hp.maxHp * 100) + '%'}></u></span>`}
+    ${hp && html`<span class="hpbar"><u style=${'width:' + pct + '%'}></u>${sh ? html`<i style=${'width:' + sh + '%'}></i>` : ''}</span>`}
   </button>`;
 }
 
 /* 판 그리기. side=them 이면 뒷줄이 위로 가서 두 판이 마주 본다 */
-function Board({ cells, side, color, img, picked, targets, onCell, hpOf }) {
+function Board({ cells, side, color, img, picked, targets, onCell, hpOf, skills }) {
   const rows = side === 'them' ? [1, 0] : [0, 1];
   return html`<div class="at-board" data-side=${side}>
     ${rows.map(r => html`<div class="at-row" key=${r}>
@@ -170,7 +209,7 @@ function Board({ cells, side, color, img, picked, targets, onCell, hpOf }) {
         const i = r * A.COLS + c, u = cells[i];
         return html`<${Cell} key=${i} unit=${u} index=${i} zone="board" side=${side} img=${img}
           color=${u && color(u)} picked=${picked && u && u.id === picked} target=${targets && !u}
-          hp=${u && hpOf && hpOf(u)} onClick=${onCell && (() => onCell(i, u))} />`;
+          hp=${u && hpOf && hpOf(u)} skills=${skills} onClick=${onCell && (() => onCell(i, u))} />`;
       })}</div>
     </div>`)}
   </div>`;
@@ -282,6 +321,14 @@ function boardCells(list) {
   return cells;
 }
 
+/* 다시 보기 속도 — 싸움 시간 1 이 화면의 0.8초. 2배속은 이 브라우저에 남는다 */
+const PLAY_SEC = 0.8, SPEED_STORE = 'myth_auto_speed', SEEN_STORE = 'myth_auto_seen';
+const readSpeed = () => { try { return localStorage.getItem(SPEED_STORE) === '2' ? 2 : 1; } catch { return 1; } };
+const seenKey = st => st.seed + ':' + st.result.round + ':' + st.history.length;
+const wasSeen = st => { try { return sessionStorage.getItem(SEEN_STORE) === seenKey(st); } catch { return false; } };
+const markSeen = st => { try { sessionStorage.setItem(SEEN_STORE, seenKey(st)); } catch {} };
+const calm = () => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { return false; } };
+
 function Result({ st, data, group, img, act }) {
   const r = st.result, color = u => group.myth.color[A.cardOf(data, u.name).myth];
   const name = id => { const e = r.ents.find(x => x.id === id); return e ? e.name : ''; };
@@ -289,28 +336,56 @@ function Result({ st, data, group, img, act }) {
   const line = e => W('auto.log.' + e.k, { a: name(e.a), b: name(e.b), d: e.d, hp: e.hp, me: e.me, them: e.them,
     skill: e.skill && data.skills[e.skill] ? data.skills[e.skill].name : e.skill });
   const done = st.phase === 'won' || st.phase === 'lost';
+  const end = r.beats || 0;
+  /* 새 싸움이면 처음부터 돈다. 새로고침으로 다시 온 것이거나 움직임을 줄이는 설정이면 끝난 판을 바로 보인다 */
+  const [t, setT] = useState(() => (wasSeen(st) || calm() || !r.log) ? end : -0.4);
+  const [speed, setSpeed] = useState(readSpeed);
+  const playing = t < end;
+  useEffect(() => {
+    if (!playing) { markSeen(st); return; }
+    let raf, last = performance.now();
+    const step = now => { const dt = Math.min(0.1, (now - last) / 1000); last = now;
+      setT(x => Math.min(end, x + dt / PLAY_SEC * speed)); raf = requestAnimationFrame(step); };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [playing, speed]);
+  const now = A.replayAt(r, Math.max(0, t), playing ? 0.8 * speed / PLAY_SEC : -1);
+  for (const e of Object.values(now)) e.q = 0.3 * speed / PLAY_SEC;
+  const at = (sd, row, col) => Object.values(now).find(e => e.side === sd && e.row === row && e.col === col);
+  const hpThem = u => at('them', +u.id[1], +u.id[2]);
+  const hpMe = u => { const i = st.board.indexOf(u); return at('me', Math.floor(i / A.COLS), i % A.COLS); };
+  const toggleSpeed = () => { const v = speed === 2 ? 1 : 2; setSpeed(v); try { localStorage.setItem(SPEED_STORE, String(v)); } catch {} };
+  const alive = sd => Object.values(now).filter(e => e.side === sd && e.alive).length;
   return html`
     <div class="at-strip">
       <span class="at-round">${W('auto.round', { n: r.round })}<b>${W('auto.round.of', { n: r.round, total: A.ROUNDS })}</b></span>
       <span class="at-hp">${W('auto.hp')}<b>${st.hp}</b></span>
       <span class="at-gold">${W('auto.gold')}<b>${st.gold}</b></span>
     </div>
-    <div class="at-result" data-winner=${r.winner} style=${'--cc:' + (r.winner === 'me' ? 'var(--ok)' : r.winner === 'them' ? 'var(--signal)' : 'var(--line)')}>
-      <h3>${r.winner === 'me' ? W('auto.result.me') : r.winner === 'them' ? W('auto.result.them', { n: r.lost }) : W('auto.result.draw')}</h3>
-      <p>${W('auto.result.beats', { n: r.beats })} · ${W('auto.result.left', r.left)}</p>
-    </div>
-    ${done ? html`<div class="at-end">
-        <h3>${st.phase === 'won' ? W('auto.won') : W('auto.lost', { n: r.round })}</h3>
-        <button class="at-btn primary" id="at-new" onClick=${() => act('new')}>${W('auto.new')}</button>
-      </div>` : html`<p class="sec" style="margin-top:14px"><button class="at-btn primary" id="at-next" style="flex:1" onClick=${() => act('next')}>${W('auto.next')}</button></p>`}
+    ${playing ? html`<div class="at-play" role="status">
+        <b>${W('auto.play')}</b>
+        <span class="clock">${W('auto.play.left', { me: alive('me'), them: alive('them') })}</span>
+        <span class="bar"><u style=${'width:' + Math.round(Math.max(0, t) / (end || 1) * 100) + '%'}></u></span>
+        <button class="at-btn" id="at-speed" aria-pressed=${speed === 2} onClick=${toggleSpeed}>${W('auto.play.fast')}</button>
+        <button class="at-btn" id="at-skip" onClick=${() => setT(end)}>${W('auto.play.skip')}</button>
+      </div>` : html`
+      <div class="at-result" data-winner=${r.winner} style=${'--cc:' + (r.winner === 'me' ? 'var(--ok)' : r.winner === 'them' ? 'var(--signal)' : 'var(--line)')}>
+        <h3>${r.winner === 'me' ? W('auto.result.me') : r.winner === 'them' ? W('auto.result.them', { n: r.lost }) : W('auto.result.draw')}</h3>
+        <p>${W('auto.result.beats', { n: r.beats })} · ${W('auto.result.left', r.left)}
+          ${r.log && html` · <button class="at-btn" id="at-replay" style="min-height:32px;padding:4px 10px" onClick=${() => setT(-0.4)}>${W('auto.play.again')}</button>`}</p>
+      </div>
+      ${done ? html`<div class="at-end">
+          <h3>${st.phase === 'won' ? W('auto.won') : W('auto.lost', { n: r.round })}</h3>
+          <button class="at-btn primary" id="at-new" onClick=${() => act('new')}>${W('auto.new')}</button>
+        </div>` : html`<p class="sec" style="margin-top:14px"><button class="at-btn primary" id="at-next" style="flex:1" onClick=${() => act('next')}>${W('auto.next')}</button></p>`}`}
 
     <p class="sec">${W('auto.enemy')}</p>
-    <${Board} cells=${boardCells(st.enemy.units)} side="them" color=${color} img=${img} hpOf=${u => r.ents.find(e => e.side === 'them' && e.name === u.name && 't' + e.row + e.col === u.id)} />
+    <${Board} cells=${boardCells(st.enemy.units)} side="them" color=${color} img=${img} hpOf=${hpThem} skills=${data.skills} />
     <p class="sec">${W('auto.board')}</p>
-    <${Board} cells=${st.board} side="me" color=${color} img=${img} hpOf=${u => { const i = st.board.indexOf(u); return r.ents.find(e => e.side === 'me' && e.row * A.COLS + e.col === i); }} />
+    <${Board} cells=${st.board} side="me" color=${color} img=${img} hpOf=${hpMe} skills=${data.skills} />
 
-    <p class="sec">${W('auto.log')}<span>${r.log.length}</span></p>
-    <ul class="at-log">${r.log.map((e, i) => html`<li key=${i} class=${side(e.a || e.b)}><b>${e.t}</b> ${line(e)}</li>`)}</ul>`;
+    ${!playing && html`<p class="sec">${W('auto.log')}<span>${r.log.length}</span></p>
+    <ul class="at-log">${r.log.map((e, i) => html`<li key=${i} class=${side(e.a || e.b)}><b>${e.t}</b> ${line(e)}</li>`)}</ul>`}`;
 }
 
 function App() {

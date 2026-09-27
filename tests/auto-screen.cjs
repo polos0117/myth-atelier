@@ -73,6 +73,17 @@ const A = require('../lib/auto.js');
 
     /* 싸운다 → 결과 → 다음 라운드 */
     await p.locator('#at-fight').click();
+    /* 다시 보기 — 판 위에서 싸움이 돈다. 체력이 줄고, 2배속은 남고, 건너뛰면 결과 */
+    await p.waitForSelector('#at-skip');
+    assert.equal(await p.locator('.at-result').count(), 0, '도는 동안은 결과를 숨긴다');
+    await p.waitForFunction(() => [...document.querySelectorAll('.at-board .at-cell[data-hp]')].some(e => e.querySelector('.hpbar u') && parseFloat(e.querySelector('.hpbar u').style.width) < 100), null, { timeout: 15000 });
+    await p.locator('#at-speed').click();
+    assert.equal(await p.evaluate(() => localStorage.getItem('myth_auto_speed')), '2', '2배속이 남는다');
+    await p.locator('#at-skip').click();
+    await p.waitForSelector('.at-result');
+    await p.locator('#at-replay').click();
+    await p.waitForSelector('#at-skip');
+    await p.locator('#at-skip').click();
     await p.waitForSelector('.at-result');
     const winner = await p.locator('.at-result').getAttribute('data-winner');
     assert(['me', 'them', 'draw'].includes(winner));

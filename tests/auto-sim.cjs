@@ -266,6 +266,12 @@ const ok = (cond, msg) => { assert(cond, msg); n++; };
     const copy = JSON.parse(JSON.stringify(st));
     A.fight(st, data); A.fight(copy, data);
     ok(JSON.stringify(st.result.log) === JSON.stringify(copy.result.log), '같은 상태는 같은 싸움 (저장했다 이어도 같다)');
+    /* 다시 보기 — 기록을 끝까지 접으면 싸움이 끝난 판과 같다. 중간엔 체력이 0 과 최대 사이 */
+    const res = st.result, fin = A.replayAt(res, Infinity);
+    ok(res.ents.every(e => fin[e.id].hp === Math.max(0, e.hp) && fin[e.id].alive === e.alive && fin[e.id].cursed === e.cursed), '다시 보기를 끝까지 접으면 결과와 같다');
+    const mid = A.replayAt(res, res.beats / 2, 1);
+    ok(Object.values(mid).every(e => e.hp >= 0 && e.hp <= e.maxHp && e.shield >= 0), '다시 보기 중간도 체력이 판 안에');
+    ok(Object.values(A.replayAt(res, 0)).every(e => e.hp === e.maxHp && e.alive), '다시 보기 처음엔 모두 온전하다');
     if (st.phase === 'result') A.next(st, data);
   }
   ok(['won', 'lost'].includes(st.phase) && st.history.length === st.round, '끝까지 간다');
