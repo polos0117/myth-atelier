@@ -8,6 +8,7 @@ const IMG = { img: {
   '묠니르': { byStyle: { ink_wash: { f: '묠니르_ink_wash_f.webp' }, glossy_promo: { f: '묠니르_glossy_promo_f.webp', awaken: { f: '묠니르_glossy_promo_f_awaken.webp' }, cursed: { f: '묠니르_glossy_promo_f_cursed.webp' },
     casual: { f: ['묠니르_glossy_promo_f_casual1.webp'] }, extra: { f: ['묠니르_glossy_promo_f_extra1.webp'] } } } },
   '아이기스': { byStyle: { cel_anime: { f: '아이기스_cel_anime_f.webp' }, ink_wash: { f: '아이기스_ink_wash_f.webp' }, photoreal: { f: '아이기스_photoreal_f.webp' } } },
+  '티르핑': { byStyle: { ink_wash: { skin: { f: { frost: { base: '티르핑_ink_wash_f_skin_frost.webp' } } } } } },
 } };
 (async () => {
   const harness = await start();
@@ -34,6 +35,16 @@ const IMG = { img: {
     await p.fill('input[type=search]', '토르');
     /* 토르의 것은 망치와 무쇠 장갑 둘이다 */
     assert.deepEqual((await p.locator('.grid .cell').evaluateAll(es => es.map(e => e.dataset.card))).sort(), ['묠니르', '야른그레이프'], '주인 이름으로 찾는다');
+    /* 스킨 — 자료에 스킨이 있는 것, 그중 스킨 그림까지 있는 것. 스킨 이름으로도 찾는다 */
+    await p.click('#dex-reset');
+    const skinned = card.cards.filter(c => (c.skins || []).length).map(c => c.name).sort();
+    await p.selectOption('#dex-skin', 'yes');
+    assert.deepEqual((await p.locator('.grid .cell').evaluateAll(es => es.map(e => e.dataset.card))).sort(), skinned, '스킨 있는 것');
+    await p.selectOption('#dex-skin', 'art');
+    assert.deepEqual(await p.locator('.grid .cell').evaluateAll(es => es.map(e => e.dataset.card)), ['티르핑'], '스킨 그림까지 있는 것');
+    await p.click('#dex-reset');
+    await p.fill('input[type=search]', '서리 룬');
+    assert.deepEqual(await p.locator('.grid .cell').evaluateAll(es => es.map(e => e.dataset.card)), ['티르핑'], '스킨 이름으로 찾는다');
     await p.fill('input[type=search]', 'khanda');
     assert.deepEqual(await p.locator('.grid .cell').evaluateAll(es => es.map(e => e.dataset.card)), ['칸다'], '영어 이름으로 찾는다');
     await p.click('#dex-reset');

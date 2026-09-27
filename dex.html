@@ -55,7 +55,7 @@ body {color:var(--text);font-size:15px}
 .dex-filter-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:8px}
 .dex-filter-grid label {display:grid;gap:5px;min-width:0;color:var(--muted);font-size:12px}
 .dex-filter-grid select {width:100%;min-width:0;min-height:40px;border:1px solid var(--line);border-radius:8px;background:var(--card2);color:var(--text);padding:6px;font:inherit}
-@media(min-width:720px){.dex-filter-grid {grid-template-columns:repeat(5,minmax(0,1fr))}}
+@media(min-width:720px){.dex-filter-grid {grid-template-columns:repeat(6,minmax(0,1fr))}}
 .sw {display:flex;flex-wrap:wrap;gap:4px;border:1px solid var(--line);border-radius:8px;padding:4px}
 .sw button {flex:1 1 auto;background:var(--card);border:0;border-radius:6px;color:var(--muted);
   font:inherit;font-weight:700;font-size:12px;min-height:40px;padding:6px 10px}
@@ -126,7 +126,7 @@ body {color:var(--text);font-size:15px}
 .zoom-layer .zoom-nav button:disabled {opacity:.2}
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
-<script src="lib/words.js?v=myth25"></script>
+<script src="lib/words.js?v=myth26"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth5"></script>
 </head>
@@ -186,7 +186,7 @@ function useDex() {
   return state;
 }
 
-const DEFAULTS = { q: '', myth: '', kind: '', cost: '', style: '', art: 'any' };
+const DEFAULTS = { q: '', myth: '', kind: '', cost: '', style: '', art: 'any', skin: 'any' };
 function normalize(f) {
   const out = { ...DEFAULTS };
   for (const k of Object.keys(DEFAULTS)) if (f && typeof f[k] === 'string') out[k] = f[k];
@@ -208,7 +208,10 @@ function select(st, f) {
     const has = f.style ? !!(IMG.styleMap(entry)[f.style] && IMG.styleMap(entry)[f.style][V]) : !!file;
     if (f.art === 'yes' && !has) return false;
     if (f.art === 'no' && has) return false;
-    if (q && !(c.name.toLowerCase().includes(q) || (c.en || '').toLowerCase().includes(q) || (c.wielder || '').toLowerCase().includes(q))) return false;
+    /* 스킨 — 카드 자료에 스킨이 있는 것, 그중 스킨 그림까지 있는 것 */
+    if (f.skin === 'yes' && !(c.skins || []).length) return false;
+    if (f.skin === 'art' && !(c.skins || []).some(k => IMG.skinSets(entry || {}, V)[k.key])) return false;
+    if (q && !(c.name.toLowerCase().includes(q) || (c.en || '').toLowerCase().includes(q) || (c.wielder || '').toLowerCase().includes(q) || (c.skins || []).some(k => k.name.toLowerCase().includes(q)))) return false;
     return true;
   });
 }
@@ -390,6 +393,7 @@ function List({ st, filters, onFilter, onOpen, compact, onCompact }) {
         ${pick('cost', [all, ...[1, 2, 3, 4, 5].map(n => [String(n), W('card.cost.n', { n })])])}
         ${pick('style', [all, ...Object.entries(st.styleName)])}
         ${pick('art', ['any', 'yes', 'no'].map(k => [k, W('dex.filter.art.' + k)]))}
+        ${pick('skin', ['any', 'yes', 'art'].map(k => [k, W('dex.filter.skin.' + k)]))}
       </div>
     </details>
     <div class="dex-view-row"><p class="sec" role="status">${W('kind.card')}<span>${W('dex.filter.count', { cards: shown.length, images })}</span></p>
