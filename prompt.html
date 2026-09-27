@@ -93,6 +93,9 @@ html,body {margin:0;padding:0}
 .pm-bar .pm-btn.quiet {background:var(--card2);color:var(--text);border-color:var(--line)}
 .pm-file {padding:10px 12px;border:1px dashed var(--line);border-radius:8px;font:700 13px ui-monospace,monospace;overflow-wrap:anywhere;color:var(--text)}
 .pm-pick2 {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:8px}
+.pm-panel label.pm-skin-only {display:flex;flex-direction:row;align-items:center;gap:8px;min-height:40px;margin-top:6px;font-size:12px;color:var(--text);cursor:pointer}
+.pm-panel .pm-skin-only input {width:18px;height:18px;margin:0;flex:none}
+.pm-skin-only small {color:var(--muted)}
 @media (max-width:420px) {.pm-pick2 {grid-template-columns:1fr}}
 .pm-card {display:flex;gap:12px;align-items:center;padding:10px;background:var(--card2);border-radius:10px}
 .pm-card .face {flex:none;width:64px;aspect-ratio:2/3;border-radius:8px;background:var(--card);overflow:hidden;display:grid;place-items:center;color:var(--muted);font:9px ui-monospace,monospace;text-align:center}
@@ -103,7 +106,7 @@ html,body {margin:0;padding:0}
 @media(min-width:1000px){.pm-grid {grid-template-columns:360px minmax(0,1fr);align-items:start}}
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
-<script src="lib/words.js?v=myth26"></script>
+<script src="lib/words.js?v=myth27"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth5"></script>
 <script src="lib/prompt-spec.js?v=6"></script>
@@ -218,13 +221,15 @@ function App() {
   const [store, setStore] = useState(readStore);
   const [card, setCard] = useState(() => readStore().__card || '');
   const [myth, setMyth] = useState(() => readStore().__myth || '');
+  const [skinOnly, setSkinOnly] = useState(() => !!readStore().__skinOnly);
   const [copied, setCopied] = useState(false);
   const st = useMemo(() => ({ ...DEFAULT(), ...(store[card] || {}), card }), [store, card]);
   const update = patch => {
     const next = { ...store, [card]: { ...(store[card] || {}), ...patch }, __card: card };
     setStore(next); writeStore(next);
   };
-  const pickCard = name => { setCard(name); const next = { ...store, __card: name }; setStore(next); writeStore(next); };
+  /* 스킨만 보기에서 무기를 고르면 출력도 스킨으로 */
+  const pickCard = name => { setCard(name); const next = { ...store, __card: name }; if (skinOnly && name) next[name] = { ...(store[name] || {}), output: 'skin' }; setStore(next); writeStore(next); };
   /* 지역을 바꾸면 무기 칸은 비운다 — 다른 지역의 무기가 남아 있으면 헷갈린다 */
   const pickMyth = m => { setMyth(m); setCard(''); const next = { ...store, __myth: m, __card: '' }; setStore(next); writeStore(next); };
   if (!loaded) return html`<div><${WorkspaceHeader} page="prompt" /><p class="pm-note">${W('ui.loading')}</p></div>`;
@@ -237,8 +242,13 @@ function App() {
   const copy = () => { navigator.clipboard && navigator.clipboard.writeText(text).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1500); }); };
   const cards = g.myth.order.flatMap(m => data.cards.filter(x => x.myth === m).slice().sort((a, b) => b.cost - a.cost || a.name.localeCompare(b.name, 'ko')));
   const drawn = x => !!IMG.portraitOf(img[x.name], 'f');
+  /* 스킨만 보기 — 스킨이 있는 무기와 그 무기가 있는 지역만. 켤 때 고른 무기에 스킨이 없으면 비운다 */
+  const skinned = x => !!(x && (x.skins || []).length);
+  const pool = skinOnly ? cards.filter(skinned) : cards;
+  const regions = g.myth.order.filter(m => !skinOnly || pool.some(x => x.myth === m));
+  const toggleSkin = on => { setSkinOnly(on); const next = { ...store, __skinOnly: on }; if (on && c && !skinned(c)) { setCard(''); next.__card = ''; } setStore(next); writeStore(next); };
   /* 지역은 고른 무기의 것이 먼저, 없으면 저장된 것, 그것도 없으면 첫 지역 */
-  const region = (c && c.myth) || (g.myth.order.includes(myth) ? myth : g.myth.order[0]);
+  const region = (c && c.myth) || (regions.includes(myth) ? myth : regions[0]);
 
   return html`<div>
     <${WorkspaceHeader} page="prompt" />
@@ -248,14 +258,16 @@ function App() {
         <div class="pm-pick2">
           <label for="pm-myth">${W('prompt.card.region')}
             <select id="pm-myth" value=${region} onChange=${e => pickMyth(e.currentTarget.value)}>
-              ${g.myth.order.map(m => { const list = cards.filter(x => x.myth === m); return html`<option key=${m} value=${m}>${W('prompt.card.region.n', { name: g.myth.name[m], n: list.filter(drawn).length, total: list.length })}</option>`; })}
+              ${regions.map(m => { const list = pool.filter(x => x.myth === m); return html`<option key=${m} value=${m}>${skinOnly ? W('prompt.card.region.skin', { name: g.myth.name[m], n: list.length }) : W('prompt.card.region.n', { name: g.myth.name[m], n: list.filter(drawn).length, total: list.length })}</option>`; })}
             </select></label>
           <label for="pm-card">${W('prompt.card.pick')}
             <select id="pm-card" value=${card} onChange=${e => pickCard(e.currentTarget.value)}>
               <option value="">—</option>
-              ${cards.filter(x => x.myth === region).map(x => html`<option key=${x.name} value=${x.name}>${x.name} · ${g.kind.name[x.kind]} · ${W('card.cost.n', { n: x.cost })}${drawn(x) ? '' : ' · ' + W('prompt.card.noart')}</option>`)}
+              ${pool.filter(x => x.myth === region).map(x => html`<option key=${x.name} value=${x.name}>${x.name} · ${skinOnly ? x.skins.map(k => k.name).join(' · ') : g.kind.name[x.kind] + ' · ' + W('card.cost.n', { n: x.cost })}${drawn(x) ? '' : ' · ' + W('prompt.card.noart')}</option>`)}
             </select></label>
         </div>
+        <label class="pm-skin-only" for="pm-skin-only"><input type="checkbox" id="pm-skin-only" checked=${skinOnly} onChange=${e => toggleSkin(e.currentTarget.checked)} />
+          <span>${W('prompt.card.skinOnly')} <small>${W('prompt.card.skinOnly.n', { n: cards.filter(skinned).length })}</small></span></label>
         ${c && html`<div class="pm-card">
           <span class="face">${portrait ? html`<img src=${IMG.thumbURL(portrait)} alt="" />` : W('art.none')}</span>
           <div><b>${c.name}</b><small>${c.en} · ${g.myth.name[c.myth]} · ${g.kind.name[c.kind]}</small><small>${c.wielder}</small>

@@ -24,6 +24,21 @@ const S = ctx.window.AtelierSpec;
     }
     assert.equal(seen, N, '지역을 다 돌면 카드 전부');
     assert((await p.locator('#pm-myth option[value="celtic"]').innerText()).includes('그림'), '지역에 그림 수');
+    /* 스킨 있는 무기만 — 지역도 그 무기가 있는 곳만, 고르면 출력이 스킨으로 */
+    {
+      const sk = all.filter(c => (c.skins || []).length), myths = [...new Set(sk.map(c => c.myth))];
+      await p.locator('#pm-skin-only').check();
+      assert.deepEqual((await p.locator('#pm-myth option').evaluateAll(os => os.map(o => o.value))).sort(), myths.slice().sort(), '스킨 있는 지역만');
+      await p.selectOption('#pm-myth', sk[0].myth);
+      assert.deepEqual(await p.locator('#pm-card option').evaluateAll(os => os.map(o => o.value).filter(Boolean)), sk.filter(c => c.myth === sk[0].myth).map(c => c.name).sort((x, y) => all.find(c => c.name === y).cost - all.find(c => c.name === x).cost || x.localeCompare(y, 'ko')), '스킨 있는 무기만');
+      await p.selectOption('#pm-card', sk[0].name);
+      await p.waitForSelector('#pm-skin');
+      assert.equal(await p.locator('#pm-output').inputValue(), 'skin', '고르면 출력이 스킨');
+      assert((await p.locator('#pm-file').innerText()).includes('_skin_' + sk[0].skins[0].key), '스킨 파일 이름');
+      await p.locator('#pm-skin-only').uncheck();
+      assert.equal(await p.locator('#pm-myth option').count(), all.reduce((s, c) => s.add(c.myth), new Set()).size, '끄면 지역 전부');
+      await p.selectOption('#pm-output', 'portrait');
+    }
     await p.selectOption('#pm-myth', 'norse');
 
     await p.selectOption('#pm-card', '묠니르');
