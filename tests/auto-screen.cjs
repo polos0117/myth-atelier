@@ -9,9 +9,10 @@ const A = require('../lib/auto.js');
     await p.waitForSelector('.at-shop .at-card');
     const gold = async () => +(await p.locator('.at-gold b').innerText());
     assert.equal(await p.locator('.at-shop .at-card').count(), A.SHOP, '상점 다섯');
-    assert.equal(await p.locator('.at-board[data-side="me"] .at-cell').count(), A.CELLS, '내 판 여섯 칸');
-    assert.equal(await p.locator('.at-board[data-side="them"] .at-cell:not(.empty)').count(), 2, '1라운드 상대 둘');
-    assert.equal(await p.locator('.at-bench .at-cell').count(), A.BENCH, '벤치 여섯');
+    assert.equal(await p.locator('.at-board[data-side="me"] .at-cell').count(), A.CELLS, '내 판 열두 칸');
+    assert.equal(await p.locator('.at-board[data-side="them"] .at-cell:not(.empty)').count(), 1, '1라운드 상대는 수호자 하나');
+    assert.equal(await p.locator('.at-lobby .at-who').count(), A.PLAYERS, '로비에 여섯');
+    assert.equal(await p.locator('.at-bench .at-cell').count(), A.BENCH, '벤치 아홉');
     assert.equal(await gold(), 8, '시작 8금');
 
     /* 이번 판의 신화권 — MYTHS_PER_GAME 권이 켜져 있고, 빈손이면 바꿀 수 있다 */
@@ -47,7 +48,7 @@ const A = require('../lib/auto.js');
     await p.locator('.at-board[data-side="me"] .at-cell[data-index="1"]').click();
     await p.waitForSelector('.at-board[data-side="me"] .at-cell[data-index="1"][data-name]');
     assert.equal(await p.locator('.at-bench .at-cell[data-name]').count(), 0, '벤치가 비었다');
-    assert((await p.locator('.sec', { hasText: '1 / 3' }).count()) >= 1, '판 위 1 / 3');
+    assert((await p.locator('.sec', { hasText: '1 / 1' }).count()) >= 1, '판 위 1 / 1 — 레벨 1');
     assert.equal(await p.locator('.at-syn').count(), 2, '한 자루면 신화권·종류 줄이 하나씩, 아직 꺼진 채');
     assert.equal(await p.locator('.at-syn.on').count(), 0);
 
@@ -65,11 +66,21 @@ const A = require('../lib/auto.js');
     assert.equal(await gold(), 6, '2금');
     assert.equal(await p.locator('.at-shop .at-card.gone').count(), 0, '다시 돌리면 다섯 칸이 찬다');
 
+    /* 레벨 업 — 4금에 경험치 4, 1레벨에서 3레벨로 */
+    await p.locator('#at-xp').click();
+    await p.waitForFunction(() => document.querySelector('.at-level b') && document.querySelector('.at-level b').innerText === '3');
+    assert.equal(await gold(), 2, '4금이 줄었다');
+    /* 로비 — 누르면 그 판을 본다 */
+    await p.locator('.at-who[data-player="1"]').click();
+    await p.waitForSelector('.at-scout[data-scout="1"]');
+    await p.locator('#at-scout-close').click();
+    await p.waitForFunction(() => !document.querySelector('.at-scout'));
+
     /* 대신 두기 → 판이 찬다 */
     await p.locator('#at-auto').click();
     await p.waitForSelector('.at-board[data-side="me"] .at-cell[data-name]');
     const onBoard = await p.locator('.at-board[data-side="me"] .at-cell[data-name]').count();
-    assert(onBoard >= 1 && onBoard <= A.cap(1), '판 위 수는 상한 안');
+    assert(onBoard >= 1 && onBoard <= 3, '판 위 수는 레벨 안');
 
     /* 싸운다 → 결과 → 다음 라운드 */
     await p.locator('#at-fight').click();
@@ -88,20 +99,20 @@ const A = require('../lib/auto.js');
     const winner = await p.locator('.at-result').getAttribute('data-winner');
     assert(['me', 'them', 'draw'].includes(winner));
     assert((await p.locator('.at-log li').count()) > 2, '싸움 기록');
-    assert.equal(await p.locator('.at-board[data-side="them"] .hpbar').count(), 2, '상대의 남은 체력 막대');
+    assert.equal(await p.locator('.at-board[data-side="them"] .hpbar').count(), 1, '상대의 남은 체력 막대');
     await p.locator('#at-next').click();
     await p.waitForSelector('.at-shop .at-card');
-    assert((await p.locator('.at-round b').innerText()).startsWith('2 /'), '2라운드');
+    assert((await p.locator('.at-round').innerText()).startsWith('2라운드'), '2라운드');
 
     /* 새로고침해도 이어진다 */
     await p.reload(); await p.waitForSelector('.at-shop .at-card');
-    assert((await p.locator('.at-round b').innerText()).startsWith('2 /'), '판이 남는다');
-    const saved = await p.evaluate(() => JSON.parse(localStorage.getItem('myth_auto_v1')));
+    assert((await p.locator('.at-round').innerText()).startsWith('2라운드'), '판이 남는다');
+    const saved = await p.evaluate(() => JSON.parse(localStorage.getItem('myth_auto_v2')));
     assert.equal(saved.round, 2);
 
     /* 새 판 */
     await p.locator('#at-new').click();
-    await p.waitForFunction(() => document.querySelector('.at-round b') && document.querySelector('.at-round b').innerText.startsWith('1 /'));
+    await p.waitForFunction(() => document.querySelector('.at-round') && document.querySelector('.at-round').innerText.startsWith('1라운드'));
 
     /* 휴대폰 — 가로로 안 넘친다 */
     await p.setViewportSize(FOLD.cover);

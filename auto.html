@@ -37,7 +37,7 @@ body {color:var(--text);font-size:15px}
 .sec span {color:var(--muted);font-weight:400;letter-spacing:0}
 .note {margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.6;word-break:keep-all}
 /* 판 — 두 줄 세 칸. 상대 판은 뒷줄이 위, 내 판은 앞줄이 위라 마주 본다 */
-.at-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.at-grid {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
 .at-cell {position:relative;min-height:88px;padding:6px 5px;background:var(--card);border:1px solid var(--cc);border-radius:10px;color:var(--text);font:inherit;font-size:12px;font-weight:700;text-align:center;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;gap:2px}
 .at-cell.empty {background:var(--card2);color:var(--muted);border-style:dashed;font-weight:400}
 .at-cell.on {outline:3px solid var(--accent);outline-offset:1px}
@@ -54,7 +54,7 @@ body {color:var(--text);font-size:15px}
 .at-row {display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px;align-items:stretch;margin-bottom:6px}
 .at-row > i {writing-mode:vertical-rl;text-orientation:upright;font:700 10px ui-monospace,monospace;letter-spacing:.2em;color:var(--muted);display:flex;align-items:center;justify-content:center;width:18px}
 /* 벤치 여섯 · 상점 다섯 */
-.at-bench {display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.at-bench {display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:6px}
 .at-bench .at-cell {min-height:72px}
 .at-shop {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
 .at-card {display:flex;flex-direction:column;gap:5px;padding:0;background:var(--card);border:1px solid var(--cc);border-radius:10px;overflow:hidden;text-align:left;color:var(--text);font:inherit}
@@ -81,6 +81,25 @@ body {color:var(--text);font-size:15px}
 .at-myth-n {font:700 11px ui-monospace,monospace;color:var(--muted)}
 .at-pick {display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 0;padding:8px 10px;background:var(--accent-soft);border-radius:9px;font-size:12px}
 .at-pick .at-btn {margin-left:auto}
+/* 로비 — 여섯의 체력·레벨·연승. 누르면 그 판을 본다 */
+.at-lobby {display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.at-who {display:flex;flex-direction:column;gap:3px;min-width:0;padding:7px 8px;border:1px solid var(--line);border-radius:9px;background:var(--card);color:var(--text);font:inherit;font-size:12px;text-align:left;cursor:pointer}
+.at-who b {font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.at-who small {font:10px ui-monospace,monospace;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.at-who .bar {height:5px;border-radius:99px;background:var(--accent-soft);overflow:hidden}
+.at-who .bar u {display:block;height:100%;background:var(--ok);text-decoration:none}
+.at-who.low .bar u {background:var(--signal)}
+.at-who.me {border-color:var(--accent);box-shadow:inset 0 -2px var(--accent)}
+.at-who.opp {border-color:var(--signal);box-shadow:inset 0 0 0 1px var(--signal)}
+.at-who.out {opacity:.45}
+.at-who[aria-pressed="true"] {background:var(--accent-soft)}
+.at-scout {margin-top:8px;padding:10px;border:1px dashed var(--line);border-radius:10px}
+.at-level {display:inline-flex;align-items:center;gap:6px}
+.at-level i {display:inline-block;width:60px;height:5px;border-radius:99px;background:var(--accent-soft);overflow:hidden;vertical-align:middle}
+.at-level i u {display:block;height:100%;background:var(--gold);text-decoration:none}
+.at-others {margin:8px 0 0;padding:0;list-style:none;display:grid;gap:4px;font-size:12px;color:var(--muted)}
+.at-others li b {color:var(--text);font-weight:600}
+.at-card .cap i.left {display:inline;color:var(--muted)}
 /* 결과 */
 .at-result {padding:14px;border:1px solid var(--line);border-left:4px solid var(--cc);border-radius:10px;background:var(--card);margin-top:12px}
 .at-result h3 {margin:0 0 4px;font-size:18px;letter-spacing:-.02em}
@@ -122,17 +141,21 @@ body {color:var(--text);font-size:15px}
 .at-cell.dead {transition:opacity .4s}
 @media (prefers-reduced-motion:reduce) {.at-cell,.at-cell.fx-hurt,.at-pop,.at-cast,.at-cell .flash {animation:none;transition:none}}
 @media(max-width:599px){
-  .at-bench {grid-template-columns:repeat(3,minmax(0,1fr))}
+  .at-bench {grid-template-columns:repeat(5,minmax(0,1fr))}
+  .at-lobby {grid-template-columns:repeat(3,minmax(0,1fr))}
+  .at-grid {gap:4px}
+  .at-cell {padding:4px 3px}
   .at-shop {grid-template-columns:repeat(3,minmax(0,1fr))}
   .at-shop .at-card:nth-child(n+4) {grid-column:span 1}
-  .at-cell {min-height:78px;font-size:11px}
+  .at-cell {min-height:74px;font-size:10px}
+  .at-cell .nm {font-size:10px}
 }
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
-<script src="lib/words.js?v=myth28"></script>
+<script src="lib/words.js?v=myth29"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth5"></script>
-<script src="lib/auto.js?v=8"></script>
+<script src="lib/auto.js?v=9"></script>
 </head>
 <body class="dex-page auto-page">
 <div id="app"></div>
@@ -143,7 +166,7 @@ import htm from 'https://esm.sh/htm@3.1.1';
 import { WorkspaceHeader } from './lib/workspace-ui.js?v=myth9';
 const html = htm.bind(h);
 const W = window.W, IMG = window.AtelierImg, A = window.AtelierAuto;
-const STORE = 'myth_auto_v1', V = 'f';
+const STORE = 'myth_auto_v2', V = 'f';
 
 function Shell({ children }) {
   return html`<main>
@@ -161,7 +184,8 @@ function useData() {
   }, []);
   return state;
 }
-function load() { try { const j = JSON.parse(localStorage.getItem(STORE)); return j && j.board ? j : null; } catch { return null; } }
+/* 옛 판(두 줄 세 칸, 혼자 하던 판)은 이어 받지 않는다 — 새 판부터 */
+function load() { try { const j = JSON.parse(localStorage.getItem(STORE)); return j && j.v === A.VERSION && j.board ? j : null; } catch { return null; } }
 function save(st) { try { localStorage.setItem(STORE, JSON.stringify(st)); } catch {} }
 function seed() { return (Date.now() ^ Math.floor(Math.random() * 1e9)) | 0; }
 
@@ -201,11 +225,11 @@ function Cell({ unit, index, zone, color, img, picked, target, onClick, side, hp
 
 /* 판 그리기. side=them 이면 뒷줄이 위로 가서 두 판이 마주 본다 */
 function Board({ cells, side, color, img, picked, targets, onCell, hpOf, skills }) {
-  const rows = side === 'them' ? [1, 0] : [0, 1];
+  const rows = side === 'them' ? [2, 1, 0] : [0, 1, 2];
   return html`<div class="at-board" data-side=${side}>
     ${rows.map(r => html`<div class="at-row" key=${r}>
-      <i>${W(r === 0 ? 'auto.board.front' : 'auto.board.back')}</i>
-      <div class="at-grid">${[0, 1, 2].map(c => {
+      <i>${W(r === 0 ? 'auto.board.front' : r === 1 ? 'auto.board.mid' : 'auto.board.back')}</i>
+      <div class="at-grid">${[0, 1, 2, 3].map(c => {
         const i = r * A.COLS + c, u = cells[i];
         return html`<${Cell} key=${i} unit=${u} index=${i} zone="board" side=${side} img=${img}
           color=${u && color(u)} picked=${picked && u && u.id === picked} target=${targets && !u}
@@ -236,7 +260,7 @@ function Synergy({ data, group, units }) {
 
 /* 이번 판의 신화권 — 첫 라운드에 아무것도 사기 전이면 셋을 다시 고를 수 있다 */
 function Myths({ st, data, group, act }) {
-  const max = A.MYTHS_PER_GAME, free = st.round === 1 && !st.board.some(Boolean) && !st.bench.some(Boolean);
+  const max = A.MYTHS_PER_GAME, free = st.round === 1 && !st.board.some(Boolean) && !st.bench.some(Boolean) && !st.xpBought;
   const cur = A.liveMyths(st, data);
   const [want, setWant] = useState(cur || []);
   if (!cur) return html`<p class="sec">${W('auto.myths')}<span>${W('auto.myths.all')}</span></p>`;
@@ -252,13 +276,37 @@ function Myths({ st, data, group, act }) {
     </div>`;
 }
 
+/* 로비 — 여섯. 살아 있는 이는 체력 차례, 떨어진 이는 순위 차례. 누르면 그 판을 아래에 본다 */
+const nameOf = p => p.id === 0 ? W('auto.lobby.me') : W('auto.bot.' + p.name);
+function Lobby({ st, data, group, img, oppId, scout, setScout }) {
+  const list = A.players(st).slice().sort((a, b) => (b.alive - a.alive) || (a.alive ? b.hp - a.hp : a.place - b.place) || a.id - b.id);
+  const color = u => group.myth.color[A.cardOf(data, u.name).myth];
+  const seen = scout != null && A.playerOf(st, scout);
+  const streak = p => p.streak >= 2 ? W('auto.streak.win', { n: p.streak }) : p.streak <= -2 ? W('auto.streak.lose', { n: -p.streak }) : '';
+  return html`<p class="sec">${W('auto.lobby')}<span>${W('auto.lobby.note', { n: A.alivePlayers(st).length, total: A.PLAYERS })}</span></p>
+    <div class="at-lobby" role="group" aria-label=${W('auto.lobby')}>${list.map(p => html`<button key=${p.id} type="button" data-player=${p.id}
+      class=${'at-who' + (p.id === 0 ? ' me' : '') + (p.id === oppId ? ' opp' : '') + (!p.alive ? ' out' : '') + (p.alive && p.hp <= 30 ? ' low' : '')}
+      aria-pressed=${scout === p.id} onClick=${() => setScout(scout === p.id ? null : p.id)}>
+      <b>${nameOf(p)}</b>
+      <span class="bar"><u style=${'width:' + p.hp + '%'}></u></span>
+      <small>${p.alive ? W('auto.lobby.hp', { hp: p.hp, level: p.level }) : W('auto.lobby.out', { n: p.place })}${p.id === oppId ? ' · ' + W('auto.lobby.opp') : ''}${streak(p) ? ' · ' + streak(p) : ''}</small>
+    </button>`)}</div>
+    ${seen && html`<div class="at-scout" data-scout=${seen.id}>
+      <p class="sec" style="margin-top:0">${W('auto.scout', { name: nameOf(seen) })}<span>${W('auto.board.cap', { n: A.onBoard(seen), cap: seen.level })}</span>
+        <button class="at-btn" id="at-scout-close" style="margin-left:auto" onClick=${() => setScout(null)}>${W('auto.scout.close')}</button></p>
+      <${Board} cells=${seen.board} side="them" color=${color} img=${img} />
+      <${Synergy} data=${data} group=${group} units=${A.boardUnits(seen)} />
+    </div>`}`;
+}
+
 function Plan({ st, data, group, img, act }) {
   const [pick, setPick] = useState(null);   /* 고른 유닛 id */
   const [why, setWhy] = useState('');
+  const [scout, setScout] = useState(null);
   const color = u => group.myth.color[A.cardOf(data, u.name).myth];
   const picked = pick && A.find(st, pick);
   if (pick && !picked) setPick(null);
-  const cap = A.cap(st.round);
+  const cap = A.cap(st);
   const tryDo = r => { setWhy(r.ok ? '' : (r.why && W('auto.why.' + r.why) !== 'auto.why.' + r.why ? W('auto.why.' + r.why) : '')); return r.ok; };
   const onCell = zone => (i, u) => {
     if (picked) {
@@ -268,22 +316,29 @@ function Plan({ st, data, group, img, act }) {
     }
     if (u) setPick(u.id);
   };
+  const e = st.enemy, opp = e && e.who != null ? A.playerOf(st, e.who) : null;
+  const need = A.xpNeed(st.level);
+  const streak = st.streak >= 2 ? W('auto.streak.win', { n: st.streak }) : st.streak <= -2 ? W('auto.streak.lose', { n: -st.streak }) : '';
   return html`
     <div class="at-strip">
-      <span class="at-round">${W('auto.round', { n: st.round })}<b>${W('auto.round.of', { n: st.round, total: A.ROUNDS })}</b></span>
+      <span class="at-round">${W('auto.round', { n: st.round })}<b>${st.pve ? W('auto.round.pve') : W('auto.round.pvp')}</b></span>
       <span class="at-hp">${W('auto.hp')}<b>${st.hp}</b></span>
       <span class="at-gold">${W('auto.gold')}<b>${st.gold}</b></span>
-      <span>${W('auto.income', { n: A.income(st.gold) })}</span>
+      <span class="at-level">${W('auto.level')}<b>${st.level}</b>${need ? html`<i title=${W('auto.level.xp', { xp: st.xp, need })}><u style=${'width:' + Math.round(st.xp / need * 100) + '%'}></u></i><small>${W('auto.level.xp', { xp: st.xp, need })}</small>` : html`<small>${W('auto.level.max')}</small>`}</span>
+      <span>${W('auto.income', { n: A.income(st.gold, st.streak) })}${streak ? ' · ' + streak : ''}</span>
       <span class="at-tools">
+        <button class="at-btn" id="at-xp" title=${W('auto.xp.note', { n: A.XP_GAIN })} disabled=${st.gold < A.XP_COST || !need} onClick=${() => tryDo(act('xp'))}>${W('auto.xp.buy', { n: A.XP_COST })}</button>
         <button class="at-btn" id="at-auto" title=${W('auto.autoplan.note')} onClick=${() => { act('autoplan'); setPick(null); }}>${W('auto.autoplan')}</button>
         <button class="at-btn" id="at-new" title=${W('auto.new.note')} onClick=${() => act('new')}>${W('auto.new')}</button>
       </span>
     </div>
 
     <${Myths} key=${st.seed + ':' + (st.myths || []).join()} st=${st} data=${data} group=${group} act=${act} />
+    <${Lobby} st=${st} data=${data} group=${group} img=${img} oppId=${opp ? opp.id : null} scout=${scout} setScout=${setScout} />
 
-    <p class="sec">${W('auto.enemy')}<span>${W('auto.enemy.note', { myth: group.myth.name[st.enemy.myth] })}</span></p>
-    <${Board} cells=${boardCells(st.enemy.units)} side="them" color=${color} img=${img} />
+    <p class="sec">${e.pve ? W('auto.enemy.pve') : e.ghost ? W('auto.enemy.ghost', { name: nameOf(opp) }) : W('auto.enemy.player', { name: nameOf(opp) })}
+      <span>${e.pve ? W('auto.enemy.pve.note', { n: A.pveReward(st.round), myth: group.myth.name[st.pve.myth] }) : e.ghost ? W('auto.enemy.ghost.note') : W('auto.enemy.player.note', { level: opp.level, hp: opp.hp, base: A.stageDamage(st.round) })}</span></p>
+    <${Board} cells=${boardCells(e.units)} side="them" color=${color} img=${img} />
 
     <p class="sec">${W('auto.board')}<span>${W('auto.board.cap', { n: A.onBoard(st), cap })}</span></p>
     <${Board} cells=${st.board} side="me" color=${color} img=${img} picked=${pick} targets=${!!picked} onCell=${onCell('board')} />
@@ -307,7 +362,7 @@ function Plan({ st, data, group, img, act }) {
       const file = IMG.dressOf(img[name], name, V, 1, false).file;
       return html`<div key=${i} class="at-card" data-name=${name} style=${'--cc:' + group.myth.color[c.myth]}>
         <span class="face">${file ? html`<img src=${IMG.thumbURL(file)} alt="" loading="lazy" />` : html`<span class="ph">${W('art.none')}</span>`}</span>
-        <span class="cap">${c.name}<i>${group.myth.name[c.myth]} · ${group.kind.name[c.kind]} · ${W('range.short.' + c.range)}</i></span>
+        <span class="cap">${c.name}<i>${group.myth.name[c.myth]} · ${group.kind.name[c.kind]} · ${W('range.short.' + c.range)}</i><i class="left">${W('auto.shop.left', { n: st.pool[name] })}</i></span>
         <button class="buy" data-slot=${i} disabled=${st.gold < c.cost} onClick=${() => tryDo(act('buy', i))}>${W('auto.buy')} · ${W('card.cost.n', { n: c.cost })}</button>
       </div>`;
     })}</div>
@@ -358,9 +413,10 @@ function Result({ st, data, group, img, act }) {
   const alive = sd => Object.values(now).filter(e => e.side === sd && e.alive).length;
   return html`
     <div class="at-strip">
-      <span class="at-round">${W('auto.round', { n: r.round })}<b>${W('auto.round.of', { n: r.round, total: A.ROUNDS })}</b></span>
-      <span class="at-hp">${W('auto.hp')}<b>${st.hp}</b></span>
-      <span class="at-gold">${W('auto.gold')}<b>${st.gold}</b></span>
+      <span class="at-round">${W('auto.round', { n: r.round })}<b>${r.pve ? W('auto.round.pve') : W('auto.round.pvp')}</b></span>
+      <span class="at-hp">${W('auto.hp')}<b>${playing ? st.hp + r.lost : st.hp}</b></span>
+      <span class="at-gold">${W('auto.gold')}<b>${playing ? st.gold - (r.gain || 0) : st.gold}</b></span>
+      <span>${W('auto.alive', { n: playing ? r.before : r.alive, total: A.PLAYERS })}</span>
     </div>
     ${playing ? html`<div class="at-play" role="status">
         <b>${W('auto.play')}</b>
@@ -370,16 +426,21 @@ function Result({ st, data, group, img, act }) {
         <button class="at-btn" id="at-skip" onClick=${() => setT(end)}>${W('auto.play.skip')}</button>
       </div>` : html`
       <div class="at-result" data-winner=${r.winner} style=${'--cc:' + (r.winner === 'me' ? 'var(--ok)' : r.winner === 'them' ? 'var(--signal)' : 'var(--line)')}>
-        <h3>${r.winner === 'me' ? W('auto.result.me') : r.winner === 'them' ? W('auto.result.them', { n: r.lost }) : W('auto.result.draw')}</h3>
+        <h3>${r.winner === 'me' ? (r.pve ? W('auto.result.pve', { n: r.gain }) : W('auto.result.me')) : r.winner === 'them' ? W('auto.result.them', { n: r.lost }) : W('auto.result.draw', { n: r.lost })}</h3>
         <p>${W('auto.result.beats', { n: r.beats })} · ${W('auto.result.left', r.left)}
           ${r.log && html` · <button class="at-btn" id="at-replay" style="min-height:32px;padding:4px 10px" onClick=${() => setT(-0.4)}>${W('auto.play.again')}</button>`}</p>
       </div>
+      ${(r.others || []).length ? html`<ul class="at-others">${r.others.map((o, i) => html`<li key=${i}>${o.pve
+          ? html`<b>${nameOf(A.playerOf(st, o.a))}</b> ${W('auto.others.pve.' + o.winner)}`
+          : html`<b>${nameOf(A.playerOf(st, o.a))}</b> ${W('auto.others.' + o.winner)} <b>${nameOf(A.playerOf(st, o.b))}</b>${o.ghost ? ' (' + W('auto.others.ghost') + ')' : ''}`}
+          ${o.lostA ? html` · ${nameOf(A.playerOf(st, o.a))} −${o.lostA}` : ''}${o.lostB ? html` · ${nameOf(A.playerOf(st, o.b))} −${o.lostB}` : ''}</li>`)}</ul>` : ''}
       ${done ? html`<div class="at-end">
-          <h3>${st.phase === 'won' ? W('auto.won') : W('auto.lost', { n: r.round })}</h3>
+          <h3>${st.phase === 'won' ? W('auto.won') : W('auto.lost', { place: st.place, n: r.round })}</h3>
+          <p class="note">${W('auto.end.note', { n: r.round, total: A.PLAYERS, place: st.place })}</p>
           <button class="at-btn primary" id="at-new" onClick=${() => act('new')}>${W('auto.new')}</button>
         </div>` : html`<p class="sec" style="margin-top:14px"><button class="at-btn primary" id="at-next" style="flex:1" onClick=${() => act('next')}>${W('auto.next')}</button></p>`}`}
 
-    <p class="sec">${W('auto.enemy')}</p>
+    <p class="sec">${r.pve ? W('auto.enemy.pve') : r.ghost ? W('auto.enemy.ghost', { name: nameOf(A.playerOf(st, r.opp)) }) : W('auto.enemy.player', { name: nameOf(A.playerOf(st, r.opp)) })}</p>
     <${Board} cells=${boardCells(st.enemy.units)} side="them" color=${color} img=${img} hpOf=${hpThem} skills=${data.skills} />
     <p class="sec">${W('auto.board')}</p>
     <${Board} cells=${st.board} side="me" color=${color} img=${img} hpOf=${hpMe} skills=${data.skills} />
@@ -402,6 +463,7 @@ function App() {
     if (what === 'buy') r = A.buy(next, data, args[0]);
     if (what === 'sell') r = A.sell(next, data, args[0]);
     if (what === 'reroll') r = A.reroll(next, data);
+    if (what === 'xp') r = A.buyXp(next, data);
     if (what === 'move') r = A.move(next, args[0], args[1], args[2]);
     if (what === 'fight') r = A.fight(next, data);
     if (what === 'next') r = A.next(next, data);
