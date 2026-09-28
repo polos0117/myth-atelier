@@ -409,9 +409,9 @@ function buildMuseum(host, data, hooks) {
   hallFloor.rotation.x = Math.PI / 2; hallFloor.material = floorOf('hallFloorMat', 5, 5);
   const ring = BABYLON.MeshBuilder.CreateTorus('ring', { diameter: R * 0.72, thickness: 0.08, tessellation: 96 }, scene); ring.position.y = 0.01; ring.scaling.y = 0.05; ring.material = frameMat; glow.addIncludedOnlyMesh(ring);
   const n = halls.length, step = Math.PI * 2 / n;
-  /* 홀 벽 그림 — 한 장이 벽 높이, 문 사이 한 칸(모두 같은 폭)에 이어 붙는다 */
-  const hallWallURL = hallArt(data, 'wall'), secW = (step - 2 * HALF) * R;
-  const hallWallMat = hallWallURL ? tintedMat('hallWall', mt => swapTex(hallWallURL, nt => { nt.uScale = secW / (ROOM_H * aspectOf(nt)); mt.diffuseTexture = nt; mt.emissiveTexture = nt; applyWall(mt); }, 0, 0, 'hwall')) : wallMat;
+  /* 홀 벽 그림 — 문 사이 한 칸(모두 같은 폭, 아홉 권이면 2.7×5m)에 한 장. 세로 2:3 그림이면 가로로 조금 좁아진다 */
+  const hallWallURL = hallArt(data, 'wall');
+  const hallWallMat = hallWallURL ? tintedMat('hallWall', mt => swapTex(hallWallURL, nt => { nt.wrapU = nt.wrapV = BABYLON.Texture.CLAMP_ADDRESSMODE; mt.diffuseTexture = nt; mt.emissiveTexture = nt; applyWall(mt); }, 0, 0, 'hwall')) : wallMat;
   /* 바닥 원판 — 받침 둘레 반지름 4.6m. 그림이 없으면 아홉 관 색 빛살의 나침반 */
   const medal = BABYLON.MeshBuilder.CreateDisc('medal', { radius: 4.6, tessellation: 96 }, scene);
   medal.rotation.x = Math.PI / 2; medal.position.y = 0.012;
