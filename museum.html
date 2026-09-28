@@ -612,8 +612,9 @@ function buildMuseum(host, data, hooks) {
      벽도 가림막으로 넣어 고른다 — 벽 너머 다른 방 액자가 잡히지 않게 */
   const OCCLUDE = /^(rw|rl|rr|re|lintel|col|ped)$/;
   function frameAt(cx, cy) {
-    const r = canvas.getBoundingClientRect(), sx = (cx - r.left) / r.width * engine.getRenderWidth(), sy = (cy - r.top) / r.height * engine.getRenderHeight();
-    const hit = scene.pick(sx, sy, m => pickable.has(m) || OCCLUDE.test(m.name));
+    /* scene.pick 은 CSS 픽셀을 받는다(안에서 해상도 배율로 나눈다) — 렌더 픽셀로 바꿔 넘기면 폰(배율 1.6)에서 탭이 2.5배 바깥으로 간다 */
+    const r = canvas.getBoundingClientRect();
+    const hit = scene.pick(cx - r.left, cy - r.top, m => pickable.has(m) || OCCLUDE.test(m.name));
     return hit && hit.hit && hit.distance < 16 && pickable.has(hit.pickedMesh) ? hit.pickedMesh.metadata.frame : null;
   }
   let lastTap = null, tapTimer = 0;

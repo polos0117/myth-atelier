@@ -49,7 +49,7 @@ async function start() {
   async function open(page, opt) {
     opt = opt || {};
     const ctx = await browser.newContext({ viewport: opt.viewport || FOLD.cover,
-      isMobile: !!opt.mobile, hasTouch: !!opt.mobile });
+      isMobile: !!opt.mobile, hasTouch: !!opt.mobile, ...(opt.dpr ? { deviceScaleFactor: opt.dpr } : {}) });
     await ctx.route('**/*', async route => {
       const url = route.request().url(), origin = new URL(url).origin;
       if (origin === new URL(base).origin) return route.continue();

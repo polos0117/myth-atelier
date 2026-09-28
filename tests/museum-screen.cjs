@@ -49,7 +49,8 @@ const group = JSON.parse(fs.readFileSync('data/group.json', 'utf8'));
     await a.close();
 
     /* 휴대폰 — 손잡이로 걷는다, 가로로 안 넘친다 */
-    const m = await harness.open('museum.html', { viewport: FOLD.cover, mobile: true }), q = m.page;
+    /* 화면 밀도 3 — 폰은 해상도 배율(1.6)이 걸려 탭 좌표가 틀어지기 쉽다 */
+    const m = await harness.open('museum.html', { viewport: FOLD.cover, mobile: true, dpr: 3 }), q = m.page;
     await q.waitForFunction(() => window.__museum, null, { timeout: 20000 });
     await q.waitForSelector('.mu-stick');
     const s0 = await q.evaluate(() => window.__museum.state().z);
