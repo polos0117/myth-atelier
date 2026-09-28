@@ -8,6 +8,10 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-09-28 · claude · 박물관 서아시아관 천장 그림
+- data/group.json — `museum.rooms.westasia` 에 `ceil`. 그림 저장소 `img/ui/museum_westasia_ceil.webp`(1024², 청금석 우물 칸에 이슈타르 별, 갈매기 무늬 삼나무 들보). 가장자리 들보가 이웃 칸과 만나 겹들보가 되고 가운데 빛 줄이 그 사이를 지난다
+- docs/GAME_CONCEPT.md — 천장 그림 만드는 법
+
 ## 2026-09-28 · claude · 박물관 천장을 관마다
 - museum.html — 방 천장이 모두 같은 갈색이었다. 권역마다 판·들보 색과 가운데 무늬가 다른 우물천장(3.5m 한 칸, 폭 7m 에 두 칸 — 가운데 빛 줄이 이음새)을 코드가 그린다. 이집트는 푸른 바탕에 노란 별, 서아시아는 청금석에 이슈타르 별. `museum_<권>_ceil.webp` 를 적으면 그 그림으로. 그림 벽처럼 상태 색과 제 빛을 탄다
 - tests/data.cjs·tests/museum-grow.cjs — ceil 칸. docs/GAME_CONCEPT.md — 천장 줄
