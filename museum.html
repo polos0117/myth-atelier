@@ -70,7 +70,7 @@ body {color:var(--text);font-size:15px}
 }
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
-<script src="lib/words.js?v=myth31"></script>
+<script src="lib/words.js?v=myth32"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth5"></script>
 <script src="https://cdn.jsdelivr.net/npm/babylonjs@9.28.0/babylon.js"></script>
@@ -602,20 +602,50 @@ function buildMuseum(host, data, hooks) {
   const kd = onKey(true), ku = onKey(false);
   addEventListener('keydown', kd); addEventListener('keyup', ku);
   let drag = null;
-  canvas.addEventListener('pointerdown', e => { drag = { id: e.pointerId, x: e.clientX, y: e.clientY, moved: 0 }; canvas.setPointerCapture(e.pointerId); canvas.focus({ preventScroll: true }); });
+  canvas.addEventListener('pointerdown', e => { drag = { id: e.pointerId, x: e.clientX, y: e.clientY, moved: 0 }; try { canvas.setPointerCapture(e.pointerId); } catch (err) {} canvas.focus({ preventScroll: true }); });
   canvas.addEventListener('pointermove', e => {
     if (!drag || drag.id !== e.pointerId) return;
     const dx = e.clientX - drag.x, dy = e.clientY - drag.y; drag.x = e.clientX; drag.y = e.clientY; drag.moved += Math.abs(dx) + Math.abs(dy);
     me.yaw += dx * 0.005; me.pitch = Math.max(-0.6, Math.min(0.7, me.pitch + dy * 0.004));
   });
+  /* 누르기 — 한 번은 자세히(두 번째를 잠깐 기다린다), 두 번은 그 액자 앞으로 걸어간다.
+     벽도 가림막으로 넣어 고른다 — 벽 너머 다른 방 액자가 잡히지 않게 */
+  const OCCLUDE = /^(rw|rl|rr|re|lintel|col|ped)$/;
+  function frameAt(cx, cy) {
+    const r = canvas.getBoundingClientRect(), sx = (cx - r.left) / r.width * engine.getRenderWidth(), sy = (cy - r.top) / r.height * engine.getRenderHeight();
+    const hit = scene.pick(sx, sy, m => pickable.has(m) || OCCLUDE.test(m.name));
+    return hit && hit.hit && hit.distance < 16 && pickable.has(hit.pickedMesh) ? hit.pickedMesh.metadata.frame : null;
+  }
+  let lastTap = null, tapTimer = 0;
   canvas.addEventListener('pointerup', e => {
     if (!drag || drag.id !== e.pointerId) return;
     const click = drag.moved < 8; drag = null;
     if (!click) return;
-    const r = canvas.getBoundingClientRect(), sx = (e.clientX - r.left) / r.width * engine.getRenderWidth(), sy = (e.clientY - r.top) / r.height * engine.getRenderHeight();
-    const hit = scene.pick(sx, sy, m => pickable.has(m));
-    if (hit && hit.hit && hit.distance < 14) hooks.onOpen(hit.pickedMesh.metadata.frame.card.name);
+    const fr = frameAt(e.clientX, e.clientY), now = performance.now();
+    if (lastTap && now - lastTap.t < 320 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 40) {
+      const to = fr || lastTap.fr; clearTimeout(tapTimer); lastTap = null;
+      if (to) walkTo(to);
+      return;
+    }
+    lastTap = { t: now, x: e.clientX, y: e.clientY, fr };
+    clearTimeout(tapTimer);
+    if (fr) tapTimer = setTimeout(() => { lastTap = null; hooks.onOpen(fr.card.name); }, 320);
   });
+  canvas.addEventListener('dblclick', e => e.preventDefault());
+  /* 액자 앞 2.3m 로 미끄러져 간다. 다른 방이면 이 방 문 → 그 방 문 → 액자. 걷기 입력이 들어오면 멈춘다 */
+  let auto = null;
+  function doorOf(hall, d) { return { x: Math.sin(hall.angle) * d, z: Math.cos(hall.angle) * d }; }
+  function walkTo(fr) {
+    const stand = { x: fr.world.x + fr.normal.x * 2.3, z: fr.world.z + fr.normal.z * 2.3 };
+    const here = whereAmI(), path = [];
+    if (here !== fr.hall) {
+      if (here) path.push(doorOf(here, R_IN - 1.4));
+      path.push(doorOf(fr.hall, R_IN - 1.4), doorOf(fr.hall, R_IN + 1.2));
+    }
+    path.push(stand);
+    auto = { path, yaw: Math.atan2(-fr.normal.x, -fr.normal.z), name: fr.card.name };
+  }
+  const angDiff = (a, b) => { let d = (b - a) % (Math.PI * 2); if (d > Math.PI) d -= Math.PI * 2; if (d < -Math.PI) d += Math.PI * 2; return d; };
   canvas.addEventListener('pointercancel', () => { drag = null; });
 
   /* ── 그리기 ── */
@@ -625,6 +655,17 @@ function buildMuseum(host, data, hooks) {
     if (hooks.isFree()) {
       let mf = (keys.w || keys.arrowup ? 1 : 0) - (keys.s || keys.arrowdown ? 1 : 0) - stick.y, ms = (keys.d ? 1 : 0) - (keys.a ? 1 : 0) + stick.x;
       const turn = (keys.arrowright || keys.e ? 1 : 0) - (keys.arrowleft || keys.q ? 1 : 0);
+      if (auto && (mf || ms || turn || drag && drag.moved > 8)) auto = null;
+      if (auto) {
+        const p = auto.path[0], dx = p.x - me.x, dz = p.z - me.z, d = Math.hypot(dx, dz), last = auto.path.length === 1;
+        const v = Math.min(SPEED * 1.6, 1.2 + d * 2.2) * dt;
+        if (d <= v) { me.x = p.x; me.z = p.z; auto.path.shift(); }
+        else { me.x += dx / d * v; me.z += dz / d * v; }
+        /* 가는 쪽을 보다가 마지막 길에서는 액자를 본다 */
+        const want = last ? auto.yaw : Math.atan2(dx, dz);
+        me.yaw += angDiff(me.yaw, want) * Math.min(1, dt * (last && d < 1.5 ? 6 : 4)); me.pitch += (0 - me.pitch) * Math.min(1, dt * 4);
+        if (!auto.path.length) { me.yaw = auto.yaw; auto = null; }
+      }
       me.yaw += turn * dt * 1.8;
       const len = Math.hypot(mf, ms); if (len > 1) { mf /= len; ms /= len; }
       const fx = Math.sin(me.yaw), fz = Math.cos(me.yaw), stepLen = SPEED * dt;
@@ -680,6 +721,11 @@ function buildMuseum(host, data, hooks) {
     goto,
     stick(x, y) { stick.x = x; stick.y = y; },
     frames: frames.length, halls: halls.length, engine: 'babylon',
+    /* 검사용 — 액자 가운데의 화면 좌표(CSS px), 가는 중인지 */
+    screenOf(name) { const fr = frames.find(f => f.card.name === name); if (!fr) return null; const r = canvas.getBoundingClientRect();
+      const p = BABYLON.Vector3.Project(fr.world, BABYLON.Matrix.Identity(), scene.getTransformMatrix(), camera.viewport.toGlobal(r.width, r.height));
+      return { x: r.left + p.x, y: r.top + p.y, z: p.z }; },
+    walking: () => auto ? auto.name : null,
     plan: () => ({ R, R_IN, roomW: ROOM_W, rooms: halls.map(h => ({ angle: h.angle, L: h.L, n: h.cards.length })), swapped: { ...swapped } }),
     state: () => ({ x: me.x, z: me.z, yaw: me.yaw, room, focus: focus && focus.card.name, mode, loaded: [...texCache.values()].filter(t => t.ready).length }),
     fileOf(name) { const fr = frames.find(f => f.card.name === name); if (!fr || !fr.files) return null; const own = fr.files[mode]; return { file: own || fr.files.base, own: !!own || mode === 'base' }; },
