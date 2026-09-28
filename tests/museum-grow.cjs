@@ -20,7 +20,7 @@ function grow([extra, big]) {
         const k = 'grow' + i; j.myth.order.push(k); j.myth.name[k] = '새 권 ' + i; j.myth.en[k] = 'New ' + i; j.myth.color[k] = '#8a7a6a';
       }
       /* 있는 권 하나는 없는 그림(404), 하나는 받는 그림 */
-      j.museum = { floor: true, rooms: { westasia: ['wall', 'banner', 'mural', 'ceil'], norse: ['wall'] } };
+      j.museum = { floor: true, hall: ['wall', 'dome', 'floor'], rooms: { westasia: ['wall', 'banner', 'mural', 'ceil'], norse: ['wall'] } };
     } else {
       const base = j.cards.slice(0, 5), out = [];
       for (let i = 0; i < extra; i++) base.forEach((c, n) => out.push({ ...c, name: c.name + ' ' + i, myth: 'grow' + i, cost: n + 1 }));
@@ -37,7 +37,7 @@ function grow([extra, big]) {
   try {
     const a = await harness.open('museum.html', { viewport: { width: 1100, height: 800 }, init: [grow, [EXTRA, BIG]] }), p = a.page;
     /* 서아시아 그림은 받고, 북유럽 벽은 없다(404). 진짜 서아시아 그림 대신 흰 점 하나 */
-    await a.ctx.route(/\/img\/ui\/museum_(westasia_(wall|banner|mural|ceil)|floor)\.webp/, r => r.fulfill({ status: 200, contentType: 'image/png', body: PNG }));
+    await a.ctx.route(/\/img\/ui\/museum_(westasia_(wall|banner|mural|ceil)|floor|hall_(wall|dome|floor))\.webp/, r => r.fulfill({ status: 200, contentType: 'image/png', body: PNG }));
     await a.ctx.route(/\/img\/ui\/museum_norse_wall\.webp/, r => r.fulfill({ status: 404, body: 'no' }));
     await p.reload({ waitUntil: 'domcontentloaded' });
     await p.waitForFunction(() => window.__museum, null, { timeout: 20000 });
@@ -64,14 +64,15 @@ function grow([extra, big]) {
     assert.equal((await p.evaluate(() => window.__museum.state())).room, n - 1, '새 방 안을 걷는다');
 
     /* 그림 바꿔 끼우기 — 서아시아 벽 둘(옆·끝)·깃발 하나·바닥 전부. 북유럽 벽은 못 받아 그대로 */
-    await p.waitForFunction(n => { const s = window.__museum.plan().swapped; return s.wall >= 2 && s.banner >= 1 && s.mural >= 1 && s.ceil >= 1 && s.floor >= n + 1; }, n, { timeout: 15000 });
+    await p.waitForFunction(n => { const s = window.__museum.plan().swapped; return s.wall >= 3 && s.hwall >= 1 && s.dome >= 1 && s.hfloor >= 1 && s.banner >= 1 && s.mural >= 1 && s.ceil >= 1 && s.floor >= n + 1; }, n, { timeout: 15000 });
     const sw = (await p.evaluate(() => window.__museum.plan())).swapped;
-    assert.equal(sw.wall, 2, '받은 벽은 서아시아 방의 둘뿐');
+    assert.equal(sw.wall, 3, '받은 벽은 서아시아 방의 둘과 홀의 서아시아 상인방 하나뿐');
+    assert.deepEqual([sw.hwall, sw.dome, sw.hfloor], [1, 1, 1], '홀 벽·돔·바닥 원판');
     assert.equal(sw.banner, 1, '받은 깃발은 서아시아 방 하나');
     assert.equal(sw.mural, 1, '받은 끝 벽 벽화는 서아시아 방 하나');
     assert.equal(sw.ceil, 1, '받은 천장은 서아시아 방 하나');
     assert.deepEqual(a.errors, []);
     await a.close();
-    console.log('PASS 박물관 늘리기: 권 ' + n + ' · 홀 반지름 ' + plan.R.toFixed(1) + 'm · 서아시아 방 ' + west.n + '점 ' + west.L.toFixed(0) + 'm · 그림 바꿔 끼우기(벽 ' + sw.wall + ' · 깃발 ' + sw.banner + ' · 벽화 ' + sw.mural + ' · 천장 ' + sw.ceil + ' · 바닥 ' + sw.floor + ')');
+    console.log('PASS 박물관 늘리기: 권 ' + n + ' · 홀 반지름 ' + plan.R.toFixed(1) + 'm · 서아시아 방 ' + west.n + '점 ' + west.L.toFixed(0) + 'm · 그림 바꿔 끼우기(벽 ' + sw.wall + ' · 깃발 ' + sw.banner + ' · 홀 ' + (sw.hwall + sw.dome + sw.hfloor) + ' · 벽화 ' + sw.mural + ' · 천장 ' + sw.ceil + ' · 바닥 ' + sw.floor + ')');
   } finally { await harness.stop(); }
 })().catch(e => { console.error(e); process.exit(1); });

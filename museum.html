@@ -96,6 +96,7 @@ function layout(n) {
 }
 /* 박물관 그림 — group.json 의 museum 에 적힌 것만 그림 저장소 ui/ 에서 받는다. 없으면 코드가 그린 것 그대로 */
 const uiURL = f => IMG.BASE + 'ui/' + f;
+function hallArt(data, what) { const h = data.group.museum && data.group.museum.hall; return Array.isArray(h) && h.includes(what) ? uiURL('museum_hall_' + what + '.webp') : null; }
 function roomArt(data, myth, what) { const r = (data.group.museum && data.group.museum.rooms || {})[myth]; return Array.isArray(r) && r.includes(what) ? uiURL('museum_' + myth + '_' + what + '.webp') : null; }
 
 function useData() {
@@ -296,6 +297,36 @@ function ceilTex(scene, myth, color) {
     }
   }, 'ceil');
 }
+/* 홀 돔 — 판테온처럼 우물 칸 네 겹과 금 테. 위에서 내리찍으니 밑단(돔 옆면)은 세로로 늘어난다 — 거기엔 무늬를 안 둔다 */
+function domeTex(scene, halls, data) {
+  return canvasTex(scene, 1024, 1024, (g, w) => {
+    const c = w / 2, P = (r, t) => [c + Math.sin(t) * r, c - Math.cos(t) * r];
+    g.fillStyle = '#3a2c20'; g.fillRect(0, 0, w, w);
+    const rings = [[0.98, 0.8], [0.8, 0.62], [0.62, 0.46], [0.46, 0.32]], N = 36;
+    rings.forEach(([r0, r1], k) => {
+      for (let j = 0; j < N; j++) {
+        const t0 = j * Math.PI * 2 / N + 0.012, t1 = (j + 1) * Math.PI * 2 / N - 0.012, R0 = r0 * c - 6, R1 = r1 * c + 6;
+        g.beginPath(); g.arc(c, c, R0, t0 - Math.PI / 2, t1 - Math.PI / 2); g.arc(c, c, R1, t1 - Math.PI / 2, t0 - Math.PI / 2, true); g.closePath();
+        g.fillStyle = k % 2 ? '#5a4632' : '#4e3c2a'; g.fill(); g.strokeStyle = '#8a6a44'; g.lineWidth = 3; g.stroke();
+        const [x, y] = P((R0 + R1) / 2, (t0 + t1) / 2); g.fillStyle = '#d9b45a'; g.beginPath(); g.arc(x, y, 4 + (3 - k), 0, Math.PI * 2); g.fill();
+      }
+    });
+    g.strokeStyle = '#d9b45a'; g.lineWidth = 6; [0.98, 0.32].forEach(r => { g.beginPath(); g.arc(c, c, r * c, 0, Math.PI * 2); g.stroke(); });
+  }, 'dome');
+}
+/* 홀 바닥 원판 — 검은 대리석에 금 테 셋, 가운데서 아홉 관 문으로 뻗는 제 색 빛살과 금 별 */
+function medalTex(scene, halls, data) {
+  return canvasTex(scene, 1024, 1024, (g, w) => {
+    const c = w / 2, P = (r, t) => [c + Math.sin(t) * r, c - Math.cos(t) * r];
+    g.fillStyle = '#0c0a0d'; g.fillRect(0, 0, w, w);
+    const n = halls.length;
+    halls.forEach(h => { const col = data.group.myth.color[h.myth], t = h.angle, hw = Math.PI / n * 0.55;
+      g.beginPath(); g.moveTo(...P(c * 0.3, t - hw * 0.5)); g.lineTo(...P(c * 0.96, t)); g.lineTo(...P(c * 0.3, t + hw * 0.5)); g.closePath();
+      g.globalAlpha = 0.75; g.fillStyle = col; g.fill(); g.globalAlpha = 1; g.strokeStyle = '#d9b45a'; g.lineWidth = 3; g.stroke(); });
+    for (let k = 0; k < n * 2; k++) { const t = (k + 0.5) * Math.PI / n; g.beginPath(); g.moveTo(...P(c * 0.3, t - 0.06)); g.lineTo(...P(c * 0.6, t)); g.lineTo(...P(c * 0.3, t + 0.06)); g.closePath(); g.fillStyle = '#8a6a34'; g.fill(); }
+    g.strokeStyle = '#d9b45a'; [[0.98, 10], [0.9, 3], [0.3, 6]].forEach(([r, lw]) => { g.lineWidth = lw; g.beginPath(); g.arc(c, c, r * c, 0, Math.PI * 2); g.stroke(); });
+  }, 'medal');
+}
 /* 색을 어둡게(k<1) */
 function shade(hex, k) { const n = parseInt(hex.slice(1), 16); return '#' + [16, 8, 0].map(s => Math.round(((n >> s) & 255) * k).toString(16).padStart(2, '0')).join(''); }
 function dotTex(scene) {
@@ -328,7 +359,7 @@ function buildMuseum(host, data, hooks) {
   const halls = exhibits(data), texCache = new Map();
   layout(halls.length);
   /* 받은 그림으로 바꿔 끼운다 — 못 받으면 그대로 둔다 */
-  const swapped = { floor: 0, wall: 0, banner: 0, mural: 0, ceil: 0 };
+  const swapped = { floor: 0, wall: 0, banner: 0, mural: 0, ceil: 0, hwall: 0, dome: 0, hfloor: 0 };
   const swapTex = (url, put, u, v, what) => { if (!url) return; const t = new BABYLON.Texture(url, scene, false, true, BABYLON.Texture.TRILINEAR_SAMPLINGMODE,
     () => { t.anisotropicFilteringLevel = 8; if (u) { t.uScale = u; t.vScale = v; } put(t); swapped[what]++; }, () => t.dispose()); };
   const aspectOf = t => { const z = t.getSize(); return z.width / z.height || 1; };
@@ -370,20 +401,29 @@ function buildMuseum(host, data, hooks) {
   const glowPlane = std('glowPlane', '#000000', { disableLighting: true, emissiveTexture: dot, opacityTexture: dot, alphaMode: BABYLON.Engine.ALPHA_ADD, backFaceCulling: true });
   glowPlane.emissiveTexture.hasAlpha = true;
 
-  /* 둥근 홀 — 대리석 바닥, 문 자리를 비운 벽(판 여러 장), 문 위 상인방과 이름판, 벽 사이 기둥, 둥근 천장, 가운데 받침과 도는 고리 */
+  const banners = [], texWalls = [];
+  const tintedMat = (name, fill) => { const mt = std(name, '#ffffff', { backFaceCulling: false }); mt.diffuseColor = wallMat.diffuseColor.clone(); texWalls.push(mt); fill(mt); return mt; };
+  /* 둥근 홀 — 대리석 바닥과 가운데 바닥 원판, 문 사이 둥근 벽, 문 위 상인방(그 관의 벽 윗단)과 이름판, 벽 사이 기둥, 그림 돔, 가운데 받침과 도는 고리,
+     받침 위로 아홉 관 깃발이 둥글게 걸려 저마다 제 관 문을 본다 */
   const hallFloor = BABYLON.MeshBuilder.CreateDisc('hallFloor', { radius: R, tessellation: 72 }, scene);
   hallFloor.rotation.x = Math.PI / 2; hallFloor.material = floorOf('hallFloorMat', 5, 5);
   const ring = BABYLON.MeshBuilder.CreateTorus('ring', { diameter: R * 0.72, thickness: 0.08, tessellation: 96 }, scene); ring.position.y = 0.01; ring.scaling.y = 0.05; ring.material = frameMat; glow.addIncludedOnlyMesh(ring);
   const n = halls.length, step = Math.PI * 2 / n;
+  /* 홀 벽 그림 — 한 장이 벽 높이, 문 사이 한 칸(모두 같은 폭)에 이어 붙는다 */
+  const hallWallURL = hallArt(data, 'wall'), secW = (step - 2 * HALF) * R;
+  const hallWallMat = hallWallURL ? tintedMat('hallWall', mt => swapTex(hallWallURL, nt => { nt.uScale = secW / (ROOM_H * aspectOf(nt)); mt.diffuseTexture = nt; mt.emissiveTexture = nt; applyWall(mt); }, 0, 0, 'hwall')) : wallMat;
+  /* 바닥 원판 — 받침 둘레 반지름 4.6m. 그림이 없으면 아홉 관 색 빛살의 나침반 */
+  const medal = BABYLON.MeshBuilder.CreateDisc('medal', { radius: 4.6, tessellation: 96 }, scene);
+  medal.rotation.x = Math.PI / 2; medal.position.y = 0.012;
+  const medalMat = floorMats[floorMats.push(std('medalMat', '#ffffff', { diffuseTexture: medalTex(scene, halls, data), reflectionTexture: mirror, specularColor: new BABYLON.Color3(0.5, 0.45, 0.4), specularPower: 160 })) - 1];
+  medal.material = medalMat;
+  swapTex(hallArt(data, 'floor'), nt => { medalMat.diffuseTexture.dispose(); medalMat.diffuseTexture = nt; }, 0, 0, 'hfloor');
   halls.forEach((hall, i) => {
     const a = hall.angle;
-    /* 이 문과 다음 문 사이 벽 — 판 여섯 장 */
-    const from = a + HALF, to = a + step - HALF, k = 6, d = (to - from) / k;
-    for (let j = 0; j < k; j++) {
-      const phi = from + d * (j + 0.5), w = 2 * R * Math.sin(d / 2) + 0.04;
-      const p = BABYLON.MeshBuilder.CreatePlane('rw', { width: w, height: ROOM_H }, scene);
-      p.position.set(Math.sin(phi) * R, ROOM_H / 2, Math.cos(phi) * R); p.rotation.y = phi; p.material = wallMat;
-    }
+    /* 이 문과 다음 문 사이 벽 — 둥근 판 하나(원기둥 조각). 안에서 보면 u 가 오른쪽으로 는다 */
+    const from = a + HALF - 0.004, to = a + step - HALF + 0.004;
+    const arcW = BABYLON.MeshBuilder.CreateCylinder('rw', { height: ROOM_H, diameter: R * 2, arc: (to - from) / (Math.PI * 2), tessellation: 72, cap: BABYLON.Mesh.NO_CAP, sideOrientation: BABYLON.Mesh.BACKSIDE }, scene);
+    arcW.position.y = ROOM_H / 2; arcW.rotation.y = from - Math.PI / 2; arcW.material = hallWallMat;
     const col = BABYLON.MeshBuilder.CreateCylinder('col', { diameter: 0.7, height: ROOM_H, tessellation: 24 }, scene);
     const mid = a + step / 2; col.position.set(Math.sin(mid) * (R - 0.6), ROOM_H / 2, Math.cos(mid) * (R - 0.6)); col.material = wallMat;
     brazier(null, Math.sin(mid) * (R - 1.5), Math.cos(mid) * (R - 1.5));
@@ -391,14 +431,27 @@ function buildMuseum(host, data, hooks) {
     cap.position.set(col.position.x, ROOM_H - 0.25, col.position.z); cap.material = frameMat; glow.addIncludedOnlyMesh(cap);
     const lintel = BABYLON.MeshBuilder.CreatePlane('lintel', { width: ROOM_W + 0.2, height: ROOM_H - DOOR_H }, scene);
     lintel.position.set(Math.sin(a) * R_IN, DOOR_H + (ROOM_H - DOOR_H) / 2, Math.cos(a) * R_IN); lintel.rotation.y = a; lintel.material = wallMat;
+    /* 상인방에 그 관의 벽 윗단을 — 홀에서 문 너머가 어느 관인지 먼저 보인다 */
+    const lintelURL = roomArt(data, hall.myth, 'wall');
+    if (lintelURL) lintel.material = tintedMat('lintelMat', mt => swapTex(lintelURL, nt => { const vs = (ROOM_H - DOOR_H) / ROOM_H;
+      nt.uScale = (ROOM_W + 0.2) / (ROOM_H * aspectOf(nt)); nt.vScale = vs; nt.vOffset = 1 - vs; mt.diffuseTexture = nt; mt.emissiveTexture = nt; applyWall(mt); }, 0, 0, 'wall'));
     const color = data.group.myth.color[hall.myth];
     const sign = BABYLON.MeshBuilder.CreatePlane('sign', { width: 3.6, height: 0.8 }, scene);
     const rr = R_IN - 0.05; sign.position.set(Math.sin(a) * rr, DOOR_H + 0.62, Math.cos(a) * rr); sign.rotation.y = a;
     sign.material = std('signMat', '#000000', { disableLighting: true, emissiveTexture: textTex(scene, [{ text: W('museum.room', { name: data.group.myth.name[hall.myth] }), size: 64, bold: true }], 720, 160, { bg: '#0d0b10', color, border: color }), fogEnabled: false });
     glow.addIncludedOnlyMesh(sign);
   });
-  const dome = BABYLON.MeshBuilder.CreateSphere('dome', { diameter: R * 2, segments: 32, slice: 0.5, sideOrientation: BABYLON.Mesh.BACKSIDE }, scene);
-  dome.position.y = ROOM_H; dome.scaling.y = 0.45; dome.material = ceilMat;
+  const dome = BABYLON.MeshBuilder.CreateSphere('dome', { diameter: R * 2, segments: 48, slice: 0.5, sideOrientation: BABYLON.Mesh.BACKSIDE }, scene);
+  dome.position.y = ROOM_H; dome.scaling.y = 0.45;
+  /* 돔 그림은 밑에서 올려다본 둥근 그림 한 장 — 위에서 곧게 내리찍는다(u·v = x·z) */
+  { const pos = dome.getVerticesData(BABYLON.VertexBuffer.PositionKind), uv = [];
+    for (let j = 0; j < pos.length; j += 3) uv.push(pos[j] / (2 * R) + 0.5, pos[j + 2] / (2 * R) + 0.5);
+    dome.setVerticesData(BABYLON.VertexBuffer.UVKind, uv); }
+  const domeTexFb = domeTex(scene, halls, data);
+  dome.material = tintedMat('domeMat', mt => { mt.diffuseTexture = domeTexFb; mt.emissiveTexture = domeTexFb;
+    swapTex(hallArt(data, 'dome'), nt => { nt.wrapU = nt.wrapV = BABYLON.Texture.CLAMP_ADDRESSMODE; mt.diffuseTexture = nt; mt.emissiveTexture = nt; domeTexFb.dispose(); applyWall(mt); }, 0, 0, 'dome'); });
+  /* 깃발 고리 — 받침 위 5.7m, 반지름 3.2m */
+  const bRing = BABYLON.MeshBuilder.CreateTorus('bring', { diameter: 6.4, thickness: 0.07, tessellation: 96 }, scene); bRing.position.y = 5.7; bRing.material = frameMat; glow.addIncludedOnlyMesh(bRing);
   const oculus = BABYLON.MeshBuilder.CreateDisc('oculus', { radius: 1.6, tessellation: 48 }, scene);
   oculus.position.y = ROOM_H + R * 0.45 - 0.05; oculus.rotation.x = -Math.PI / 2; oculus.material = stripMat; glow.addIncludedOnlyMesh(oculus);
   const ped = BABYLON.MeshBuilder.CreateCylinder('ped', { diameterTop: 2.2, diameterBottom: 2.6, height: 1.0, tessellation: 48 }, scene); ped.position.y = 0.5; ped.material = wallMat;
@@ -408,7 +461,6 @@ function buildMuseum(host, data, hooks) {
 
   /* 전시실 — 긴 방. 대리석 바닥, 굽도리와 금 그림 걸이 띠, 천장 가운데 빛 줄, 신화권 색 바닥 띠.
      왼쪽·오른쪽 벽에 번갈아, 마지막 한 점은 끝 벽 가운데 */
-  const banners = [], texWalls = [];
   const frames = [], pendingTex = textTex(scene, [{ text: W('museum.pending'), size: 44, bold: true }], 300, 450, { bg: '#1b1820', color: '#8d8494', border: '#3b3544' });
   const loadingTex = textTex(scene, [{ text: '…', size: 60, bold: true }], 300, 450, { bg: '#141118', color: '#5d5566' });
   const brokenTex = textTex(scene, [{ text: W('museum.broken'), size: 34, bold: true }], 300, 450, { bg: '#1b1820', color: '#8d8494', border: '#3b3544' });
@@ -423,16 +475,20 @@ function buildMuseum(host, data, hooks) {
     /* 들어가는 곳과 끝에 화로, 액자 사이마다 붉은 휘장 */
     [z0 + 1.7, z0 + L - 1.4].forEach(zz => [-1, 1].forEach(sd => brazier(g, sd * (ROOM_W / 2 - 0.55), zz)));
     const bMat = std('bannerMat', '#ffffff', { diffuseTexture: bannerTex(scene, hall.myth, color), specularColor: new BABYLON.Color3(0.1, 0.08, 0.05) });
-    bMat.emissiveColor = new BABYLON.Color3(0.18, 0.12, 0.1); banners.push(bMat);
+    bMat.emissiveColor = new BABYLON.Color3(0.18, 0.12, 0.1); bMat.backFaceCulling = false; banners.push(bMat);
     /* 깃발 그림은 투명 배경 — 받으면 그 비율대로 폭을 넓힌다(높이 2.6m 그대로) */
     const bMeshes = [];
     swapTex(roomArt(data, hall.myth, 'banner'), nt => { bMat.diffuseTexture.dispose(); nt.hasAlpha = true; bMat.diffuseTexture = nt;
       /* 폭은 1.3m 까지 — 넘으면 비율대로 줄이고 윗단은 제자리(액자 사이 자리를 안 넘게) */
       const asp = aspectOf(nt), bw = Math.min(1.3, 2.6 * asp), bh = bw / asp;
-      bMeshes.forEach(m => { m.scaling.x = bw / 0.8; m.scaling.y = bh / 2.6; m.position.y = 2.35 + (2.6 - bh) / 2; }); }, 0, 0, 'banner');
+      /* 멈춰 둔 위치를 풀었다 다시 멈춘다 — 멈춘 채로 크기를 바꾸면 반영되지 않는다 */
+      bMeshes.forEach(m => { const fz = m.isWorldMatrixFrozen; if (fz) m.unfreezeWorldMatrix();
+        m.scaling.x = bw / 0.8; m.scaling.y = bh / 2.6; m.position.y = m.metadata.by + (2.6 - bh) / 2; if (fz) { m.computeWorldMatrix(true); m.freezeWorldMatrix(); } }); }, 0, 0, 'banner');
+    /* 홀의 깃발 — 받침 위 고리에 매달려 이 관 문을 본다(윗단 5.55m) */
+    const hb = put(BABYLON.MeshBuilder.CreatePlane('banner', { width: 0.8, height: 2.6 }, scene), 0, 4.25, 3.2, Math.PI); hb.material = bMat; hb.metadata = { by: 4.25 }; bMeshes.push(hb);
     /* 이 방의 벽 — 그 권의 벽 그림이 오면 이 방만 그 그림으로. 그림 한 장이 벽 높이(5m), 가로로 이어 붙는다 */
     let rw = wallMat, re = wallMat;
-    const tinted = (fill) => { const mt = std('wallRoom', '#ffffff', { backFaceCulling: false }); mt.diffuseColor = wallMat.diffuseColor.clone(); texWalls.push(mt); fill(mt); return mt; };
+    const tinted = (fill) => tintedMat('wallRoom', fill);
     const wallURL = roomArt(data, hall.myth, 'wall');
     if (wallURL) {
       const wm = (w) => tinted(mt => swapTex(wallURL, nt => { nt.uScale = w / (ROOM_H * aspectOf(nt)); mt.diffuseTexture = nt; mt.emissiveTexture = nt; applyWall(mt); }, 0, 0, 'wall'));
@@ -444,7 +500,7 @@ function buildMuseum(host, data, hooks) {
     for (let j = 0; j < side; j++) {
       const bz = z0 + 3.5 + j * STEP + STEP / 2;
       if (bz > z0 + L - 1.8) continue;
-      [-1, 1].forEach(sd => { const b = put(BABYLON.MeshBuilder.CreatePlane('banner', { width: 0.8, height: 2.6 }, scene), sd * (ROOM_W / 2 - 0.05), 2.35, bz, sd < 0 ? -Math.PI / 2 : Math.PI / 2); b.material = bMat; bMeshes.push(b); });
+      [-1, 1].forEach(sd => { const b = put(BABYLON.MeshBuilder.CreatePlane('banner', { width: 0.8, height: 2.6 }, scene), sd * (ROOM_W / 2 - 0.05), 2.35, bz, sd < 0 ? -Math.PI / 2 : Math.PI / 2); b.material = bMat; b.metadata = { by: 2.35 }; bMeshes.push(b); });
     }
     /* 천장 — 권역 천장(3.5m 네모). 그림이 오면 그것으로 */
     const CT = 3.5, ct = ceilTex(scene, hall.myth, color); ct.wrapU = ct.wrapV = BABYLON.Texture.WRAP_ADDRESSMODE; ct.uScale = ROOM_W / CT; ct.vScale = L / CT;
@@ -497,7 +553,7 @@ function buildMuseum(host, data, hooks) {
   scene.meshes.forEach(m => { if (m.name !== 'halo' && m.name !== 'flame') m.freezeWorldMatrix(); if (!pickable.has(m) && m.name !== 'border' && m.name !== 'plaque') m.isPickable = false; });
 
   /* 바닥에 비칠 것 — 벽·액자·그림·휘장·화로·기둥·천장 빛 */
-  const REFLECT = /^(rw|rl|rr|re|lintel|col|cap|border|art|rim|banner|stand|bowlm|flame|strip|ped|halo|sign|plaque)$/;
+  const REFLECT = /^(rw|rl|rr|re|lintel|col|cap|border|art|rim|banner|stand|bowlm|flame|strip|ped|halo|sign|plaque|bring)$/;
   mirror.renderList = scene.meshes.filter(m => REFLECT.test(m.name));
   /* 불빛 — 가까운 화로 둘에 따뜻한 점 조명 */
   const fires = [0, 1].map(i => { const l = new BABYLON.PointLight('fire' + i, new BABYLON.Vector3(0, 1.8, 0), scene); l.range = 7; l.intensity = 0; return l; });

@@ -33,6 +33,7 @@ for (const m of group.myth.order) {
 }
 /* 박물관 그림 — 있는 권, 벽·깃발·끝 벽 벽화·천장만 */
 const mu = group.museum || {};
+assert(!mu.hall || Array.isArray(mu.hall) && mu.hall.every(x => ['wall', 'dome', 'floor'].includes(x)), 'museum.hall 은 wall·dome·floor 목록');
 assert(typeof (mu.floor || false) === 'boolean', 'museum.floor 는 참·거짓');
 for (const [m, list] of Object.entries(mu.rooms || {})) {
   assert(group.myth.order.includes(m), 'museum.rooms 의 ' + m + ' 이 신화권에 없다');
