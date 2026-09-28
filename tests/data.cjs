@@ -31,6 +31,13 @@ for (const m of group.myth.order) {
   assert(mine.length >= 10, m + ' 은 열 자루 이상');
   for (const cost of [1, 2, 3, 4, 5]) assert(mine.some(c => c.cost === cost), m + ' 에 ' + cost + '금 카드가 없다');
 }
+/* 박물관 그림 — 있는 권, 벽·깃발만 */
+const mu = group.museum || {};
+assert(typeof (mu.floor || false) === 'boolean', 'museum.floor 는 참·거짓');
+for (const [m, list] of Object.entries(mu.rooms || {})) {
+  assert(group.myth.order.includes(m), 'museum.rooms 의 ' + m + ' 이 신화권에 없다');
+  assert(Array.isArray(list) && list.every(x => ['wall', 'banner'].includes(x)), 'museum.rooms.' + m + ' 은 wall·banner 목록');
+}
 /* 무기 종류마다 두 자루는 있어야 시너지(2)가 켜질 수 있다 */
 for (const k of group.kind.order) assert(cards.filter(c => c.kind === k).length >= 2, k + ' 는 두 자루 이상');
 
