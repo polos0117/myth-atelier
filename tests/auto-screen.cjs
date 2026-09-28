@@ -52,6 +52,19 @@ const A = require('../lib/auto.js');
     assert.equal(await p.locator('.at-syn').count(), 2, '한 자루면 신화권·종류 줄이 하나씩, 아직 꺼진 채');
     assert.equal(await p.locator('.at-syn.on').count(), 0);
 
+    /* 정보 — 고르면 세기·기술·시너지가 뜬다. 상대 판·상점 그림도 누르면 뜬다 */
+    await p.locator('.at-board[data-side="me"] .at-cell[data-index="1"]').click();
+    await p.waitForSelector('.at-info[data-info]');
+    assert((await p.locator('.at-info').innerText()).includes(require('node:fs') && JSON.parse(require('node:fs').readFileSync('data/skill.json', 'utf8')).skills[cards.find(c => c.name === first).skill].name), '기술 이름이 보인다');
+    await p.locator('.at-board[data-side="me"] .at-cell[data-index="1"]').click();
+    await p.locator('.at-board[data-side="them"] .at-cell:not(.empty)').first().click();
+    await p.waitForSelector('.at-info #at-info-close');
+    await p.locator('#at-info-close').click();
+    await p.locator('.at-shop .at-card .face').first().click();
+    await p.waitForSelector('.at-info[data-info]');
+    await p.locator('#at-info-close').click();
+    await p.waitForFunction(() => !document.querySelector('.at-info'));
+
     /* 팔기 */
     await p.locator('.at-board[data-side="me"] .at-cell[data-index="1"]').click();
     await p.waitForSelector('#at-sell');
