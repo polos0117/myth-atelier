@@ -263,6 +263,39 @@ function bannerTex(scene, myth, color) {
     for (let x = 18; x < w - 12; x += 16) { g.fillStyle = b.trim; g.fillRect(x, h - 48, 6, 40); }
   }, 'banner');
 }
+/* 천장 — 권역마다 판 색·들보 색·가운데 무늬. 한 장이 3.5m 네모(폭 7m 방에 두 칸, 가운데 빛 줄이 이음새를 덮는다).
+   이집트는 무덤 천장처럼 푸른 바탕에 노란 별, 서아시아는 청금석에 이슈타르 별. 표에 없는 새 권은 제 색을 어둡게 */
+const CEIL = {
+  norse:    { panel: '#2a2018', beam: '#4a3624', mark: 'knot', ink: '#9aa0aa' },
+  greek:    { panel: '#b8b0a0', beam: '#e0d8c8', mark: 'rosette', ink: '#b08a3a' },
+  korea:    { panel: '#1f4a3c', beam: '#8a2a20', mark: 'lotus', ink: '#e8c040' },
+  china:    { panel: '#5a1410', beam: '#2a1810', mark: 'disc', ink: '#d9a030' },
+  japan:    { panel: '#3a2c20', beam: '#1a1410', mark: 'grid', ink: '#8a6a44' },
+  india:    { panel: '#6a3a18', beam: '#8a5a2a', mark: 'lotus', ink: '#e8b040' },
+  egypt:    { panel: '#1a2a5a', beam: '#c8a860', mark: 'stars', ink: '#e8c850' },
+  westasia: { panel: '#1a2460', beam: '#3a2414', mark: 'star8', ink: '#d9b45a' },
+  celtic:   { panel: '#262c22', beam: '#3a3226', mark: 'knot', ink: '#a89060' },
+};
+function ceilTex(scene, myth, color) {
+  const c = CEIL[myth] || { panel: shade(color, 0.3), beam: shade(color, 0.18), mark: 'disc', ink: shade(color, 0.8) };
+  return canvasTex(scene, 512, 512, (g, w) => {
+    g.fillStyle = c.beam; g.fillRect(0, 0, w, w);
+    const bw = 34; /* 가장자리마다 들보 반쪽 — 이어 붙이면 온 들보 */
+    g.fillStyle = c.panel; g.fillRect(bw, bw, w - bw * 2, w - bw * 2);
+    g.strokeStyle = c.ink; g.globalAlpha = 0.7; g.lineWidth = 4; g.strokeRect(bw + 14, bw + 14, w - bw * 2 - 28, w - bw * 2 - 28); g.globalAlpha = 1;
+    const cx = w / 2, cy = w / 2; g.fillStyle = c.ink; g.strokeStyle = c.ink;
+    const star = (x, y, r, n) => { g.beginPath(); for (let k = 0; k < n * 2; k++) { const a = k * Math.PI / n - Math.PI / 2, rr = k % 2 ? r * 0.42 : r; g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } g.closePath(); g.fill(); };
+    switch (c.mark) {
+      case 'star8': star(cx, cy, 70, 8); g.fillStyle = c.panel; g.beginPath(); g.arc(cx, cy, 14, 0, Math.PI * 2); g.fill(); break;
+      case 'stars': for (let k = 0; k < 26; k++) { const x = bw + 30 + ((k * 97) % (w - bw * 2 - 60)), y = bw + 30 + ((k * 61) % (w - bw * 2 - 60)); star(x, y, 12, 5); } break;
+      case 'rosette': for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4; g.beginPath(); g.arc(cx + Math.cos(a) * 34, cy + Math.sin(a) * 34, 20, 0, Math.PI * 2); g.fill(); } g.fillStyle = c.panel; g.beginPath(); g.arc(cx, cy, 18, 0, Math.PI * 2); g.fill(); break;
+      case 'lotus': for (let k = 0; k < 8; k++) { g.save(); g.translate(cx, cy); g.rotate(k * Math.PI / 4); g.beginPath(); g.ellipse(0, -40, 16, 40, 0, 0, Math.PI * 2); g.fill(); g.restore(); } break;
+      case 'disc': g.lineWidth = 8; [70, 48].forEach(r => { g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.stroke(); }); g.beginPath(); g.arc(cx, cy, 20, 0, Math.PI * 2); g.fill(); break;
+      case 'grid': g.lineWidth = 3; for (let x = bw; x < w - bw; x += 55) { g.beginPath(); g.moveTo(x, bw); g.lineTo(x, w - bw); g.stroke(); g.beginPath(); g.moveTo(bw, x); g.lineTo(w - bw, x); g.stroke(); } break;
+      case 'knot': g.lineWidth = 8; for (let k = 0; k < 3; k++) { const a = k * Math.PI * 2 / 3 - Math.PI / 2; g.beginPath(); g.arc(cx + Math.cos(a) * 26, cy + Math.sin(a) * 26, 40, 0, Math.PI * 2); g.stroke(); } break;
+    }
+  }, 'ceil');
+}
 /* 색을 어둡게(k<1) */
 function shade(hex, k) { const n = parseInt(hex.slice(1), 16); return '#' + [16, 8, 0].map(s => Math.round(((n >> s) & 255) * k).toString(16).padStart(2, '0')).join(''); }
 function dotTex(scene) {
@@ -295,7 +328,7 @@ function buildMuseum(host, data, hooks) {
   const halls = exhibits(data), texCache = new Map();
   layout(halls.length);
   /* 받은 그림으로 바꿔 끼운다 — 못 받으면 그대로 둔다 */
-  const swapped = { floor: 0, wall: 0, banner: 0, mural: 0 };
+  const swapped = { floor: 0, wall: 0, banner: 0, mural: 0, ceil: 0 };
   const swapTex = (url, put, u, v, what) => { if (!url) return; const t = new BABYLON.Texture(url, scene, false, true, BABYLON.Texture.TRILINEAR_SAMPLINGMODE,
     () => { t.anisotropicFilteringLevel = 8; if (u) { t.uScale = u; t.vScale = v; } put(t); swapped[what]++; }, () => t.dispose()); };
   const aspectOf = t => { const z = t.getSize(); return z.width / z.height || 1; };
@@ -411,7 +444,11 @@ function buildMuseum(host, data, hooks) {
       if (bz > z0 + L - 1.8) continue;
       [-1, 1].forEach(sd => { const b = put(BABYLON.MeshBuilder.CreatePlane('banner', { width: 0.8, height: 2.6 }, scene), sd * (ROOM_W / 2 - 0.05), 2.35, bz, sd < 0 ? -Math.PI / 2 : Math.PI / 2); b.material = bMat; bMeshes.push(b); });
     }
-    put(BABYLON.MeshBuilder.CreateGround('rc', { width: ROOM_W, height: L }, scene), 0, ROOM_H, zc, 0, Math.PI).material = ceilMat;
+    /* 천장 — 권역 천장(3.5m 네모). 그림이 오면 그것으로 */
+    const CT = 3.5, ct = ceilTex(scene, hall.myth, color); ct.wrapU = ct.wrapV = BABYLON.Texture.WRAP_ADDRESSMODE; ct.uScale = ROOM_W / CT; ct.vScale = L / CT;
+    const cm = tinted(mt => { mt.diffuseTexture = ct; mt.emissiveTexture = ct;
+      swapTex(roomArt(data, hall.myth, 'ceil'), nt => { mt.diffuseTexture = nt; mt.emissiveTexture = nt; ct.dispose(); }, ROOM_W / CT, L / CT, 'ceil'); });
+    put(BABYLON.MeshBuilder.CreateGround('rc', { width: ROOM_W, height: L }, scene), 0, ROOM_H, zc, 0, Math.PI).material = cm;
     put(BABYLON.MeshBuilder.CreatePlane('rl', { width: L, height: ROOM_H }, scene), -ROOM_W / 2, ROOM_H / 2, zc, -Math.PI / 2).material = rw;
     put(BABYLON.MeshBuilder.CreatePlane('rr', { width: L, height: ROOM_H }, scene), ROOM_W / 2, ROOM_H / 2, zc, Math.PI / 2).material = rw;
     put(BABYLON.MeshBuilder.CreatePlane('re', { width: ROOM_W, height: ROOM_H }, scene), 0, ROOM_H / 2, z0 + L, 0).material = re;
