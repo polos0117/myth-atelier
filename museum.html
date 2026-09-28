@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow, noarchive, noimageindex">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#121016">
+<title>신화 무기 공방</title>
+<!--
+  박물관 — 도감의 그림을 3D 전시실에 걸고 걸어 다니며 본다. 가운데 둥근 홀에서 신화권마다 전시실이 뻗는다.
+  액자는 도감이 쓰는 썸네일로 걸고, 가까이 선 액자만 원본으로 바꾼다. 상태(기본·각성·저주)를 바꾸면
+  그림과 함께 전시실의 빛·안개·먼지가 바뀐다. 그림이 없는 상태는 기본 그림을 그 상태의 빛으로 물들인다.
+  3D 는 three.js(esm.sh). 화면이 읽는 그림 목록은 도감과 같이 data/img.json 뿐이다.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap">
+<link rel="stylesheet" href="lib/workspace.css?v=myth24">
+<style>
+* {box-sizing:border-box}
+html,body {margin:0;padding:0}
+body {color:var(--text);font-size:15px}
+.dex-page > #app {display:flex;flex-direction:column;min-height:0;height:100%}
+.dex-page > #app > main {flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+/* 도구줄 — 상태 셋, 전시실 바로 가기, 도감으로 */
+.mu-bar {display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;padding:8px 0}
+.mu-modes, .mu-rooms {display:flex;flex-wrap:wrap;gap:6px}
+.mu-btn {min-height:38px;padding:0 13px;border:1px solid var(--line);border-radius:99px;background:var(--card);color:var(--muted);font:700 12px var(--display, inherit);cursor:pointer}
+.mu-btn[aria-pressed="true"] {color:var(--text);border-color:var(--cc, var(--accent));background:var(--accent-soft);box-shadow:inset 0 -2px var(--cc, var(--accent))}
+.mu-btn.awaken[aria-pressed="true"] {--cc:#f3dc9a}
+.mu-btn.cursed[aria-pressed="true"] {--cc:#ff4d6d}
+.mu-bar a.mu-btn {display:inline-flex;align-items:center;text-decoration:none;margin-left:auto}
+.mu-rooms {width:100%;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:thin;padding-bottom:2px}
+.mu-rooms .mu-btn {flex:none;min-height:34px;font-size:11px}
+/* 무대 — 남은 높이를 다 쓴다 */
+.mu-stage {position:relative;flex:1 1 auto;min-height:320px;border:1px solid var(--line);border-top:2px solid var(--gold);border-radius:10px;overflow:hidden;background:#000;touch-action:none;user-select:none;-webkit-user-select:none}
+.mu-stage canvas {position:absolute;inset:0;z-index:0;display:block;width:100%;height:100%;outline:none}
+.mu-stage > :not(canvas) {z-index:2}
+.mu-stage[data-mode="awaken"] {border-top-color:#f3dc9a;box-shadow:0 0 30px #f3dc9a33}
+.mu-stage[data-mode="cursed"] {border-top-color:#ff4d6d;box-shadow:0 0 30px #c0143c44}
+.mu-where {position:absolute;left:10px;top:10px;padding:5px 10px;border-radius:99px;background:#000a;color:#fff;font:700 12px var(--display, inherit);letter-spacing:.04em;pointer-events:none}
+.mu-help {position:absolute;right:10px;top:10px;max-width:46%;padding:5px 10px;border-radius:8px;background:#0008;color:#ddd;font-size:11px;line-height:1.5;pointer-events:none}
+/* 가까이 선 액자의 명판 */
+.mu-caption {position:absolute;left:50%;bottom:14px;transform:translateX(-50%);width:min(560px,calc(100% - 24px));padding:10px 14px;border:1px solid #ffffff33;border-left:4px solid var(--cc, var(--gold));border-radius:10px;background:#000c;color:#fff;font-size:12px;line-height:1.5;pointer-events:auto}
+.mu-caption b {font-size:15px;margin-right:6px}
+.mu-caption small {color:#cfc7b8}
+.mu-caption p {margin:4px 0 0;color:#e8e2d6}
+.mu-caption button {float:right;margin-left:8px;min-height:32px;padding:0 10px;border:1px solid #ffffff55;border-radius:8px;background:#ffffff14;color:#fff;font:inherit;font-weight:700;cursor:pointer}
+/* 폰 — 왼쪽 아래 둥근 손잡이 */
+.mu-stick {position:absolute;left:18px;bottom:18px;width:112px;height:112px;border-radius:50%;border:1px solid #ffffff44;background:radial-gradient(circle,#ffffff14,#0005);touch-action:none}
+.mu-stick i {position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:#ffffff55;box-shadow:0 0 12px #0008}
+.mu-stage.has-caption .mu-stick {bottom:calc(18px + var(--cap-h, 0px))}
+/* 자세히 */
+.mu-detail {position:absolute;inset:0;display:grid;place-items:center;padding:14px;background:#000b;z-index:3}
+.mu-detail > div {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:14px;width:min(860px,100%);max-height:100%;overflow:auto;padding:14px;border:1px solid var(--line);border-top:3px solid var(--cc, var(--gold));border-radius:12px;background:var(--card);color:var(--text)}
+.mu-detail img {display:block;width:100%;max-height:70vh;object-fit:contain;border-radius:8px;background:var(--card2)}
+.mu-detail h3 {margin:0 0 4px;font-size:22px}
+.mu-detail small {display:block;color:var(--muted);font-size:12px}
+.mu-detail p {margin:8px 0 0;font-size:13px;line-height:1.7}
+.mu-detail .curse {color:var(--signal)}
+.mu-detail .row {display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.mu-detail .row a, .mu-detail .row button {min-height:40px;padding:0 14px;display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:8px;background:var(--card2);color:var(--text);font:inherit;font-size:13px;font-weight:700;text-decoration:none;cursor:pointer}
+.mu-empty {padding:36px 0;text-align:center;color:var(--muted);font-size:13px}
+@media (max-width:599px) {
+  .mu-help {display:none}
+  .mu-detail > div {grid-template-columns:1fr}
+  .mu-detail img {max-height:46vh}
+  .mu-caption {bottom:10px}
+}
+</style>
+<script src="lib/workspace-theme.js?v=myth8"></script>
+<script src="lib/words.js?v=myth31"></script>
+<script src="lib/fresh.js?v=4"></script>
+<script src="lib/img.js?v=myth5"></script>
+</head>
+<body class="dex-page museum-page">
+<div id="app"></div>
+<script type="module">
+import { h, render } from 'https://esm.sh/preact@10.24.3';
+import { useState, useEffect, useRef } from 'https://esm.sh/preact@10.24.3/hooks';
+import htm from 'https://esm.sh/htm@3.1.1';
+import * as THREE from 'https://esm.sh/three@0.170.0';
+import { WorkspaceHeader } from './lib/workspace-ui.js?v=myth9';
+const html = htm.bind(h);
+const W = window.W, IMG = window.AtelierImg, V = 'f';
+
+/* ── 건물 치수(미터). 가운데 둥근 홀(반지름 R)에서 신화권마다 긴 전시실이 바퀴살처럼 뻗는다 ── */
+const R = 14, ROOM_W = 7, ROOM_H = 5, DOOR_H = 3.6, EYE = 1.65, STEP = 3.7, SPEED = 3.4;
+const ART_W = 1.5, ART_H = 2.25;
+const HALF = Math.asin((ROOM_W / 2) / R), R_IN = R * Math.cos(HALF) - 0.05;
+
+function useData() {
+  const [state, set] = useState(null);
+  useEffect(() => {
+    const get = f => fetch(f, { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(f + ' ' + r.status); return r.json(); });
+    Promise.all([get('data/card.json'), get('data/group.json'), get('data/skill.json'), IMG.load()])
+      .then(([card, group, skill, img]) => set({ cards: card.cards, group, skills: skill.skills, img }))
+      .catch(e => set({ error: String((e && e.message) || e) }));
+  }, []);
+  return state;
+}
+
+/* 한 무기의 세 그림. 가장 그림이 많은 화풍의 것을 건다 */
+function filesOf(entry) {
+  const bs = IMG.styleMap(entry), keys = Object.keys(bs).filter(k => bs[k][V]);
+  if (!keys.length) return null;
+  const best = keys.sort((a, b) => IMG.shotsOf(bs[b], V).length - IMG.shotsOf(bs[a], V).length)[0], b = bs[best];
+  return { base: b[V], awaken: IMG.awakenOf(b, V), cursed: IMG.cursedOf(b, V) };
+}
+/* 전시 차례 — 신화권 차례, 권 안에서는 값 높은 것부터(도감과 같다) */
+function exhibits(data) {
+  return data.group.myth.order.map((myth, i) => ({
+    myth, index: i, angle: i * Math.PI * 2 / data.group.myth.order.length,
+    cards: data.cards.filter(c => c.myth === myth).sort((a, b) => b.cost - a.cost || a.name.localeCompare(b.name, 'ko'))
+  }));
+}
+const css = (name, fallback) => (getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback);
+
+/* ── 상태마다의 공기 — 안개·빛·벽·액자 테두리·뒤 빛·먼지. 기본은 지금 테마 색에서 온다 ── */
+function moods() {
+  const bg = css('--bg', '#121016'), card = css('--card2', '#2a2433'), gold = css('--gold', '#d9b45a');
+  return {
+    base:   { fog: bg, fogNear: 6, fogFar: 46, amb: 0.75, ambC: '#fff4e6', hemi: 0.55, wall: card, floor: '#3a3440', frame: gold, emis: 0.08, glow: '#fff1d6', glowA: 0.35, dust: '#fff3d6', dustN: 160, dustV: 0.05, tint: '#ffffff' },
+    awaken: { fog: '#3b2a10', fogNear: 8, fogFar: 60, amb: 1.05, ambC: '#ffe2a0', hemi: 0.8, wall: '#6e5427', floor: '#5a4520', frame: '#ffd77a', emis: 0.55, glow: '#ffd77a', glowA: 0.7, dust: '#fff0b0', dustN: 420, dustV: 0.55, tint: '#ffe9b0' },
+    cursed: { fog: '#16040a', fogNear: 3, fogFar: 30, amb: 0.5, ambC: '#ff8a9a', hemi: 0.35, wall: '#3a1016', floor: '#1e0a0e', frame: '#c0143c', emis: 0.6, glow: '#ff2d55', glowA: 0.55, dust: '#ff4d6d', dustN: 360, dustV: -0.35, tint: '#ff9aa8' }
+  };
+}
+
+/* 글씨를 판에 — 명판·전시실 이름 */
+function textTexture(lines, w, h, opt) {
+  const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+  const g = cv.getContext('2d');
+  g.fillStyle = opt.bg; g.fillRect(0, 0, w, h);
+  if (opt.border) { g.strokeStyle = opt.border; g.lineWidth = 6; g.strokeRect(3, 3, w - 6, h - 6); }
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  lines.forEach((ln, i) => {
+    g.fillStyle = ln.color || opt.color;
+    g.font = (ln.bold ? '700 ' : '400 ') + ln.size + 'px "Noto Serif KR", serif';
+    g.fillText(ln.text, w / 2, h * (lines.length === 1 ? 0.5 : (i + 0.5) / lines.length * (opt.spread || 1) + (1 - (opt.spread || 1)) / 2));
+  });
+  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
+  return t;
+}
+function glowTexture() {
+  const cv = document.createElement('canvas'); cv.width = cv.height = 128;
+  const g = cv.getContext('2d'), gr = g.createRadialGradient(64, 64, 4, 64, 64, 64);
+  gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.4, 'rgba(255,255,255,.35)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
+  return new THREE.CanvasTexture(cv);
+}
+
+/* ── 박물관 한 채. 화면(Preact)과는 콜백으로만 이야기한다 ── */
+function buildMuseum(host, data, hooks) {
+  let renderer;
+  try { renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' }); }
+  catch (e) { hooks.onNoGL(); return null; }
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.6));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  host.appendChild(renderer.domElement);
+  renderer.domElement.tabIndex = 0;
+  renderer.domElement.setAttribute('aria-label', W('museum.canvas'));
+
+  const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(70, 1, 0.05, 120);
+  scene.fog = new THREE.Fog(0x000000, 6, 46);
+  const amb = new THREE.AmbientLight(0xffffff, 0.7), hemi = new THREE.HemisphereLight(0xfff4e0, 0x202020, 0.5);
+  scene.add(amb, hemi);
+  const halls = exhibits(data), loader = new THREE.TextureLoader(), texCache = new Map();
+  loader.setCrossOrigin('anonymous');
+  const wallMat = new THREE.MeshLambertMaterial({ color: 0x2a2433 }), floorMat = new THREE.MeshLambertMaterial({ color: 0x3a3440 });
+  const ceilMat = new THREE.MeshLambertMaterial({ color: 0x14121a }), frameMat = new THREE.MeshStandardMaterial({ color: 0xd9b45a, metalness: 0.6, roughness: 0.35, emissive: 0xd9b45a, emissiveIntensity: 0.08 });
+  const glowTex = glowTexture();
+  const glowMats = [];
+
+  /* 둥근 홀 — 바닥, 문 자리를 비운 벽, 문 위 상인방, 둥근 천장, 가운데 받침과 도는 고리 */
+  const floor = new THREE.Mesh(new THREE.CircleGeometry(R, 72), floorMat); floor.rotation.x = -Math.PI / 2; scene.add(floor);
+  const rings = new THREE.Mesh(new THREE.RingGeometry(R * 0.35, R * 0.37, 72), frameMat); rings.rotation.x = -Math.PI / 2; rings.position.y = 0.01; scene.add(rings);
+  const n = halls.length;
+  halls.forEach((hall, i) => {
+    const a = hall.angle, next = halls[(i + 1) % n].angle + (i + 1 === n ? Math.PI * 2 : 0);
+    const seg = new THREE.Mesh(new THREE.CylinderGeometry(R, R, ROOM_H, 24, 1, true, a + HALF, next - a - HALF * 2), wallMat);
+    seg.material.side = THREE.DoubleSide; seg.position.y = ROOM_H / 2; scene.add(seg);
+    const lintel = new THREE.Mesh(new THREE.CylinderGeometry(R, R, ROOM_H - DOOR_H, 8, 1, true, a - HALF, HALF * 2), wallMat);
+    lintel.position.y = DOOR_H + (ROOM_H - DOOR_H) / 2; scene.add(lintel);
+    /* 문 위 이름판 — 신화권 색 */
+    const sign = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 0.8), new THREE.MeshBasicMaterial({
+      map: textTexture([{ text: W('museum.room', { name: data.group.myth.name[hall.myth] }), size: 64, bold: true }], 720, 160,
+        { bg: '#0d0b10', color: data.group.myth.color[hall.myth], border: data.group.myth.color[hall.myth] }), fog: false }));
+    const rr = R - 0.08; sign.position.set(Math.sin(a) * rr, DOOR_H + 0.62, Math.cos(a) * rr); sign.lookAt(0, DOOR_H + 0.62, 0); scene.add(sign);
+  });
+  const wallMatD = wallMat; wallMatD.side = THREE.DoubleSide;
+  const dome = new THREE.Mesh(new THREE.SphereGeometry(R, 48, 16, 0, Math.PI * 2, 0, Math.PI / 2), ceilMat);
+  dome.material.side = THREE.BackSide; dome.scale.y = 0.45; dome.position.y = ROOM_H; scene.add(dome);
+  const ped = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.3, 1.0, 32), wallMat); ped.position.y = 0.5; scene.add(ped);
+  const halo = new THREE.Mesh(new THREE.TorusGeometry(0.75, 0.05, 12, 64), frameMat); halo.position.y = 1.9; scene.add(halo);
+  /* 받침의 이름판 — 앞뒤 두 장(한 장을 양면으로 하면 뒤에서 글씨가 뒤집힌다) */
+  const titleMat = new THREE.MeshBasicMaterial({ map: textTexture([{ text: W('museum.hall'), size: 60, bold: true }], 720, 160, { bg: '#0d0b10', color: css('--gold', '#d9b45a') }) });
+  [0, Math.PI].forEach(ry => { const t = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 0.42), titleMat); t.position.set(Math.sin(ry) * 1.21, 0.62, Math.cos(ry) * 1.21); t.rotation.y = ry; scene.add(t); });
+
+  /* 전시실 — 긴 방. 왼쪽·오른쪽 벽에 번갈아, 마지막 한 점은 끝 벽 가운데 */
+  const frames = [];
+  halls.forEach(hall => {
+    const g = new THREE.Group(); g.rotation.y = hall.angle; scene.add(g);
+    const count = hall.cards.length, side = Math.ceil((count - 1) / 2);
+    const L = 3.5 + side * STEP + 2; hall.L = L;
+    const z0 = R_IN, zc = z0 + L / 2;
+    const plane = (w, hh, mat, x, y, z, ry, rx) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, hh), mat); m.position.set(x, y, z); m.rotation.set(rx || 0, ry || 0, 0); g.add(m); return m; };
+    plane(ROOM_W, L, floorMat, 0, 0, zc, 0, -Math.PI / 2);
+    plane(ROOM_W, L, ceilMat, 0, ROOM_H, zc, 0, Math.PI / 2);
+    plane(L, ROOM_H, wallMatD, -ROOM_W / 2, ROOM_H / 2, zc, Math.PI / 2);
+    plane(L, ROOM_H, wallMatD, ROOM_W / 2, ROOM_H / 2, zc, -Math.PI / 2);
+    plane(ROOM_W, ROOM_H, wallMatD, 0, ROOM_H / 2, z0 + L, Math.PI);
+    /* 바닥 가운데 신화권 색 띠 */
+    plane(0.5, L - 1, new THREE.MeshBasicMaterial({ color: data.group.myth.color[hall.myth], transparent: true, opacity: 0.35 }), 0, 0.012, zc, 0, -Math.PI / 2);
+    hall.cards.forEach((card, k) => {
+      let x, z, ry;
+      if (k === count - 1 && count > 1) { x = 0; z = z0 + L - 0.06; ry = Math.PI; }
+      else { const left = k % 2 === 0, j = Math.floor(k / 2); x = left ? -ROOM_W / 2 + 0.06 : ROOM_W / 2 - 0.06; z = z0 + 3.5 + j * STEP; ry = left ? Math.PI / 2 : -Math.PI / 2; }
+      const f = new THREE.Group(); f.position.set(x, 0, z); f.rotation.y = ry; g.add(f);
+      const glowMat = new THREE.MeshBasicMaterial({ map: glowTex, color: 0xfff1d6, transparent: true, opacity: 0.35, depthWrite: false, blending: THREE.AdditiveBlending });
+      glowMats.push(glowMat);
+      const glow = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 3.8), glowMat); glow.position.set(0, 2.05, 0.005); f.add(glow);
+      const border = new THREE.Mesh(new THREE.BoxGeometry(ART_W + 0.16, ART_H + 0.16, 0.07), frameMat); border.position.set(0, 2.05, 0.04); f.add(border);
+      const artMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+      const art = new THREE.Mesh(new THREE.PlaneGeometry(ART_W, ART_H), artMat); art.position.set(0, 2.05, 0.08); f.add(art);
+      const plaque = new THREE.Mesh(new THREE.PlaneGeometry(1.25, 0.34), new THREE.MeshBasicMaterial({
+        map: textTexture([{ text: card.name, size: 46, bold: true }, { text: data.group.kind.name[card.kind] + ' · ' + W('card.cost.n', { n: card.cost }), size: 30, color: '#b9ae98' }], 640, 174, { bg: '#15121a', color: '#f4ecd8', border: data.group.myth.color[card.myth], spread: 0.8 }) }));
+      plaque.position.set(0, 0.62, 0.03); f.add(plaque);
+      const files = filesOf(data.img[card.name]);
+      const fr = { card, hall, art, artMat, files, group: f, world: new THREE.Vector3(), normal: new THREE.Vector3(), shown: null, full: false };
+      art.userData.frame = fr; border.userData.frame = fr; plaque.userData.frame = fr;
+      frames.push(fr);
+    });
+  });
+  scene.updateMatrixWorld(true);
+  frames.forEach(fr => { fr.art.getWorldPosition(fr.world); fr.normal.set(0, 0, 1).applyQuaternion(fr.group.getWorldQuaternion(new THREE.Quaternion())); });
+  const pickables = frames.flatMap(fr => [fr.art]);
+
+  /* 그림 걸기 — 썸네일 먼저, 없으면 원본. 가까이 서면 원본으로 */
+  const pending = textTexture([{ text: W('museum.pending'), size: 44, bold: true }], 300, 450, { bg: '#1b1820', color: '#8d8494', border: '#3b3544' });
+  const loading = textTexture([{ text: '…', size: 60, bold: true }], 300, 450, { bg: '#141118', color: '#5d5566' });
+  const broken = textTexture([{ text: W('museum.broken'), size: 34, bold: true }], 300, 450, { bg: '#1b1820', color: '#8d8494', border: '#3b3544' });
+  function tex(url, fallback, done, fail) {
+    if (texCache.has(url)) { const t = texCache.get(url); if (t.image) done(t); else t.userData.wait.push(done); return; }
+    const t = loader.load(url, () => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; t.needsUpdate = true; (t.userData.wait || []).forEach(f => f(t)); t.userData.wait = []; done(t); hooks.onLoad(); },
+      undefined, () => { texCache.delete(url); if (fallback) tex(fallback, null, done, fail); else if (fail) fail(); });
+    t.userData.wait = [];
+    texCache.set(url, t);
+  }
+  let mode = 'base', mood = moods();
+  function hang(fr, wantFull) {
+    const f = fr.files;
+    if (!f) { fr.artMat.map = pending; fr.artMat.color.set(0xffffff); fr.artMat.needsUpdate = true; fr.shown = null; return; }
+    const own = mode === 'awaken' ? f.awaken : mode === 'cursed' ? f.cursed : f.base, file = own || f.base;
+    const key = file + (wantFull ? '#full' : '');
+    if (fr.shown === key) return;
+    fr.shown = key; fr.full = !!wantFull;
+    /* 그 상태의 그림이 없으면 기본 그림을 그 상태의 빛으로 물들인다 */
+    fr.artMat.color.set(own || mode === 'base' ? 0xffffff : mood[mode].tint);
+    const put = t => { if (fr.shown !== key) return; fr.artMat.map = t; fr.artMat.needsUpdate = true; };
+    const fail = () => { if (fr.shown !== key) return; fr.artMat.map = broken; fr.artMat.color.set(0xffffff); fr.artMat.needsUpdate = true; };
+    if (!fr.artMat.map || fr.artMat.map === pending) { fr.artMat.map = loading; fr.artMat.needsUpdate = true; }
+    if (wantFull) tex(IMG.imgURL(file), null, put, fail); else tex(IMG.thumbURL(file), IMG.imgURL(file), put, fail);
+  }
+  frames.forEach(fr => hang(fr, false));
+
+  /* 먼지 — 걷는 사람 둘레의 상자 안에서 뜨고(각성) 지고(저주) 떠돈다(기본) */
+  const DUST = 420, dustGeo = new THREE.BufferGeometry(), dustPos = new Float32Array(DUST * 3);
+  for (let i = 0; i < DUST; i++) { dustPos[i * 3] = (Math.random() - 0.5) * 16; dustPos[i * 3 + 1] = Math.random() * ROOM_H; dustPos[i * 3 + 2] = (Math.random() - 0.5) * 16; }
+  dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
+  const dustMat = new THREE.PointsMaterial({ size: 0.05, map: glowTex, color: 0xfff3d6, transparent: true, opacity: 0.9, depthWrite: false, blending: THREE.AdditiveBlending });
+  const dust = new THREE.Points(dustGeo, dustMat); scene.add(dust);
+
+  function applyMood() {
+    const m = mood[mode];
+    scene.background = new THREE.Color(m.fog); scene.fog.color.set(m.fog); scene.fog.near = m.fogNear; scene.fog.far = m.fogFar;
+    amb.color.set(m.ambC); amb.intensity = m.amb; hemi.intensity = m.hemi;
+    wallMat.color.set(m.wall); floorMat.color.set(m.floor);
+    frameMat.color.set(m.frame); frameMat.emissive.set(m.frame); frameMat.emissiveIntensity = m.emis;
+    glowMats.forEach(g => { g.color.set(m.glow); g.opacity = m.glowA; });
+    dustMat.color.set(m.dust); dustGeo.setDrawRange(0, m.dustN); dustMat.size = mode === 'base' ? 0.07 : 0.1;
+    frames.forEach(fr => { fr.shown = null; hang(fr, fr.full); });
+  }
+  applyMood();
+
+  /* ── 걷기 ── */
+  const me = { x: 0, z: -R * 0.5, yaw: Math.PI, pitch: 0 }, keys = {}, stick = { x: 0, y: 0 };
+  /* 서 있을 수 있는 곳 — 홀 안(받침 둘레 제외) 또는 어느 전시실 안 */
+  function inRoom(x, z) {
+    for (const hall of halls) {
+      const c = Math.cos(hall.angle), s = Math.sin(hall.angle), lx = x * c - z * s, lz = x * s + z * c;
+      if (lz > R_IN - 1.2 && lz < R_IN + hall.L - 0.6 && Math.abs(lx) < ROOM_W / 2 - 0.5) return hall;
+    }
+    return null;
+  }
+  function free(x, z) { const r = Math.hypot(x, z); return (r < R - 0.6 && r > 1.8) || !!inRoom(x, z); }
+  function whereAmI() { const hall = inRoom(me.x, me.z); return hall && (Math.cos(hall.angle) * me.z + Math.sin(hall.angle) * me.x) > R_IN - 0.2 ? hall : null; }
+  function goto(i) {
+    if (i == null) { me.x = 0; me.z = -R * 0.5; me.yaw = Math.PI; me.pitch = 0; return; }
+    const a = halls[i].angle, d = R_IN + 1.2; me.x = Math.sin(a) * d; me.z = Math.cos(a) * d; me.yaw = a + Math.PI; me.pitch = 0;
+  }
+  const el = renderer.domElement;
+  const onKey = down => e => {
+    if (e.target && /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+    const k = e.key.toLowerCase();
+    if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'q', 'e'].includes(k)) { keys[k] = down; if (hooks.isFree()) e.preventDefault(); }
+  };
+  const kd = onKey(true), ku = onKey(false);
+  addEventListener('keydown', kd); addEventListener('keyup', ku);
+  let drag = null;
+  el.addEventListener('pointerdown', e => { drag = { id: e.pointerId, x: e.clientX, y: e.clientY, moved: 0 }; el.setPointerCapture(e.pointerId); el.focus({ preventScroll: true }); });
+  el.addEventListener('pointermove', e => {
+    if (!drag || drag.id !== e.pointerId) return;
+    const dx = e.clientX - drag.x, dy = e.clientY - drag.y; drag.x = e.clientX; drag.y = e.clientY; drag.moved += Math.abs(dx) + Math.abs(dy);
+    me.yaw -= dx * 0.005; me.pitch = Math.max(-0.7, Math.min(0.6, me.pitch - dy * 0.004));
+  });
+  const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+  el.addEventListener('pointerup', e => {
+    if (!drag || drag.id !== e.pointerId) return;
+    const click = drag.moved < 8; drag = null;
+    if (!click) return;
+    const r = el.getBoundingClientRect(); ndc.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    ray.setFromCamera(ndc, camera);
+    const hit = ray.intersectObjects(pickables, false)[0];
+    if (hit && hit.distance < 14) hooks.onOpen(hit.object.userData.frame.card.name);
+  });
+  el.addEventListener('pointercancel', () => { drag = null; });
+
+  /* ── 그리기 ── */
+  let raf = 0, last = performance.now(), focus = null, room = undefined, t0 = last;
+  const fwd = new THREE.Vector3();
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (hooks.isFree()) {
+      let mf = (keys.w || keys.arrowup ? 1 : 0) - (keys.s || keys.arrowdown ? 1 : 0) - stick.y, ms = (keys.d ? 1 : 0) - (keys.a ? 1 : 0) + stick.x;
+      const turn = (keys.arrowleft || keys.q ? 1 : 0) - (keys.arrowright || keys.e ? 1 : 0);
+      me.yaw += turn * dt * 1.8;
+      const len = Math.hypot(mf, ms); if (len > 1) { mf /= len; ms /= len; }
+      const sx = -Math.sin(me.yaw), sz = -Math.cos(me.yaw), step = SPEED * dt;
+      const nx = me.x + (sx * mf + -sz * ms) * step, nz = me.z + (sz * mf + sx * ms) * step;
+      if (free(nx, me.z)) me.x = nx;
+      if (free(me.x, nz)) me.z = nz;
+    }
+    camera.position.set(me.x, EYE, me.z);
+    camera.rotation.set(me.pitch, me.yaw, 0, 'YXZ');
+    /* 가까이 선 액자 — 4m 안, 바라보는 쪽 */
+    camera.getWorldDirection(fwd);
+    let best = null, bd = 1e9;
+    for (const fr of frames) {
+      const dx = fr.world.x - me.x, dz = fr.world.z - me.z, d = Math.hypot(dx, dz);
+      if (d > 4.2) continue;
+      const facing = (dx * fwd.x + dz * fwd.z) / (d || 1), front = -(dx * fr.normal.x + dz * fr.normal.z) / (d || 1);
+      if (facing < 0.45 || front < 0.2) continue;
+      if (d < bd) { bd = d; best = fr; }
+    }
+    if (best && !best.full && bd < 3.4) hang(best, true);
+    if (best !== focus) { focus = best; hooks.onFocus(best ? best.card.name : null); }
+    const hall = whereAmI(), here = hall ? hall.index : null;
+    if (here !== room) { room = here; hooks.onRoom(here); }
+    /* 먼지 흐름과 저주의 깜박임 */
+    const m = mood[mode], p = dustGeo.attributes.position.array;
+    for (let i = 0; i < m.dustN; i++) {
+      p[i * 3 + 1] += m.dustV * dt + Math.sin(now / 900 + i) * 0.002;
+      p[i * 3] += Math.sin(now / 1300 + i * 1.7) * 0.003;
+      if (p[i * 3 + 1] > ROOM_H) p[i * 3 + 1] = 0; if (p[i * 3 + 1] < 0) p[i * 3 + 1] = ROOM_H;
+    }
+    dustGeo.attributes.position.needsUpdate = true;
+    dust.position.set(me.x, 0, me.z);
+    halo.rotation.x = Math.PI / 2 + Math.sin(now / 1600) * 0.2; halo.rotation.z = now / 2000;
+    if (mode === 'cursed') {
+      const fl = 0.75 + Math.sin(now / 90) * 0.08 + (Math.random() < 0.04 ? -0.35 : 0);
+      glowMats.forEach(g => { g.opacity = m.glowA * fl; }); amb.intensity = m.amb * (0.85 + fl * 0.2);
+    } else if (mode === 'awaken') {
+      const pulse = 0.85 + Math.sin(now / 500) * 0.15; glowMats.forEach(g => { g.opacity = m.glowA * pulse; });
+    }
+    renderer.render(scene, camera);
+    raf = requestAnimationFrame(frame);
+  }
+  const fit = () => { const w = host.clientWidth || 1, hh = host.clientHeight || 1; renderer.setSize(w, hh, false); camera.aspect = w / hh; camera.updateProjectionMatrix(); };
+  const ro = new ResizeObserver(fit); ro.observe(host); fit();
+  raf = requestAnimationFrame(frame);
+
+  const api = {
+    setMode(m) { mode = m; applyMood(); },
+    setTheme() { mood = moods(); applyMood(); },
+    goto,
+    stick(x, y) { stick.x = x; stick.y = y; },
+    frames: frames.length, halls: halls.length,
+    state: () => ({ x: me.x, z: me.z, yaw: me.yaw, room, focus: focus && focus.card.name, mode, loaded: [...texCache.values()].filter(t => t.image).length }),
+    fileOf(name) { const fr = frames.find(f => f.card.name === name); if (!fr || !fr.files) return null; const own = fr.files[mode]; return { file: own || fr.files.base, own: !!own || mode === 'base' }; },
+    dispose() { cancelAnimationFrame(raf); ro.disconnect(); removeEventListener('keydown', kd); removeEventListener('keyup', ku); renderer.dispose(); el.remove(); }
+  };
+  return api;
+}
+
+/* 폰 손잡이 */
+function Stick({ onMove }) {
+  const ref = useRef(null), [knob, setKnob] = useState([0, 0]);
+  const at = e => { const r = ref.current.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2, max = r.width / 2 - 14;
+    let x = e.clientX - cx, y = e.clientY - cy; const d = Math.hypot(x, y); if (d > max) { x *= max / d; y *= max / d; } setKnob([x, y]); onMove(x / max, y / max); };
+  const end = () => { setKnob([0, 0]); onMove(0, 0); };
+  return html`<div class="mu-stick" ref=${ref} aria-hidden="true"
+    onPointerDown=${e => { e.stopPropagation(); e.currentTarget.setPointerCapture(e.pointerId); at(e); }}
+    onPointerMove=${e => { if (e.currentTarget.hasPointerCapture(e.pointerId)) at(e); }} onPointerUp=${end} onPointerCancel=${end}>
+    <i style=${'transform:translate(' + knob[0] + 'px,' + knob[1] + 'px)'}></i></div>`;
+}
+
+function Detail({ data, name, mode, api, onClose }) {
+  useEffect(() => { const k = e => { if (e.key === 'Escape') onClose(); }; addEventListener('keydown', k); return () => removeEventListener('keydown', k); }, []);
+  const c = data.cards.find(x => x.name === name); if (!c) return null;
+  const pic = api && api.fileOf(name), sk = data.skills[c.skill] || {};
+  return html`<div class="mu-detail" role="dialog" aria-label=${c.name} data-detail=${c.name} onClick=${e => { if (e.target === e.currentTarget) onClose(); }}>
+    <div style=${'--cc:' + data.group.myth.color[c.myth]}>
+      ${pic ? html`<img src=${IMG.imgURL(pic.file)} alt=${c.name} />` : html`<div class="mu-empty">${W('museum.pending')}</div>`}
+      <div>
+        <h3>${c.name}</h3>
+        <small>${c.en} · ${data.group.myth.name[c.myth]} · ${data.group.kind.name[c.kind]} · ${W('card.cost.n', { n: c.cost })}</small>
+        <small>${W('card.wielder')} — ${c.wielder}</small>
+        <p>${c.text}</p>
+        <p><b>${sk.name}</b> — ${sk.text}</p>
+        ${mode === 'cursed' && c.curse && html`<p class="curse">${c.curse.text}</p>`}
+        ${pic && !pic.own && html`<small>${W('museum.tinted.' + mode)}</small>`}
+        <div class="row"><a href=${'dex.html?card=' + encodeURIComponent(c.name)} id="mu-to-dex">${W('museum.dex')}</a>
+          <button type="button" id="mu-close" onClick=${onClose}>${W('museum.close')}</button></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function App() {
+  const data = useData();
+  const host = useRef(null), api = useRef(null);
+  const [mode, setMode] = useState('base'), [room, setRoom] = useState(null), [focus, setFocus] = useState(null), [open, setOpen] = useState(null);
+  const [noGL, setNoGL] = useState(false);
+  const openRef = useRef(null); openRef.current = open;
+  const touch = typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches;
+  useEffect(() => {
+    if (!data || data.error || !host.current) return;
+    const a = buildMuseum(host.current, data, {
+      onNoGL: () => setNoGL(true), onFocus: setFocus, onRoom: setRoom, onOpen: setOpen, onLoad: () => {},
+      isFree: () => !openRef.current
+    });
+    api.current = a;
+    window.__museum = a;
+    const onTheme = () => a && a.setTheme();
+    addEventListener('atelier-appearance', onTheme);
+    return () => { removeEventListener('atelier-appearance', onTheme); a && a.dispose(); };
+  }, [data]);
+  useEffect(() => { api.current && api.current.setMode(mode); }, [mode]);
+  const shell = inner => html`<main><${WorkspaceHeader} page="dex" />${inner}</main>`;
+  if (!data) return shell(html`<p class="mu-empty">${W('ui.loading')}</p>`);
+  if (data.error) return shell(html`<p class="mu-empty">${W('ui.error', { message: data.error })}</p>`);
+  const halls = data.group.myth.order, c = focus && data.cards.find(x => x.name === focus);
+  return shell(html`
+    <div class="mu-bar">
+      <div class="mu-modes" role="group" aria-label=${W('home.hall.modes')}>
+        ${['base', 'awaken', 'cursed'].map(m => html`<button key=${m} type="button" class=${'mu-btn ' + m} data-mode=${m} aria-pressed=${mode === m} onClick=${() => setMode(m)}>${W('museum.mode.' + m)}</button>`)}
+      </div>
+      <a class="mu-btn" href="dex.html">${W('museum.back')}</a>
+      <div class="mu-rooms" role="group" aria-label=${W('museum.rooms')}>
+        <button type="button" class="mu-btn" data-room="" aria-pressed=${room == null} onClick=${() => api.current && api.current.goto(null)}>${W('museum.lobby')}</button>
+        ${halls.map((k, i) => html`<button key=${k} type="button" class="mu-btn" data-room=${i} aria-pressed=${room === i} style=${'--cc:' + data.group.myth.color[k]}
+          onClick=${() => api.current && api.current.goto(i)}>${data.group.myth.name[k]}</button>`)}
+      </div>
+    </div>
+    <div class=${'mu-stage' + (c ? ' has-caption' : '')} ref=${host} data-mode=${mode} data-room=${room == null ? '' : room}>
+      ${noGL && html`<p class="mu-empty">${W('museum.nogl')} <a href="dex.html">${W('museum.back')}</a></p>`}
+      <span class="mu-where">${room == null ? W('museum.lobby') : W('museum.room', { name: data.group.myth.name[halls[room]] })} · ${W('museum.mode.' + mode)}</span>
+      <span class="mu-help">${W(touch ? 'museum.help.touch' : 'museum.help.pc')}</span>
+      ${c && html`<div class="mu-caption" data-focus=${c.name} style=${'--cc:' + data.group.myth.color[c.myth]}>
+        <button type="button" id="mu-more" onClick=${() => setOpen(c.name)}>${W('museum.more')}</button>
+        <b>${c.name}</b><small>${data.group.myth.name[c.myth]} · ${data.group.kind.name[c.kind]} · ${c.wielder}</small>
+        <p>${mode === 'cursed' && c.curse ? c.curse.text : c.text}</p></div>`}
+      ${touch && !open && html`<${Stick} onMove=${(x, y) => api.current && api.current.stick(x, y)} />`}
+      ${open && html`<${Detail} key=${open + mode} data=${data} name=${open} mode=${mode} api=${api.current} onClose=${() => setOpen(null)} />`}
+    </div>`);
+}
+render(html`<${App} />`, document.getElementById('app'));
+window.AtelierFresh.watch();
+</script>
+</body>
+</html>

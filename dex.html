@@ -126,7 +126,7 @@ body {color:var(--text);font-size:15px}
 .zoom-layer .zoom-nav button:disabled {opacity:.2}
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
-<script src="lib/words.js?v=myth30"></script>
+<script src="lib/words.js?v=myth31"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth5"></script>
 </head>
@@ -399,6 +399,7 @@ function List({ st, filters, onFilter, onOpen, compact, onCompact }) {
     <div class="dex-view-row"><p class="sec" role="status">${W('kind.card')}<span>${W('dex.filter.count', { cards: shown.length, images })}</span></p>
       <span class="dex-hall" title=${W('dex.hall.note')}>${W('dex.hall.count', { temple, n: hall.length, max: IMG.HALL_MAX })}
         <button class="dex-reset" id="dex-hall-clear" disabled=${!hall.length} onClick=${() => { IMG.setHallPicks([]); setHall([]); }}>${W('dex.hall.clear', { temple })}</button></span>
+      <a class="dex-reset" id="dex-museum" href="museum.html" title=${W('museum.open.note')}>${W('museum.open')}</a>
       <button class="dex-reset" id="dex-size" aria-pressed=${compact} onClick=${onCompact}>${W(compact ? 'dex.view.normal' : 'dex.view.small')}</button>
     </div>
     ${shown.length === 0
@@ -429,6 +430,9 @@ function App() {
   const [theme, setTheme] = useState(() => IMG.hallTheme());
   useEffect(() => { const on = () => setTheme(IMG.hallTheme()); addEventListener('atelier-appearance', on); return () => removeEventListener('atelier-appearance', on); }, []);
   const [open, setOpen] = useState(null);
+  /* dex.html?card=<이름> — 박물관의 "도감에서 보기"가 그 무기의 상세로 바로 연다 */
+  const [asked] = useState(() => { try { return new URLSearchParams(location.search).get('card'); } catch { return null; } });
+  useEffect(() => { if (asked && st.cards) { const c = st.cards.find(x => x.name === asked); if (c) setOpen({ card: c, cut: 'portrait' }); } }, [st.cards]);
   const [compact, setCompact] = useState(() => {
     try { return localStorage.getItem(COMPACT_STORE) === 'true'; } catch { return false; }
   });
