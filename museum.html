@@ -130,15 +130,15 @@ function moods() {
   const bg = css('--bg', '#121016'), card = css('--card2', '#2a2433'), gold = css('--gold', '#d9b45a');
   return {
     /* 기본 — 횃불 켠 궁전 전시실: 따뜻하게 밝고, 검은 대리석 바닥이 빛을 비추고, 붉은 휘장과 금 장식 */
-    base:   { fog: '#2a1810', fogStart: 26, fogEnd: 110, hemi: 1.05, hemiC: '#ffe6c8', ground: '#8a6448', wall: '#5a4436', wallT: '#e8dccb', floor: '#ffffff', ceil: '#6a5038', frame: gold, emis: 0.3,
+    base:   { fog: '#2a1810', fogStart: 26, fogEnd: 110, hemi: 1.05, hemiC: '#ffe6c8', ground: '#8a6448', wall: '#5a4436', wallT: '#f4ece2', wallE: 0.42, floor: '#ffffff', ceil: '#6a5038', frame: gold, emis: 0.3,
               spot: '#ffe2b8', spotI: 1.5, strip: '#ffe0a8', glow: 0.55, bloom: 0.35, thresh: 0.78, expo: 1.3, contrast: 1.2, vig: '#000000', vigW: 0.9, chroma: 0, grain: 0, sharp: 0.35,
               fire: ['#fff2c0', '#ff8a2a', '#c8360e'], fireL: '#ffa850', fireI: 1.4, mirror: 0.32, banner: 1,
               p: { rate: 70, c1: '#ffd9a0', c2: '#ff9a40', dir: 0.25, grav: 0.02, size: [0.012, 0.035], life: [3, 6] }, art: '#8c8c8c' },
-    awaken: { fog: '#3b2a10', fogStart: 18, fogEnd: 90, hemi: 1.1, hemiC: '#ffe2a0', ground: '#8a6a30', wall: '#8a6a30', wallT: '#ffe2a8', floor: '#ffe0a0', ceil: '#4a3616', frame: '#ffd77a', emis: 0.9,
+    awaken: { fog: '#3b2a10', fogStart: 18, fogEnd: 90, hemi: 1.1, hemiC: '#ffe2a0', ground: '#8a6a30', wall: '#8a6a30', wallT: '#ffe2a8', wallE: 0.45, floor: '#ffe0a0', ceil: '#4a3616', frame: '#ffd77a', emis: 0.9,
               spot: '#ffd98a', spotI: 1.6, strip: '#fff0b8', glow: 0.8, bloom: 0.35, thresh: 0.82, expo: 1.2, contrast: 1.15, vig: '#5a3a00', vigW: 1.4, chroma: 0, grain: 0, sharp: 0.3,
               fire: ['#ffffff', '#ffe27a', '#ffb347'], fireL: '#ffd98a', fireI: 1.8, mirror: 0.36, banner: 1,
               p: { rate: 260, c1: '#fff0b0', c2: '#ffb347', dir: 0.9, grav: 0.05, size: [0.02, 0.07], life: [2.5, 4.5] }, art: '#a09080', tint: '#ffe9b0' },
-    cursed: { fog: '#16040a', fogStart: 4, fogEnd: 40, hemi: 0.5, hemiC: '#ff8a9a', ground: '#1e0a0e', wall: '#4a1418', wallT: '#8a3a44', floor: '#b05060', ceil: '#140608', frame: '#c0143c', emis: 0.9,
+    cursed: { fog: '#16040a', fogStart: 4, fogEnd: 40, hemi: 0.5, hemiC: '#ff8a9a', ground: '#1e0a0e', wall: '#4a1418', wallT: '#8a3a44', wallE: 0.25, floor: '#b05060', ceil: '#140608', frame: '#c0143c', emis: 0.9,
               spot: '#ff2d55', spotI: 1.4, strip: '#ff4d6d', glow: 0.75, bloom: 0.3, thresh: 0.85, expo: 1.05, contrast: 1.15, vig: '#4a000c', vigW: 2.6, chroma: 4, grain: 4, sharp: 0.2,
               fire: ['#ffc0e0', '#ff2d55', '#5a0030'], fireL: '#ff2d55', fireI: 1.3, mirror: 0.3, banner: 0.55,
               p: { rate: 200, c1: '#ff4d6d', c2: '#5a0010', dir: -0.6, grav: -0.2, size: [0.02, 0.06], life: [2.5, 5] }, art: '#8a6a70', tint: '#ff9aa8' }
@@ -295,9 +295,10 @@ function buildMuseum(host, data, hooks) {
   const halls = exhibits(data), texCache = new Map();
   layout(halls.length);
   /* 받은 그림으로 바꿔 끼운다 — 못 받으면 그대로 둔다 */
-  const swapped = { floor: 0, wall: 0, banner: 0 };
+  const swapped = { floor: 0, wall: 0, banner: 0, mural: 0 };
   const swapTex = (url, put, u, v, what) => { if (!url) return; const t = new BABYLON.Texture(url, scene, false, true, BABYLON.Texture.TRILINEAR_SAMPLINGMODE,
     () => { t.anisotropicFilteringLevel = 8; if (u) { t.uScale = u; t.vScale = v; } put(t); swapped[what]++; }, () => t.dispose()); };
+  const aspectOf = t => { const z = t.getSize(); return z.width / z.height || 1; };
   const std = (name, hex, o) => { const m = new BABYLON.StandardMaterial(name, scene); m.diffuseColor = C3(hex); m.specularColor = new BABYLON.Color3(0.05, 0.05, 0.05); m.maxSimultaneousLights = 6; Object.assign(m, o || {}); return m; };
   const wallMat = std('wall', '#2a2433', { backFaceCulling: false });
   /* 바닥 — 검은 대리석, 한 장의 거울(y=0)을 모든 바닥이 같이 쓴다. 액자·불·휘장·벽이 비친다 */
@@ -390,19 +391,25 @@ function buildMuseum(host, data, hooks) {
     [z0 + 1.7, z0 + L - 1.4].forEach(zz => [-1, 1].forEach(sd => brazier(g, sd * (ROOM_W / 2 - 0.55), zz)));
     const bMat = std('bannerMat', '#ffffff', { diffuseTexture: bannerTex(scene, hall.myth, color), specularColor: new BABYLON.Color3(0.1, 0.08, 0.05) });
     bMat.emissiveColor = new BABYLON.Color3(0.18, 0.12, 0.1); banners.push(bMat);
-    swapTex(roomArt(data, hall.myth, 'banner'), nt => { bMat.diffuseTexture.dispose(); bMat.diffuseTexture = nt; }, 0, 0, 'banner');
-    /* 이 방의 벽 — 그 권의 벽 그림이 오면 이 방만 그 그림으로(한 장 ≈ 2.5m 폭) */
+    /* 깃발 그림은 투명 배경 — 받으면 그 비율대로 폭을 넓힌다(높이 2.6m 그대로) */
+    const bMeshes = [];
+    swapTex(roomArt(data, hall.myth, 'banner'), nt => { bMat.diffuseTexture.dispose(); nt.hasAlpha = true; bMat.diffuseTexture = nt;
+      const k = 2.6 * aspectOf(nt) / 0.8; bMeshes.forEach(m => { m.scaling.x = k; }); }, 0, 0, 'banner');
+    /* 이 방의 벽 — 그 권의 벽 그림이 오면 이 방만 그 그림으로. 그림 한 장이 벽 높이(5m), 가로로 이어 붙는다 */
     let rw = wallMat, re = wallMat;
+    const tinted = (fill) => { const mt = std('wallRoom', '#ffffff', { backFaceCulling: false }); mt.diffuseColor = wallMat.diffuseColor.clone(); texWalls.push(mt); fill(mt); return mt; };
     const wallURL = roomArt(data, hall.myth, 'wall');
     if (wallURL) {
-      const wm = (w) => { const mt = std('wallRoom', '#ffffff', { backFaceCulling: false }); mt.diffuseColor = wallMat.diffuseColor.clone(); texWalls.push(mt);
-        swapTex(wallURL, nt => { mt.diffuseTexture = nt; mt.diffuseColor = C3(mood[mode].wallT); }, w / 2.5, ROOM_H / 2.5, 'wall'); return mt; };
+      const wm = (w) => tinted(mt => swapTex(wallURL, nt => { nt.uScale = w / (ROOM_H * aspectOf(nt)); mt.diffuseTexture = nt; mt.emissiveTexture = nt; applyWall(mt); }, 0, 0, 'wall'));
       rw = wm(L); re = wm(ROOM_W);
     }
+    /* 끝 벽 벽화 — 한 장이 끝 벽 전체(7×5m). 가운데 비운 자리에 마지막 액자가 걸린다 */
+    const muralURL = roomArt(data, hall.myth, 'mural');
+    if (muralURL) re = tinted(mt => swapTex(muralURL, nt => { nt.wrapU = nt.wrapV = BABYLON.Texture.CLAMP_ADDRESSMODE; mt.diffuseTexture = nt; mt.emissiveTexture = nt; applyWall(mt); }, 0, 0, 'mural'));
     for (let j = 0; j < side; j++) {
       const bz = z0 + 3.5 + j * STEP + STEP / 2;
       if (bz > z0 + L - 1.8) continue;
-      [-1, 1].forEach(sd => { const b = put(BABYLON.MeshBuilder.CreatePlane('banner', { width: 0.8, height: 2.6 }, scene), sd * (ROOM_W / 2 - 0.05), 2.35, bz, sd < 0 ? -Math.PI / 2 : Math.PI / 2); b.material = bMat; });
+      [-1, 1].forEach(sd => { const b = put(BABYLON.MeshBuilder.CreatePlane('banner', { width: 0.8, height: 2.6 }, scene), sd * (ROOM_W / 2 - 0.05), 2.35, bz, sd < 0 ? -Math.PI / 2 : Math.PI / 2); b.material = bMat; bMeshes.push(b); });
     }
     put(BABYLON.MeshBuilder.CreateGround('rc', { width: ROOM_W, height: L }, scene), 0, ROOM_H, zc, 0, Math.PI).material = ceilMat;
     put(BABYLON.MeshBuilder.CreatePlane('rl', { width: L, height: ROOM_H }, scene), -ROOM_W / 2, ROOM_H / 2, zc, -Math.PI / 2).material = rw;
@@ -502,11 +509,17 @@ function buildMuseum(host, data, hooks) {
   ps.blendMode = BABYLON.ParticleSystem.BLENDMODE_ADD; ps.minAngularSpeed = -1; ps.maxAngularSpeed = 1;
   ps.start();
 
+  /* 그림 벽 — 따뜻한 빛에 청금석 같은 색이 잿빛으로 죽지 않게 제 빛을 조금(wallE) 섞는다 */
+  function applyWall(w) {
+    const m = mood[mode];
+    if (!w.diffuseTexture) { w.diffuseColor = C3(m.wall); return; }
+    w.diffuseColor = C3(m.wallT); w.emissiveColor = C3(m.wallT).scale(m.wallE);
+  }
   function applyMood() {
     const m = mood[mode];
     scene.clearColor = C4(m.fog); scene.fogColor = C3(m.fog); scene.fogStart = m.fogStart; scene.fogEnd = m.fogEnd;
     hemi.intensity = m.hemi; hemi.diffuse = C3(m.hemiC); hemi.groundColor = C3(m.ground);
-    wallMat.diffuseColor = C3(m.wall); texWalls.forEach(w => { w.diffuseColor = w.diffuseTexture ? C3(m.wallT) : C3(m.wall); }); ceilMat.diffuseColor = C3(m.ceil); ceilMat.emissiveColor = C3(m.ceil).scale(0.35);
+    wallMat.diffuseColor = C3(m.wall); texWalls.forEach(applyWall); ceilMat.diffuseColor = C3(m.ceil); ceilMat.emissiveColor = C3(m.ceil).scale(0.35);
     floorMats.forEach(mt => { mt.diffuseColor = C3(m.floor); }); mirror.level = m.mirror;
     banners.forEach(b => { b.diffuseColor = new BABYLON.Color3(m.banner, m.banner, m.banner); });
     flameMat.emissiveColor = C3(m.fire[1]).scale(0.75); fires.forEach(l => { l.diffuse = C3(m.fireL); });
