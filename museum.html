@@ -99,12 +99,20 @@ const uiURL = f => IMG.BASE + 'ui/' + f;
 function hallArt(data, what) { const h = data.group.museum && data.group.museum.hall; return Array.isArray(h) && h.includes(what) ? uiURL('museum_hall_' + what + '.webp') : null; }
 function roomArt(data, myth, what) { const r = (data.group.museum && data.group.museum.rooms || {})[myth]; return Array.isArray(r) && r.includes(what) ? uiURL('museum_' + myth + '_' + what + '.webp') : null; }
 
+/* 현판·명판은 캔버스에 글씨를 쓴다 — 명조(Noto Serif KR)가 오기 전에 쓰면 고딕으로 박힌다.
+   구글 폰트는 글자 묶음별로 나눠 받으니 쓸 글자를 다 넘겨 받아 둔다. 늦으면 2.5초 뒤 그냥 간다 */
+function fontsFor(cards, group) {
+  if (!document.fonts || !document.fonts.load) return Promise.resolve();
+  const text = cards.map(c => c.name).concat(Object.values(group.myth.name), Object.values(group.kind.name)).join('') + W('museum.hall') + '관·0123456789금';
+  const load = Promise.all(['700 48px "Noto Serif KR"', '600 48px "Noto Serif KR"'].map(f => document.fonts.load(f, text)));
+  return Promise.race([load, new Promise(r => setTimeout(r, 2500))]).catch(() => {});
+}
 function useData() {
   const [state, set] = useState(null);
   useEffect(() => {
     const get = f => fetch(f, { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(f + ' ' + r.status); return r.json(); });
     Promise.all([get('data/card.json'), get('data/group.json'), get('data/skill.json'), IMG.load()])
-      .then(([card, group, skill, img]) => set({ cards: card.cards, group, skills: skill.skills, img }))
+      .then(([card, group, skill, img]) => fontsFor(card.cards, group).then(() => set({ cards: card.cards, group, skills: skill.skills, img })))
       .catch(e => set({ error: String((e && e.message) || e) }));
   }, []);
   return state;
@@ -166,6 +174,50 @@ function textTex(scene, lines, w, h, opt) {
       g.fillText(ln.text, w / 2, y);
     });
   }, 'text');
+}
+/* 현판 — 권역마다 판 재질·테·글씨. 네온처럼 빛나지 않게 조명을 받고, 글씨는 새겨 넣은 것처럼(아래 그늘·위 빛) */
+/* 명판 — 액자 아래·받침 둘레. 검은 판에 금 글씨가 아니라 놋쇠 판에 검게 새긴 글씨 */
+const BRASS = { board: ['#9a7632', '#d8b868'], frame: ['#5a4018', '#f0dc98'], ink: '#140c04', carve: true };
+const SIGN = {
+  korea:    { board: ['#1a1410', '#2a2018'], frame: ['#2f6a56', '#8a2a20', '#e8c040'], ink: 'gold' },
+  china:    { board: ['#12245a', '#1c3478'], frame: ['#c9a040', '#8a1a14'], ink: 'gold' },
+  japan:    { board: ['#140f0c', '#241a14'], frame: ['#3a2c20'], ink: '#efe6d2' },
+  greek:    { board: ['#d8d0bc', '#efe8d8'], frame: ['#b08a3a', '#8a2a1a'], ink: '#4a0e08', carve: true, light: true },
+  egypt:    { board: ['#c8a870', '#dcc08a'], frame: ['#1f5aa0', '#c89a2a'], ink: '#123a78', carve: true, light: true },
+  westasia: { board: ['#16227a', '#22309a'], frame: ['#d9b45a', '#e8e0c8'], ink: 'gold' },
+  norse:    { board: ['#1a1612', '#2a221a'], frame: ['#5a5a60'], ink: '#d8d2c4', studs: '#8a8a90' },
+  celtic:   { board: ['#6a6e66', '#8a8e84'], frame: ['#3a3e36', '#c8a860'], ink: '#10120e', carve: true, light: true },
+  india:    { board: ['#ece6da', '#fbf6ec'], frame: ['#c9a040', '#1f7a6a', '#a01840'], ink: '#6a0e28', light: true },
+};
+function signTex(scene, style, lines, w, h) {
+  return canvasTex(scene, w, h, (g) => {
+    const s = style || { board: ['#1a1410', '#2a2018'], frame: ['#8a6a34'], ink: 'gold' };
+    const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, s.board[1]); gr.addColorStop(1, s.board[0]);
+    g.fillStyle = gr; g.fillRect(0, 0, w, h);
+    /* 나뭇결·돌결 */
+    for (let i = 0; i < 60; i++) { g.strokeStyle = 'rgba(255,255,255,' + (Math.random() * 0.04) + ')'; g.lineWidth = 1 + Math.random() * 2; const y = Math.random() * h; g.beginPath(); g.moveTo(0, y); g.bezierCurveTo(w * 0.3, y + 6, w * 0.7, y - 6, w, y + Math.random() * 8 - 4); g.stroke(); }
+    /* 테 — 바깥부터 한 겹씩 */
+    const fw = Math.round(h * 0.07);
+    s.frame.forEach((c, i) => { g.strokeStyle = c; g.lineWidth = i ? fw * 0.35 : fw; const o = i ? fw + fw * 0.35 * (i - 0.5) + 2 : fw / 2; g.strokeRect(o, o, w - o * 2, h - o * 2); });
+    /* 돋움 — 테 안쪽 위는 밝게 아래는 어둡게 */
+    const inner = fw * (1 + 0.35 * s.frame.length) + 2;
+    g.strokeStyle = 'rgba(255,255,255,.18)'; g.lineWidth = 2; g.beginPath(); g.moveTo(inner, h - inner); g.lineTo(inner, inner); g.lineTo(w - inner, inner); g.stroke();
+    g.strokeStyle = 'rgba(0,0,0,.45)'; g.beginPath(); g.moveTo(w - inner, inner); g.lineTo(w - inner, h - inner); g.lineTo(inner, h - inner); g.stroke();
+    if (s.studs) { g.fillStyle = s.studs; [[fw, fw], [w - fw, fw], [fw, h - fw], [w - fw, h - fw]].forEach(([x, y]) => { g.beginPath(); g.arc(x, y, fw * 0.45, 0, Math.PI * 2); g.fill(); }); }
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    lines.forEach((ln, i) => {
+      g.font = (ln.bold ? '700 ' : '600 ') + ln.size + 'px "Noto Serif KR", "Nanum Myeongjo", serif';
+      const y = lines.length === 1 ? h / 2 + ln.size * 0.04 : h * ((i + 0.5) / lines.length * 0.8 + 0.1);
+      const ink = ln.color || s.ink;
+      if (s.carve) { /* 새김 — 위에 그늘, 아래에 빛 */
+        g.fillStyle = 'rgba(0,0,0,.45)'; g.fillText(ln.text, w / 2, y - 1.5);
+        g.fillStyle = 'rgba(255,255,255,.35)'; g.fillText(ln.text, w / 2, y + 1.5);
+      } else { g.fillStyle = 'rgba(0,0,0,.6)'; g.fillText(ln.text, w / 2 + 2, y + 3); }
+      if (ink === 'gold') { const gg = g.createLinearGradient(0, y - ln.size / 2, 0, y + ln.size / 2); gg.addColorStop(0, '#fff0b8'); gg.addColorStop(0.45, '#e2b650'); gg.addColorStop(1, '#8a6420'); g.fillStyle = gg; }
+      else g.fillStyle = ink;
+      g.fillText(ln.text, w / 2, y);
+    });
+  }, 'sign');
 }
 /* 검은 대리석 — 광택 나는 궁전 바닥. 흰·금 결과 이음매 */
 function darkMarbleTex(scene) {
@@ -418,6 +470,7 @@ function buildMuseum(host, data, hooks) {
   const medalMat = floorMats[floorMats.push(std('medalMat', '#ffffff', { diffuseTexture: medalTex(scene, halls, data), reflectionTexture: mirror, specularColor: new BABYLON.Color3(0.5, 0.45, 0.4), specularPower: 160 })) - 1];
   medal.material = medalMat;
   swapTex(hallArt(data, 'floor'), nt => { medalMat.diffuseTexture.dispose(); medalMat.diffuseTexture = nt; }, 0, 0, 'hfloor');
+  const signEdge = std('signEdge', '#3a2c1c', { specularColor: new BABYLON.Color3(0.2, 0.18, 0.12) });
   halls.forEach((hall, i) => {
     const a = hall.angle;
     /* 이 문과 다음 문 사이 벽 — 둥근 판 하나(원기둥 조각). 안에서 보면 u 가 오른쪽으로 는다 */
@@ -436,10 +489,16 @@ function buildMuseum(host, data, hooks) {
     if (lintelURL) lintel.material = tintedMat('lintelMat', mt => swapTex(lintelURL, nt => { const vs = (ROOM_H - DOOR_H) / ROOM_H;
       nt.uScale = (ROOM_W + 0.2) / (ROOM_H * aspectOf(nt)); nt.vScale = vs; nt.vOffset = 1 - vs; mt.diffuseTexture = nt; mt.emissiveTexture = nt; applyWall(mt); }, 0, 0, 'wall'));
     const color = data.group.myth.color[hall.myth];
-    const sign = BABYLON.MeshBuilder.CreatePlane('sign', { width: 3.6, height: 0.8 }, scene);
-    const rr = R_IN - 0.05; sign.position.set(Math.sin(a) * rr, DOOR_H + 0.62, Math.cos(a) * rr); sign.rotation.y = a;
-    sign.material = std('signMat', '#000000', { disableLighting: true, emissiveTexture: textTex(scene, [{ text: W('museum.room', { name: data.group.myth.name[hall.myth] }), size: 64, bold: true }], 720, 160, { bg: '#0d0b10', color, border: color }), fogEnabled: false });
-    glow.addIncludedOnlyMesh(sign);
+    /* 현판 — 두께 있는 판에 그 권역 재질·글씨. 조명을 받고 제 빛은 조금만(어두운 홀에서도 읽히게) */
+    const rr = R_IN - 0.07;
+    const signBox = BABYLON.MeshBuilder.CreateBox('signBox', { width: 4.3, height: 1.06, depth: 0.1 }, scene);
+    signBox.position.set(Math.sin(a) * (rr + 0.03), DOOR_H + 0.7, Math.cos(a) * (rr + 0.03)); signBox.rotation.y = a; signBox.material = signEdge;
+    const sign = BABYLON.MeshBuilder.CreatePlane('sign', { width: 4.2, height: 1.0 }, scene);
+    sign.position.set(Math.sin(a) * (rr - 0.025), DOOR_H + 0.7, Math.cos(a) * (rr - 0.025)); sign.rotation.y = a;
+    const st = signTex(scene, SIGN[hall.myth], [{ text: W('museum.room', { name: data.group.myth.name[hall.myth] }), size: 128, bold: true }], 1008, 240);
+    sign.material = std('signMat', '#ffffff', { diffuseTexture: st, emissiveTexture: st, specularColor: new BABYLON.Color3(0.25, 0.22, 0.18), specularPower: 40 });
+    /* 밝은 판(대리석·사암·돌)은 제 빛을 덜 — 번져서 글씨가 날아간다 */
+    const se = SIGN[hall.myth] && SIGN[hall.myth].light ? 0.1 : 0.32; sign.material.emissiveColor = new BABYLON.Color3(se, se, se);
   });
   const dome = BABYLON.MeshBuilder.CreateSphere('dome', { diameter: R * 2, segments: 48, slice: 0.5, sideOrientation: BABYLON.Mesh.BACKSIDE }, scene);
   dome.position.y = ROOM_H; dome.scaling.y = 0.45;
@@ -456,7 +515,9 @@ function buildMuseum(host, data, hooks) {
   oculus.position.y = ROOM_H + R * 0.45 - 0.05; oculus.rotation.x = -Math.PI / 2; oculus.material = stripMat; glow.addIncludedOnlyMesh(oculus);
   const ped = BABYLON.MeshBuilder.CreateCylinder('ped', { diameterTop: 2.2, diameterBottom: 2.6, height: 1.0, tessellation: 48 }, scene); ped.position.y = 0.5; ped.material = wallMat;
   const halo = BABYLON.MeshBuilder.CreateTorus('halo', { diameter: 1.5, thickness: 0.1, tessellation: 64 }, scene); halo.position.y = 1.9; halo.material = frameMat; glow.addIncludedOnlyMesh(halo);
-  const titleMat = std('title', '#000000', { disableLighting: true, emissiveTexture: textTex(scene, [{ text: W('museum.hall'), size: 60, bold: true }], 720, 160, { bg: '#0d0b10', color: css('--gold', '#d9b45a') }) });
+  const titleTex = signTex(scene, BRASS, [{ text: W('museum.hall'), size: 64, bold: true }], 760, 168);
+  const titleMat = std('title', '#ffffff', { diffuseTexture: titleTex, emissiveTexture: titleTex, specularColor: new BABYLON.Color3(0.6, 0.5, 0.3), specularPower: 60 });
+  titleMat.emissiveColor = new BABYLON.Color3(0.3, 0.3, 0.3);
   [0, Math.PI].forEach(ry => { const t = BABYLON.MeshBuilder.CreatePlane('title', { width: 1.9, height: 0.42 }, scene); t.position.set(-Math.sin(ry) * 1.21 * 0 + 0, 0.62, ry ? 1.21 : -1.21); t.rotation.y = ry; t.material = titleMat; });
 
   /* 전시실 — 긴 방. 대리석 바닥, 굽도리와 금 그림 걸이 띠, 천장 가운데 빛 줄, 신화권 색 바닥 띠.
@@ -514,7 +575,8 @@ function buildMuseum(host, data, hooks) {
       put(BABYLON.MeshBuilder.CreateBox('base', { width: 0.06, height: 0.22, depth: L }, scene), sd * (ROOM_W / 2 - 0.03), 0.11, zc).material = railMat;
       put(BABYLON.MeshBuilder.CreateBox('picrail', { width: 0.05, height: 0.05, depth: L }, scene), sd * (ROOM_W / 2 - 0.03), 3.55, zc).material = railMat;
     });
-    const strip = put(BABYLON.MeshBuilder.CreatePlane('strip', { width: 0.35, height: L - 1 }, scene), 0, ROOM_H - 0.02, zc, 0, -Math.PI / 2);
+    /* 천장 빛 줄 — 문턱에서 1.2m 안쪽부터(홀에서 보면 현판 위로 번지지 않게) */
+    const strip = put(BABYLON.MeshBuilder.CreatePlane('strip', { width: 0.35, height: L - 1.9 }, scene), 0, ROOM_H - 0.02, zc + 0.45, 0, -Math.PI / 2);
     strip.material = stripMat; glow.addIncludedOnlyMesh(strip);
     const band = put(BABYLON.MeshBuilder.CreateGround('band', { width: 0.45, height: L - 1 }, scene), 0, 0.012, zc);
     band.material = std('bandMat', '#000000', { disableLighting: true, emissiveColor: C3(color).scale(0.5), alpha: 0.4 });
@@ -536,7 +598,9 @@ function buildMuseum(host, data, hooks) {
       artMat.diffuseColor = new BABYLON.Color3(ART_LIT, ART_LIT, ART_LIT); artMat.emissiveColor = new BABYLON.Color3(ART_SELF, ART_SELF, ART_SELF);
       const art = add(BABYLON.MeshBuilder.CreatePlane('art', { width: ART_W, height: ART_H }, scene), 0, 2.05, -0.085); art.material = artMat;
       const plaque = add(BABYLON.MeshBuilder.CreatePlane('plaque', { width: 1.25, height: 0.34 }, scene), 0, 0.62, -0.03);
-      plaque.material = std('plq', '#000000', { disableLighting: true, emissiveTexture: textTex(scene, [{ text: card.name, size: 46, bold: true }, { text: data.group.kind.name[card.kind] + ' · ' + W('card.cost.n', { n: card.cost }), size: 30, color: '#b9ae98' }], 640, 174, { bg: '#15121a', color: '#f4ecd8', border: color, spread: 0.8 }) });
+      const pt = signTex(scene, BRASS, [{ text: card.name, size: 50, bold: true }, { text: data.group.kind.name[card.kind] + ' · ' + W('card.cost.n', { n: card.cost }), size: 32, bold: true, color: '#3a2808' }], 640, 174);
+      plaque.material = std('plq', '#ffffff', { diffuseTexture: pt, emissiveTexture: pt, specularColor: new BABYLON.Color3(0.5, 0.42, 0.25), specularPower: 50 });
+      plaque.material.emissiveColor = new BABYLON.Color3(0.38, 0.38, 0.38);
       const fr = { card, hall, art, artMat, node: f, files: filesOf(data.img[card.name]), world: null, normal: null, shown: null, full: false };
       art.metadata = { frame: fr }; border.metadata = { frame: fr }; plaque.metadata = { frame: fr };
       frames.push(fr);
@@ -553,7 +617,7 @@ function buildMuseum(host, data, hooks) {
   scene.meshes.forEach(m => { if (m.name !== 'halo' && m.name !== 'flame') m.freezeWorldMatrix(); if (!pickable.has(m) && m.name !== 'border' && m.name !== 'plaque') m.isPickable = false; });
 
   /* 바닥에 비칠 것 — 벽·액자·그림·휘장·화로·기둥·천장 빛 */
-  const REFLECT = /^(rw|rl|rr|re|lintel|col|cap|border|art|rim|banner|stand|bowlm|flame|strip|ped|halo|sign|plaque|bring)$/;
+  const REFLECT = /^(rw|rl|rr|re|lintel|col|cap|border|art|rim|banner|stand|bowlm|flame|strip|ped|halo|sign|signBox|plaque|bring)$/;
   mirror.renderList = scene.meshes.filter(m => REFLECT.test(m.name));
   /* 불빛 — 가까운 화로 둘에 따뜻한 점 조명 */
   const fires = [0, 1].map(i => { const l = new BABYLON.PointLight('fire' + i, new BABYLON.Vector3(0, 1.8, 0), scene); l.range = 7; l.intensity = 0; return l; });
@@ -785,6 +849,9 @@ function buildMuseum(host, data, hooks) {
       const p = BABYLON.Vector3.Project(fr.world, BABYLON.Matrix.Identity(), scene.getTransformMatrix(), camera.viewport.toGlobal(r.width, r.height));
       return { x: r.left + p.x, y: r.top + p.y, z: p.z }; },
     walking: () => auto ? auto.name : null,
+    /* 검사·스크린샷용 — 눈 위치와 방향을 곧바로 */
+    view(x, z, yaw, pitch) { me.x = x; me.z = z; me.yaw = yaw; me.pitch = pitch || 0; auto = null; },
+    doorAngle: i => halls[i].angle,
     plan: () => ({ R, R_IN, roomW: ROOM_W, rooms: halls.map(h => ({ angle: h.angle, L: h.L, n: h.cards.length })), swapped: { ...swapped } }),
     state: () => ({ x: me.x, z: me.z, yaw: me.yaw, room, focus: focus && focus.card.name, mode, loaded: [...texCache.values()].filter(t => t.ready).length }),
     fileOf(name) { const fr = frames.find(f => f.card.name === name); if (!fr || !fr.files) return null; const own = fr.files[mode]; return { file: own || fr.files.base, own: !!own || mode === 'base' }; },
