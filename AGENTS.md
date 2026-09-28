@@ -89,12 +89,12 @@ mkdir -p img/figure-previews && cp <atelier>/assets/figures/*-female-*.png img/f
 ```
 
 브라우저 검사는 `tests/browser-harness.cjs` 를 쓴다. CDN(esm.sh)이 막힌 곳에서는 `ESM_DIR` 에
-preact·htm·three 가 든 `node_modules` 경로를, 브라우저는 `CHROMIUM_PATH` 로 준다. Playwright 는
+preact·htm·babylonjs 가 든 `node_modules` 경로를, 브라우저는 `CHROMIUM_PATH` 로 준다. Playwright 는
 `NODE_PATH` 로 찾는다.
 
 ```bash
 ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/dex-screen.cjs      # 도감 — 거르기·상세·각성
-ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/museum-screen.cjs   # 박물관 — 3D 전시실 걷기(three 도 node_modules 에)
+ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/museum-screen.cjs   # 박물관 — 3D 전시실 걷기(babylonjs 도 node_modules 에)
 ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/auto-screen.cjs     # 오토 배틀 — 상점·판·라운드
 ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/prompt-screen.cjs   # 생성기
 ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/header-layout.cjs   # 화면의 머리가 같은 자리에

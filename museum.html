@@ -10,7 +10,8 @@
   박물관 — 도감의 그림을 3D 전시실에 걸고 걸어 다니며 본다. 가운데 둥근 홀에서 신화권마다 전시실이 뻗는다.
   액자는 도감이 쓰는 썸네일로 걸고, 가까이 선 액자만 원본으로 바꾼다. 상태(기본·각성·저주)를 바꾸면
   그림과 함께 전시실의 빛·안개·먼지가 바뀐다. 그림이 없는 상태는 기본 그림을 그 상태의 빛으로 물들인다.
-  3D 는 three.js(esm.sh). 화면이 읽는 그림 목록은 도감과 같이 data/img.json 뿐이다.
+  3D 는 Babylon.js(jsDelivr) — 빛 번짐·톤·가장자리 그늘, 가까운 액자에 옮겨 다는 스포트라이트, 대리석 바닥, 입자.
+  화면이 읽는 그림 목록은 도감과 같이 data/img.json 뿐이다.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -72,6 +73,7 @@ body {color:var(--text);font-size:15px}
 <script src="lib/words.js?v=myth31"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth5"></script>
+<script src="https://cdn.jsdelivr.net/npm/babylonjs@9.28.0/babylon.js"></script>
 </head>
 <body class="dex-page museum-page">
 <div id="app"></div>
@@ -79,14 +81,13 @@ body {color:var(--text);font-size:15px}
 import { h, render } from 'https://esm.sh/preact@10.24.3';
 import { useState, useEffect, useRef } from 'https://esm.sh/preact@10.24.3/hooks';
 import htm from 'https://esm.sh/htm@3.1.1';
-import * as THREE from 'https://esm.sh/three@0.170.0';
 import { WorkspaceHeader } from './lib/workspace-ui.js?v=myth9';
 const html = htm.bind(h);
 const W = window.W, IMG = window.AtelierImg, V = 'f';
 
 /* ── 건물 치수(미터). 가운데 둥근 홀(반지름 R)에서 신화권마다 긴 전시실이 바퀴살처럼 뻗는다 ── */
 const R = 14, ROOM_W = 7, ROOM_H = 5, DOOR_H = 3.6, EYE = 1.65, STEP = 3.7, SPEED = 3.4;
-const ART_W = 1.5, ART_H = 2.25;
+const ART_W = 1.5, ART_H = 2.25, ART_SELF = 0.8, ART_LIT = 0.22;
 const HALF = Math.asin((ROOM_W / 2) / R), R_IN = R * Math.cos(HALF) - 0.05;
 
 function useData() {
@@ -116,175 +117,267 @@ function exhibits(data) {
 }
 const css = (name, fallback) => (getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback);
 
-/* ── 상태마다의 공기 — 안개·빛·벽·액자 테두리·뒤 빛·먼지. 기본은 지금 테마 색에서 온다 ── */
+/* ── 상태마다의 공기 — 안개·빛·벽·액자 테두리·조명·먼지·화면 효과(빛 번짐·가장자리 그늘·색 번짐). 기본은 지금 테마 색에서 온다 ── */
 function moods() {
   const bg = css('--bg', '#121016'), card = css('--card2', '#2a2433'), gold = css('--gold', '#d9b45a');
   return {
-    base:   { fog: bg, fogNear: 6, fogFar: 46, amb: 0.75, ambC: '#fff4e6', hemi: 0.55, wall: card, floor: '#3a3440', frame: gold, emis: 0.08, glow: '#fff1d6', glowA: 0.35, dust: '#fff3d6', dustN: 160, dustV: 0.05, tint: '#ffffff' },
-    awaken: { fog: '#3b2a10', fogNear: 8, fogFar: 60, amb: 1.05, ambC: '#ffe2a0', hemi: 0.8, wall: '#6e5427', floor: '#5a4520', frame: '#ffd77a', emis: 0.55, glow: '#ffd77a', glowA: 0.7, dust: '#fff0b0', dustN: 420, dustV: 0.55, tint: '#ffe9b0' },
-    cursed: { fog: '#16040a', fogNear: 3, fogFar: 30, amb: 0.5, ambC: '#ff8a9a', hemi: 0.35, wall: '#3a1016', floor: '#1e0a0e', frame: '#c0143c', emis: 0.6, glow: '#ff2d55', glowA: 0.55, dust: '#ff4d6d', dustN: 360, dustV: -0.35, tint: '#ff9aa8' }
+    base:   { fog: bg, fogStart: 8, fogEnd: 55, hemi: 0.55, hemiC: '#fff1e0', ground: '#201c24', wall: card, floor: '#6b6470', ceil: '#141218', frame: gold, emis: 0.18,
+              spot: '#fff1d6', spotI: 1.3, strip: '#ffe9c4', glow: 0.45, bloom: 0.2, thresh: 0.9, expo: 1.0, contrast: 1.15, vig: '#000000', vigW: 1.6, chroma: 0, grain: 4,
+              p: { rate: 60, c1: '#fff3d6', c2: '#ffe0b0', dir: 0.08, grav: 0, size: [0.015, 0.04], life: [4, 7] }, art: '#8c8c8c' },
+    awaken: { fog: '#3b2a10', fogStart: 10, fogEnd: 70, hemi: 0.95, hemiC: '#ffe2a0', ground: '#5a4520', wall: '#7a5c28', floor: '#c9a35a', ceil: '#3a2a10', frame: '#ffd77a', emis: 0.9,
+              spot: '#ffd98a', spotI: 1.6, strip: '#fff0b8', glow: 0.8, bloom: 0.3, thresh: 0.9, expo: 1.05, contrast: 1.1, vig: '#5a3a00', vigW: 2.2, chroma: 0, grain: 3,
+              p: { rate: 260, c1: '#fff0b0', c2: '#ffb347', dir: 0.9, grav: 0.05, size: [0.02, 0.07], life: [2.5, 4.5] }, art: '#a09080', tint: '#ffe9b0' },
+    cursed: { fog: '#16040a', fogStart: 3, fogEnd: 32, hemi: 0.35, hemiC: '#ff8a9a', ground: '#1e0a0e', wall: '#3a1016', floor: '#3a1a20', ceil: '#0e0406', frame: '#c0143c', emis: 0.9,
+              spot: '#ff2d55', spotI: 1.4, strip: '#ff4d6d', glow: 0.75, bloom: 0.3, thresh: 0.9, expo: 1.0, contrast: 1.15, vig: '#4a000c', vigW: 3.0, chroma: 4, grain: 5,
+              p: { rate: 200, c1: '#ff4d6d', c2: '#5a0010', dir: -0.6, grav: -0.2, size: [0.02, 0.06], life: [2.5, 5] }, art: '#8a6a70', tint: '#ff9aa8' }
   };
 }
+const C3 = hex => BABYLON.Color3.FromHexString(hex.length === 4 ? '#' + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3] : hex.slice(0, 7));
+const C4 = (hex, a) => { const c = C3(hex); return new BABYLON.Color4(c.r, c.g, c.b, a == null ? 1 : a); };
 
-/* 글씨를 판에 — 명판·전시실 이름 */
-function textTexture(lines, w, h, opt) {
-  const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
-  const g = cv.getContext('2d');
-  g.fillStyle = opt.bg; g.fillRect(0, 0, w, h);
-  if (opt.border) { g.strokeStyle = opt.border; g.lineWidth = 6; g.strokeRect(3, 3, w - 6, h - 6); }
-  g.textAlign = 'center'; g.textBaseline = 'middle';
-  lines.forEach((ln, i) => {
-    g.fillStyle = ln.color || opt.color;
-    g.font = (ln.bold ? '700 ' : '400 ') + ln.size + 'px "Noto Serif KR", serif';
-    g.fillText(ln.text, w / 2, h * (lines.length === 1 ? 0.5 : (i + 0.5) / lines.length * (opt.spread || 1) + (1 - (opt.spread || 1)) / 2));
-  });
-  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
+/* 글씨·무늬를 판에 — 명판·전시실 이름·대리석 */
+function canvasTex(scene, w, h, draw, name) {
+  const t = new BABYLON.DynamicTexture(name || 'dt', { width: w, height: h }, scene, true);
+  draw(t.getContext(), w, h); t.update(true); t.anisotropicFilteringLevel = 4;
   return t;
 }
-function glowTexture() {
-  const cv = document.createElement('canvas'); cv.width = cv.height = 128;
-  const g = cv.getContext('2d'), gr = g.createRadialGradient(64, 64, 4, 64, 64, 64);
-  gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.4, 'rgba(255,255,255,.35)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
-  g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
-  return new THREE.CanvasTexture(cv);
+function textTex(scene, lines, w, h, opt) {
+  return canvasTex(scene, w, h, (g) => {
+    g.fillStyle = opt.bg; g.fillRect(0, 0, w, h);
+    if (opt.border) { g.strokeStyle = opt.border; g.lineWidth = 6; g.strokeRect(3, 3, w - 6, h - 6); }
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    lines.forEach((ln, i) => {
+      g.fillStyle = ln.color || opt.color;
+      g.font = (ln.bold ? '700 ' : '400 ') + ln.size + 'px "Noto Serif KR", serif';
+      const y = lines.length === 1 ? h / 2 : h * ((i + 0.5) / lines.length * (opt.spread || 1) + (1 - (opt.spread || 1)) / 2);
+      g.fillText(ln.text, w / 2, y);
+    });
+  }, 'text');
+}
+function marbleTex(scene) {
+  return canvasTex(scene, 512, 512, (g, w, h) => {
+    g.fillStyle = '#d8d4d0'; g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 2600; i++) { const v = 190 + Math.random() * 50 | 0; g.fillStyle = 'rgba(' + v + ',' + v + ',' + (v - 4) + ',.25)'; g.fillRect(Math.random() * w, Math.random() * h, 3, 3); }
+    g.lineCap = 'round';
+    for (let k = 0; k < 14; k++) {
+      g.strokeStyle = 'rgba(120,112,118,' + (0.12 + Math.random() * 0.25) + ')'; g.lineWidth = 0.6 + Math.random() * 2.2;
+      g.beginPath(); let x = Math.random() * w, y = 0; g.moveTo(x, y);
+      while (y < h) { x += (Math.random() - 0.5) * 60; y += 20 + Math.random() * 40; g.lineTo(x, y); }
+      g.stroke();
+    }
+    /* 이음매 */
+    g.strokeStyle = 'rgba(40,36,44,.55)'; g.lineWidth = 2; g.strokeRect(0, 0, w, h);
+  }, 'marble');
+}
+function dotTex(scene) {
+  return canvasTex(scene, 64, 64, (g) => {
+    const gr = g.createRadialGradient(32, 32, 1, 32, 32, 32);
+    gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.35, 'rgba(255,255,255,.5)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+  }, 'dot');
 }
 
-/* ── 박물관 한 채. 화면(Preact)과는 콜백으로만 이야기한다 ── */
+/* ── 박물관 한 채(Babylon.js). 화면(Preact)과는 콜백으로만 이야기한다.
+   좌표: 왼손 좌표계 — rotation.y = θ 면 +z 가 (sin θ, 0, cos θ) 로. 방 i 는 그 쪽으로 뻗는다 ── */
 function buildMuseum(host, data, hooks) {
-  let renderer;
-  try { renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' }); }
-  catch (e) { hooks.onNoGL(); return null; }
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.6));
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  host.appendChild(renderer.domElement);
-  renderer.domElement.tabIndex = 0;
-  renderer.domElement.setAttribute('aria-label', W('museum.canvas'));
+  if (!window.BABYLON) { hooks.onNoGL(); return null; }
+  const canvas = document.createElement('canvas');
+  canvas.tabIndex = 0; canvas.setAttribute('aria-label', W('museum.canvas'));
+  host.appendChild(canvas);
+  let engine;
+  try { engine = new BABYLON.Engine(canvas, true, { stencil: true, preserveDrawingBuffer: false, powerPreference: 'high-performance' }, false); }
+  catch (e) { canvas.remove(); hooks.onNoGL(); return null; }
+  if (!engine._gl) { canvas.remove(); hooks.onNoGL(); return null; }
+  const phone = matchMedia('(pointer: coarse)').matches;
+  engine.setHardwareScalingLevel(1 / Math.min(devicePixelRatio || 1, phone ? 1.5 : 1.75));
+  const scene = new BABYLON.Scene(engine);
+  scene.fogMode = BABYLON.Scene.FOGMODE_LINEAR;
+  scene.skipPointerMovePicking = true;
+  const camera = new BABYLON.UniversalCamera('eye', new BABYLON.Vector3(0, EYE, 0), scene);
+  camera.minZ = 0.05; camera.maxZ = 140; camera.fov = 1.15; camera.inputs.clear();
+  const hemi = new BABYLON.HemisphericLight('hemi', new BABYLON.Vector3(0, 1, 0), scene);
+  const halls = exhibits(data), texCache = new Map();
+  const std = (name, hex, o) => { const m = new BABYLON.StandardMaterial(name, scene); m.diffuseColor = C3(hex); m.specularColor = new BABYLON.Color3(0.05, 0.05, 0.05); m.maxSimultaneousLights = 6; Object.assign(m, o || {}); return m; };
+  const wallMat = std('wall', '#2a2433', { backFaceCulling: false });
+  const floorMat = std('floor', '#6b6470', { specularColor: new BABYLON.Color3(0.35, 0.33, 0.32), specularPower: 90 });
+  const marble = marbleTex(scene); marble.uScale = 1; marble.vScale = 1; floorMat.diffuseTexture = marble;
+  const ceilMat = std('ceil', '#141218', { backFaceCulling: false });
+  const frameMat = std('frame', '#d9b45a', { specularColor: new BABYLON.Color3(0.9, 0.8, 0.5), specularPower: 48 });
+  const railMat = std('rail', '#d9b45a');
+  const rimMat = std('rim', '#000000', { disableLighting: true, emissiveColor: C3('#d9b45a') });
+  const stripMat = std('strip', '#000000', { disableLighting: true, emissiveColor: C3('#ffe9c4') });
+  const dot = dotTex(scene);
+  const glowMats = [], glow = new BABYLON.GlowLayer('glow', scene, { mainTextureFixedSize: phone ? 256 : 512, blurKernelSize: phone ? 24 : 40 });
+  glow.intensity = 0.35;
+  const glowPlane = std('glowPlane', '#000000', { disableLighting: true, emissiveTexture: dot, opacityTexture: dot, alphaMode: BABYLON.Engine.ALPHA_ADD, backFaceCulling: true });
+  glowPlane.emissiveTexture.hasAlpha = true;
 
-  const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(70, 1, 0.05, 120);
-  scene.fog = new THREE.Fog(0x000000, 6, 46);
-  const amb = new THREE.AmbientLight(0xffffff, 0.7), hemi = new THREE.HemisphereLight(0xfff4e0, 0x202020, 0.5);
-  scene.add(amb, hemi);
-  const halls = exhibits(data), loader = new THREE.TextureLoader(), texCache = new Map();
-  loader.setCrossOrigin('anonymous');
-  const wallMat = new THREE.MeshLambertMaterial({ color: 0x2a2433 }), floorMat = new THREE.MeshLambertMaterial({ color: 0x3a3440 });
-  const ceilMat = new THREE.MeshLambertMaterial({ color: 0x14121a }), frameMat = new THREE.MeshStandardMaterial({ color: 0xd9b45a, metalness: 0.6, roughness: 0.35, emissive: 0xd9b45a, emissiveIntensity: 0.08 });
-  const glowTex = glowTexture();
-  const glowMats = [];
-
-  /* 둥근 홀 — 바닥, 문 자리를 비운 벽, 문 위 상인방, 둥근 천장, 가운데 받침과 도는 고리 */
-  const floor = new THREE.Mesh(new THREE.CircleGeometry(R, 72), floorMat); floor.rotation.x = -Math.PI / 2; scene.add(floor);
-  const rings = new THREE.Mesh(new THREE.RingGeometry(R * 0.35, R * 0.37, 72), frameMat); rings.rotation.x = -Math.PI / 2; rings.position.y = 0.01; scene.add(rings);
-  const n = halls.length;
+  /* 둥근 홀 — 대리석 바닥, 문 자리를 비운 벽(판 여러 장), 문 위 상인방과 이름판, 벽 사이 기둥, 둥근 천장, 가운데 받침과 도는 고리 */
+  const hallFloor = BABYLON.MeshBuilder.CreateDisc('hallFloor', { radius: R, tessellation: 72 }, scene);
+  hallFloor.rotation.x = Math.PI / 2; hallFloor.material = std('hallFloorMat', '#6b6470', { diffuseTexture: (() => { const t = marble.clone(); t.uScale = t.vScale = 4; return t; })(), specularColor: new BABYLON.Color3(0.35, 0.33, 0.32), specularPower: 90 });
+  const ring = BABYLON.MeshBuilder.CreateTorus('ring', { diameter: R * 0.72, thickness: 0.08, tessellation: 96 }, scene); ring.position.y = 0.01; ring.scaling.y = 0.05; ring.material = frameMat; glow.addIncludedOnlyMesh(ring);
+  const n = halls.length, step = Math.PI * 2 / n;
   halls.forEach((hall, i) => {
-    const a = hall.angle, next = halls[(i + 1) % n].angle + (i + 1 === n ? Math.PI * 2 : 0);
-    const seg = new THREE.Mesh(new THREE.CylinderGeometry(R, R, ROOM_H, 24, 1, true, a + HALF, next - a - HALF * 2), wallMat);
-    seg.material.side = THREE.DoubleSide; seg.position.y = ROOM_H / 2; scene.add(seg);
-    const lintel = new THREE.Mesh(new THREE.CylinderGeometry(R, R, ROOM_H - DOOR_H, 8, 1, true, a - HALF, HALF * 2), wallMat);
-    lintel.position.y = DOOR_H + (ROOM_H - DOOR_H) / 2; scene.add(lintel);
-    /* 문 위 이름판 — 신화권 색 */
-    const sign = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 0.8), new THREE.MeshBasicMaterial({
-      map: textTexture([{ text: W('museum.room', { name: data.group.myth.name[hall.myth] }), size: 64, bold: true }], 720, 160,
-        { bg: '#0d0b10', color: data.group.myth.color[hall.myth], border: data.group.myth.color[hall.myth] }), fog: false }));
-    const rr = R - 0.08; sign.position.set(Math.sin(a) * rr, DOOR_H + 0.62, Math.cos(a) * rr); sign.lookAt(0, DOOR_H + 0.62, 0); scene.add(sign);
+    const a = hall.angle;
+    /* 이 문과 다음 문 사이 벽 — 판 여섯 장 */
+    const from = a + HALF, to = a + step - HALF, k = 6, d = (to - from) / k;
+    for (let j = 0; j < k; j++) {
+      const phi = from + d * (j + 0.5), w = 2 * R * Math.sin(d / 2) + 0.04;
+      const p = BABYLON.MeshBuilder.CreatePlane('rw', { width: w, height: ROOM_H }, scene);
+      p.position.set(Math.sin(phi) * R, ROOM_H / 2, Math.cos(phi) * R); p.rotation.y = phi; p.material = wallMat;
+    }
+    const col = BABYLON.MeshBuilder.CreateCylinder('col', { diameter: 0.7, height: ROOM_H, tessellation: 24 }, scene);
+    const mid = a + step / 2; col.position.set(Math.sin(mid) * (R - 0.6), ROOM_H / 2, Math.cos(mid) * (R - 0.6)); col.material = wallMat;
+    const cap = BABYLON.MeshBuilder.CreateTorus('cap', { diameter: 0.8, thickness: 0.12, tessellation: 32 }, scene);
+    cap.position.set(col.position.x, ROOM_H - 0.25, col.position.z); cap.material = frameMat; glow.addIncludedOnlyMesh(cap);
+    const lintel = BABYLON.MeshBuilder.CreatePlane('lintel', { width: ROOM_W + 0.2, height: ROOM_H - DOOR_H }, scene);
+    lintel.position.set(Math.sin(a) * R_IN, DOOR_H + (ROOM_H - DOOR_H) / 2, Math.cos(a) * R_IN); lintel.rotation.y = a; lintel.material = wallMat;
+    const color = data.group.myth.color[hall.myth];
+    const sign = BABYLON.MeshBuilder.CreatePlane('sign', { width: 3.6, height: 0.8 }, scene);
+    const rr = R_IN - 0.05; sign.position.set(Math.sin(a) * rr, DOOR_H + 0.62, Math.cos(a) * rr); sign.rotation.y = a;
+    sign.material = std('signMat', '#000000', { disableLighting: true, emissiveTexture: textTex(scene, [{ text: W('museum.room', { name: data.group.myth.name[hall.myth] }), size: 64, bold: true }], 720, 160, { bg: '#0d0b10', color, border: color }), fogEnabled: false });
+    glow.addIncludedOnlyMesh(sign);
   });
-  const wallMatD = wallMat; wallMatD.side = THREE.DoubleSide;
-  const dome = new THREE.Mesh(new THREE.SphereGeometry(R, 48, 16, 0, Math.PI * 2, 0, Math.PI / 2), ceilMat);
-  dome.material.side = THREE.BackSide; dome.scale.y = 0.45; dome.position.y = ROOM_H; scene.add(dome);
-  const ped = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.3, 1.0, 32), wallMat); ped.position.y = 0.5; scene.add(ped);
-  const halo = new THREE.Mesh(new THREE.TorusGeometry(0.75, 0.05, 12, 64), frameMat); halo.position.y = 1.9; scene.add(halo);
-  /* 받침의 이름판 — 앞뒤 두 장(한 장을 양면으로 하면 뒤에서 글씨가 뒤집힌다) */
-  const titleMat = new THREE.MeshBasicMaterial({ map: textTexture([{ text: W('museum.hall'), size: 60, bold: true }], 720, 160, { bg: '#0d0b10', color: css('--gold', '#d9b45a') }) });
-  [0, Math.PI].forEach(ry => { const t = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 0.42), titleMat); t.position.set(Math.sin(ry) * 1.21, 0.62, Math.cos(ry) * 1.21); t.rotation.y = ry; scene.add(t); });
+  const dome = BABYLON.MeshBuilder.CreateSphere('dome', { diameter: R * 2, segments: 32, slice: 0.5, sideOrientation: BABYLON.Mesh.BACKSIDE }, scene);
+  dome.position.y = ROOM_H; dome.scaling.y = 0.45; dome.material = ceilMat;
+  const oculus = BABYLON.MeshBuilder.CreateDisc('oculus', { radius: 1.6, tessellation: 48 }, scene);
+  oculus.position.y = ROOM_H + R * 0.45 - 0.05; oculus.rotation.x = -Math.PI / 2; oculus.material = stripMat; glow.addIncludedOnlyMesh(oculus);
+  const ped = BABYLON.MeshBuilder.CreateCylinder('ped', { diameterTop: 2.2, diameterBottom: 2.6, height: 1.0, tessellation: 48 }, scene); ped.position.y = 0.5; ped.material = wallMat;
+  const halo = BABYLON.MeshBuilder.CreateTorus('halo', { diameter: 1.5, thickness: 0.1, tessellation: 64 }, scene); halo.position.y = 1.9; halo.material = frameMat; glow.addIncludedOnlyMesh(halo);
+  const titleMat = std('title', '#000000', { disableLighting: true, emissiveTexture: textTex(scene, [{ text: W('museum.hall'), size: 60, bold: true }], 720, 160, { bg: '#0d0b10', color: css('--gold', '#d9b45a') }) });
+  [0, Math.PI].forEach(ry => { const t = BABYLON.MeshBuilder.CreatePlane('title', { width: 1.9, height: 0.42 }, scene); t.position.set(-Math.sin(ry) * 1.21 * 0 + 0, 0.62, ry ? 1.21 : -1.21); t.rotation.y = ry; t.material = titleMat; });
 
-  /* 전시실 — 긴 방. 왼쪽·오른쪽 벽에 번갈아, 마지막 한 점은 끝 벽 가운데 */
-  const frames = [];
+  /* 전시실 — 긴 방. 대리석 바닥, 굽도리와 금 그림 걸이 띠, 천장 가운데 빛 줄, 신화권 색 바닥 띠.
+     왼쪽·오른쪽 벽에 번갈아, 마지막 한 점은 끝 벽 가운데 */
+  const frames = [], pendingTex = textTex(scene, [{ text: W('museum.pending'), size: 44, bold: true }], 300, 450, { bg: '#1b1820', color: '#8d8494', border: '#3b3544' });
+  const loadingTex = textTex(scene, [{ text: '…', size: 60, bold: true }], 300, 450, { bg: '#141118', color: '#5d5566' });
+  const brokenTex = textTex(scene, [{ text: W('museum.broken'), size: 34, bold: true }], 300, 450, { bg: '#1b1820', color: '#8d8494', border: '#3b3544' });
   halls.forEach(hall => {
-    const g = new THREE.Group(); g.rotation.y = hall.angle; scene.add(g);
+    const g = new BABYLON.TransformNode('room', scene); g.rotation.y = hall.angle;
     const count = hall.cards.length, side = Math.ceil((count - 1) / 2);
     const L = 3.5 + side * STEP + 2; hall.L = L;
-    const z0 = R_IN, zc = z0 + L / 2;
-    const plane = (w, hh, mat, x, y, z, ry, rx) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, hh), mat); m.position.set(x, y, z); m.rotation.set(rx || 0, ry || 0, 0); g.add(m); return m; };
-    plane(ROOM_W, L, floorMat, 0, 0, zc, 0, -Math.PI / 2);
-    plane(ROOM_W, L, ceilMat, 0, ROOM_H, zc, 0, Math.PI / 2);
-    plane(L, ROOM_H, wallMatD, -ROOM_W / 2, ROOM_H / 2, zc, Math.PI / 2);
-    plane(L, ROOM_H, wallMatD, ROOM_W / 2, ROOM_H / 2, zc, -Math.PI / 2);
-    plane(ROOM_W, ROOM_H, wallMatD, 0, ROOM_H / 2, z0 + L, Math.PI);
-    /* 바닥 가운데 신화권 색 띠 */
-    plane(0.5, L - 1, new THREE.MeshBasicMaterial({ color: data.group.myth.color[hall.myth], transparent: true, opacity: 0.35 }), 0, 0.012, zc, 0, -Math.PI / 2);
+    const z0 = R_IN, zc = z0 + L / 2, color = data.group.myth.color[hall.myth];
+    const put = (m, x, y, z, ry, rx) => { m.parent = g; m.position.set(x, y, z); m.rotation.y = ry || 0; m.rotation.x = rx || 0; return m; };
+    const fl = put(BABYLON.MeshBuilder.CreateGround('rf', { width: ROOM_W, height: L }, scene), 0, 0, zc);
+    const ft = marble.clone(); ft.uScale = ROOM_W / 3; ft.vScale = L / 3; fl.material = std('rfm', '#6b6470', { diffuseTexture: ft, specularColor: new BABYLON.Color3(0.35, 0.33, 0.32), specularPower: 90 });
+    fl.material.__floor = true;
+    put(BABYLON.MeshBuilder.CreateGround('rc', { width: ROOM_W, height: L }, scene), 0, ROOM_H, zc, 0, Math.PI).material = ceilMat;
+    put(BABYLON.MeshBuilder.CreatePlane('rl', { width: L, height: ROOM_H }, scene), -ROOM_W / 2, ROOM_H / 2, zc, -Math.PI / 2).material = wallMat;
+    put(BABYLON.MeshBuilder.CreatePlane('rr', { width: L, height: ROOM_H }, scene), ROOM_W / 2, ROOM_H / 2, zc, Math.PI / 2).material = wallMat;
+    put(BABYLON.MeshBuilder.CreatePlane('re', { width: ROOM_W, height: ROOM_H }, scene), 0, ROOM_H / 2, z0 + L, 0).material = wallMat;
+    [-1, 1].forEach(sd => {
+      put(BABYLON.MeshBuilder.CreateBox('base', { width: 0.06, height: 0.22, depth: L }, scene), sd * (ROOM_W / 2 - 0.03), 0.11, zc).material = railMat;
+      put(BABYLON.MeshBuilder.CreateBox('picrail', { width: 0.05, height: 0.05, depth: L }, scene), sd * (ROOM_W / 2 - 0.03), 3.55, zc).material = railMat;
+    });
+    const strip = put(BABYLON.MeshBuilder.CreatePlane('strip', { width: 0.35, height: L - 1 }, scene), 0, ROOM_H - 0.02, zc, 0, -Math.PI / 2);
+    strip.material = stripMat; glow.addIncludedOnlyMesh(strip);
+    const band = put(BABYLON.MeshBuilder.CreateGround('band', { width: 0.45, height: L - 1 }, scene), 0, 0.012, zc);
+    band.material = std('bandMat', '#000000', { disableLighting: true, emissiveColor: C3(color).scale(0.55), alpha: 0.7 });
     hall.cards.forEach((card, k) => {
       let x, z, ry;
-      if (k === count - 1 && count > 1) { x = 0; z = z0 + L - 0.06; ry = Math.PI; }
-      else { const left = k % 2 === 0, j = Math.floor(k / 2); x = left ? -ROOM_W / 2 + 0.06 : ROOM_W / 2 - 0.06; z = z0 + 3.5 + j * STEP; ry = left ? Math.PI / 2 : -Math.PI / 2; }
-      const f = new THREE.Group(); f.position.set(x, 0, z); f.rotation.y = ry; g.add(f);
-      const glowMat = new THREE.MeshBasicMaterial({ map: glowTex, color: 0xfff1d6, transparent: true, opacity: 0.35, depthWrite: false, blending: THREE.AdditiveBlending });
-      glowMats.push(glowMat);
-      const glow = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 3.8), glowMat); glow.position.set(0, 2.05, 0.005); f.add(glow);
-      const border = new THREE.Mesh(new THREE.BoxGeometry(ART_W + 0.16, ART_H + 0.16, 0.07), frameMat); border.position.set(0, 2.05, 0.04); f.add(border);
-      const artMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-      const art = new THREE.Mesh(new THREE.PlaneGeometry(ART_W, ART_H), artMat); art.position.set(0, 2.05, 0.08); f.add(art);
-      const plaque = new THREE.Mesh(new THREE.PlaneGeometry(1.25, 0.34), new THREE.MeshBasicMaterial({
-        map: textTexture([{ text: card.name, size: 46, bold: true }, { text: data.group.kind.name[card.kind] + ' · ' + W('card.cost.n', { n: card.cost }), size: 30, color: '#b9ae98' }], 640, 174, { bg: '#15121a', color: '#f4ecd8', border: data.group.myth.color[card.myth], spread: 0.8 }) }));
-      plaque.position.set(0, 0.62, 0.03); f.add(plaque);
-      const files = filesOf(data.img[card.name]);
-      const fr = { card, hall, art, artMat, files, group: f, world: new THREE.Vector3(), normal: new THREE.Vector3(), shown: null, full: false };
-      art.userData.frame = fr; border.userData.frame = fr; plaque.userData.frame = fr;
+      if (k === count - 1 && count > 1) { x = 0; z = z0 + L - 0.06; ry = 0; }
+      else { const left = k % 2 === 0, j = Math.floor(k / 2); x = left ? -ROOM_W / 2 + 0.06 : ROOM_W / 2 - 0.06; z = z0 + 3.5 + j * STEP; ry = left ? -Math.PI / 2 : Math.PI / 2; }
+      const f = new BABYLON.TransformNode('frame', scene); f.parent = g; f.position.set(x, 0, z); f.rotation.y = ry;
+      const add = (m, px, py, pz) => { m.parent = f; m.position.set(px, py, pz); return m; };
+      const halo2 = add(BABYLON.MeshBuilder.CreatePlane('fglow', { width: 3.4, height: 3.8 }, scene), 0, 2.05, -0.005); halo2.material = glowPlane; halo2.isPickable = false;
+      const border = add(BABYLON.MeshBuilder.CreateBox('border', { width: ART_W + 0.18, height: ART_H + 0.18, depth: 0.08 }, scene), 0, 2.05, -0.04);
+      border.material = frameMat;
+      /* 빛 테 — 액자 둘레의 가는 띠만 빛나게. 빛이 그림 위로 번지지 않는다 */
+      [[0, ART_H / 2 + 0.13, ART_W + 0.34, 0.05], [0, -ART_H / 2 - 0.13, ART_W + 0.34, 0.05], [-ART_W / 2 - 0.15, 0, 0.05, ART_H + 0.3], [ART_W / 2 + 0.15, 0, 0.05, ART_H + 0.3]].forEach(([rx, ry, rw, rh]) => {
+        const rim = add(BABYLON.MeshBuilder.CreatePlane('rim', { width: rw, height: rh }, scene), rx, 2.05 + ry, -0.086); rim.material = rimMat; rim.isPickable = false; glow.addIncludedOnlyMesh(rim);
+      });
+      /* 그림은 제 빛(emissive)으로 보이고, 조명은 살짝만 얹는다 — 각성·저주의 색 조명에 그림이 물들지 않게 */
+      const artMat = std('art', '#ffffff', { specularColor: new BABYLON.Color3(0.04, 0.04, 0.04) });
+      artMat.diffuseColor = new BABYLON.Color3(ART_LIT, ART_LIT, ART_LIT); artMat.emissiveColor = new BABYLON.Color3(ART_SELF, ART_SELF, ART_SELF);
+      const art = add(BABYLON.MeshBuilder.CreatePlane('art', { width: ART_W, height: ART_H }, scene), 0, 2.05, -0.085); art.material = artMat;
+      const plaque = add(BABYLON.MeshBuilder.CreatePlane('plaque', { width: 1.25, height: 0.34 }, scene), 0, 0.62, -0.03);
+      plaque.material = std('plq', '#000000', { disableLighting: true, emissiveTexture: textTex(scene, [{ text: card.name, size: 46, bold: true }, { text: data.group.kind.name[card.kind] + ' · ' + W('card.cost.n', { n: card.cost }), size: 30, color: '#b9ae98' }], 640, 174, { bg: '#15121a', color: '#f4ecd8', border: color, spread: 0.8 }) });
+      const fr = { card, hall, art, artMat, node: f, files: filesOf(data.img[card.name]), world: null, normal: null, shown: null, full: false };
+      art.metadata = { frame: fr }; border.metadata = { frame: fr }; plaque.metadata = { frame: fr };
       frames.push(fr);
     });
   });
-  scene.updateMatrixWorld(true);
-  frames.forEach(fr => { fr.art.getWorldPosition(fr.world); fr.normal.set(0, 0, 1).applyQuaternion(fr.group.getWorldQuaternion(new THREE.Quaternion())); });
-  const pickables = frames.flatMap(fr => [fr.art]);
+  scene.meshes.forEach(m => m.computeWorldMatrix(true));
+  frames.forEach(fr => {
+    fr.node.computeWorldMatrix(true);
+    fr.world = fr.art.getAbsolutePosition().clone();
+    fr.normal = BABYLON.Vector3.TransformNormal(new BABYLON.Vector3(0, 0, -1), fr.node.getWorldMatrix()).normalize();
+  });
+  const pickable = new Set(frames.flatMap(fr => [fr.art]));
+  /* 움직이지 않는 것은 얼린다 — 폰에서 가볍게 */
+  scene.meshes.forEach(m => { if (m.name !== 'halo') m.freezeWorldMatrix(); if (!pickable.has(m) && m.name !== 'border' && m.name !== 'plaque') m.isPickable = false; });
+
+  /* 진짜 조명 — 가까운 액자 넷에 스포트라이트를 옮겨 단다. 벽과 바닥에 빛 웅덩이가 진다 */
+  const spots = [0, 1, 2, 3].map(i => { const s = new BABYLON.SpotLight('spot' + i, new BABYLON.Vector3(0, 4, 0), new BABYLON.Vector3(0, -1, 0), 1.0, 2, scene); s.range = 9; s.intensity = 0; return s; });
 
   /* 그림 걸기 — 썸네일 먼저, 없으면 원본. 가까이 서면 원본으로 */
-  const pending = textTexture([{ text: W('museum.pending'), size: 44, bold: true }], 300, 450, { bg: '#1b1820', color: '#8d8494', border: '#3b3544' });
-  const loading = textTexture([{ text: '…', size: 60, bold: true }], 300, 450, { bg: '#141118', color: '#5d5566' });
-  const broken = textTexture([{ text: W('museum.broken'), size: 34, bold: true }], 300, 450, { bg: '#1b1820', color: '#8d8494', border: '#3b3544' });
   function tex(url, fallback, done, fail) {
-    if (texCache.has(url)) { const t = texCache.get(url); if (t.image) done(t); else t.userData.wait.push(done); return; }
-    const t = loader.load(url, () => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; t.needsUpdate = true; (t.userData.wait || []).forEach(f => f(t)); t.userData.wait = []; done(t); hooks.onLoad(); },
-      undefined, () => { texCache.delete(url); if (fallback) tex(fallback, null, done, fail); else if (fail) fail(); });
-    t.userData.wait = [];
-    texCache.set(url, t);
+    const hit = texCache.get(url);
+    if (hit) { if (hit.ready) done(hit.t); else hit.wait.push(done); return; }
+    const rec = { t: null, ready: false, wait: [done] };
+    texCache.set(url, rec);
+    rec.t = new BABYLON.Texture(url, scene, false, true, BABYLON.Texture.TRILINEAR_SAMPLINGMODE,
+      () => { rec.ready = true; rec.t.anisotropicFilteringLevel = 4; rec.wait.forEach(f => f(rec.t)); rec.wait = []; hooks.onLoad(); },
+      () => { texCache.delete(url); if (fallback) tex(fallback, null, done, fail); else if (fail) fail(); });
   }
   let mode = 'base', mood = moods();
   function hang(fr, wantFull) {
-    const f = fr.files;
-    if (!f) { fr.artMat.map = pending; fr.artMat.color.set(0xffffff); fr.artMat.needsUpdate = true; fr.shown = null; return; }
+    const f = fr.files, m = fr.artMat;
+    if (!f) { m.diffuseTexture = m.emissiveTexture = pendingTex; fr.shown = null; return; }
     const own = mode === 'awaken' ? f.awaken : mode === 'cursed' ? f.cursed : f.base, file = own || f.base;
     const key = file + (wantFull ? '#full' : '');
     if (fr.shown === key) return;
     fr.shown = key; fr.full = !!wantFull;
     /* 그 상태의 그림이 없으면 기본 그림을 그 상태의 빛으로 물들인다 */
-    fr.artMat.color.set(own || mode === 'base' ? 0xffffff : mood[mode].tint);
-    const put = t => { if (fr.shown !== key) return; fr.artMat.map = t; fr.artMat.needsUpdate = true; };
-    const fail = () => { if (fr.shown !== key) return; fr.artMat.map = broken; fr.artMat.color.set(0xffffff); fr.artMat.needsUpdate = true; };
-    if (!fr.artMat.map || fr.artMat.map === pending) { fr.artMat.map = loading; fr.artMat.needsUpdate = true; }
-    if (wantFull) tex(IMG.imgURL(file), null, put, fail); else tex(IMG.thumbURL(file), IMG.imgURL(file), put, fail);
+    const tint = !own && mode !== 'base' ? C3(mood[mode].tint) : BABYLON.Color3.White();
+    m.diffuseColor = tint.scale(ART_LIT); m.emissiveColor = tint.scale(ART_SELF);
+    const putT = t => { if (fr.shown !== key) return; m.diffuseTexture = t; m.emissiveTexture = t; };
+    const fail = () => { if (fr.shown !== key) return; m.diffuseTexture = m.emissiveTexture = brokenTex; };
+    if (!m.diffuseTexture || m.diffuseTexture === pendingTex) m.diffuseTexture = m.emissiveTexture = loadingTex;
+    if (wantFull) tex(IMG.imgURL(file), null, putT, fail); else tex(IMG.thumbURL(file), IMG.imgURL(file), putT, fail);
   }
   frames.forEach(fr => hang(fr, false));
 
-  /* 먼지 — 걷는 사람 둘레의 상자 안에서 뜨고(각성) 지고(저주) 떠돈다(기본) */
-  const DUST = 420, dustGeo = new THREE.BufferGeometry(), dustPos = new Float32Array(DUST * 3);
-  for (let i = 0; i < DUST; i++) { dustPos[i * 3] = (Math.random() - 0.5) * 16; dustPos[i * 3 + 1] = Math.random() * ROOM_H; dustPos[i * 3 + 2] = (Math.random() - 0.5) * 16; }
-  dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
-  const dustMat = new THREE.PointsMaterial({ size: 0.05, map: glowTex, color: 0xfff3d6, transparent: true, opacity: 0.9, depthWrite: false, blending: THREE.AdditiveBlending });
-  const dust = new THREE.Points(dustGeo, dustMat); scene.add(dust);
+  /* 화면 효과 — 빛 번짐, 톤, 가장자리 그늘, 저주엔 색 번짐과 입자감 */
+  const pipe = new BABYLON.DefaultRenderingPipeline('pipe', true, scene, [camera]);
+  pipe.fxaaEnabled = true; pipe.bloomEnabled = true; pipe.bloomKernel = phone ? 32 : 64; pipe.bloomScale = 0.5;
+  pipe.imageProcessingEnabled = true; pipe.imageProcessing.toneMappingEnabled = true;
+  pipe.imageProcessing.toneMappingType = BABYLON.ImageProcessingConfiguration.TONEMAPPING_ACES;
+  pipe.imageProcessing.vignetteEnabled = true; pipe.grainEnabled = true;
+
+  /* 먼지 — 걷는 사람 둘레에서 뜨고(각성) 지고(저주) 떠돈다(기본) */
+  const ps = new BABYLON.ParticleSystem('dust', 1600, scene);
+  ps.particleTexture = dot; ps.emitter = new BABYLON.Vector3(0, 0, 0);
+  ps.minEmitBox = new BABYLON.Vector3(-8, 0, -8); ps.maxEmitBox = new BABYLON.Vector3(8, ROOM_H, 8);
+  ps.blendMode = BABYLON.ParticleSystem.BLENDMODE_ADD; ps.minAngularSpeed = -1; ps.maxAngularSpeed = 1;
+  ps.start();
 
   function applyMood() {
     const m = mood[mode];
-    scene.background = new THREE.Color(m.fog); scene.fog.color.set(m.fog); scene.fog.near = m.fogNear; scene.fog.far = m.fogFar;
-    amb.color.set(m.ambC); amb.intensity = m.amb; hemi.intensity = m.hemi;
-    wallMat.color.set(m.wall); floorMat.color.set(m.floor);
-    frameMat.color.set(m.frame); frameMat.emissive.set(m.frame); frameMat.emissiveIntensity = m.emis;
-    glowMats.forEach(g => { g.color.set(m.glow); g.opacity = m.glowA; });
-    dustMat.color.set(m.dust); dustGeo.setDrawRange(0, m.dustN); dustMat.size = mode === 'base' ? 0.07 : 0.1;
+    scene.clearColor = C4(m.fog); scene.fogColor = C3(m.fog); scene.fogStart = m.fogStart; scene.fogEnd = m.fogEnd;
+    hemi.intensity = m.hemi; hemi.diffuse = C3(m.hemiC); hemi.groundColor = C3(m.ground);
+    wallMat.diffuseColor = C3(m.wall); ceilMat.diffuseColor = C3(m.ceil);
+    scene.materials.forEach(mt => { if (mt.name === 'rfm' || mt.name === 'hallFloorMat') mt.diffuseColor = C3(m.floor); });
+    frameMat.diffuseColor = C3(m.frame); frameMat.emissiveColor = C3(m.frame).scale(m.emis * 0.4); railMat.diffuseColor = C3(m.frame); railMat.emissiveColor = C3(m.frame).scale(m.emis * 0.3);
+    stripMat.emissiveColor = C3(m.strip); rimMat.emissiveColor = C3(m.frame).scale(mode === 'base' ? 0.5 : 1); glowPlane.emissiveColor = C3(m.spot).scale(mode === 'base' ? 0.3 : 0.45);
+    glow.intensity = m.glow;
+    spots.forEach(s => { s.diffuse = C3(m.spot); s.specular = C3(m.spot); });
+    pipe.bloomWeight = m.bloom; pipe.bloomThreshold = m.thresh;
+    pipe.imageProcessing.exposure = m.expo; pipe.imageProcessing.contrast = m.contrast;
+    pipe.imageProcessing.vignetteColor = C4(m.vig, 0); pipe.imageProcessing.vignetteWeight = m.vigW;
+    pipe.chromaticAberrationEnabled = m.chroma > 0; if (m.chroma) pipe.chromaticAberration.aberrationAmount = m.chroma;
+    pipe.grain.intensity = m.grain; pipe.grain.animated = true;
+    const p = m.p;
+    ps.emitRate = phone ? p.rate * 0.6 : p.rate; ps.color1 = C4(p.c1, 0.9); ps.color2 = C4(p.c2, 0.7); ps.colorDead = C4(p.c2, 0);
+    ps.direction1 = new BABYLON.Vector3(-0.15, p.dir, -0.15); ps.direction2 = new BABYLON.Vector3(0.15, p.dir * 1.6, 0.15);
+    ps.gravity = new BABYLON.Vector3(0, p.grav, 0); ps.minSize = p.size[0]; ps.maxSize = p.size[1]; ps.minLifeTime = p.life[0]; ps.maxLifeTime = p.life[1];
+    ps.minEmitPower = 0.2; ps.maxEmitPower = 0.6;
     frames.forEach(fr => { fr.shown = null; hang(fr, fr.full); });
   }
   applyMood();
 
   /* ── 걷기 ── */
-  const me = { x: 0, z: -R * 0.5, yaw: Math.PI, pitch: 0 }, keys = {}, stick = { x: 0, y: 0 };
-  /* 서 있을 수 있는 곳 — 홀 안(받침 둘레 제외) 또는 어느 전시실 안 */
+  const me = { x: 0, z: -R * 0.5, yaw: 0, pitch: 0 }, keys = {}, stick = { x: 0, y: 0 };
   function inRoom(x, z) {
     for (const hall of halls) {
       const c = Math.cos(hall.angle), s = Math.sin(hall.angle), lx = x * c - z * s, lz = x * s + z * c;
@@ -292,13 +385,12 @@ function buildMuseum(host, data, hooks) {
     }
     return null;
   }
-  function free(x, z) { const r = Math.hypot(x, z); return (r < R - 0.6 && r > 1.8) || !!inRoom(x, z); }
+  function free(x, z) { const r = Math.hypot(x, z); return (r < R - 1.1 && r > 1.8) || !!inRoom(x, z); }
   function whereAmI() { const hall = inRoom(me.x, me.z); return hall && (Math.cos(hall.angle) * me.z + Math.sin(hall.angle) * me.x) > R_IN - 0.2 ? hall : null; }
   function goto(i) {
-    if (i == null) { me.x = 0; me.z = -R * 0.5; me.yaw = Math.PI; me.pitch = 0; return; }
-    const a = halls[i].angle, d = R_IN + 1.2; me.x = Math.sin(a) * d; me.z = Math.cos(a) * d; me.yaw = a + Math.PI; me.pitch = 0;
+    if (i == null) { me.x = 0; me.z = -R * 0.5; me.yaw = 0; me.pitch = 0; return; }
+    const a = halls[i].angle, d = R_IN + 1.2; me.x = Math.sin(a) * d; me.z = Math.cos(a) * d; me.yaw = a; me.pitch = 0;
   }
-  const el = renderer.domElement;
   const onKey = down => e => {
     if (e.target && /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
     const k = e.key.toLowerCase();
@@ -307,89 +399,83 @@ function buildMuseum(host, data, hooks) {
   const kd = onKey(true), ku = onKey(false);
   addEventListener('keydown', kd); addEventListener('keyup', ku);
   let drag = null;
-  el.addEventListener('pointerdown', e => { drag = { id: e.pointerId, x: e.clientX, y: e.clientY, moved: 0 }; el.setPointerCapture(e.pointerId); el.focus({ preventScroll: true }); });
-  el.addEventListener('pointermove', e => {
+  canvas.addEventListener('pointerdown', e => { drag = { id: e.pointerId, x: e.clientX, y: e.clientY, moved: 0 }; canvas.setPointerCapture(e.pointerId); canvas.focus({ preventScroll: true }); });
+  canvas.addEventListener('pointermove', e => {
     if (!drag || drag.id !== e.pointerId) return;
     const dx = e.clientX - drag.x, dy = e.clientY - drag.y; drag.x = e.clientX; drag.y = e.clientY; drag.moved += Math.abs(dx) + Math.abs(dy);
-    me.yaw -= dx * 0.005; me.pitch = Math.max(-0.7, Math.min(0.6, me.pitch - dy * 0.004));
+    me.yaw += dx * 0.005; me.pitch = Math.max(-0.6, Math.min(0.7, me.pitch + dy * 0.004));
   });
-  const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
-  el.addEventListener('pointerup', e => {
+  canvas.addEventListener('pointerup', e => {
     if (!drag || drag.id !== e.pointerId) return;
     const click = drag.moved < 8; drag = null;
     if (!click) return;
-    const r = el.getBoundingClientRect(); ndc.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
-    ray.setFromCamera(ndc, camera);
-    const hit = ray.intersectObjects(pickables, false)[0];
-    if (hit && hit.distance < 14) hooks.onOpen(hit.object.userData.frame.card.name);
+    const r = canvas.getBoundingClientRect(), sx = (e.clientX - r.left) / r.width * engine.getRenderWidth(), sy = (e.clientY - r.top) / r.height * engine.getRenderHeight();
+    const hit = scene.pick(sx, sy, m => pickable.has(m));
+    if (hit && hit.hit && hit.distance < 14) hooks.onOpen(hit.pickedMesh.metadata.frame.card.name);
   });
-  el.addEventListener('pointercancel', () => { drag = null; });
+  canvas.addEventListener('pointercancel', () => { drag = null; });
 
   /* ── 그리기 ── */
-  let raf = 0, last = performance.now(), focus = null, room = undefined, t0 = last;
-  const fwd = new THREE.Vector3();
-  function frame(now) {
-    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  let focus = null, room = undefined, lastSpot = '';
+  scene.onBeforeRenderObservable.add(() => {
+    const dt = Math.min(0.12, engine.getDeltaTime() / 1000), now = performance.now();
     if (hooks.isFree()) {
       let mf = (keys.w || keys.arrowup ? 1 : 0) - (keys.s || keys.arrowdown ? 1 : 0) - stick.y, ms = (keys.d ? 1 : 0) - (keys.a ? 1 : 0) + stick.x;
-      const turn = (keys.arrowleft || keys.q ? 1 : 0) - (keys.arrowright || keys.e ? 1 : 0);
+      const turn = (keys.arrowright || keys.e ? 1 : 0) - (keys.arrowleft || keys.q ? 1 : 0);
       me.yaw += turn * dt * 1.8;
       const len = Math.hypot(mf, ms); if (len > 1) { mf /= len; ms /= len; }
-      const sx = -Math.sin(me.yaw), sz = -Math.cos(me.yaw), step = SPEED * dt;
-      const nx = me.x + (sx * mf + -sz * ms) * step, nz = me.z + (sz * mf + sx * ms) * step;
+      const fx = Math.sin(me.yaw), fz = Math.cos(me.yaw), stepLen = SPEED * dt;
+      const nx = me.x + (fx * mf + fz * ms) * stepLen, nz = me.z + (fz * mf - fx * ms) * stepLen;
       if (free(nx, me.z)) me.x = nx;
       if (free(me.x, nz)) me.z = nz;
     }
-    camera.position.set(me.x, EYE, me.z);
-    camera.rotation.set(me.pitch, me.yaw, 0, 'YXZ');
-    /* 가까이 선 액자 — 4m 안, 바라보는 쪽 */
-    camera.getWorldDirection(fwd);
-    let best = null, bd = 1e9;
+    camera.position.set(me.x, EYE, me.z); camera.rotation.set(me.pitch, me.yaw, 0);
+    const fwdX = Math.sin(me.yaw), fwdZ = Math.cos(me.yaw);
+    /* 가까이 선 액자 — 4m 안, 바라보는 쪽. 스포트라이트는 가까운 넷에 */
+    let best = null, bd = 1e9; const near = [];
     for (const fr of frames) {
       const dx = fr.world.x - me.x, dz = fr.world.z - me.z, d = Math.hypot(dx, dz);
+      if (d < 11) near.push([d, fr]);
       if (d > 4.2) continue;
-      const facing = (dx * fwd.x + dz * fwd.z) / (d || 1), front = -(dx * fr.normal.x + dz * fr.normal.z) / (d || 1);
+      const facing = (dx * fwdX + dz * fwdZ) / (d || 1), front = -(dx * fr.normal.x + dz * fr.normal.z) / (d || 1);
       if (facing < 0.45 || front < 0.2) continue;
       if (d < bd) { bd = d; best = fr; }
     }
+    near.sort((x, y) => x[0] - y[0]);
+    const lit = near.slice(0, spots.length).map(x => x[1]), sig = lit.map(f => f.card.name).join();
+    if (sig !== lastSpot) {
+      lastSpot = sig;
+      spots.forEach((s, i) => {
+        const fr = lit[i]; if (!fr) { s.intensity = 0; return; }
+        s.position.set(fr.world.x + fr.normal.x * 1.7, 4.3, fr.world.z + fr.normal.z * 1.7);
+        s.direction = new BABYLON.Vector3(fr.world.x - s.position.x, 2.05 - 4.3, fr.world.z - s.position.z).normalize();
+        s.angle = 0.95; s.exponent = 3;
+      });
+    }
+    const m = mood[mode];
+    const fl = mode === 'cursed' ? 0.8 + Math.sin(now / 90) * 0.1 + (Math.random() < 0.05 ? -0.45 : 0) : mode === 'awaken' ? 0.9 + Math.sin(now / 500) * 0.1 : 1;
+    spots.forEach((s, i) => { if (lit[i]) s.intensity = m.spotI * fl; });
+    if (mode === 'cursed') glow.intensity = m.glow * (0.8 + fl * 0.25);
     if (best && !best.full && bd < 3.4) hang(best, true);
     if (best !== focus) { focus = best; hooks.onFocus(best ? best.card.name : null); }
     const hall = whereAmI(), here = hall ? hall.index : null;
     if (here !== room) { room = here; hooks.onRoom(here); }
-    /* 먼지 흐름과 저주의 깜박임 */
-    const m = mood[mode], p = dustGeo.attributes.position.array;
-    for (let i = 0; i < m.dustN; i++) {
-      p[i * 3 + 1] += m.dustV * dt + Math.sin(now / 900 + i) * 0.002;
-      p[i * 3] += Math.sin(now / 1300 + i * 1.7) * 0.003;
-      if (p[i * 3 + 1] > ROOM_H) p[i * 3 + 1] = 0; if (p[i * 3 + 1] < 0) p[i * 3 + 1] = ROOM_H;
-    }
-    dustGeo.attributes.position.needsUpdate = true;
-    dust.position.set(me.x, 0, me.z);
-    halo.rotation.x = Math.PI / 2 + Math.sin(now / 1600) * 0.2; halo.rotation.z = now / 2000;
-    if (mode === 'cursed') {
-      const fl = 0.75 + Math.sin(now / 90) * 0.08 + (Math.random() < 0.04 ? -0.35 : 0);
-      glowMats.forEach(g => { g.opacity = m.glowA * fl; }); amb.intensity = m.amb * (0.85 + fl * 0.2);
-    } else if (mode === 'awaken') {
-      const pulse = 0.85 + Math.sin(now / 500) * 0.15; glowMats.forEach(g => { g.opacity = m.glowA * pulse; });
-    }
-    renderer.render(scene, camera);
-    raf = requestAnimationFrame(frame);
-  }
-  const fit = () => { const w = host.clientWidth || 1, hh = host.clientHeight || 1; renderer.setSize(w, hh, false); camera.aspect = w / hh; camera.updateProjectionMatrix(); };
-  const ro = new ResizeObserver(fit); ro.observe(host); fit();
-  raf = requestAnimationFrame(frame);
+    ps.emitter.set(me.x, 0, me.z);
+    halo.rotation.x = Math.PI / 2 + Math.sin(now / 1600) * 0.25; halo.rotation.z = now / 2000;
+  });
+  engine.runRenderLoop(() => scene.render());
+  const ro = new ResizeObserver(() => engine.resize()); ro.observe(host);
 
-  const api = {
+  return {
     setMode(m) { mode = m; applyMood(); },
     setTheme() { mood = moods(); applyMood(); },
     goto,
     stick(x, y) { stick.x = x; stick.y = y; },
-    frames: frames.length, halls: halls.length,
-    state: () => ({ x: me.x, z: me.z, yaw: me.yaw, room, focus: focus && focus.card.name, mode, loaded: [...texCache.values()].filter(t => t.image).length }),
+    frames: frames.length, halls: halls.length, engine: 'babylon',
+    state: () => ({ x: me.x, z: me.z, yaw: me.yaw, room, focus: focus && focus.card.name, mode, loaded: [...texCache.values()].filter(t => t.ready).length }),
     fileOf(name) { const fr = frames.find(f => f.card.name === name); if (!fr || !fr.files) return null; const own = fr.files[mode]; return { file: own || fr.files.base, own: !!own || mode === 'base' }; },
-    dispose() { cancelAnimationFrame(raf); ro.disconnect(); removeEventListener('keydown', kd); removeEventListener('keyup', ku); renderer.dispose(); el.remove(); }
+    dispose() { ro.disconnect(); removeEventListener('keydown', kd); removeEventListener('keyup', ku); engine.stopRenderLoop(); scene.dispose(); engine.dispose(); canvas.remove(); }
   };
-  return api;
 }
 
 /* 폰 손잡이 */
