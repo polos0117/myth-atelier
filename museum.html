@@ -198,22 +198,73 @@ function fireTex(scene) {
     g.moveTo(w * 0.5, 0); g.bezierCurveTo(w * 0.95, h * 0.45, w * 0.95, h * 0.9, w * 0.5, h); g.bezierCurveTo(w * 0.05, h * 0.9, w * 0.05, h * 0.45, w * 0.5, 0); g.fill();
   }, 'fire');
 }
-/* 휘장 — 짙은 붉은 천에 금 테와 무늬, 가운데 신화권 색 둥근 문장 */
-function bannerTex(scene, color) {
+/* 휘장 — 권역마다 천·테·문장이 다르다. 붉은 천에 청금석 테는 서아시아만. 표에 없는 새 권은 제 색 천에 금 테·둥근 문장 */
+const BANNER = {
+  norse:    { cloth: ['#1a2230', '#2e3c52'], trim: '#c8ccd4', mark: 'knot' },
+  greek:    { cloth: ['#d8d0bc', '#f2ecdc'], trim: '#b08a3a', mark: 'meander', ink: '#8a2a1a' },
+  korea:    { cloth: ['#1f4a3c', '#2f6a56'], trim: '#e8c040', mark: 'bands' },
+  china:    { cloth: ['#b8861a', '#e0b030'], trim: '#8a1a14', mark: 'disc', ink: '#8a1a14' },
+  japan:    { cloth: ['#1a2440', '#26345a'], trim: '#e8e2d4', mark: 'mon', ink: '#f2ece0' },
+  india:    { cloth: ['#c0561a', '#e8842a'], trim: '#a01860', mark: 'lotus', ink: '#ffe0a0' },
+  egypt:    { cloth: ['#d8ccb0', '#efe6d0'], trim: '#1f5aa0', mark: 'stripes', ink: '#c89a2a' },
+  westasia: { cloth: ['#3a0808', '#7a1414'], trim: '#d9b45a', mark: 'sun', edge: '#2a3a8a' },
+  celtic:   { cloth: ['#12301e', '#1f4a30'], trim: '#c8a860', mark: 'spiral' },
+};
+function bannerTex(scene, myth, color) {
+  const b = BANNER[myth] || { cloth: [shade(color, 0.35), shade(color, 0.6)], trim: '#d9b45a', mark: 'disc', ink: color };
+  const ink = b.ink || b.trim;
   return canvasTex(scene, 256, 640, (g, w, h) => {
     const gr = g.createLinearGradient(0, 0, w, 0);
-    gr.addColorStop(0, '#3a0808'); gr.addColorStop(0.5, '#7a1414'); gr.addColorStop(1, '#3a0808');
+    gr.addColorStop(0, b.cloth[0]); gr.addColorStop(0.5, b.cloth[1]); gr.addColorStop(1, b.cloth[0]);
     g.fillStyle = gr; g.fillRect(0, 0, w, h);
-    g.strokeStyle = '#d9b45a'; g.lineWidth = 8; g.strokeRect(14, 14, w - 28, h - 60);
+    if (b.edge) { g.fillStyle = b.edge; g.fillRect(0, 0, 12, h); g.fillRect(w - 12, 0, 12, h); }
+    g.strokeStyle = b.trim; g.lineWidth = 8; g.strokeRect(14, 14, w - 28, h - 60);
     g.lineWidth = 2; g.strokeRect(26, 26, w - 52, h - 84);
-    for (let y = 60; y < h - 90; y += 46) { g.fillStyle = 'rgba(217,180,90,.35)'; g.beginPath(); g.moveTo(w / 2, y); g.lineTo(w / 2 + 12, y + 12); g.lineTo(w / 2, y + 24); g.lineTo(w / 2 - 12, y + 12); g.fill(); }
-    g.fillStyle = color; g.beginPath(); g.arc(w / 2, h * 0.36, 52, 0, Math.PI * 2); g.fill();
-    g.strokeStyle = '#d9b45a'; g.lineWidth = 6; g.stroke();
-    g.fillStyle = '#d9b45a'; g.beginPath(); g.arc(w / 2, h * 0.36, 16, 0, Math.PI * 2); g.fill();
+    const cx = w / 2, cy = h * 0.34;
+    g.fillStyle = ink; g.strokeStyle = ink;
+    const ring = (r, lw) => { g.lineWidth = lw; g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.stroke(); };
+    switch (b.mark) {
+      case 'sun': /* 날개 달린 해 */
+        g.fillStyle = color; g.beginPath(); g.arc(cx, cy, 44, 0, Math.PI * 2); g.fill(); g.strokeStyle = b.trim; ring(44, 6);
+        g.fillStyle = b.trim; g.beginPath(); g.arc(cx, cy, 14, 0, Math.PI * 2); g.fill();
+        [-1, 1].forEach(sd => { for (let k = 0; k < 3; k++) g.fillRect(cx + sd * 50 + (sd < 0 ? -58 + k * 10 : 0), cy - 18 + k * 12, 58 - k * 10, 6); });
+        break;
+      case 'knot': /* 엇걸린 세 고리 */
+        for (let k = 0; k < 3; k++) { const a = k * Math.PI * 2 / 3 - Math.PI / 2; g.lineWidth = 7; g.beginPath(); g.arc(cx + Math.cos(a) * 20, cy + Math.sin(a) * 20, 30, 0, Math.PI * 2); g.stroke(); }
+        break;
+      case 'meander': /* 그리스 번개무늬 띠 둘과 월계 둥근 판 */
+        [cy - 70, cy + 70].forEach(y => { g.lineWidth = 5; g.beginPath(); for (let x = 40; x < w - 40; x += 30) { g.moveTo(x, y + 10); g.lineTo(x, y - 10); g.lineTo(x + 20, y - 10); g.lineTo(x + 20, y + 4); g.lineTo(x + 10, y + 4); g.lineTo(x + 10, y - 2); } g.stroke(); });
+        g.strokeStyle = b.trim; ring(36, 6); ring(24, 3);
+        break;
+      case 'bands': /* 오방색 띠 */
+        ['#c8302a', '#e8c040', '#f2ece0', '#2a4a9a', '#1a1a1a'].forEach((c, k) => { g.fillStyle = c; g.fillRect(40, cy - 60 + k * 24, w - 80, 16); });
+        break;
+      case 'disc': /* 둥근 판에 겹 테 */
+        g.beginPath(); g.arc(cx, cy, 48, 0, Math.PI * 2); g.fill(); g.strokeStyle = b.cloth[1]; ring(34, 5); ring(18, 4);
+        break;
+      case 'mon': /* 둥근 가문 문장 — 가운데 꽃잎 다섯 */
+        ring(46, 6);
+        for (let k = 0; k < 5; k++) { const a = k * Math.PI * 2 / 5 - Math.PI / 2; g.beginPath(); g.arc(cx + Math.cos(a) * 20, cy + Math.sin(a) * 20, 13, 0, Math.PI * 2); g.fill(); }
+        break;
+      case 'lotus': /* 연꽃 */
+        for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4; g.save(); g.translate(cx, cy); g.rotate(a); g.beginPath(); g.ellipse(0, -26, 11, 26, 0, 0, Math.PI * 2); g.fill(); g.restore(); }
+        g.fillStyle = b.trim; g.beginPath(); g.arc(cx, cy, 12, 0, Math.PI * 2); g.fill();
+        break;
+      case 'stripes': /* 세로 줄무늬 천에 해 원반 */
+        for (let x = 36; x < w - 36; x += 28) { g.fillStyle = b.trim; g.fillRect(x, cy + 70, 12, h - cy - 150); }
+        g.fillStyle = ink; g.beginPath(); g.arc(cx, cy, 40, 0, Math.PI * 2); g.fill(); g.strokeStyle = b.trim; ring(46, 5);
+        break;
+      case 'spiral': /* 세 겹 소용돌이 */
+        g.lineWidth = 5;
+        for (let k = 0; k < 3; k++) { const a0 = k * Math.PI * 2 / 3; g.beginPath(); for (let t = 0; t < 4 * Math.PI; t += 0.1) { const r = 4 + t * 3, a = a0 + t; g.lineTo(cx + Math.cos(a0) * 22 + Math.cos(a) * r * 0.9, cy + Math.sin(a0) * 22 + Math.sin(a) * r * 0.9); } g.stroke(); }
+        break;
+    }
     /* 아래 술 */
-    for (let x = 18; x < w - 12; x += 16) { g.fillStyle = '#c9a04a'; g.fillRect(x, h - 48, 6, 40); }
+    for (let x = 18; x < w - 12; x += 16) { g.fillStyle = b.trim; g.fillRect(x, h - 48, 6, 40); }
   }, 'banner');
 }
+/* 색을 어둡게(k<1) */
+function shade(hex, k) { const n = parseInt(hex.slice(1), 16); return '#' + [16, 8, 0].map(s => Math.round(((n >> s) & 255) * k).toString(16).padStart(2, '0')).join(''); }
 function dotTex(scene) {
   return canvasTex(scene, 64, 64, (g) => {
     const gr = g.createRadialGradient(32, 32, 1, 32, 32, 32);
@@ -337,7 +388,7 @@ function buildMuseum(host, data, hooks) {
     fl.material = floorOf('rfm', ROOM_W / 2.4, L / 2.4);
     /* 들어가는 곳과 끝에 화로, 액자 사이마다 붉은 휘장 */
     [z0 + 1.7, z0 + L - 1.4].forEach(zz => [-1, 1].forEach(sd => brazier(g, sd * (ROOM_W / 2 - 0.55), zz)));
-    const bMat = std('bannerMat', '#ffffff', { diffuseTexture: bannerTex(scene, color), specularColor: new BABYLON.Color3(0.1, 0.08, 0.05) });
+    const bMat = std('bannerMat', '#ffffff', { diffuseTexture: bannerTex(scene, hall.myth, color), specularColor: new BABYLON.Color3(0.1, 0.08, 0.05) });
     bMat.emissiveColor = new BABYLON.Color3(0.18, 0.12, 0.1); banners.push(bMat);
     swapTex(roomArt(data, hall.myth, 'banner'), nt => { bMat.diffuseTexture.dispose(); bMat.diffuseTexture = nt; }, 0, 0, 'banner');
     /* 이 방의 벽 — 그 권의 벽 그림이 오면 이 방만 그 그림으로(한 장 ≈ 2.5m 폭) */
