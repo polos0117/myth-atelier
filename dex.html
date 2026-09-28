@@ -41,12 +41,16 @@ body {color:var(--text);font-size:15px}
 .cap {display:block;font-weight:700;overflow-wrap:anywhere}
 .cap i {display:block;margin-top:3px;font:400 11px ui-monospace,monospace;font-style:normal;color:var(--muted)}
 .cap .cost {float:right;margin-left:6px;padding:1px 7px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font:700 10px ui-monospace,monospace}
-.search-row {display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+.search-row {display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px}
+.dex-museum {display:inline-flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap;text-decoration:none;border-color:var(--gold);color:var(--gold)}
+.dex-museum::before {content:'🏛';font-size:13px}
+@media (max-width:479px) {.search-row {grid-template-columns:1fr 1fr} .search-row input {grid-column:1/-1}}
 .search-row input {width:100%;background:var(--card);border:1px solid var(--line);
   color:var(--text);font:inherit;border-radius:8px;padding:9px 11px;min-width:0}
 .search-row input::placeholder {color:var(--muted)}
 .dex-reset {background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit;font-size:12px;min-height:40px}
-.dex-view-row {display:flex;align-items:center;justify-content:space-between;gap:8px;margin:12px 0}
+.dex-view-row {display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin:12px 0}
+.dex-view-row .dex-reset {white-space:nowrap}
 .dex-view-row .sec {margin:0;flex-wrap:wrap;min-width:0}
 .dex-view-row button {flex-shrink:0;min-height:44px}
 .dex-view-row button[aria-pressed="true"] {border-color:var(--accent);color:var(--accent)}
@@ -107,7 +111,7 @@ body {color:var(--text);font-size:15px}
 .skin-state {margin-top:8px}
 .hall-toggle {margin-top:8px;align-items:center}
 .hall-toggle .hall-n {padding:0 10px;font:700 11px ui-monospace,monospace;color:var(--muted)}
-.dex-hall {display:inline-flex;align-items:center;gap:8px;margin-left:auto;font:700 11px ui-monospace,monospace;color:var(--muted)}
+.dex-hall {display:inline-flex;flex-wrap:wrap;align-items:center;gap:8px;margin-left:auto;font:700 11px ui-monospace,monospace;color:var(--muted);white-space:nowrap}
 .cell.hall-on .face::after {content:"";position:absolute;inset:0;box-shadow:inset 0 0 0 2px var(--gold);pointer-events:none}
 .hall-mark {position:absolute;right:6px;top:6px;padding:2px 7px;border-radius:4px;background:var(--gold);color:var(--on-accent);font:700 10px var(--display)}
 .skin-wear {margin-top:8px}
@@ -380,6 +384,7 @@ function List({ st, filters, onFilter, onOpen, compact, onCompact }) {
     <input type="search" value=${f.q} placeholder=${W('dex.filter.search')} aria-label=${W('dex.filter.search')}
       onInput=${e => update('q', e.currentTarget.value)} />
     <button class="dex-reset" id="dex-reset" onClick=${() => onFilter(normalize())}>${W('dex.filter.reset')}</button>
+    <a class="dex-reset dex-museum" id="dex-museum" href="museum.html" title=${W('museum.open.note')}>${W('museum.open')}</a>
   </div>`;
   const images = shown.filter(c => IMG.portraitOf(st.img[c.name], V, f.style || undefined)).length;
   const [hall, setHall] = useState(() => IMG.hallPicks());
@@ -399,7 +404,6 @@ function List({ st, filters, onFilter, onOpen, compact, onCompact }) {
     <div class="dex-view-row"><p class="sec" role="status">${W('kind.card')}<span>${W('dex.filter.count', { cards: shown.length, images })}</span></p>
       <span class="dex-hall" title=${W('dex.hall.note')}>${W('dex.hall.count', { temple, n: hall.length, max: IMG.HALL_MAX })}
         <button class="dex-reset" id="dex-hall-clear" disabled=${!hall.length} onClick=${() => { IMG.setHallPicks([]); setHall([]); }}>${W('dex.hall.clear', { temple })}</button></span>
-      <a class="dex-reset" id="dex-museum" href="museum.html" title=${W('museum.open.note')}>${W('museum.open')}</a>
       <button class="dex-reset" id="dex-size" aria-pressed=${compact} onClick=${onCompact}>${W(compact ? 'dex.view.normal' : 'dex.view.small')}</button>
     </div>
     ${shown.length === 0
