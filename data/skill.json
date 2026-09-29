@@ -927,6 +927,215 @@
    "text": "서판에 적힌 대로 가장 다친 아군에게 두꺼운 보호막을 두른다.",
    "effect": "shield",
    "mult": 2.6
+  },
+  "obsidian_teeth": {
+   "name": "흑요석 이빨",
+   "text": "흑요석 날로 두 번 긁어 벤다.",
+   "effect": "strike",
+   "mult": 1.4,
+   "hits": 2
+  },
+  "jaw_shot": {
+   "name": "턱 맞히기",
+   "text": "진흙 알로 앞의 상대 턱을 맞혀 멈추게 한다.",
+   "effect": "stun",
+   "mult": 1.0,
+   "dur": 2
+  },
+  "wind_ward": {
+   "name": "바람의 숨결",
+   "text": "바람을 둘러 가장 다친 아군을 감싼다.",
+   "effect": "shield",
+   "mult": 1.8
+  },
+  "crescent_cut": {
+   "name": "반달 베기",
+   "text": "반달 날로 급소를 가른다.",
+   "effect": "strike",
+   "mult": 2.2,
+   "crit": true
+  },
+  "dart_throw": {
+   "name": "투창",
+   "text": "창을 멀리 던져 앞의 상대와 그 뒤를 꿰뚫는다.",
+   "effect": "pierce",
+   "mult": 2.0
+  },
+  "smoking_celt": {
+   "name": "연기 도끼",
+   "text": "번개 도끼로 내리쳐 앞의 상대를 멈추게 한다.",
+   "effect": "stun",
+   "mult": 1.5,
+   "dur": 1
+  },
+  "butterfly_blades": {
+   "name": "흑요석 나비",
+   "text": "칼날 날개를 펼쳐 앞줄 셋을 벤다.",
+   "effect": "sweep",
+   "mult": 1.5,
+   "targets": 3
+  },
+  "thunder_sling": {
+   "name": "천둥 돌",
+   "text": "천둥 돌을 날려 상대 셋을 친다.",
+   "effect": "volley",
+   "mult": 1.1,
+   "targets": 3
+  },
+  "founding_rod": {
+   "name": "도시 세우기",
+   "text": "지팡이를 땅에 꽂아 앞의 상대를 흔들어 멈추게 한다.",
+   "effect": "stun",
+   "mult": 1.8,
+   "dur": 1
+  },
+  "rain_axe": {
+   "name": "비의 도끼",
+   "text": "구름을 쳐서 앞줄 셋에 번개비를 내린다.",
+   "effect": "sweep",
+   "mult": 1.7,
+   "targets": 3
+  },
+  "cloud_hunt": {
+   "name": "구름뱀 사냥",
+   "text": "은하에서 화살 넷을 흩뿌린다.",
+   "effect": "volley",
+   "mult": 1.1,
+   "targets": 4
+  },
+  "remaking": {
+   "name": "다시 빚기",
+   "text": "가장 다친 아군을 다시 빚어 고친다.",
+   "effect": "heal",
+   "mult": 2.8
+  },
+  "fire_serpent": {
+   "name": "불뱀",
+   "text": "불뱀이 앞의 상대와 그 뒤를 꿰뚫고 태운다.",
+   "effect": "pierce",
+   "mult": 2.5
+  },
+  "smoking_mirror": {
+   "name": "연기 거울",
+   "text": "거울 연기로 앞줄 셋의 눈을 가려 멈추게 한다.",
+   "effect": "stun",
+   "mult": 0.8,
+   "targets": 3,
+   "dur": 2
+  },
+  "golden_sun": {
+   "name": "태양의 아들",
+   "text": "태양 원반이 빛나 아군 모두의 공격이 오른다.",
+   "effect": "rally",
+   "pct": 0.3,
+   "dur": 3
+  },
+  "seventh_bullet": {
+   "name": "일곱째 탄",
+   "text": "반드시 맞는 탄 한 발. 대신 악마가 쏜 자의 피를 조금 가져간다.",
+   "effect": "strike",
+   "mult": 1.6,
+   "crit": true,
+   "selfHurt": 0.08
+  },
+  "vanishing_ring": {
+   "name": "사라지는 반지",
+   "text": "반지의 힘으로 가장 다친 아군을 가린다.",
+   "effect": "shield",
+   "mult": 2.0
+  },
+  "blinding_shield": {
+   "name": "눈부신 방패",
+   "text": "덮개를 벗겨 앞의 상대를 눈부시게 해 멈추게 한다.",
+   "effect": "stun",
+   "mult": 1.0,
+   "dur": 2
+  },
+  "spellbreaker": {
+   "name": "마법 베기",
+   "text": "앞의 상대와 그 뒤를 가르는 한 칼.",
+   "effect": "pierce",
+   "mult": 2.0
+  },
+  "bell_toll": {
+   "name": "종소리",
+   "text": "종추를 휘둘러 앞줄 셋을 친다.",
+   "effect": "sweep",
+   "mult": 1.3,
+   "targets": 3
+  },
+  "sherwood_rain": {
+   "name": "셔우드의 화살비",
+   "text": "화살 둘을 연달아 쏜다.",
+   "effect": "volley",
+   "mult": 1.3,
+   "targets": 2
+  },
+  "bright_judgment": {
+   "name": "높고 빛나는",
+   "text": "약해진 상대를 벤다. 체력이 낮을수록 세다.",
+   "effect": "execute",
+   "mult": 2.2,
+   "threshold": 0.35
+  },
+  "flame_wave": {
+   "name": "불꽃 물결",
+   "text": "물결치는 날로 베고 불꽃을 남긴다.",
+   "effect": "strike",
+   "mult": 1.6,
+   "dot": 0.3,
+   "dur": 3
+  },
+  "apple_shot": {
+   "name": "두 번째 화살",
+   "text": "사과를 맞힌 한 발, 품에 숨긴 한 발. 둘 다 급소로 간다.",
+   "effect": "strike",
+   "mult": 1.0,
+   "hits": 2,
+   "crit": true
+  },
+  "dread_blade": {
+   "name": "겁에 질리다",
+   "text": "칼을 들어 앞줄 셋을 겁에 질려 멈추게 한다.",
+   "effect": "stun",
+   "mult": 1.2,
+   "targets": 3,
+   "dur": 1
+  },
+  "horn_of_roncevaux": {
+   "name": "롱스보의 나팔",
+   "text": "나팔을 불어 아군 모두의 공격을 올린다.",
+   "effect": "rally",
+   "pct": 0.3,
+   "dur": 3
+  },
+  "unhorse": {
+   "name": "낙마",
+   "text": "닿기만 해도 떨어진다. 앞의 상대를 크게 멈추게 한다.",
+   "effect": "stun",
+   "mult": 2.2,
+   "dur": 1
+  },
+  "roncevaux": {
+   "name": "부서지는 바위",
+   "text": "바위도 가르는 칼로 앞줄 셋을 벤다.",
+   "effect": "sweep",
+   "mult": 2.2,
+   "targets": 3
+  },
+  "thirty_colors": {
+   "name": "서른 빛깔",
+   "text": "빛깔이 바뀌는 칼로 급소를 친다.",
+   "effect": "strike",
+   "mult": 2.0,
+   "crit": true
+  },
+  "fated_lance": {
+   "name": "운명의 창",
+   "text": "상대를 꿰뚫고 흐른 피로 제 몸을 되살린다.",
+   "effect": "drain",
+   "mult": 2.4,
+   "ratio": 0.5
   }
  }
 }

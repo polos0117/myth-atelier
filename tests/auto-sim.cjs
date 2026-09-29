@@ -213,6 +213,19 @@ const toRound = (st, r) => { while (st.round < r && st.phase === 'plan') { A.aut
   const hit1 = wa.log.find(e => e.k === 'hit' && e.b === 1), back = wa.log.find(e => e.k === 'thorns' && e.t === hit1.t && e.a === 1);
   ok(back && back.d === Math.round((hit1.d - hit1.s) * th) && !wa.log.some(e => e.k === 'thorns' && e.b === 1), '서아시아 둘: 맞은 평타의 ' + th * 100 + '% 를 되돌리고, 되돌림은 다시 안 돌아온다');
   ok(!A.simulate(data, st, [U('바알의 쌍곤봉', 1, 0, 1), U('가다', 1, 1, 1)], [U('묠니르', 3, 0, 1)]).log.some(e => e.k === 'thorns'), '서아시아 하나면 눈에는 눈이 없다');
+  /* 아메리카 둘 — 비취의 숨: 평타·기술로 준 피해의 일부만큼 되찾는다. 저주 중엔 없다 */
+  const lf = data.synergy.myth.america.value[0];
+  const am = A.simulate(data, st, [U('차크의 번개 도끼', 1, 0, 1), U('일라파의 투석구', 1, 1, 1)], [U('아이기스', 3, 0, 1)]);
+  const lk = am.log.filter(e => e.k === 'leech' && e.b === 1);
+  ok(lk.length > 0 && lk.every(e => { const h = am.log.filter(x => x.a === 1 && x.t === e.t && ['hit', 'crit', 'splash', 'skillhit'].includes(x.k)).reduce((n, x) => n + x.d - x.s, 0); return e.d <= Math.round(h * lf); }), '아메리카 둘: 준 피해의 ' + lf * 100 + '% 까지 되찾는다');
+  const amc = am.log.find(e => e.k === 'curse' && e.b === 1);
+  ok(!amc || !am.log.some(e => e.k === 'leech' && e.b === 1 && e.t > amc.t), '저주 중엔 비취의 숨이 없다');
+  ok(!A.simulate(data, st, [U('차크의 번개 도끼', 1, 0, 1), U('가다', 1, 1, 1)], [U('아이기스', 3, 0, 1)]).log.some(e => e.k === 'leech'), '아메리카 하나면 비취의 숨이 없다');
+  /* 기사 전설 둘 — 롱스보의 맹세: 아군이 쓰러질 때마다 남은 기사가 공격을 얻는다 */
+  const knt = A.simulate(data, st, [U('마탄', 1, 0, 0), U('뒤랑달', 3, 1, 1), U('가다', 1, 0, 2)], [U('묠니르', 3, 0, 1), U('바즈라', 3, 0, 2)]);
+  const deaths = knt.log.filter(e => e.k === 'die' && [1, 3].includes(e.b));
+  ok(deaths.length > 0 && deaths.every(d => knt.log.some(e => e.k === 'avenge' && e.b === 2 && e.t === d.t)) && !knt.log.some(e => e.k === 'avenge' && e.b === 3), '기사 둘: 아군이 쓰러지면 남은 기사만 맹세를 얻는다');
+  ok(!A.simulate(data, st, [U('뒤랑달', 3, 1, 1), U('가다', 1, 0, 1)], [U('묠니르', 3, 0, 1)]).log.some(e => e.k === 'avenge'), '기사 하나면 맹세가 없다');
   /* 이형 둘 — 아군 전체 보호막으로 시작 */
   const sh = A.simulate(data, st, [U('아이기스', 1, 0, 0), U('탈라리아', 1, 1, 0), U('칸다', 1, 0, 1)], [U('묠니르', 1, 0, 1)]);
   const firstOnKanda = sh.log.find(e => e.k === 'hit' && e.b === 3);

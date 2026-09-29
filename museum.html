@@ -70,7 +70,7 @@ body {color:var(--text);font-size:15px}
 }
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
-<script src="lib/words.js?v=myth32"></script>
+<script src="lib/words.js?v=myth33"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth5"></script>
 <script src="https://cdn.jsdelivr.net/npm/babylonjs@9.28.0/babylon.js"></script>
@@ -86,7 +86,7 @@ const html = htm.bind(h);
 const W = window.W, IMG = window.AtelierImg, V = 'f';
 
 /* ── 건물 치수(미터). 가운데 둥근 홀(반지름 R)에서 신화권마다 긴 전시실이 바퀴살처럼 뻗는다 ── */
-/* 홀 반지름은 신화권 수에서 — 문 사이가 좁아지지 않게 늘어난다(아홉 권까지 14m). 방 길이는 그 권의 무기 수에서 */
+/* 홀 반지름은 신화권 수에서 — 문 사이가 좁아지지 않게 늘어난다(아홉 권까지 14m, 열한 권이면 16.6m). 방 길이는 그 권의 무기 수에서 */
 const ROOM_W = 7, ROOM_H = 5, DOOR_H = 3.6, EYE = 1.65, STEP = 3.7, SPEED = 3.4;
 const ART_W = 1.5, ART_H = 2.25, ART_SELF = 0.92, ART_LIT = 0.2;
 let R = 14, HALF = 0, R_IN = 0;
@@ -188,6 +188,8 @@ const SIGN = {
   norse:    { board: ['#1a1612', '#2a221a'], frame: ['#5a5a60'], ink: '#d8d2c4', studs: '#8a8a90' },
   celtic:   { board: ['#6a6e66', '#8a8e84'], frame: ['#3a3e36', '#c8a860'], ink: '#10120e', carve: true, light: true },
   india:    { board: ['#ece6da', '#fbf6ec'], frame: ['#c9a040', '#1f7a6a', '#a01840'], ink: '#6a0e28', light: true },
+  america:  { board: ['#101410', '#1c221a'], frame: ['#2aa89a', '#c9a040'], ink: 'gold' },
+  knight:   { board: ['#4a0c12', '#6a161e'], frame: ['#c0c6d0', '#d9b45a'], ink: 'gold' },
 };
 function signTex(scene, style, lines, w, h) {
   return canvasTex(scene, w, h, (g) => {
@@ -262,6 +264,8 @@ const BANNER = {
   egypt:    { cloth: ['#d8ccb0', '#efe6d0'], trim: '#1f5aa0', mark: 'stripes', ink: '#c89a2a' },
   westasia: { cloth: ['#3a0808', '#7a1414'], trim: '#d9b45a', mark: 'sun', edge: '#2a3a8a' },
   celtic:   { cloth: ['#12301e', '#1f4a30'], trim: '#c8a860', mark: 'spiral' },
+  america:  { cloth: ['#1f5a3a', '#2f8a5a'], trim: '#e8c040', mark: 'disc', ink: '#e8c040' },
+  knight:   { cloth: ['#16245e', '#243a92'], trim: '#e8e0c8', mark: 'mon', ink: '#e8c040' },
 };
 function bannerTex(scene, myth, color) {
   const b = BANNER[myth] || { cloth: [shade(color, 0.35), shade(color, 0.6)], trim: '#d9b45a', mark: 'disc', ink: color };
@@ -328,6 +332,8 @@ const CEIL = {
   egypt:    { panel: '#1a2a5a', beam: '#c8a860', mark: 'stars', ink: '#e8c850' },
   westasia: { panel: '#1a2460', beam: '#3a2414', mark: 'star8', ink: '#d9b45a' },
   celtic:   { panel: '#262c22', beam: '#3a3226', mark: 'knot', ink: '#a89060' },
+  america:  { panel: '#1c2a22', beam: '#6a4a20', mark: 'star8', ink: '#2aa89a' },
+  knight:   { panel: '#1a2240', beam: '#3a2a1a', mark: 'rosette', ink: '#c9a040' },
 };
 function ceilTex(scene, myth, color) {
   const c = CEIL[myth] || { panel: shade(color, 0.3), beam: shade(color, 0.18), mark: 'disc', ink: shade(color, 0.8) };
