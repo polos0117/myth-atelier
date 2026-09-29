@@ -1,7 +1,7 @@
 {
  "version": 1,
  "note": "tools/register-images.py 가 그림 저장소(myth-atelier-img/img)를 읽어 채운다. 손으로 고치지 않는다.",
- "count": 136,
+ "count": 137,
  "img": {
   "가다": {"byStyle": {"game_keyart": {"f": "가다_game_keyart_f.webp", "awaken": {"f": "가다_game_keyart_f_awaken.webp"}, "cursed": {"f": "가다_game_keyart_f_cursed.webp"}, "casual": {"f": ["가다_game_keyart_f_casual1.webp"]}}}},
   "간디바": {"byStyle": {"game_keyart": {"f": "간디바_game_keyart_f.webp", "awaken": {"f": "간디바_game_keyart_f_awaken.webp"}, "cursed": {"f": "간디바_game_keyart_f_cursed.webp"}, "casual": {"f": ["간디바_game_keyart_f_casual1.webp"]}}}},
@@ -42,6 +42,7 @@
   "묠니르": {"byStyle": {"game_keyart": {"f": "묠니르_game_keyart_f.webp", "awaken": {"f": "묠니르_game_keyart_f_awaken.webp"}, "cursed": {"f": "묠니르_game_keyart_f_cursed.webp"}, "casual": {"f": ["묠니르_game_keyart_f_casual1.webp", "묠니르_game_keyart_f_casual2.webp", "묠니르_game_keyart_f_casual3.webp"]}}}},
   "무라마사": {"byStyle": {"game_keyart": {"f": "무라마사_game_keyart_f.webp", "awaken": {"f": "무라마사_game_keyart_f_awaken.webp"}, "cursed": {"f": "무라마사_game_keyart_f_cursed.webp"}, "casual": {"f": ["무라마사_game_keyart_f_casual1.webp"]}, "extra": {"f": ["무라마사_game_keyart_f_extra1.webp", "무라마사_game_keyart_f_extra2.webp"]}}}},
   "미스틸테인": {"byStyle": {"game_keyart": {"f": "미스틸테인_game_keyart_f.webp", "awaken": {"f": "미스틸테인_game_keyart_f_awaken.webp"}, "cursed": {"f": "미스틸테인_game_keyart_f_cursed.webp"}, "casual": {"f": ["미스틸테인_game_keyart_f_casual1.webp"]}}, "glossy_promo": {"f": "미스틸테인_glossy_promo_f.webp", "awaken": {"f": "미스틸테인_glossy_promo_f_awaken.webp"}, "cursed": {"f": "미스틸테인_glossy_promo_f_cursed.webp"}, "casual": {"f": ["미스틸테인_glossy_promo_f_casual1.webp"]}}}},
+  "바리사다": {"byStyle": {"game_keyart": {"f": "바리사다_game_keyart_f.webp", "awaken": {"f": "바리사다_game_keyart_f_awaken.webp"}, "cursed": {"f": "바리사다_game_keyart_f_cursed.webp"}, "casual": {"f": ["바리사다_game_keyart_f_casual1.webp", "바리사다_game_keyart_f_casual2.webp"]}, "extra": {"f": ["바리사다_game_keyart_f_extra1.webp", "바리사다_game_keyart_f_extra2.webp"]}}}},
   "바사비 샥티": {"byStyle": {"game_keyart": {"f": "바사비 샥티_game_keyart_f.webp", "awaken": {"f": "바사비 샥티_game_keyart_f_awaken.webp"}, "cursed": {"f": "바사비 샥티_game_keyart_f_cursed.webp"}, "casual": {"f": ["바사비 샥티_game_keyart_f_casual1.webp"]}}}},
   "바알의 쌍곤봉": {"byStyle": {"game_keyart": {"f": "바알의_쌍곤봉_game_keyart_f.webp", "awaken": {"f": "바알의_쌍곤봉_game_keyart_f_awaken.webp"}, "cursed": {"f": "바알의_쌍곤봉_game_keyart_f_cursed.webp"}, "casual": {"f": ["바알의_쌍곤봉_game_keyart_f_casual1.webp"]}, "extra": {"f": ["바알의_쌍곤봉_game_keyart_f_extra1.webp"]}}}},
   "바즈라": {"byStyle": {"game_keyart": {"f": "바즈라_game_keyart_f.webp", "awaken": {"f": "바즈라_game_keyart_f_awaken.webp"}, "cursed": {"f": "바즈라_game_keyart_f_cursed.webp"}, "extra": {"f": ["바즈라_game_keyart_f_extra1.webp"]}}}},
