@@ -8,6 +8,12 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-09-30 · claude · 드래프트도 판의 신화권을 고른다
+- lib/draft.js — `newGame(data, seed, {myths})` 가 둘~다섯 권이면 무기·주인 더미를 그 권으로, 아니면 전부(옛 판 그대로). `st.myths`·`mythKeys`·`validMyths`(v2)
+- draft.html·lib/words.js — 판 짜기에 "이번 판의 신화권": 기본 무작위 셋, 켜고 끄기(둘~다섯), 무작위 셋·전부 단추. 판 위에 이번 판의 권(myth36)
+- tests — draft-sim 셋만·둘로 끝까지·안 고르면 전부·하나/여섯 무시, draft-screen 기본 셋·하나면 못 나섬·전부·무작위·팩이 고른 권에서만
+- docs/GAME_CONCEPT.md — 드래프트 절에 판의 신화권과 잰 값
+
 ## 2026-09-30 · claude · 판의 신화권을 둘에서 다섯까지 고른다
 - lib/auto.js — `MYTHS_MIN` 2 · `MYTHS_MAX` 5. 기본은 그대로 셋, `validMyths` 가 둘~다섯을 받는다(v12)
 - auto.html·lib/words.js — "이번 판의 신화권"에서 둘~다섯 권을 켜고 정한다. 설명에 적을수록 잘 모이고 많을수록 넓다(myth35)

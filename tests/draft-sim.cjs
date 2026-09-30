@@ -65,6 +65,19 @@ const feud = D.pledges(data, { weapon: [], wielder: ['수르트', '오딘'] });
 ok(feud.some(p => p.feud && p.v < 0), '수르트와 오딘은 악연');
 ok(D.evaluate(data, { weapon: [], wielder: ['수르트', '오딘'] }, 0).rows.every(r => r.k !== 'feud'), '신참은 인연을 못 본다');
 
+/* 판의 신화권 — 둘~다섯 권만 팩에, 안 고르거나 틀리면 전부 */
+{
+  const keys = D.mythKeys(data), mythOf = nm => (data.cards.find(c => c.name === nm) || data.wielders.find(o => o.name === nm)).myth;
+  const three = keys.slice(0, 3), g3 = D.newGame(data, 5, { myths: three });
+  ok(D.MYTHS_MIN === 2 && D.MYTHS_MAX === 5 && D.MYTHS_DEFAULT === 3, '고르는 권은 둘~다섯, 화면 기본은 셋');
+  ok(g3.myths.join() === three.join() && g3.pools.weapon.concat(g3.pools.wielder, g3.pack || []).every(nm => three.includes(mythOf(nm))), '셋을 고르면 무기·주인·팩이 그 셋에서만');
+  let g = D.newGame(data, 9, { myths: keys.slice(0, 2), lv: 2 }), guard = 0;
+  while (g.phase === 'running' && guard++ < 40) D.pick(g, data, g.pack[0]);
+  ok(g.phase === 'done' && g.teams.every(t => t.weapon.concat(t.wielder).every(nm => keys.slice(0, 2).includes(mythOf(nm)))) && g.teams.every(t => t.weapon.length === 6 && t.wielder.length === 6), '둘만 골라도 끝까지 — 세 편 모두 그 둘로 여섯·여섯');
+  ok(!D.newGame(data, 5).myths && D.newGame(data, 5).pools.weapon.length + 9 >= data.cards.length - 20, '안 고르면 전부(옛 판)');
+  ok(!D.newGame(data, 5, { myths: keys.slice(0, 1) }).myths && !D.newGame(data, 5, { myths: keys.slice(0, 6) }).myths, '하나·여섯은 무시하고 전부');
+}
+
 console.log('PASS 드래프트 규칙 ' + n + '가지');
 if (process.argv.includes('--quick')) process.exit(0);
 /* ── 균형 표 — 실패가 아니라 보고. 미리보기 최고만 집는 손 대 적장 세 단계 ── */
