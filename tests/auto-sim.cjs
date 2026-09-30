@@ -64,7 +64,13 @@ const toRound = (st, r) => { while (st.round < r && st.phase === 'plan') { A.aut
   const pick = all.filter(k => !a.myths.includes(k)).slice(0, 3);
   const f = A.newGame(data, 42, { myths: pick });
   ok(f.myths.slice().sort().join() === pick.slice().sort().join(), '고른 권으로 시작한다');
-  ok(A.newGame(data, 42, { myths: ['norse'] }).myths.length === 3, '틀린 고르기는 무시하고 뽑는다');
+  ok(A.newGame(data, 42, { myths: ['norse'] }).myths.length === 3, '틀린 고르기(하나)는 무시하고 셋을 뽑는다');
+  ok(A.MYTHS_MIN === 2 && A.MYTHS_MAX === 5, '고를 수 있는 권은 둘에서 다섯');
+  const two = A.newGame(data, 42, { myths: all.slice(0, 2) }), five = A.newGame(data, 42, { myths: all.slice(0, 5) });
+  ok(two.myths.length === 2 && Object.keys(two.pool).length === data.cards.filter(c => two.myths.includes(c.myth)).length, '둘을 고르면 두 권의 더미');
+  ok(five.myths.length === 5 && five.bots.every(b => five.myths.includes(b.fav)), '다섯을 고르면 다섯 권, 맞수도 그 안에서');
+  ok(A.newGame(data, 42, { myths: all.slice(0, 6) }).myths.length === 3, '여섯은 너무 많다 — 무시하고 셋');
+  const re = A.newGame(data, 11); ok(A.setMyths(re, data, all.slice(0, 4)).ok && re.myths.length === 4, '첫 라운드 빈손이면 넷으로 바꾼다');
   const pre = A.newGame(data, 5); pre.myths = ['norse', 'east'];
   ok(A.liveMyths(pre, data).slice().sort().join() === 'china,japan,korea,norse' && A.inPlay(pre, data).length === data.cards.filter(c => ['china', 'japan', 'korea', 'norse'].includes(c.myth)).length, '옛 판의 동아시아는 셋으로 받는다');
   const ch = A.newGame(data, 5), gold = ch.gold, other = all.filter(k => !ch.myths.includes(k)).slice(0, 3);
