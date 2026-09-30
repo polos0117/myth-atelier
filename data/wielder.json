@@ -162,6 +162,12 @@
   {"name": "솔", "myth": "norse", "might": 40, "art": 70, "divine": 96, "favor": "armor", "text": "해의 수레를 모는 여신. 늑대 스콜에게 쫓긴다."},
   {"name": "콘코바르", "myth": "celtic", "might": 76, "art": 72, "divine": 40, "favor": "armor", "text": "울스터의 왕. 붉은 가지의 전사들을 거느렸다."},
   {"name": "다케다 신겐", "myth": "japan", "might": 82, "art": 90, "divine": 30, "favor": "armor", "text": "가이의 호랑이. 바람처럼 빠르게, 숲처럼 고요하게."},
-  {"name": "지크프리트", "myth": "knight", "might": 96, "art": 80, "divine": 40, "favor": "sword", "text": "용의 피로 몸을 씻어 등의 한 곳 말고는 다치지 않는 니벨룽의 영웅."}
+  {"name": "지크프리트", "myth": "knight", "might": 96, "art": 80, "divine": 40, "favor": "sword", "text": "용의 피로 몸을 씻어 등의 한 곳 말고는 다치지 않는 니벨룽의 영웅."},
+  {"name": "해모수", "myth": "korea", "might": 84, "art": 70, "divine": 94, "favor": "sword", "text": "오룡거를 타고 내려와 아침엔 땅을, 저녁엔 하늘을 다스린 천제의 아들."},
+  {"name": "와제트", "myth": "egypt", "might": 60, "art": 80, "divine": 90, "favor": "armor", "text": "아래 이집트를 지키는 코브라 여신. 왕관 앞에 서서 불을 뿜는다."},
+  {"name": "이랑신", "myth": "china", "might": 92, "art": 88, "divine": 88, "favor": "spear", "text": "셋째 눈과 사냥개를 거느린 하늘의 장수. 손오공을 사로잡았다."},
+  {"name": "아메노와카히코", "myth": "japan", "might": 70, "art": 84, "divine": 72, "favor": "bow", "text": "땅을 다스리라 보내졌다가 여덟 해를 눌러앉은 하늘의 신."},
+  {"name": "잘", "myth": "westasia", "might": 70, "art": 86, "divine": 50, "favor": "relic", "text": "흰머리로 태어나 버려졌다가 시무르그가 키운 영웅. 로스탐의 아버지."},
+  {"name": "틀랄록", "myth": "america", "might": 76, "art": 70, "divine": 96, "favor": "spear", "text": "고글 눈과 송곳니의 아즈텍 비의 신. 산속 항아리에 비를 담아 둔다."}
  ]
 }

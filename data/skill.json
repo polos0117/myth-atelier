@@ -1228,6 +1228,65 @@
    "effect": "buff",
    "pct": 0.8,
    "dur": 3
+  },
+  "jade_whip": {
+   "name": "물 위에 그은 금",
+   "text": "채찍으로 금을 그어 큰물이 앞줄을 휩쓴다.",
+   "effect": "sweep",
+   "mult": 1.0,
+   "targets": 3
+  },
+  "dragon_light": {
+   "name": "용의 빛",
+   "text": "다섯 용의 빛을 실어 한 상대를 크게 벤다.",
+   "effect": "strike",
+   "mult": 3.0
+  },
+  "restored_eye": {
+   "name": "되찾은 눈",
+   "text": "온전함의 눈이 가장 다친 동료를 낫게 한다.",
+   "effect": "heal",
+   "mult": 2.2
+  },
+  "cobra_flame": {
+   "name": "코브라의 불",
+   "text": "이마의 코브라가 앞줄에 불을 뿜는다.",
+   "effect": "sweep",
+   "mult": 0.9,
+   "targets": 3
+  },
+  "three_point": {
+   "name": "세 갈래 날",
+   "text": "세 갈래 날이 앞의 상대와 그 뒤를 꿰뚫는다.",
+   "effect": "pierce",
+   "mult": 2.6
+  },
+  "returning_arrow": {
+   "name": "되돌아온 화살",
+   "text": "하늘로 쏜 화살이 세게 꽂힌다. 되돌아온 화살이 자신도 조금 스친다.",
+   "effect": "strike",
+   "mult": 3.0,
+   "selfHurt": 0.06
+  },
+  "wisdom_edge": {
+   "name": "지혜의 날",
+   "text": "멈춤과 독을 떨치고 무지를 베듯 벤다.",
+   "effect": "strike",
+   "mult": 2.4,
+   "cleanse": true
+  },
+  "call_simurgh": {
+   "name": "시무르그 부르기",
+   "text": "깃털을 태워 시무르그를 불러 가장 다친 동료를 돌본다.",
+   "effect": "heal",
+   "mult": 1.8
+  },
+  "lightning_serpent": {
+   "name": "번개 뱀",
+   "text": "번개 뱀을 내리쳐 한 상대를 멈추게 한다.",
+   "effect": "stun",
+   "mult": 1.6,
+   "dur": 1.5
   }
  }
 }
