@@ -1,7 +1,7 @@
 {
  "version": 1,
  "note": "tools/register-images.py 가 그림 저장소(myth-atelier-img/img)를 읽어 채운다. 손으로 고치지 않는다.",
- "count": 139,
+ "count": 140,
  "img": {
   "가다": {"byStyle": {"game_keyart": {"f": "가다_game_keyart_f.webp", "awaken": {"f": "가다_game_keyart_f_awaken.webp"}, "cursed": {"f": "가다_game_keyart_f_cursed.webp"}, "casual": {"f": ["가다_game_keyart_f_casual1.webp"]}}}},
   "간디바": {"byStyle": {"game_keyart": {"f": "간디바_game_keyart_f.webp", "awaken": {"f": "간디바_game_keyart_f_awaken.webp"}, "cursed": {"f": "간디바_game_keyart_f_cursed.webp"}, "casual": {"f": ["간디바_game_keyart_f_casual1.webp"]}}}},
@@ -89,6 +89,7 @@
   "월왕구천검": {"byStyle": {"game_keyart": {"f": "월왕구천검_game_keyart_f.webp", "awaken": {"f": "월왕구천검_game_keyart_f_awaken.webp"}, "cursed": {"f": "월왕구천검_game_keyart_f_cursed.webp"}, "casual": {"f": ["월왕구천검_game_keyart_f_casual1.webp", "월왕구천검_game_keyart_f_casual2.webp", "월왕구천검_game_keyart_f_casual3.webp"]}, "extra": {"f": ["월왕구천검_game_keyart_f_extra1.webp"]}}}},
   "이성계의 대우전": {"byStyle": {"game_keyart": {"f": "이성계의_대우전_game_keyart_f.webp", "awaken": {"f": "이성계의_대우전_game_keyart_f_awaken.webp"}, "cursed": {"f": "이성계의_대우전_game_keyart_f_cursed.webp"}, "casual": {"f": ["이성계의_대우전_game_keyart_f_casual1.webp", "이성계의_대우전_game_keyart_f_casual2.webp"]}, "extra": {"f": ["이성계의_대우전_game_keyart_f_extra1.webp"]}}}},
   "이순신의 활": {"byStyle": {"game_keyart": {"f": "이순신의_활_game_keyart_f.webp", "awaken": {"f": "이순신의_활_game_keyart_f_awaken.webp"}, "cursed": {"f": "이순신의_활_game_keyart_f_cursed.webp"}, "casual": {"f": ["이순신의_활_game_keyart_f_casual1.webp"]}}}},
+  "인티의 태양 원반": {"byStyle": {"game_keyart": {"f": "인티의_태양_원반_game_keyart_f.webp", "awaken": {"f": "인티의_태양_원반_game_keyart_f_awaken.webp"}, "cursed": {"f": "인티의_태양_원반_game_keyart_f_cursed.webp"}, "casual": {"f": ["인티의_태양_원반_game_keyart_f_casual1.webp"]}, "extra": {"f": ["인티의_태양_원반_game_keyart_f_extra1.webp", "인티의_태양_원반_game_keyart_f_extra2.webp", "인티의_태양_원반_game_keyart_f_extra3.webp"]}}}},
   "잠시드의 잔": {"byStyle": {"game_keyart": {"f": "잠시드의_잔_game_keyart_f.webp", "awaken": {"f": "잠시드의_잔_game_keyart_f_awaken.webp"}, "cursed": {"f": "잠시드의_잔_game_keyart_f_cursed.webp"}, "casual": {"f": ["잠시드의_잔_game_keyart_f_casual1.webp"]}, "extra": {"f": ["잠시드의_잔_game_keyart_f_extra1.webp", "잠시드의_잔_game_keyart_f_extra2.webp"]}}}},
   "주몽의 활": {"byStyle": {"game_keyart": {"f": "주몽의_활_game_keyart_f.webp", "awaken": {"f": "주몽의_활_game_keyart_f_awaken.webp"}, "cursed": {"f": "주몽의_활_game_keyart_f_cursed.webp"}, "casual": {"f": ["주몽의_활_game_keyart_f_casual1.webp", "주몽의_활_game_keyart_f_casual2.webp", "주몽의_활_game_keyart_f_casual3.webp"]}, "extra": {"f": ["주몽의_활_game_keyart_f_extra1.webp"]}}}},
   "찬드라하스": {"byStyle": {"game_keyart": {"f": "찬드라하스_game_keyart_f.webp", "awaken": {"f": "찬드라하스_game_keyart_f_awaken.webp"}, "cursed": {"f": "찬드라하스_game_keyart_f_cursed.webp"}, "casual": {"f": ["찬드라하스_game_keyart_f_casual1.webp"]}}}},
