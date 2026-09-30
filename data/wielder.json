@@ -158,6 +158,10 @@
   {"name": "브라다만테", "myth": "knight", "might": 90, "art": 84, "divine": 30, "favor": "spear", "text": "황금 창을 든 여기사. 로게로와 맺어졌다."},
   {"name": "샤를마뉴", "myth": "knight", "might": 84, "art": 86, "divine": 50, "favor": "sword", "text": "서로마를 이은 프랑크의 황제. 열두 기사를 거느렸다."},
   {"name": "롱기누스", "myth": "knight", "might": 80, "art": 60, "divine": 70, "favor": "spear", "text": "창을 찌른 로마 백인대장. 뒤에 성인으로 섬겨졌다."},
-  {"name": "가늘롱", "myth": "knight", "might": 60, "art": 80, "divine": 20, "favor": "sword", "text": "롤랑을 시기해 적과 손잡은 배신자."}
+  {"name": "가늘롱", "myth": "knight", "might": 60, "art": 80, "divine": 20, "favor": "sword", "text": "롤랑을 시기해 적과 손잡은 배신자."},
+  {"name": "솔", "myth": "norse", "might": 40, "art": 70, "divine": 96, "favor": "armor", "text": "해의 수레를 모는 여신. 늑대 스콜에게 쫓긴다."},
+  {"name": "콘코바르", "myth": "celtic", "might": 76, "art": 72, "divine": 40, "favor": "armor", "text": "울스터의 왕. 붉은 가지의 전사들을 거느렸다."},
+  {"name": "다케다 신겐", "myth": "japan", "might": 82, "art": 90, "divine": 30, "favor": "armor", "text": "가이의 호랑이. 바람처럼 빠르게, 숲처럼 고요하게."},
+  {"name": "지크프리트", "myth": "knight", "might": 96, "art": 80, "divine": 40, "favor": "sword", "text": "용의 피로 몸을 씻어 등의 한 곳 말고는 다치지 않는 니벨룽의 영웅."}
  ]
 }

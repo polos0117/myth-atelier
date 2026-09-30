@@ -173,6 +173,18 @@ ok(hb.battle.boss && hb.battle.enemies[0].name === '케라우노스' && hb.battl
 const plain = R.newRun(data, 3, ['궁니르', '묠니르', '아이기스']);
 ok(!plain.fromDraft && plain.party.every(m => !m.wielder && m.mult === 1 && m.gaugeMax === T.gauge), '드래프트 없이 오면 옛 규칙 그대로');
 
+/* 방어구 — 도발하면 다음 상대 차례의 한 대 공격이 모두 그 동료에게, 방진은 동료 전부에게 보호막 */
+{
+  const tr = R.newRun(data, 31, party); R.proceed(tr, data);
+  const tb = tr.battle; tb.hand.unshift({ key: 'armor.taunt', owner: '아이기스', id: 900 }, { key: 'armor.wall', owner: '아이기스', id: 901 }); tb.mana = 9;
+  const sh0 = tr.party.map(p => p.shield);
+  ok(R.play(tr, data, 1, 0).ok && tr.party.every((p, i) => p.shield > sh0[i]), '방진 — 동료 전부에게 보호막');
+  ok(R.play(tr, data, 0, 0).ok && tb.taunt === '아이기스', '도발 — 아이기스가 맡는다');
+  const from = tr.log.length; R.endTurn(tr, data);
+  const hits = tr.log.slice(from).filter(l => l.k === 'ehit');
+  ok(hits.length > 0 && hits.every(l => l.b === '아이기스') && !tr.battle.taunt, '한 대 공격은 모두 아이기스에게, 차례가 끝나면 풀린다');
+}
+
 console.log('PASS 던전 규칙 ' + n + '가지');
 
 /* ── 균형 표 — 실패가 아니라 보고. 맡긴 손: 마나 되는 카드 아무거나, 저주는 받는다, 제단은 첫 동료, 문은 지나친다 ── */

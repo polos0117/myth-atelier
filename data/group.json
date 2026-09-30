@@ -7,10 +7,10 @@
   "color": {"norse": "#5b8fd6", "greek": "#d6a24a", "korea": "#3f9fb0", "china": "#c9494f", "japan": "#e07fa3", "india": "#c07bd6", "egypt": "#e07b39", "westasia": "#4a57b8", "celtic": "#4fae7e", "america": "#8fbf3a", "knight": "#a9b4c8"}
  },
  "kind": {
-  "order": ["sword", "spear", "blunt", "bow", "relic"],
-  "name": {"sword": "검", "spear": "창", "blunt": "둔기", "bow": "활", "relic": "이형"},
-  "en": {"sword": "Sword", "spear": "Spear", "blunt": "Blunt", "bow": "Bow", "relic": "Relic"},
-  "color": {"sword": "#8fa3b8", "spear": "#7fb08a", "blunt": "#b0865f", "bow": "#a5a06a", "relic": "#9a86c4"}
+  "order": ["sword", "spear", "blunt", "bow", "armor", "relic"],
+  "name": {"sword": "검", "spear": "창", "blunt": "둔기", "bow": "활", "armor": "방어구", "relic": "이형"},
+  "en": {"sword": "Sword", "spear": "Spear", "blunt": "Blunt", "bow": "Bow", "armor": "Armor", "relic": "Relic"},
+  "color": {"sword": "#8fa3b8", "spear": "#7fb08a", "blunt": "#b0865f", "bow": "#a5a06a", "armor": "#6f8fa0", "relic": "#9a86c4"}
  },
  "museum": {"floor": false, "hall": ["wall", "dome", "floor"], "rooms": {"norse": ["wall", "banner", "mural", "ceil"], "india": ["wall", "banner", "mural", "ceil"], "china": ["wall", "banner", "mural", "ceil"], "celtic": ["wall", "banner", "mural", "ceil"], "greek": ["wall", "banner", "mural", "ceil"], "japan": ["wall", "banner", "mural", "ceil"], "korea": ["wall", "banner", "mural", "ceil"], "egypt": ["wall", "banner", "mural", "ceil"], "westasia": ["wall", "banner", "mural", "ceil"]}},
  "temple": {"midnight": "norse", "moss": "norse", "daylight": "greek", "deep": "greek", "blossom": "japan", "ember": "china", "sand": "india", "plum": "india", "stone": "celtic", "dancheong": "korea", "nile": "egypt", "lapis": "westasia", "pantheon": null}

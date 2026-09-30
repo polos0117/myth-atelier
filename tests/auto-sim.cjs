@@ -55,7 +55,7 @@ const toRound = (st, r) => { while (st.round < r && st.phase === 'plan') { A.aut
   ok(A.MYTHS_PER_GAME === 3 && a.myths.length === 3 && a.myths.every(k => all.includes(k)) && new Set(a.myths).size === 3, '셋을 뽑는다: ' + a.myths.join(','));
   const seen = new Set(); for (let s = 1; s <= 40; s++) seen.add(A.newGame(data, s).myths.join());
   ok(seen.size >= 10, '판마다 권이 달라진다 (' + seen.size + '가지)');
-  ok(Object.keys(a.pool).every(k => a.myths.includes(by(k).myth)) && Object.keys(a.pool).length === 45, '더미는 그 셋의 마흔다섯 자루');
+  ok(Object.keys(a.pool).every(k => a.myths.includes(by(k).myth)) && Object.keys(a.pool).length === data.cards.filter(c => a.myths.includes(c.myth)).length, '더미는 그 셋의 무기 전부');
   ok(a.bots.every(b => a.myths.includes(b.fav)), '맞수가 즐겨 모으는 권도 그 셋 중');
   const g = A.newGame(data, 7);
   for (let r = 0; r < 30; r++) { g.gold = 99; A.reroll(g, data); ok(g.shop.every(n => !n || g.myths.includes(by(n).myth)), '상점은 판의 신화권만'); }
@@ -66,7 +66,7 @@ const toRound = (st, r) => { while (st.round < r && st.phase === 'plan') { A.aut
   ok(f.myths.slice().sort().join() === pick.slice().sort().join(), '고른 권으로 시작한다');
   ok(A.newGame(data, 42, { myths: ['norse'] }).myths.length === 3, '틀린 고르기는 무시하고 뽑는다');
   const pre = A.newGame(data, 5); pre.myths = ['norse', 'east'];
-  ok(A.liveMyths(pre, data).slice().sort().join() === 'china,japan,korea,norse' && A.inPlay(pre, data).length === 60, '옛 판의 동아시아는 셋으로 받는다');
+  ok(A.liveMyths(pre, data).slice().sort().join() === 'china,japan,korea,norse' && A.inPlay(pre, data).length === data.cards.filter(c => ['china', 'japan', 'korea', 'norse'].includes(c.myth)).length, '옛 판의 동아시아는 셋으로 받는다');
   const ch = A.newGame(data, 5), gold = ch.gold, other = all.filter(k => !ch.myths.includes(k)).slice(0, 3);
   ok(A.setMyths(ch, data, other).ok && ch.myths.slice().sort().join() === other.slice().sort().join() && ch.gold === gold, '빈손 첫 라운드엔 바꾼다(금은 그대로)');
   ok(ch.shop.every(n => other.includes(by(n).myth)) && Object.keys(ch.pool).every(k => other.includes(by(k).myth)) && total(ch) === fresh(ch), '바꾸면 상점·더미도 새로');
@@ -227,9 +227,25 @@ const toRound = (st, r) => { while (st.round < r && st.phase === 'plan') { A.aut
   ok(deaths.length > 0 && deaths.every(d => knt.log.some(e => e.k === 'avenge' && e.b === 2 && e.t === d.t)) && !knt.log.some(e => e.k === 'avenge' && e.b === 3), '기사 둘: 아군이 쓰러지면 남은 기사만 맹세를 얻는다');
   ok(!A.simulate(data, st, [U('뒤랑달', 3, 1, 1), U('가다', 1, 0, 1)], [U('묠니르', 3, 0, 1)]).log.some(e => e.k === 'avenge'), '기사 하나면 맹세가 없다');
   /* 이형 둘 — 아군 전체 보호막으로 시작 */
-  const sh = A.simulate(data, st, [U('아이기스', 1, 0, 0), U('탈라리아', 1, 1, 0), U('칸다', 1, 0, 1)], [U('묠니르', 1, 0, 1)]);
+  const sh = A.simulate(data, st, [U('케라우노스', 1, 0, 0), U('탈라리아', 1, 1, 0), U('칸다', 1, 0, 1)], [U('묠니르', 1, 0, 1)]);
   const firstOnKanda = sh.log.find(e => e.k === 'hit' && e.b === 3);
   ok(firstOnKanda && firstOnKanda.s > 0 && firstOnKanda.s <= Math.round(by('칸다').hp * 0.12), '이형 둘: 칸다도 12% 보호막을 받는다');
+  /* 방어구 둘 — 옆·앞뒤 한 칸 안의 동료가 받는 피해의 20% 를 대신 맞는다. 방어구 자신은 나누지 않는다 */
+  const cv = A.simulate(data, st, [U('칸다', 1, 0, 1), U('아이기스', 1, 1, 1), U('맘브리노의 투구', 1, 1, 2)], [U('묠니르', 1, 0, 1)]);
+  const kHit = cv.log.find(e => e.k === 'hit' && e.b === 1), kCov = kHit && cv.log.find(e => e.k === 'cover' && e.t === kHit.t && e.a === kHit.a);
+  ok(kCov && [2, 3].includes(kCov.b) && Math.abs(kCov.d / (kCov.d + kHit.d) - 0.2) < 0.02, '방어구 둘: 칸다가 맞은 피해의 20% 를 방어구가 대신 맞는다');
+  ok(kCov && kCov.b === 2, '대신 맞는 방어구는 피가 가장 많은 하나(아이기스)');
+  ok(cv.log.filter(e => e.k === 'cover').every(c => { const i = cv.log.indexOf(c), next = cv.log[i + 1]; return next && next.a === c.a && next.b === 1; }), '대신 맞기는 칸다가 맞을 때만 — 방어구가 맞을 땐 나누지 않는다');
+  ok(!A.simulate(data, st, [U('칸다', 1, 0, 1), U('아이기스', 1, 1, 1), U('탈라리아', 1, 1, 2)], [U('묠니르', 1, 0, 1)]).log.some(e => e.k === 'cover'), '방어구 하나면 대신 맞기가 없다');
+  ok(!A.simulate(data, st, [U('칸다', 1, 0, 0), U('아이기스', 1, 2, 2), U('맘브리노의 투구', 1, 2, 3)], [U('묠니르', 1, 0, 0)]).log.some(e => e.k === 'cover' && e.t < 3), '두 칸 떨어지면 못 막는다');
+  /* 둘레 방패 기술 — 자신과 한 칸 안의 동료에게 보호막 */
+  const bw = A.simulate(data, st, [U('쇄자황금갑', 3, 0, 1), U('칸다', 3, 0, 2), U('탈라리아', 3, 2, 3)], [U('아이기스', 3, 0, 1)]);
+  const cast = bw.log.find(e => e.k === 'skill' && e.a === 1);
+  ok(cast && bw.log.some(e => e.k === 'shield' && e.t === cast.t && e.b === 1) && bw.log.some(e => e.k === 'shield' && e.t === cast.t && e.b === 2) && !bw.log.some(e => e.k === 'shield' && e.t === cast.t && e.b === 3), '황금 사슬은 자신과 옆 칸다에게만 보호막');
+  /* 제 몸 보호막 — self 면 가장 약한 동료가 아니라 자신에게 */
+  const sf = A.simulate(data, st, [U('네메아 사자 가죽', 3, 0, 1), U('칸다', 1, 1, 1)], [U('아이기스', 3, 0, 1)]);
+  const sc = sf.log.find(e => e.k === 'skill' && e.a === 1);
+  ok(sc && sf.log.some(e => e.k === 'shield' && e.t === sc.t && e.b === 1), '사자 가죽의 보호막은 자신에게');
   /* 둔기 — 평타 멈춤이 난다 (여러 판 중 한 번은) */
   let stunned = false;
   for (let s = 1; s < 6 && !stunned; s++) stunned = A.simulate(data, A.newGame(data, s), [U('묠니르', 1, 0, 1), U('바즈라', 1, 0, 0)], [U('아이기스', 3, 0, 1)]).log.some(e => e.k === 'stun');

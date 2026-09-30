@@ -1,6 +1,6 @@
 {
  "version": 1,
- "note": "시너지 표. axis(myth·kind)의 열쇠마다 at(켜지는 장 수 둘)과 value(그때 값 둘). scope 가 self 면 그 축의 카드에만, team 이면 아군 전체에 걸린다. effect 는 엔진(lib/auto.js)이 아는 종류 — revive(죽을 때 한 번, 최대 체력의 value 로) firstcrit(첫 공격 배수) manaRate(마나 더 참) skillPower(기술 배수 더함) atk(공격력 더함) splash(창의 뒤 칸 피해 비율) stunChance(평타 멈춤 확률) spd(공격 간격 줄임) shield(시작 보호막, 최대 체력 비율) frenzy(잃은 체력만큼 공격) guard(받는 피해 줄임) critChance(평타가 두 배로 들어갈 확률) regen(박자마다 최대 체력 비율만큼 회복, 저주 중엔 없음) thorns(맞은 피해의 비율을 때린 쪽에 되돌림) leech(평타·기술로 준 피해의 비율만큼 회복, 저주 중엔 없음) avenge(아군이 쓰러질 때마다 공격 비율이 오름, 판 끝까지 겹침). 같은 축의 카드 수는 별과 무관하게 이름으로 센다.",
+ "note": "시너지 표. axis(myth·kind)의 열쇠마다 at(켜지는 장 수 둘)과 value(그때 값 둘). scope 가 self 면 그 축의 카드에만, team 이면 아군 전체에 걸린다. effect 는 엔진(lib/auto.js)이 아는 종류 — revive(죽을 때 한 번, 최대 체력의 value 로) firstcrit(첫 공격 배수) manaRate(마나 더 참) skillPower(기술 배수 더함) atk(공격력 더함) splash(창의 뒤 칸 피해 비율) stunChance(평타 멈춤 확률) spd(공격 간격 줄임) shield(시작 보호막, 최대 체력 비율) frenzy(잃은 체력만큼 공격) guard(받는 피해 줄임) critChance(평타가 두 배로 들어갈 확률) regen(박자마다 최대 체력 비율만큼 회복, 저주 중엔 없음) thorns(맞은 피해의 비율을 때린 쪽에 되돌림) leech(평타·기술로 준 피해의 비율만큼 회복, 저주 중엔 없음) avenge(아군이 쓰러질 때마다 공격 비율이 오름, 판 끝까지 겹침) cover(옆·앞뒤 한 칸 안의 동료가 적에게 받는 피해의 비율을 대신 맞음, 방어구끼리는 안 나눔). 같은 축의 카드 수는 별과 무관하게 이름으로 센다.",
  "myth": {
   "norse": {"at": [2, 4], "effect": "revive", "value": [0.3, 0.5], "scope": "self", "name": "발할라", "text": "죽을 때 한 번 되살아난다 — 최대 체력의 {a}% / {b}%"},
   "greek": {"at": [2, 4], "effect": "firstcrit", "value": [1.6, 2.2], "scope": "self", "name": "신의 가호", "text": "첫 공격이 치명타 — ×{a} / ×{b}"},
@@ -19,6 +19,7 @@
   "spear": {"at": [2, 4], "effect": "splash", "value": [0.7, 1.0], "scope": "self", "name": "창의 벽", "text": "찌른 칸 뒤까지 닿는다 — {a}% / {b}%"},
   "blunt": {"at": [2, 4], "effect": "stunChance", "value": [0.2, 0.4], "scope": "self", "name": "둔기의 무게", "text": "평타에 맞은 쪽이 잠깐 멈춘다 — {a}% / {b}%"},
   "bow": {"at": [2, 4], "effect": "spd", "value": [0.2, 0.4], "scope": "self", "name": "시위의 노래", "text": "공격 간격이 준다 — −{a}% / −{b}%"},
+  "armor": {"at": [2, 4], "effect": "cover", "value": [0.2, 0.4], "scope": "self", "name": "방진의 벽", "text": "옆·앞뒤 동료가 받는 피해의 일부를 대신 맞는다 — {a}% / {b}%"},
   "relic": {"at": [2, 4], "effect": "shield", "value": [0.12, 0.25], "scope": "team", "name": "신물의 가호", "text": "아군 전체가 보호막으로 시작한다 — 최대 체력의 {a}% / {b}%"}
  }
 }

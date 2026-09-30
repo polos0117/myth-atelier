@@ -35,6 +35,14 @@
    {"key": "bow.volley", "name": "일제 사격", "text": "상대 전부에게 두 발씩.", "cost": 2, "mult": 1.0, "hits": 2, "all": true},
    {"key": "bow.rain", "name": "화살비", "text": "상대 전부에게 세 발씩.", "cost": 3, "mult": 1.2, "hits": 3, "all": true, "rare": true}
   ],
+  "armor": [
+   {"key": "armor.bash", "name": "방패 치기", "text": "치고, 자신에게 보호막을 두른다.", "cost": 1, "mult": 0.8, "shield": 0.15, "basic": true},
+   {"key": "armor.taunt", "name": "도발", "text": "살짝 치고 보호막을 두른 뒤, 다음 상대 차례의 한 대 공격을 모두 대신 받는다.", "cost": 1, "mult": 0.4, "shield": 0.2, "taunt": true},
+   {"key": "armor.wall", "name": "방진", "text": "동료 전부에게 보호막을 두른다.", "cost": 2, "ward": 0.12, "basic": true},
+   {"key": "armor.counter", "name": "반격", "text": "받아 넘기고 크게 되친다.", "cost": 3, "mult": 3.2, "shield": 0.15, "basic": true},
+   {"key": "armor.charge", "name": "방패 돌진", "text": "몸째 부딪혀 다음 행동을 못 하게 한다.", "cost": 2, "mult": 1.8, "stun": true},
+   {"key": "armor.unbroken", "name": "불굴", "text": "동료 전부에게 두꺼운 보호막을 두르고, 다음 상대 차례의 한 대 공격을 모두 대신 받는다.", "cost": 3, "ward": 0.2, "taunt": true, "rare": true}
+  ],
   "relic": [
    {"key": "relic.light", "name": "빛", "text": "치고, 자신에게 보호막을 두른다.", "cost": 1, "mult": 0.7, "shield": 0.2, "basic": true},
    {"key": "relic.bless", "name": "축복", "text": "동료 전부의 피를 채운다. 저주받은 동료는 못 받는다.", "cost": 2, "heal": 0.25, "basic": true},

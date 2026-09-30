@@ -34,7 +34,7 @@ const IMG = { img: {
     await p.click('#dex-reset');
     await p.fill('input[type=search]', '토르');
     /* 토르의 것은 망치와 무쇠 장갑 둘이다 */
-    assert.deepEqual((await p.locator('.grid .cell').evaluateAll(es => es.map(e => e.dataset.card))).sort(), ['묠니르', '야른그레이프'], '주인 이름으로 찾는다');
+    assert.deepEqual((await p.locator('.grid .cell').evaluateAll(es => es.map(e => e.dataset.card))).sort(), ['메긴교르드', '묠니르', '야른그레이프'], '주인 이름으로 찾는다');
     /* 스킨 — 자료에 스킨이 있는 것, 그중 스킨 그림까지 있는 것. 스킨 이름으로도 찾는다 */
     await p.click('#dex-reset');
     const skinned = card.cards.filter(c => (c.skins || []).length).map(c => c.name).sort();

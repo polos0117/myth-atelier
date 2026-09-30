@@ -50,7 +50,7 @@ for (const axis of ['myth', 'kind'])
   }
 
 /* 기술 — 엔진이 아는 효과만, 쓰이지 않는 기술은 없다 */
-const EFFECTS = ['strike', 'sweep', 'volley', 'pierce', 'execute', 'stun', 'heal', 'shield', 'buff', 'rally', 'haste', 'drain'];
+const EFFECTS = ['strike', 'sweep', 'volley', 'pierce', 'execute', 'stun', 'heal', 'shield', 'buff', 'rally', 'haste', 'drain', 'bulwark'];
 const used = new Set(cards.map(c => c.skill));
 for (const [k, s] of Object.entries(skill.skills)) {
   assert(s.name && s.text, k + ' 의 이름·설명');
