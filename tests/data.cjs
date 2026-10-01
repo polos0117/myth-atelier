@@ -39,6 +39,11 @@ for (const [m, list] of Object.entries(mu.rooms || {})) {
   assert(group.myth.order.includes(m), 'museum.rooms 의 ' + m + ' 이 신화권에 없다');
   assert(Array.isArray(list) && list.every(x => ['wall', 'banner', 'mural', 'ceil'].includes(x)), 'museum.rooms.' + m + ' 은 wall·banner·mural·ceil 목록');
 }
+/* 방어구는 어떻게 입는지(wear)를 안다 — 생성기가 그 장비만 그린다 */
+for (const c of cards) {
+  if (c.kind === 'armor') assert(['helm', 'shield', 'body', 'cloak', 'belt', 'gauntlet', 'crown'].includes(c.wear), c.name + ' 의 wear');
+  else assert(c.wear === undefined, c.name + ' 은 방어구가 아니라 wear 가 없다');
+}
 /* 무기 종류마다 두 자루는 있어야 시너지(2)가 켜질 수 있다 */
 for (const k of group.kind.order) assert(cards.filter(c => c.kind === k).length >= 2, k + ' 는 두 자루 이상');
 
