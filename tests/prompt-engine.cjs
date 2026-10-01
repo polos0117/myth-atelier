@@ -26,6 +26,14 @@ assert.equal(S.PARAMS[0].key, 'ethnicity', '첫 칸은 얼굴 계통 — 자동 
   const per = {}; cs.forEach(c => { (per[c.myth] = per[c.myth] || new Set()).add(P.autoHair(c)); });
   assert(Object.values(per).every(s => s.size >= 6), '권마다 머리색이 여섯 가지 이상: ' + Object.entries(per).map(([k, s]) => k + ' ' + s.size).join(', '));
   assert.equal(P.autoHair({ ...cs[0], hair: 'mint' }), 'mint', '카드의 hair 가 이긴다');
+  /* 방어구는 입는다 — "들지 않는다" 줄 대신 "입는다" 줄. 다른 종류는 그대로 */
+  assert(Object.values(S.CORE).every(c => c.includes(S.HOLD_LINE)), '설계 언어 둘 다 "들지 않는다" 줄을 그대로 가진다');
+  for (const design of Object.keys(S.CORE)) {
+    const helm = P.build({ card: '맘브리노의 투구', style: 'game_keyart', output: 'portrait', design, params: {} }, data);
+    const sword = P.build({ card: '뒤랑달', style: 'game_keyart', output: 'portrait', design, params: {} }, data);
+    assert(helm.includes(S.ARMOR_WORN) && !helm.includes(S.HOLD_LINE), design + ' 방어구는 입는다');
+    assert(sword.includes(S.HOLD_LINE) && !sword.includes(S.ARMOR_WORN), design + ' 검은 그대로 들지 않는다');
+  }
   /* 눈색도 같은 규칙 — 머리색과 거의 안 겹치고, 권마다 여러 색 */
   assert(cs.every(c => P.autoEye(c) && P.autoEye(c) !== P.autoHair(c)), '모든 카드에 눈색, 머리색과 다르다');
   const eper = {}; cs.forEach(c => { (eper[c.myth] = eper[c.myth] || new Set()).add(P.autoEye(c)); });
@@ -80,8 +88,9 @@ for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for 
     assert(!text.includes('CATEGORY:') && !text.includes('SCENE DETAILS'), '갈래를 안 고르면 갈래 줄이 없다');
   } else if (output === 'portrait') {
     assert(text.includes('WEAPON LOOK') && text.includes(card.look), '무기의 시각 언어가 실린다');
-    assert(text.includes('SUBJECT: ' + S.CORE.mecha.replace('{weapon}', card.en)), '뼈대는 메카 의인화 한 문단');
-    assert(text.includes('does NOT hold') && text.includes('Both hands are ordinary human hands'), '무기를 들지 않고 손은 손이다');
+    const core = card.kind === 'armor' ? S.CORE.mecha.replace(S.HOLD_LINE, S.ARMOR_WORN) : S.CORE.mecha;
+    assert(text.includes('SUBJECT: ' + core.replace('{weapon}', card.en)), '뼈대는 메카 의인화 한 문단(방어구는 입는 줄로)');
+    assert(text.includes(card.kind === 'armor' ? 'never gripped as a separate prop' : 'does NOT hold') && text.includes('Both hands are ordinary human hands'), '무기를 들지 않고(방어구는 입고) 손은 손이다');
     assert(!text.includes('EMBODIMENT') && !text.includes('SILHOUETTE:') && !text.includes(S.MYTH_FLAVOR[card.myth]), '선택 문단은 기본에서 꺼져 있다');
     assert(text.indexOf('WEAPON LOOK') < text.indexOf('STYLE:') && text.indexOf('STYLE:') < text.indexOf('SUBJECT:') && text.indexOf('SUBJECT:') < text.indexOf('OUTPUT:'), '차례: 무기 → 시각 언어 → 화풍 → 뼈대 → 규격');
   }
