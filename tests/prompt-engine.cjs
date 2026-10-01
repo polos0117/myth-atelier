@@ -109,7 +109,8 @@ for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for 
     const vals = S.PARAMS.find(p => p.key === k).options.map(o => o[0]).filter(v => v && v !== '__custom__');
     assert(vals.length >= 15 && vals.every(v => /^#[0-9A-Fa-f]{6}$/.test(S.COLOR_HEX[v] || '')), k + ' 의 색마다 hex');
   }
-  assert(t.includes('BASE \u2014 Facial ethnicity: Sami.') && t.includes('HAIR \u2014 Hair color: crimson.') && t.includes('FACE \u2014 Expression: fierce.'), t);
+  assert(t.includes('BASE \u2014 Facial ethnicity: Sami.') && t.includes('HAIR \u2014 Hair color: crimson.') && t.includes('Expression: fierce.') && t.includes('Eye color: ' + P.autoEye(P.cardOf(data, '묠니르')) + '.'), t);
+  assert(/FACE \u2014 [^\n]*Expression: fierce\./.test(t), '표정은 얼굴 묶음 안에, 자동 눈색과 같은 줄');
   assert(!t.includes('Apparent age:') && !t.includes('BUILD \u2014') && !t.includes('SHOT \u2014'), '비운 것은 줄도 묶음도 없다');
   /* RGB 로 고른 색 — 코드와 색 이름이 같이. 팔레트 색은 이름대로 읽힌다 */
   {
