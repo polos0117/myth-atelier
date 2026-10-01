@@ -110,7 +110,7 @@ html,body {margin:0;padding:0}
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth5"></script>
 <script src="lib/prompt-spec.js?v=8"></script>
-<script src="lib/prompt-myth.js?v=6"></script>
+<script src="lib/prompt-myth.js?v=7"></script>
 <script src="lib/prompt-random.js?v=1"></script>
 </head>
 <body class="prompt-page">
@@ -152,7 +152,7 @@ function ColorPick({ p, val, setP, card }) {
   const [draft, setDraft] = useState(hex);
   useEffect(() => setDraft(hex), [hex]);
   const rgb = hex ? [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)) : [128, 128, 128];
-  const auto = p.key === 'hairColor' && card ? P.autoHair(card) : '';
+  const auto = !card ? '' : p.key === 'hairColor' ? P.autoHair(card) : p.key === 'eyeColor' ? P.autoEye(card) : '';
   const autoLabel = W(p.key === 'eyeColor2' ? 'prompt.eye.same' : 'prompt.auto') + (auto ? ' · ' + auto : '');
   const presets = p.options.filter(([v]) => v && v !== '__custom__');
   const named = presets.find(o => o[0] === val);

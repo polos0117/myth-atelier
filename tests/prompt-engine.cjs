@@ -26,6 +26,11 @@ assert.equal(S.PARAMS[0].key, 'ethnicity', '첫 칸은 얼굴 계통 — 자동 
   const per = {}; cs.forEach(c => { (per[c.myth] = per[c.myth] || new Set()).add(P.autoHair(c)); });
   assert(Object.values(per).every(s => s.size >= 6), '권마다 머리색이 여섯 가지 이상: ' + Object.entries(per).map(([k, s]) => k + ' ' + s.size).join(', '));
   assert.equal(P.autoHair({ ...cs[0], hair: 'mint' }), 'mint', '카드의 hair 가 이긴다');
+  /* 눈색도 같은 규칙 — 머리색과 거의 안 겹치고, 권마다 여러 색 */
+  assert(cs.every(c => P.autoEye(c) && P.autoEye(c) !== P.autoHair(c)), '모든 카드에 눈색, 머리색과 다르다');
+  const eper = {}; cs.forEach(c => { (eper[c.myth] = eper[c.myth] || new Set()).add(P.autoEye(c)); });
+  assert(Object.values(eper).every(s => s.size >= 6), '권마다 눈색이 여섯 가지 이상: ' + Object.entries(eper).map(([k, s]) => k + ' ' + s.size).join(', '));
+  assert.equal(P.autoEye({ ...cs[0], eye: 'gold' }), 'gold', '카드의 eye 가 이긴다');
 }
 assert(S.PARAMS.length >= 35, '세부 선택이 서른다섯은 넘어야 앞 생성기만큼이다');
 for (const p of S.PARAMS) {
@@ -35,7 +40,8 @@ for (const p of S.PARAMS) {
 }
 assert.equal(new Set(S.PARAMS.map(p => p.key)).size, S.PARAMS.length, '열쇠가 겹친다');
 
-const BUDGET = { portrait: 320, awaken: 260, cursed: 290, casual: 560, skin: 300 };
+/* 액션 한 장은 머리색·눈색 자동(2026-10-01)으로 여섯 낱말쯤 늘어 330 */
+const BUDGET = { portrait: 330, awaken: 260, cursed: 290, casual: 560, skin: 300 };
 let n = 0, longest = { w: 0 };
 for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for (const style of S.STYLES) {
   const st = { card: card.name, style: style[0], output, params: {} };
