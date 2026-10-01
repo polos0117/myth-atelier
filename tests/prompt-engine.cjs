@@ -19,6 +19,14 @@ assert(S.STYLES.some(s => s[0] === S.DEFAULT_STYLE), '기본 화풍이 표에 �
 for (const k of data.group.myth.order) assert(S.MYTH_FLAVOR[k], k + ' 의 옷·재질 언어');
 for (const k of data.group.kind.order) assert(S.ACTIONS[k] && S.ACTIONS[k].length >= 3 && S.KIND_SILHOUETTE[k], k + ' 의 자세와 실루엣');
 assert.equal(S.PARAMS[0].key, 'ethnicity', '첫 칸은 얼굴 계통 — 자동 규칙이 본다');
+/* 머리색 자동 — 카드마다 정해지고(같은 이름이면 같다), 권 안에서 여러 색으로 갈린다. 카드의 hair 가 이긴다 */
+{
+  const fs0 = require('node:fs'), cs = JSON.parse(fs0.readFileSync('data/card.json', 'utf8')).cards;
+  assert(cs.every(c => P.autoHair(c) && P.autoHair(c) === P.autoHair({ ...c })), '모든 카드에 머리색, 같은 카드는 같은 색');
+  const per = {}; cs.forEach(c => { (per[c.myth] = per[c.myth] || new Set()).add(P.autoHair(c)); });
+  assert(Object.values(per).every(s => s.size >= 6), '권마다 머리색이 여섯 가지 이상: ' + Object.entries(per).map(([k, s]) => k + ' ' + s.size).join(', '));
+  assert.equal(P.autoHair({ ...cs[0], hair: 'mint' }), 'mint', '카드의 hair 가 이긴다');
+}
 assert(S.PARAMS.length >= 35, '세부 선택이 서른다섯은 넘어야 앞 생성기만큼이다');
 for (const p of S.PARAMS) {
   assert(S.PARAM_GROUPS.some(g => g[0] === p.group), p.key + ' 의 묶음 ' + p.group);

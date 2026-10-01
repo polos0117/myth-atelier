@@ -110,7 +110,7 @@ html,body {margin:0;padding:0}
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth5"></script>
 <script src="lib/prompt-spec.js?v=8"></script>
-<script src="lib/prompt-myth.js?v=5"></script>
+<script src="lib/prompt-myth.js?v=6"></script>
 <script src="lib/prompt-random.js?v=1"></script>
 </head>
 <body class="prompt-page">
@@ -147,12 +147,13 @@ function Select({ id, label, value, options, onChange }) {
 
 /* 색 고르기 — 값은 팔레트 이름("crimson") 또는 RGB 코드("#8e1b2b"). 비면 자동 */
 const toHex = a => '#' + a.map(n => Math.max(0, Math.min(255, Math.round(+n || 0))).toString(16).padStart(2, '0')).join('');
-function ColorPick({ p, val, setP }) {
+function ColorPick({ p, val, setP, card }) {
   const hex = (P.isHex(val) ? val : S.COLOR_HEX[val] || '').toLowerCase();
   const [draft, setDraft] = useState(hex);
   useEffect(() => setDraft(hex), [hex]);
   const rgb = hex ? [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)) : [128, 128, 128];
-  const autoLabel = W(p.key === 'eyeColor2' ? 'prompt.eye.same' : 'prompt.auto');
+  const auto = p.key === 'hairColor' && card ? P.autoHair(card) : '';
+  const autoLabel = W(p.key === 'eyeColor2' ? 'prompt.eye.same' : 'prompt.auto') + (auto ? ' · ' + auto : '');
   const presets = p.options.filter(([v]) => v && v !== '__custom__');
   const named = presets.find(o => o[0] === val);
   const bar = i => { const lo = rgb.slice(), hi = rgb.slice(); lo[i] = 0; hi[i] = 255; return '--bar:linear-gradient(90deg,' + toHex(lo) + ',' + toHex(hi) + ')'; };
@@ -312,7 +313,7 @@ function App() {
               const setP = v => update({ params: { ...st.params, [p.key]: v } }), val = st.params[p.key] || '';
               const visual = S.FIGURE_VALUES[p.key], color = S.COLOR_KEYS[p.key];
               return html`<div key=${p.key} class=${'pm-param' + (visual || color ? ' wide' : '')}>
-                ${color ? html`<${ColorPick} p=${p} val=${val} setP=${setP} />` : html`<${Select} id=${'pm-' + p.key} label=${p.ko} value=${val} options=${p.options} onChange=${setP} />`}
+                ${color ? html`<${ColorPick} p=${p} val=${val} setP=${setP} card=${c} />` : html`<${Select} id=${'pm-' + p.key} label=${p.ko} value=${val} options=${p.options} onChange=${setP} />`}
                 ${visual && html`<div class="pm-figures" data-figure-picker=${p.key}>
                   <div class="pm-figures-head"><span>${W('prompt.figure.pick', { label: p.ko })}</span>
                     <button type="button" class="pm-btn quiet" data-value="" aria-pressed=${!val} onClick=${() => setP('')}>${W('prompt.auto')}</button></div>
