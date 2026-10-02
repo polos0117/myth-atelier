@@ -903,3 +903,19 @@ html:has(.dex-page) {height:100%;overflow:hidden;overscroll-behavior:none}
   .hall-carousel {top:51%}
   .hall-rings {top:67%}
 }
+
+/* 2026-10-02 덮개 화면 정리 — 머리를 한 줄로, 작은 글씨·누르는 자리 키우기 */
+@media (max-width:599px) {
+  /* 1. 머리: 문장 + 제목 한 줄. 설명 문장은 ⚙ 의 '설명 보기' 를 켰을 때만 */
+  .workspace-heading {height:62px;padding:6px 0 10px}
+  .workspace-heading .crest-mark {width:38px;height:38px;padding:4px}
+  .workspace-heading h1 {margin:0}
+  .workspace-heading p,.workspace-heading::after {display:none}
+  [data-help="on"] .workspace-heading {height:auto}
+  [data-help="on"] .workspace-heading p {display:block;min-height:0;margin-top:2px}
+  /* 7. 9px 글씨 */
+  .eyebrow {font-size:10.5px;letter-spacing:.2em}
+  .rn-node b {font-size:11px}
+  /* 4. 누르는 자리 */
+  .hall-pick {display:inline-flex;align-items:center;min-height:44px;margin-top:6px}
+}

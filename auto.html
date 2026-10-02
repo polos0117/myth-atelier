@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap">
-<link rel="stylesheet" href="lib/workspace.css?v=myth28">
+<link rel="stylesheet" href="lib/workspace.css?v=myth29">
 <style>
 :root {--cc:var(--line)}
 * {box-sizing:border-box}
@@ -38,6 +38,8 @@ body {color:var(--text);font-size:15px}
 .at-dock-act .at-btn {min-height:46px}
 .at-dock-act #at-fight {flex:1}
 .at-btn {min-height:40px;padding:8px 12px;background:var(--card2);color:var(--text);border:1px solid var(--line);border-radius:8px;font:inherit;font-size:12px;font-weight:700}
+/* 덮개 화면 — 정보 닫기·다시 보기도 엄지가 닿는 크기로 */
+@media (pointer:coarse), (max-width:599px) {.at-btn {min-height:44px}}
 .at-btn.primary {background:var(--accent);color:var(--on-accent);border-color:var(--accent);min-height:46px;font-size:14px}
 :is([data-theme="daylight"],[data-theme="blossom"],[data-theme="sand"]) .at-btn.primary {color:#fff}
 .at-btn:disabled {opacity:.45}
@@ -514,7 +516,7 @@ function Result({ st, data, group, img, act }) {
       <div class="at-result" data-winner=${r.winner} style=${'--cc:' + (r.winner === 'me' ? 'var(--ok)' : r.winner === 'them' ? 'var(--signal)' : 'var(--line)')}>
         <h3>${r.winner === 'me' ? (r.pve ? W('auto.result.pve', { n: r.gain }) : W('auto.result.me')) : r.winner === 'them' ? W('auto.result.them', { n: r.lost }) : W('auto.result.draw', { n: r.lost })}</h3>
         <p>${W('auto.result.beats', { n: r.beats })} · ${W('auto.result.left', r.left)}
-          ${r.log && html` · <button class="at-btn" id="at-replay" style="min-height:32px;padding:4px 10px" onClick=${() => setT(-0.4)}>${W('auto.play.again')}</button>`}</p>
+          ${r.log && html` · <button class="at-btn" id="at-replay" style="padding:4px 12px" onClick=${() => setT(-0.4)}>${W('auto.play.again')}</button>`}</p>
       </div>
       ${(r.others || []).length ? html`<ul class="at-others">${r.others.map((o, i) => html`<li key=${i}>${o.pve
           ? html`<b>${nameOf(A.playerOf(st, o.a))}</b> ${W('auto.others.pve.' + o.winner)}`

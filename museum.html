@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap">
-<link rel="stylesheet" href="lib/workspace.css?v=myth28">
+<link rel="stylesheet" href="lib/workspace.css?v=myth29">
 <style>
 * {box-sizing:border-box}
 html,body {margin:0;padding:0}
@@ -32,7 +32,11 @@ body {color:var(--text);font-size:15px}
 .mu-btn.cursed[aria-pressed="true"] {--cc:#ff4d6d}
 .mu-bar a.mu-btn {display:inline-flex;align-items:center;text-decoration:none;margin-left:auto}
 .mu-rooms {width:100%;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:thin;padding-bottom:2px}
-.mu-rooms .mu-btn {flex:none;min-height:34px;font-size:11px}
+.mu-rooms .mu-btn {flex:none;min-height:44px;font-size:12px}
+/* 방 탭은 옆으로 넘긴다 — 끝이 잘린 것처럼 보이지 않게 오른쪽을 흐리고, 끝까지 넘기면 걷는다 */
+.mu-rooms {scroll-snap-type:x proximity}
+@media (max-width:899px) {.mu-rooms:not(.at-end) {-webkit-mask-image:linear-gradient(to right,#000 82%,transparent);mask-image:linear-gradient(to right,#000 82%,transparent)}}
+.mu-rooms .mu-btn {scroll-snap-align:start}
 /* 무대 — 남은 높이를 다 쓴다 */
 .mu-stage {position:relative;flex:1 1 auto;min-height:320px;border:1px solid var(--line);border-top:2px solid var(--gold);border-radius:10px;overflow:hidden;background:#000;touch-action:none;user-select:none;-webkit-user-select:none}
 .mu-stage canvas {position:absolute;inset:0;z-index:0;display:block;width:100%;height:100%;outline:none}
@@ -929,7 +933,7 @@ function App() {
         ${['base', 'awaken', 'cursed'].map(m => html`<button key=${m} type="button" class=${'mu-btn ' + m} data-mode=${m} aria-pressed=${mode === m} onClick=${() => setMode(m)}>${W('museum.mode.' + m)}</button>`)}
       </div>
       <a class="mu-btn" href="dex.html">${W('museum.back')}</a>
-      <div class="mu-rooms" role="group" aria-label=${W('museum.rooms')}>
+      <div class="mu-rooms" onScroll=${e => { const t = e.currentTarget; t.classList.toggle('at-end', t.scrollLeft + t.clientWidth >= t.scrollWidth - 4); }} role="group" aria-label=${W('museum.rooms')}>
         <button type="button" class="mu-btn" data-room="" aria-pressed=${room == null} onClick=${() => api.current && api.current.goto(null)}>${W('museum.lobby')}</button>
         ${halls.map((k, i) => html`<button key=${k} type="button" class="mu-btn" data-room=${i} aria-pressed=${room === i} style=${'--cc:' + data.group.myth.color[k]}
           onClick=${() => api.current && api.current.goto(i)}>${data.group.myth.name[k]}</button>`)}

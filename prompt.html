@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap">
-<link rel="stylesheet" href="lib/workspace.css?v=myth28">
+<link rel="stylesheet" href="lib/workspace.css?v=myth29">
 <style>
 * {box-sizing:border-box}
 html,body {margin:0;padding:0}
@@ -27,6 +27,15 @@ html,body {margin:0;padding:0}
 .pm-note {margin:0;color:var(--muted);font-size:12px;line-height:1.6;word-break:keep-all}
 .pm-id {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .pm-id .custom {grid-column:1/-1}
+/* 덮개 화면 — 두 칸 고르개는 "자동 — 신화권에…" 처럼 잘려서 한 줄에 하나씩, 색 막대는 손가락이 잡히게 */
+@media (max-width:599px) {.pm-id {grid-template-columns:minmax(0,1fr)}}
+@media (pointer:coarse), (max-width:599px) {
+  .pm-rgb .pm-rgb-bars {gap:8px}
+  .pm-rgb .pm-rgb-bars input[type=range] {height:30px;border-radius:9px}
+  .pm-rgb .pm-rgb-bars input[type=range]::-webkit-slider-thumb {width:30px;height:30px}
+  .pm-rgb .pm-rgb-bars input[type=range]::-moz-range-thumb {width:26px;height:26px}
+  .pm-rgb .pm-rgb-bars input[type=number] {min-height:40px}
+}
 .pm-group {border:1px solid var(--line);border-radius:10px;background:var(--card2);padding:0 10px 10px}
 .pm-group summary {display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:44px;cursor:pointer;font-size:13px;font-weight:700;list-style:none}
 .pm-group summary::-webkit-details-marker {display:none}
