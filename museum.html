@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap">
-<link rel="stylesheet" href="lib/workspace.css?v=myth24">
+<link rel="stylesheet" href="lib/workspace.css?v=myth25">
 <style>
 * {box-sizing:border-box}
 html,body {margin:0;padding:0}
@@ -70,7 +70,7 @@ body {color:var(--text);font-size:15px}
 }
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
-<script src="lib/words.js?v=myth36"></script>
+<script src="lib/words.js?v=myth37"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth5"></script>
 <script src="https://cdn.jsdelivr.net/npm/babylonjs@9.28.0/babylon.js"></script>
@@ -81,7 +81,7 @@ body {color:var(--text);font-size:15px}
 import { h, render } from 'https://esm.sh/preact@10.24.3';
 import { useState, useEffect, useRef } from 'https://esm.sh/preact@10.24.3/hooks';
 import htm from 'https://esm.sh/htm@3.1.1';
-import { WorkspaceHeader } from './lib/workspace-ui.js?v=myth9';
+import { WorkspaceHeader } from './lib/workspace-ui.js?v=myth10';
 const html = htm.bind(h);
 const W = window.W, IMG = window.AtelierImg, V = 'f';
 
@@ -938,7 +938,7 @@ function App() {
     <div class=${'mu-stage' + (c ? ' has-caption' : '')} ref=${host} data-mode=${mode} data-room=${room == null ? '' : room}>
       ${noGL && html`<p class="mu-empty">${W('museum.nogl')} <a href="dex.html">${W('museum.back')}</a></p>`}
       <span class="mu-where">${room == null ? W('museum.lobby') : W('museum.room', { name: data.group.myth.name[halls[room]] })} · ${W('museum.mode.' + mode)}</span>
-      <span class="mu-help">${W(touch ? 'museum.help.touch' : 'museum.help.pc')}</span>
+      <span class="mu-help help">${W(touch ? 'museum.help.touch' : 'museum.help.pc')}</span>
       ${c && html`<div class="mu-caption" data-focus=${c.name} style=${'--cc:' + data.group.myth.color[c.myth]}>
         <button type="button" id="mu-more" onClick=${() => setOpen(c.name)}>${W('museum.more')}</button>
         <b>${c.name}</b><small>${data.group.myth.name[c.myth]} · ${data.group.kind.name[c.kind]} · ${c.wielder}</small>

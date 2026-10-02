@@ -121,10 +121,15 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
 .workspace-nav {display:flex;gap:5px;padding:5px;margin:0;background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:8px;box-shadow:inset 0 1px 0 var(--gold),inset 0 -1px 0 var(--gold),var(--shadow);flex-wrap:nowrap;flex:1 1 auto;min-width:0}
 .header-fold {flex:0 0 44px;min-height:44px;padding:0;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--muted);font:inherit;font-size:14px;cursor:pointer}
 .header-fold:hover {color:var(--text);border-color:var(--accent)}
+.header-help {flex:0 0 44px;min-height:44px;padding:0;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--muted);font:inherit;font-size:15px;font-weight:800;cursor:pointer}
+.header-help:hover {color:var(--text);border-color:var(--accent)}
+.header-help[aria-pressed="true"] {color:var(--gold);border-color:var(--gold);background:var(--accent-soft)}
+/* 설명 글은 ? 를 켰을 때만 */
+html:not([data-help="on"]) .help {display:none !important}
 .workspace-header.folded .workspace-heading,.workspace-header.folded .appearance-controls {display:none}
 .workspace-header.folded {margin-bottom:10px}
 .workspace-nav a {flex:1 1 0;display:flex;align-items:center;justify-content:center;min-width:0;min-height:44px;padding:0 2px;border:0;border-radius:5px;font-size:12px;font-weight:700;letter-spacing:.08em;transition:background-color .2s,color .2s,box-shadow .2s;opacity:1;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none}
-@media (max-width:599px) { .workspace-nav {gap:2px;padding:4px} .workspace-nav a {font-size:11px;letter-spacing:-.02em} .header-fold {flex-basis:40px} }
+@media (max-width:599px) { .workspace-nav {gap:2px;padding:4px} .workspace-nav a {font-size:11px;letter-spacing:-.02em} .header-fold,.header-help {flex-basis:40px} }
 .workspace-nav a[aria-current="page"] {color:var(--text);background:var(--accent-soft);box-shadow:inset 0 -2px var(--gold),0 0 18px var(--halo)}
 /* Reserve readable space for longer labels while keeping all four tabs on one row. */
 .workspace-nav a[href="index.html"] {flex-grow:1.25}

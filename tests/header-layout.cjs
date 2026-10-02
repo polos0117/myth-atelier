@@ -60,6 +60,15 @@ function same(actual,expected,label){
     await p.locator('.header-fold').click();await p.waitForFunction(()=>!document.querySelector('.workspace-header.folded'));
     /* 낮은 화면(max-height:550)에서는 제목이 원래 숨어 있다 — 접기 전 상태로 돌아오면 된다 */
     assert.equal(await p.locator('.workspace-heading').evaluate(e=>getComputedStyle(e).display!=='none'),open['.workspace-heading'].visible,'펼치면 접기 전으로 돌아온다');
+    /* 설명 글 — 기본은 숨김, ? 를 누르면 보이고 다음 화면에서도 그대로, 다시 누르면 숨는다 */
+    await p.goto(h.base+'/draft.html');await p.waitForSelector('.df-setup .help',{state:'attached'});
+    assert.equal(await p.locator('.df-setup .help').first().isVisible(),false,'설명은 기본으로 숨는다');
+    await p.locator('.header-help').click();
+    assert(await p.locator('.df-setup .help').first().isVisible()&&await p.locator('.header-help').getAttribute('aria-pressed')==='true','? 를 누르면 보인다');
+    await p.goto(h.base+'/run.html');await p.waitForSelector('.rn-head .help',{state:'attached'});
+    assert(await p.locator('.rn-head .help').first().isVisible(),'다음 화면에서도 켜진 채');
+    await p.locator('.header-help').click();
+    assert.equal(await p.locator('.rn-head .help').first().isVisible(),false,'다시 누르면 숨는다');
     assert.deepEqual(a.errors,[]);
    }finally{await a.close()}
   }

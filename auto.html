@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap">
-<link rel="stylesheet" href="lib/workspace.css?v=myth24">
+<link rel="stylesheet" href="lib/workspace.css?v=myth25">
 <style>
 :root {--cc:var(--line)}
 * {box-sizing:border-box}
@@ -134,6 +134,23 @@ body {color:var(--text);font-size:15px}
 .at-board[data-side="them"] .at-cell.fx-act {transform:translateY(7px) scale(1.03)}
 .at-cell .flash {position:absolute;inset:0;background:radial-gradient(circle at 50% 45%,#ff4d4d88,transparent 70%);animation:at-flash .38s ease-out forwards;pointer-events:none}
 .at-cell .flash.crit {background:radial-gradient(circle at 50% 45%,#ffd24dcc,#ff4d4d55 45%,transparent 75%)}
+.at-cell .flash.cover {background:radial-gradient(circle at 50% 45%,#8fc7ffcc,#3f7fd055 45%,transparent 75%)}
+.at-pop.cover {color:#8fc7ff}
+/* 이펙트 — 치명타 불똥과 판 흔들기, 기술의 빛 터짐, 쓰러질 때 파편. 전부 코드로 그린다 */
+.at-arena.shake0 {animation:at-quake0 .26s linear}
+.at-arena.shake1 {animation:at-quake1 .26s linear}
+@keyframes at-quake0 {0%,100% {translate:0} 20% {translate:-5px 2px} 45% {translate:4px -2px} 70% {translate:-3px 1px}}
+@keyframes at-quake1 {0%,100% {translate:0} 20% {translate:5px -2px} 45% {translate:-4px 2px} 70% {translate:3px -1px}}
+.at-burst {position:absolute;left:50%;top:50%;width:min(70%,110px);aspect-ratio:1;z-index:1;border-radius:50%;pointer-events:none;translate:-50% -50%;mix-blend-mode:screen;
+  background:radial-gradient(circle,#fffbe8 0 14%,#ffe08a99 15% 30%,transparent 58%),repeating-conic-gradient(from 8deg,#fff1b8 0 5deg,transparent 5deg 24deg);
+  -webkit-mask:radial-gradient(circle,#000 30%,transparent 68%);mask:radial-gradient(circle,#000 30%,transparent 68%);animation:at-burst .6s ease-out forwards}
+.at-burst::after {content:'';position:absolute;inset:18%;border-radius:50%;border:3px solid #ffe08a;box-shadow:0 0 14px #ffd24d,inset 0 0 10px #ffd24d}
+@keyframes at-burst {0% {opacity:0;scale:.3;rotate:0deg} 15% {opacity:1} 100% {opacity:0;scale:2.4;rotate:45deg}}
+.at-bits {position:absolute;left:50%;top:45%;z-index:3;pointer-events:none}
+.at-bits i {position:absolute;left:0;top:0;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:2px;scale:var(--s);animation:at-bit .6s cubic-bezier(.2,.7,.3,1) forwards}
+.at-bits.spark i {background:#fff4c2;box-shadow:0 0 8px 2px #ffb02e;border-radius:50%}
+.at-bits.shard i {width:12px;height:6px;background:linear-gradient(135deg,#fff,var(--cc,#aaa) 60%);box-shadow:0 0 6px var(--cc,#fff),0 1px 2px #000a;animation-duration:.85s}
+@keyframes at-bit {0% {opacity:1;transform:rotate(var(--a)) translateX(0) rotate(0deg)} 65% {opacity:1} 100% {opacity:0;transform:rotate(var(--a)) translateX(var(--r)) rotate(220deg)}}
 .at-cell.fx-hurt {animation:at-shake .22s linear}
 @keyframes at-flash {from {opacity:1} to {opacity:0}}
 @keyframes at-shake {0%,100% {translate:0} 25% {translate:-3px 0} 75% {translate:3px 0}}
@@ -150,7 +167,7 @@ body {color:var(--text);font-size:15px}
 .at-cell.stunned::after {content:'✶';position:absolute;top:4px;left:6px;color:#ffd24d;font-size:13px;animation:at-flash .9s ease-in-out infinite alternate}
 .at-cell .hpbar i {position:absolute;right:0;top:0;height:100%;background:#8fc7ffcc}
 .at-cell.dead {transition:opacity .4s}
-@media (prefers-reduced-motion:reduce) {.at-cell,.at-cell.fx-hurt,.at-pop,.at-cast,.at-cell .flash {animation:none;transition:none}}
+@media (prefers-reduced-motion:reduce) {.at-cell,.at-cell.fx-hurt,.at-pop,.at-cast,.at-cell .flash {animation:none;transition:none} .at-arena {animation:none} .at-burst,.at-bits {display:none}}
 @media(max-width:599px){
   .at-bench {grid-template-columns:repeat(5,minmax(0,1fr))}
   .at-lobby {grid-template-columns:repeat(3,minmax(0,1fr))}
@@ -163,10 +180,10 @@ body {color:var(--text);font-size:15px}
 }
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
-<script src="lib/words.js?v=myth36"></script>
+<script src="lib/words.js?v=myth37"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth5"></script>
-<script src="lib/auto.js?v=12"></script>
+<script src="lib/auto.js?v=13"></script>
 </head>
 <body class="dex-page auto-page">
 <div id="app"></div>
@@ -174,7 +191,7 @@ body {color:var(--text);font-size:15px}
 import { h, render } from 'https://esm.sh/preact@10.24.3';
 import { useState, useEffect, useMemo } from 'https://esm.sh/preact@10.24.3/hooks';
 import htm from 'https://esm.sh/htm@3.1.1';
-import { WorkspaceHeader } from './lib/workspace-ui.js?v=myth9';
+import { WorkspaceHeader } from './lib/workspace-ui.js?v=myth10';
 const html = htm.bind(h);
 const W = window.W, IMG = window.AtelierImg, A = window.AtelierAuto;
 const STORE = 'myth_auto_v2', V = 'f';
@@ -208,6 +225,11 @@ function Art({ img, name, star, cursed }) {
   return file ? html`<img src=${IMG.thumbURL(file)} alt="" loading="lazy" class=${fx ? 'skin-' + fx : undefined} data-skin=${art.skin || undefined}
     onError=${e => { const t = e.currentTarget; if (t.dataset.f) return; t.dataset.f = '1'; t.src = IMG.imgURL(file); }} />${fx ? html`<i class=${'skin-fx ' + fx}></i>` : ''}` : null;
 }
+/* 터지는 조각 — 치명타는 금빛 불똥, 쓰러지면 파편. 그림 없이 작은 조각을 둥글게 흩뿌린다 */
+function Burst({ kind, n }) {
+  return html`<span class=${'at-bits ' + kind} aria-hidden="true">${Array.from({ length: n }, (_, i) => html`<i key=${i}
+    style=${'--a:' + Math.round(i * 360 / n + (i % 2) * 17) + 'deg;--r:' + (kind === 'shard' ? 46 + (i * 13) % 26 : 30 + (i * 11) % 18) + 'px;--s:' + (0.75 + (i % 3) * 0.2)}></i>`)}</span>`;
+}
 function Stars({ n }) { return html`<span class="st">${W('auto.star').repeat(n)}</span>`; }
 
 function Cell({ unit, index, zone, color, img, picked, target, onClick, side, hp, skills }) {
@@ -216,7 +238,7 @@ function Cell({ unit, index, zone, color, img, picked, target, onClick, side, hp
   const dead = hp && !hp.alive, fx = (hp && hp.fx) || [];
   /* 번쩍임·한 걸음은 짧게(q), 떠오르는 숫자·기술 이름은 길게 */
   const q = (hp && hp.q) || 1, has = k => fx.some(f => f.k === k && f.age <= q), last = k => fx.filter(f => k.includes(f.k) && f.age <= q).pop();
-  const hit = last(['hurt', 'crit']), cast = fx.filter(f => f.k === 'cast').pop();
+  const hit = last(['hurt', 'crit', 'cover']), cast = fx.filter(f => f.k === 'cast').pop(), die = fx.filter(f => f.k === 'die').pop();
   const cls = 'at-cell' + (picked ? ' on' : '') + (side ? ' ' + side : '') + (dead ? ' dead' : '') + (hp && hp.cursed ? ' cursed' : '')
     + (hp && hp.stunned ? ' stunned' : '') + (has('act') ? ' fx-act' : '') + (hit ? ' fx-hurt' : '') + (cast ? ' fx-cast' : '')
     + (has('curse') ? ' fx-curse' : '') + (has('revive') ? ' fx-revive' : '');
@@ -225,7 +247,10 @@ function Cell({ unit, index, zone, color, img, picked, target, onClick, side, hp
     data-index=${index} data-zone=${zone} data-name=${unit.name} data-star=${unit.star} data-cursed=${hp && hp.cursed ? '1' : undefined}
     data-hp=${hp ? hp.hp : undefined} style=${'--cc:' + (color || 'var(--line)')} onClick=${onClick} disabled=${!onClick}>
     <${Art} img=${img} name=${unit.name} star=${unit.star} cursed=${hp && hp.cursed} />
-    ${hit && html`<i class=${'flash' + (hit.k === 'crit' ? ' crit' : '')} key=${'f' + hit.i}></i>`}
+    ${hit && html`<i class=${'flash' + (hit.k === 'crit' ? ' crit' : hit.k === 'cover' ? ' cover' : '')} key=${'f' + hit.i}></i>`}
+    ${hit && hit.k === 'crit' && html`<${Burst} kind="spark" n=${7} key=${'s' + hit.i} />`}
+    ${cast && cast.age <= q * 2.5 && html`<i class="at-burst" key=${'b' + cast.i}></i>`}
+    ${die && html`<${Burst} kind="shard" n=${10} key=${'d' + die.i} />`}
     ${cast && html`<span class="at-cast" key=${'c' + cast.i}>${(skills && skills[cast.skill] && skills[cast.skill].name) || ''}</span>`}
     ${fx.filter(f => f.n).map(f => html`<span class=${'at-pop ' + f.k} key=${'n' + f.i} style=${'--dx:' + ((f.i % 3) - 1) * 22 + 'px;--dy:' + ((f.i >> 1) % 2) * 12 + 'px'}>${f.n > 0 ? '+' + f.n : f.n}</span>`)}
     <span class="nm">${unit.name}</span>
@@ -278,7 +303,7 @@ function Myths({ st, data, group, act }) {
   const toggle = k => setWant(w => w.includes(k) ? w.filter(x => x !== k) : w.length < max ? w.concat(k) : w);
   const changed = want.length >= min && want.length <= max && want.slice().sort().join() !== cur.slice().sort().join();
   const say = { all: group.myth.order.length, n: cur.length, min, max };
-  return html`<p class="sec">${W('auto.myths')}<span>${free ? W('auto.myths.note', say) : W('auto.myths.locked', say)}</span></p>
+  return html`<p class="sec">${W('auto.myths')}<span class="help">${free ? W('auto.myths.note', say) : W('auto.myths.locked', say)}</span></p>
     <div class="at-myths" role="group" aria-label=${W('auto.myths')}>
       ${group.myth.order.map(k => { const on = free ? want.includes(k) : cur.includes(k); return html`<button key=${k} type="button" class=${'at-myth' + (on ? ' on' : '')}
         data-myth=${k} aria-pressed=${on} disabled=${!free} style=${'--cc:' + group.myth.color[k]} onClick=${() => toggle(k)}>${group.myth.name[k]}</button>`; })}
@@ -388,14 +413,14 @@ function Plan({ st, data, group, img, act }) {
       color=${u && color(u)} picked=${picked && u && u.id === pick} target=${!!picked && !u} onClick=${() => onCell('bench')(i, u)} />`)}</div>
     ${picked ? html`<${CardInfo} data=${data} group=${group} name=${picked.unit.name} star=${picked.unit.star} units=${A.boardUnits(st)}>
         <div class="at-pick">
-          <span>${W('auto.pick.note')}</span>
+          <span class="help">${W('auto.pick.note')}</span>
           <button class="at-btn" id="at-sell" onClick=${() => { act('sell', pick); setPick(null); }}>${W('auto.sell', { n: A.value(A.cardOf(data, picked.unit.name), picked.unit.star) })}</button>
-        </div></${CardInfo}>` : html`<p class="note">${W('auto.bench.note')}</p>`}
+        </div></${CardInfo}>` : html`<p class="note help">${W('auto.bench.note')}</p>`}
     ${why && html`<p class="note" role="status">${why}</p>`}
 
     <${Synergy} data=${data} group=${group} units=${A.boardUnits(st)} />
 
-    <p class="sec">${W('auto.shop')}<span>${W('auto.shop.note')}</span>
+    <p class="sec">${W('auto.shop')}<span class="help">${W('auto.shop.note')}</span>
       <button class="at-btn" id="at-reroll" style="margin-left:auto" disabled=${st.gold < A.REROLL} onClick=${() => act('reroll')}>${W('auto.reroll', { n: A.REROLL })}</button></p>
     <div class="at-shop">${st.shop.map((name, i) => {
       const c = name && A.cardOf(data, name);
@@ -411,7 +436,7 @@ function Plan({ st, data, group, img, act }) {
     ${info && info.who === 'shop' && html`<${CardInfo} data=${data} group=${group} name=${info.name} star=1 units=${A.boardUnits(st)} onClose=${() => setInfo(null)} />`}
 
     <p class="sec" style="margin-top:20px"><button class="at-btn primary" id="at-fight" style="flex:1" onClick=${() => act('fight')}>${W('auto.fight')}</button></p>
-    <p class="note">${W('auto.fight.note')} ${W('auto.saved')}</p>`;
+    <p class="note help">${W('auto.fight.note')} ${W('auto.saved')}</p>`;
 }
 function boardCells(list) {
   const cells = new Array(A.CELLS).fill(null);
@@ -434,7 +459,8 @@ function Result({ st, data, group, img, act }) {
   const line = e => W('auto.log.' + e.k, { a: name(e.a), b: name(e.b), d: e.d, hp: e.hp, me: e.me, them: e.them,
     skill: e.skill && data.skills[e.skill] ? data.skills[e.skill].name : e.skill });
   const done = st.phase === 'won' || st.phase === 'lost';
-  const end = r.beats || 0;
+  /* 마지막 쓰러짐의 파편이 보이게 끝에 반 박자를 더 돈다 */
+  const end = r.beats ? r.beats + 0.5 : 0;
   /* 새 싸움이면 처음부터 돈다. 새로고침으로 다시 온 것이거나 움직임을 줄이는 설정이면 끝난 판을 바로 보인다 */
   const [t, setT] = useState(() => (wasSeen(st) || calm() || !r.log) ? end : -0.4);
   const [speed, setSpeed] = useState(readSpeed);
@@ -454,6 +480,8 @@ function Result({ st, data, group, img, act }) {
   const hpMe = u => { const i = st.board.indexOf(u); return at('me', Math.floor(i / A.COLS), i % A.COLS); };
   const toggleSpeed = () => { const v = speed === 2 ? 1 : 2; setSpeed(v); try { localStorage.setItem(SPEED_STORE, String(v)); } catch {} };
   const alive = sd => Object.values(now).filter(e => e.side === sd && e.alive).length;
+  /* 방금 치명타가 났으면 두 판이 함께 흔들린다. 번호의 홀짝으로 클래스를 바꿔 매번 다시 흔든다 */
+  const crit = playing ? Object.values(now).flatMap(e => e.fx).filter(f => f.k === 'crit' && f.age <= 0.3 * speed / PLAY_SEC).pop() : null;
   const [info, setInfo] = useState(null);
   return html`
     <div class="at-strip">
@@ -484,12 +512,14 @@ function Result({ st, data, group, img, act }) {
           <button class="at-btn primary" id="at-new" onClick=${() => act('new')}>${W('auto.new')}</button>
         </div>` : html`<p class="sec" style="margin-top:14px"><button class="at-btn primary" id="at-next" style="flex:1" onClick=${() => act('next')}>${W('auto.next')}</button></p>`}`}
 
+    <div class=${'at-arena' + (crit ? ' shake' + (crit.i % 2) : '')}>
     <p class="sec">${r.pve ? W('auto.enemy.pve') : r.ghost ? W('auto.enemy.ghost', { name: nameOf(A.playerOf(st, r.opp)) }) : W('auto.enemy.player', { name: nameOf(A.playerOf(st, r.opp)) })}</p>
     <${Board} cells=${boardCells(st.enemy.units)} side="them" color=${color} img=${img} hpOf=${hpThem} skills=${data.skills} onCell=${(i, u) => u && setInfo({ ...u, side: 'them' })} />
     ${info && info.side === 'them' && html`<${CardInfo} data=${data} group=${group} name=${info.name} star=${info.star} units=${st.enemy.units} onClose=${() => setInfo(null)} />`}
     <p class="sec">${W('auto.board')}</p>
     <${Board} cells=${st.board} side="me" color=${color} img=${img} hpOf=${hpMe} skills=${data.skills} onCell=${(i, u) => u && setInfo({ ...u, side: 'me' })} />
     ${info && info.side === 'me' && html`<${CardInfo} data=${data} group=${group} name=${info.name} star=${info.star} units=${A.boardUnits(st)} onClose=${() => setInfo(null)} />`}
+    </div>
 
     ${!playing && html`<p class="sec">${W('auto.log')}<span>${r.log.length}</span></p>
     <ul class="at-log">${r.log.map((e, i) => html`<li key=${i} class=${side(e.a || e.b)}><b>${e.t}</b> ${line(e)}</li>`)}</ul>`}`;
