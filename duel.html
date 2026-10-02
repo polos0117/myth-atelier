@@ -289,6 +289,12 @@ body {color:var(--text);font-size:15px}
 @keyframes du-reveal {from {transform:rotateY(0)} to {transform:rotateY(180deg)}}
 .du-reveal .du-card {animation:none}
 @media (prefers-reduced-motion:reduce) {.du-flipper {animation:none;transform:rotateY(180deg)}}
+/* ── 판 배경(맵) — 그 주인의 권 그림을 판 뒤에 어둡게 깔고 가장자리를 비네트로 감싼다. 줄은 살짝 비쳐 그림이 보인다 ── */
+.du-board {position:relative;isolation:isolate}
+.du-board[data-has-map]::before {content:'';position:absolute;inset:0;z-index:-1;border-radius:16px;background:linear-gradient(rgba(8,6,10,.5),rgba(8,6,10,.72)),var(--map) center/cover no-repeat;box-shadow:inset 0 0 90px #000c}
+.du-board[data-has-map] .du-row {background:color-mix(in srgb,var(--card) 76%,transparent)}
+.du-board[data-has-map] .du-row[data-weather="true"] {background:linear-gradient(90deg,#3d7bd633,color-mix(in srgb,var(--card) 76%,transparent) 60%)}
+.du-board[data-has-map] .du-foe {padding-left:8px;padding-right:8px}
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
 <script src="lib/words.js?v=myth41"></script>
@@ -358,6 +364,9 @@ function Thumb({ file, cls }) {
 }
 /* 카드 뒷면 — 그 권의 박물관 깃발. 내 쪽은 주 권, 상대 쪽은 그 주인의 권(둘 다 공개 정보라 숨은 패가 새지 않는다) */
 const bannerURL = (group, m) => { const r = group.museum && group.museum.rooms && group.museum.rooms[m]; return Array.isArray(r) && r.includes('banner') ? IMG.BASE + 'ui/museum_' + m + '_banner.webp' : null; };
+/* 판 배경 — group.json 의 museum.maps 에 적힌 권은 map_<권>.webp, 아니면 박물관 끝 벽 그림(_mural), 둘 다 없으면 없음 */
+const mapURL = (group, m) => { const mu = group.museum || {}; if (Array.isArray(mu.maps) && mu.maps.includes(m)) return IMG.BASE + 'ui/map_' + m + '.webp';
+  const r = mu.rooms && mu.rooms[m]; return Array.isArray(r) && r.includes('mural') ? IMG.BASE + 'ui/museum_' + m + '_mural.webp' : null; };
 const backHTML = (group, m) => { const u = bannerURL(group, m); return `<span class="du-back" data-myth="${m}" style="--mc:${mythColor(group, m)}"><i></i>${u ? `<img src="${u}" alt="" onerror="this.remove()">` : ''}</span>`; };
 function CardBack({ group, myth }) {
   const u = bannerURL(group, myth);
@@ -590,7 +599,8 @@ function Match({ data, group, profile, st, actMatch, act }) {
   const roundText = (r, n) => W('duel.round.' + (r.winner === 'me' ? 'win' : r.winner === 'foe' ? 'lose' : 'draw'), { n, me: r.me, foe: r.foe });
   const open = (id, fromHand, unit) => setDetail({ id, fromHand, unit: unit || null });
   const flags = side => html`<span class="du-flags">${st[side].sealed && html`<span>${W('duel.sealed')}</span>`}${st[side].guard && html`<span>${W('duel.guard')}</span>`}${st[side].astra && html`<span>${W('duel.astra')}</span>`}</span>`;
-  return html`<section class="du-screen du-board" data-screen="match">
+  const map = mapURL(group, st.boss);
+  return html`<section class="du-screen du-board" data-screen="match" data-map=${st.boss} data-has-map=${map ? '1' : undefined} style=${map ? `--map:url("${map}")` : undefined}>
     <div class="du-foe"><span class="face"><${Thumb} file=${portrait && portrait.file} /></span>
       <span><b>${boss.wielder}</b>${mythName(group, st.boss)} · ${W('duel.lv.' + st.level)}</span>
       <span class="du-foe-fan"><span class="du-cards" aria-hidden="true">${st.foe.hand.map((_, i) => html`<${CardBack} key=${i} group=${group} myth=${st.boss} />`)}</span><span class="du-foe-hand">${W('duel.foe.hand', { n: st.foe.hand.length })}</span></span>

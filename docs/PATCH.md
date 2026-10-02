@@ -8,6 +8,12 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-10-02 · claude · 결투 — 판 배경(맵)
+- duel.html — 판 뒤에 그 주인의 권 그림을 어둡게 깔고 가장자리를 비네트로. 줄은 살짝 비친다. map_<권>.webp(group.json museum.maps)가 있으면 그것, 없으면 박물관 끝 벽 그림, 둘 다 없으면 테마 바탕
+- data/group.json — museum.maps(비어 있음)와 note
+- docs/MAP_ART.md — 맵 그림 규격(세로 2:3, 가운데 비움, 밝게), 열한 권 생성 문장, 올리는 법, 다른 놀이로 넓히는 길 · docs/GAME_CONCEPT.md — 가리킴
+- tests/duel-screen.cjs — 판 배경이 주인의 권, 맵이 없으면 끝 벽 그림
+
 ## 2026-10-02 · claude · 결투 — 재대결 보상도 난이도가 정한다
 - lib/duel.js — 규칙이 바뀌기 전에 이미 이긴 주인은 첫 승 보너스가 소진돼 에이스를 다시 이겨도 날씨판이 안 나왔다. 재대결 1장도 그 난이도의 종류(신참 기본판 · 숙련 각성판·저주판 · 에이스 날씨판)를 먼저, 없으면 보통 차례
 - docs/superpowers/specs/2026-10-02-duel-game-design.md · docs/DUEL_GAME.md · docs/GAME_CONCEPT.md · lib/words.js — 같은 내용
