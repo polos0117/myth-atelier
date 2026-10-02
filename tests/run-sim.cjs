@@ -5,6 +5,8 @@ const d = n => JSON.parse(fs.readFileSync('data/' + n + '.json', 'utf8'));
 const data = { cards: d('card').cards, skills: d('skill').skills, run: d('run'), wielders: d('wielder').wielders, draft: d('draft') };
 const T = R.tune(data);
 let n = 0; const ok = (c, m) => { assert(c, m); n++; };
+/* 상대가 여럿이라 — 하나만 피 1로 남기고 나머지는 이미 쓰러진 것으로 */
+const oneLeft = s => s.battle.enemies.forEach((e, i) => { if (i) { e.alive = false; e.hp = 0; } else e.hp = 1; });
 
 const party = ['궁니르', '묠니르', '아이기스'];
 const st = R.newRun(data, 7, party);
@@ -17,7 +19,7 @@ assert.throws(() => R.newRun(data, 1, ['궁니르']), '둘이면 못 나선다')
 ok(R.proceed(st, data).kind === 'fight' && st.phase === 'battle', '첫 칸은 싸움');
 const b = st.battle;
 ok(b.deck.length + b.hand.length === 12 && b.hand.length === T.hand && b.mana === T.mana, '덱 열둘(무기당 넷), 손패 다섯, 마나 셋');
-ok(b.enemies.length === 1 && b.enemies[0].alive && b.enemies[0].hp > 0, '첫 상대는 하나');
+ok(b.enemies.length === R.foeCount(data, 0, false) && b.enemies.length === 2 && b.enemies.every(e => e.alive && e.hp > 0), '첫 상대는 둘');
 ok(b.enemies.every(e => !party.includes(e.name)), '상대는 내 동료가 아니다');
 for (const c of b.hand) { const s = R.spec(data, c); ok(s && s.name && s.cost >= 1 && s.cost <= 3, '카드 뜻: ' + c.key); }
 ok(b.hand.some(c => c.key.startsWith('skill:')) || b.deck.some(c => c.key.startsWith('skill:')), '고유 기술 카드가 있다');
@@ -58,7 +60,7 @@ ok(hpSum() < before3, '상대가 쳤다');
 
 /* 저주 — 피가 낮으면 묻고, 받으면 영구 */
 const st4 = R.newRun(data, 5, party); R.proceed(st4, data);
-st4.party[0].hp = 1; st4.party[0].maxHp = 100; st4.battle.enemies[0].atk = 0;
+st4.party[0].hp = 1; st4.party[0].maxHp = 100; st4.battle.enemies.forEach(e => { e.atk = 0; });
 R.endTurn(st4, data);
 ok(st4.battle.ask === st4.party[0].name && st4.party[0].offered, '피가 낮으면 저주를 묻는다');
 ok(R.play(st4, data, 0, 0).why === 'ask' && R.endTurn(st4, data).why === 'ask', '답하기 전엔 못 움직인다');
@@ -72,7 +74,7 @@ ok(!st4.battle.ask, '한 번 물었으면 다시 안 묻는다');
 
 /* 이김 → 결과 → 다음 칸. 길의 차례 */
 const st5 = R.newRun(data, 9, party); R.proceed(st5, data);
-st5.battle.enemies.forEach(e => { e.hp = 1; });
+oneLeft(st5);
 const first = st5.battle.hand.findIndex(c => R.spec(data, c).mult);
 R.play(st5, data, first, 0);
 ok(st5.battle.over === 'win' && st5.phase === 'result', '상대가 쓰러지면 이김');
@@ -86,12 +88,12 @@ ok(R.takeReward(st5, data, 1).ok && st5.deck.length === deck0 + 1 && st5.deck[de
 ok(R.takeReward(st5, data, 0).why === 'once', '전리품은 한 장');
 ok(R.proceed(st5, data).kind === 'fight' && st5.node === 1, '둘째 칸도 싸움');
 ok(st5.battle.deck.length + st5.battle.hand.length === 13 && !st5.reward, '덱이 이어진다 — 열셋');
-st5.battle.enemies.forEach(e => { e.hp = 1; }); R.play(st5, data, st5.battle.hand.findIndex(c => R.spec(data, c).mult), 0); R.proceed(st5, data);
+oneLeft(st5); R.play(st5, data, st5.battle.hand.findIndex(c => R.spec(data, c).mult), 0); R.proceed(st5, data);
 ok(st5.phase === 'shrine', '셋째 칸은 제단');
 ok(R.chooseShrine(st5, data, '묠니르').ok && st5.party[1].awakened && st5.phase === 'map', '제단에서 영구 각성');
 ok(R.chooseShrine(st5, data, '궁니르').why === 'phase', '제단은 한 번');
 R.proceed(st5, data);
-ok(st5.phase === 'battle' && st5.battle.awake['묠니르'] === true && st5.battle.enemies.length === 2, '영구 각성은 각성으로 시작. 넷째 칸 상대는 둘');
+ok(st5.phase === 'battle' && st5.battle.awake['묠니르'] === true && st5.battle.enemies.length === 3, '영구 각성은 각성으로 시작. 넷째 칸 상대는 셋');
 st5.battle.enemies.forEach(e => { e.hp = 1; }); st5.battle.mana = 9;
 while (st5.battle.over !== 'win') { const i = st5.battle.hand.findIndex(c => R.spec(data, c).mult); if (i < 0) { R.endTurn(st5, data); st5.battle.mana = 9; continue; } R.play(st5, data, i, 0); }
 R.proceed(st5, data);
@@ -152,10 +154,10 @@ ok(h.fromDraft && h.party[0].wielder === '오딘' && h.party[0].mult > 1 && h.pa
 ok(h.party[0].gaugeMax === T.gauge - 1 && h.party[1].gaugeMax === T.gauge - 1, '원래 주인이면 게이지가 하나 적다');
 ok(h.party[0].feud && h.party[2].feud && !h.party[1].feud, '수르트와 오딘은 악연');
 R.proceed(h, data);
-ok(h.battle.enemies.length === 1 && h.battle.enemies[0].name === '아이기스' && h.battle.enemies[0].wielder === '아테나', '첫 상대는 드래프트 적 편의 짝');
+ok(h.battle.enemies.length === 2 && h.battle.enemies[0].name === '아이기스' && h.battle.enemies[0].wielder === '아테나' && h.battle.enemies[1].name === '여의봉', '첫 상대는 드래프트 적 편의 짝 둘');
 ok(h.battle.enemies[0].maxHp > R.newRun(data, 21, ['그람', '묠니르', '아이기스']).party[0].maxHp, '3등이면 상대 체력이 ×1.2');
 /* 악연은 거절이 안 된다 */
-h.party[0].hp = 1; h.party[0].maxHp = 100; h.battle.enemies[0].atk = 0; R.endTurn(h, data);
+h.party[0].hp = 1; h.party[0].maxHp = 100; h.battle.enemies.forEach(e => { e.atk = 0; }); R.endTurn(h, data);
 ok(h.battle.ask === '궁니르' && R.answerCurse(h, data, false).why === 'feud', '악연은 저주를 거절할 수 없다');
 ok(R.answerCurse(h, data, true).ok && h.party[0].cursed, '받는다');
 /* 예비 — 쓰러진 자리에 다음 칸부터 */
@@ -164,7 +166,7 @@ h.battle.enemies.forEach(e => { e.hp = 1; }); h.battle.mana = 9;
 while (h.battle.over !== 'win') { const i = h.battle.hand.findIndex(c => R.spec(data, c).mult && h.party.find(p => p.name === c.owner).alive); if (i < 0) { R.endTurn(h, data); h.battle.mana = 9; continue; } R.play(h, data, i, 0); }
 R.proceed(h, data);
 ok(h.party[1].name === '그람' && h.party[1].wielder === '시구르드' && h.party[1].alive && h.reserve.length === 1 && h.log.some(l => l.k === 'reserve' && l.a === '그람' && l.b === '묠니르'), '예비가 올라온다');
-ok(h.battle.enemies.map(e => e.name).join(',') === '여의봉', '둘째 싸움은 다음 짝');
+ok(h.battle.enemies.map(e => e.name).join(',') === '트리슐라', '둘째 싸움은 남은 짝');
 ok(!h.deck.some(c => c.owner === '묠니르') && h.deck.filter(c => c.owner === '그람').length === 4, '쓰러진 무기의 카드는 빠지고 예비의 넉 장이 들어온다');
 /* 보스 — 1등의 최고의 짝 */
 const hb = R.newRun(data, 22, null, H); hb.node = 7; hb.phase = 'map'; R.proceed(hb, data);
@@ -183,6 +185,27 @@ ok(!plain.fromDraft && plain.party.every(m => !m.wielder && m.mult === 1 && m.ga
   const from = tr.log.length; R.endTurn(tr, data);
   const hits = tr.log.slice(from).filter(l => l.k === 'ehit');
   ok(hits.length > 0 && hits.every(l => l.b === '아이기스') && !tr.battle.taunt, '한 대 공격은 모두 아이기스에게, 차례가 끝나면 풀린다');
+}
+
+/* 상대의 다음 행동 — 턴이 시작될 때 보이고, 턴 끝에 그대로 한다 */
+{
+  const it = R.newRun(data, 41, party); R.proceed(it, data);
+  const ib = it.battle;
+  ok(ib.enemies.every(e => e.intent && (e.intent.k === 'hit' ? it.party.some(p => p.name === e.intent.b) && e.intent.d === e.atk : e.intent.k === 'all')), '상대마다 다음 행동이 정해져 있다');
+  const want = ib.enemies.filter(e => e.intent.k === 'hit').map(e => [e.name, e.intent.b, e.intent.d]);
+  const from = it.log.length; R.endTurn(it, data);
+  const hits = it.log.slice(from).filter(l => l.k === 'ehit');
+  ok(want.every(([a, b2, d]) => hits.some(l => l.a === a && l.b === b2 && l.d <= d)), '예고한 동료를 예고한 만큼(보호막만큼 덜) 친다');
+  ok(it.battle.over || it.battle.enemies.filter(e => e.alive).every(e => e.intent), '다음 턴의 행동이 다시 정해진다');
+  /* 셋째 행동은 기술 — 예고가 '전부'로 바뀐다 */
+  const sk = R.newRun(data, 42, party); R.proceed(sk, data); sk.party.forEach(p => { p.hp = p.maxHp = 99999; });
+  for (let k = 0; k < 2; k++) R.endTurn(sk, data);
+  ok(sk.battle.enemies.filter(e => e.alive && !e.stunned).every(e => e.intent.k === 'all' && e.intent.d > e.atk), '셋째 행동은 동료 전부를 치는 기술로 예고된다');
+  /* 겨눈 동료가 그새 쓰러지면 다른 동료를 친다 */
+  const rt = R.newRun(data, 43, party); R.proceed(rt, data);
+  const e0 = rt.battle.enemies.find(e => e.intent.k === 'hit');
+  if (e0) { const tg = rt.party.find(p => p.name === e0.intent.b); tg.alive = false; tg.hp = 0; const f2 = rt.log.length; R.endTurn(rt, data);
+    ok(rt.log.slice(f2).some(l => l.k === 'ehit' && l.a === e0.name && l.b !== tg.name), '겨눈 동료가 쓰러졌으면 다른 동료를'); }
 }
 
 console.log('PASS 던전 규칙 ' + n + '가지');

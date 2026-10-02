@@ -16,14 +16,50 @@
 .dex-page > #app {display:flex;flex-direction:column;min-height:0;height:100%}
 .dex-page > #app > main {flex:1 1 auto;min-height:0}
 .collection-scroll {display:block}
+/* 싸움 화면 — 그림을 줄여 한 화면에, 손패는 늘 아래에 붙는다. 상대 위엔 다음 행동, 동료 위엔 받을 피해 */
+.rn-battle .rn-arena {grid-template-columns:1fr 1fr;gap:10px;margin:6px 0}
+.rn-battle .rn-side {padding:8px}
+.rn-battle .rn-party .rn-figs,.rn-battle .rn-enemy .rn-figs {grid-auto-columns:minmax(0,150px);gap:8px}
+.rn-battle .rn-fig .face {aspect-ratio:4/5}
+.rn-battle .rn-fig .info {padding:5px 7px 7px}
+.rn-battle .rn-fig .nm {font-size:12px}
+.rn-battle .rn-fig .hp {margin:4px 0 3px}
+.rn-intent,.rn-incoming {position:absolute;left:6px;right:6px;bottom:6px;z-index:2;padding:4px 6px;border-radius:5px;font:800 12px/1.3 var(--display);text-align:center;backdrop-filter:blur(4px);overflow-wrap:anywhere}
+.rn-intent {background:#2a0a10dd;color:#ffd6dd;border:1px solid #ff6b84;box-shadow:0 0 12px #c0143c66}
+.rn-intent::before {content:'⚔ '}
+.rn-intent.all {background:#3a0a1add;border-color:#ff2d55;color:#fff;box-shadow:0 0 16px #ff2d5588}
+.rn-intent.all::before {content:'✸ '}
+.rn-intent.stun {background:#1a1a2add;border-color:#8fc7ff;color:#cfe6ff;box-shadow:none}
+.rn-intent.stun::before {content:'✶ '}
+.rn-incoming {background:#0009;color:#ff9aa9;border:1px solid #ff6b8488;font-size:11px}
+.rn-incoming::before {content:'▼ '}
+.rn-incoming.taunt {color:#cfe6ff;border-color:#8fc7ff}
+.rn-dock {position:sticky;bottom:0;z-index:5;margin:8px -4px 0;padding:6px 4px 8px;background:linear-gradient(180deg,transparent,var(--bg) 18px);}
+.rn-dock .rn-deck {margin:4px 0 6px}
+.rn-dock .rn-hand {grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+.rn-dock .rn-card {min-height:92px}
+@media (max-width:760px) {
+  .rn-battle .rn-arena {grid-template-columns:1fr}
+  .rn-battle .rn-party .rn-figs,.rn-battle .rn-enemy .rn-figs {grid-auto-columns:minmax(0,1fr)}
+  .rn-battle .rn-fig .face {aspect-ratio:3/2}
+  .rn-battle .rn-fig .face img {object-position:center 12%}
+  .rn-battle .rn-fig .tag {display:none}
+  .rn-battle .rn-fig .info {padding:4px 5px 5px}
+  .rn-battle .rn-fig .nm i {display:none}
+  .rn-battle .rn-side > h3 {margin-bottom:4px}
+  .rn-battle .rn-arena {gap:6px}
+  .rn-intent,.rn-incoming {font-size:10px;padding:3px 4px;left:3px;right:3px;bottom:3px}
+  .rn-dock .rn-hand {display:flex;overflow-x:auto;gap:6px;padding-bottom:2px;scroll-snap-type:x mandatory}
+  .rn-dock .rn-card {flex:0 0 128px;min-height:86px;scroll-snap-align:start}
+}
 .note {margin:8px 0 0;color:var(--muted);font-size:12px;line-height:1.6;word-break:keep-all}
 .empty {padding:36px 0;text-align:center;color:var(--muted);font-size:13px}
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
-<script src="lib/words.js?v=myth38"></script>
+<script src="lib/words.js?v=myth39"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth5"></script>
-<script src="lib/run.js?v=5"></script>
+<script src="lib/run.js?v=6"></script>
 </head>
 <body class="dex-page rn-page">
 <div id="app"></div>
@@ -62,12 +98,14 @@ function artOf(img, name, state) { return IMG.dressOf(img[name], name, V, state 
 function faceOf(img, name) { return IMG.dressOf(img[name], name, V, 1, false).file; }
 
 /* 전신 그림 한 장 — 상태에 따라 각성·저주 그림으로 넘어간다 */
-function Figure({ img, name, state, hp, maxHp, shield, dead, sub, gauge, gaugeMax, target, onClick, kindName }) {
+function Figure({ img, name, state, hp, maxHp, shield, dead, sub, gauge, gaugeMax, target, onClick, kindName, intent, incoming }) {
   const art = artOf(img, name, state), file = art.file, pct = Math.round(hp / maxHp * 100);
   return html`<button type="button" class=${'rn-fig' + (dead ? ' dead' : '') + (target ? ' target' : '') + (art.fx ? ' skinned' : '')} data-name=${name} data-state=${state}
     data-skin=${art.skin || undefined} onClick=${onClick} disabled=${!onClick}>
     <span class="face">${file ? html`<img src=${IMG.imgURL(file)} alt="" />` : html`<span class="ph">${name}</span>`}${art.fx ? html`<i class="skin-fx"></i>` : ''}
-      <span class="tag">${dead ? W('run.figure.dead') : W('run.state.' + state)}</span></span>
+      <span class="tag">${dead ? W('run.figure.dead') : W('run.state.' + state)}</span>
+      ${intent && !dead ? html`<span class=${'rn-intent ' + intent.k} title=${W('run.intent.title')}>${intent.k === 'stun' ? W('run.intent.stun') : intent.k === 'all' ? W('run.intent.all', intent) : W('run.intent.hit', intent)}</span>` : ''}
+      ${incoming && !dead ? html`<span class=${'rn-incoming' + (incoming.taunt ? ' taunt' : '')} title=${incoming.taunt ? W('run.incoming.taunt') : ''}>${W('run.incoming', incoming)}</span>` : ''}</span>
     <span class="info">
       <span class="nm">${name}<i>${sub || kindName}</i></span>
       <span class="hp"><u class=${pct < 35 ? 'low' : ''} style=${'width:' + pct + '%'}></u></span>
@@ -134,10 +172,10 @@ function Map({ st, data, onGo }) {
   </div>`;
 }
 
-function Party({ st, data, img, group, gaugeMax }) {
+function Party({ st, data, img, group, gaugeMax, incoming }) {
   return html`<div class="rn-figs">${st.party.map(m => { const c = R.cardOf(data, m.name); return html`<${Figure} key=${m.name} img=${img} name=${m.name} state=${R.stateOf(st, m)}
     hp=${m.hp} maxHp=${m.maxHp} shield=${m.shield} dead=${!m.alive} kindName=${m.wielder || group.kind.name[c.kind]}
-    gauge=${st.battle ? st.battle.gauge[m.name] : 0} gaugeMax=${gaugeMax ? (m.gaugeMax || gaugeMax) : 0} />`; })}</div>
+    gauge=${st.battle ? st.battle.gauge[m.name] : 0} gaugeMax=${gaugeMax ? (m.gaugeMax || gaugeMax) : 0} incoming=${incoming ? incoming[m.name] : null} />`; })}</div>
     ${st.reserve && st.reserve.length ? html`<p class="rn-note rn-reserve">${W('run.reserve', { n: st.reserve.length })} · ${st.reserve.map(r => r.w + ' × ' + r.o).join(' · ')}</p>` : ''}`;
 }
 
@@ -160,21 +198,30 @@ function Battle({ st, data, img, group, act }) {
     setPick(null); act(x => R.play(x, data, i, 0));
   };
   const onEnemy = (idx) => { if (pick === null) return; const i = pick; setPick(null); act(x => R.play(x, data, i, idx)); };
-  return html`<div>
+  /* 다음 턴에 동료가 받을 피해 — 상대의 예고를 더한다. 도발 중이면 한 대 공격은 도발한 동료에게 */
+  const incoming = {}, add = (n, d, taunt) => { const o = incoming[n] || (incoming[n] = { d: 0 }); o.d += d; if (taunt) o.taunt = true; };
+  const living = R.living(st);
+  alive.forEach(e => { const it = e.intent; if (!it || e.stunned) return;
+    if (it.k === 'all') living.forEach(p => add(p.name, it.d));
+    else add(b.taunt && living.some(p => p.name === b.taunt) ? b.taunt : it.b, it.d, !!b.taunt); });
+  return html`<div class="rn-battle">
     <div class="rn-head"><h2>${b.boss ? W('run.node.boss') : W('run.node.fight')} <small class="rn-note">${W('run.battle.turn', { n: b.turn })}</small></h2>
       <p>${W('run.battle.deck', { n: b.deck.length, m: b.discard.length })}</p></div>
     <div class="rn-arena">
-      <section class="rn-side rn-party"><h3>${W('run.party')}</h3><${Party} st=${st} data=${data} img=${img} group=${group} gaugeMax=${T.gauge} /></section>
+      <section class="rn-side rn-party"><h3>${W('run.party')}</h3><${Party} st=${st} data=${data} img=${img} group=${group} gaugeMax=${T.gauge} incoming=${incoming} /></section>
       <section class="rn-side rn-enemy"><h3>${W('run.enemy')}${b.boss ? ' · ' + W('run.battle.boss') : ''}</h3>
         <div class="rn-figs">${foes.map((e, i) => { const c = R.cardOf(data, e.name); const idx = alive.indexOf(e); return html`<${Figure} key=${e.name} img=${img} name=${e.name} state="base" hp=${e.hp} maxHp=${e.maxHp} dead=${!e.alive}
-          kindName=${e.wielder || group.kind.name[c.kind]} target=${pick !== null && e.alive} onClick=${pick !== null && e.alive ? (() => onEnemy(idx)) : null} />`; })}</div></section>
+          kindName=${e.wielder || group.kind.name[c.kind]} target=${pick !== null && e.alive} onClick=${pick !== null && e.alive ? (() => onEnemy(idx)) : null}
+          intent=${e.stunned ? { k: 'stun' } : e.intent} />`; })}</div></section>
     </div>
+    <div class="rn-dock">
     <div class="rn-deck"><span class="rn-mana">${W('run.battle.mana')} ${Array.from({ length: T.mana }, (_, i) => html`<i key=${i} class=${i < b.mana ? 'on' : ''}></i>`)}</span>
-      <span>${pick !== null ? W('run.battle.target', { name: R.spec(data, b.hand[pick]).name }) : W('run.battle.hand')}</span>
+      <span class=${pick !== null ? '' : 'help'}>${pick !== null ? W('run.battle.target', { name: R.spec(data, b.hand[pick]).name }) : W('run.battle.hand')}</span>
       <button type="button" class="rn-btn" onClick=${() => { setPick(null); act(x => R.endTurn(x, data)); }}>${W('run.battle.end')}</button></div>
     <div class="rn-hand">${b.hand.map((c, i) => { const s = R.spec(data, c), owner = st.party.find(p => p.name === c.owner);
       const can = owner && owner.alive && s.cost <= b.mana;
       return html`<${Card} key=${c.id} data=${data} group=${group} c=${c} on=${pick === i} disabled=${!can} onClick=${() => playCard(i)} />`; })}</div>
+    </div>
     <${Log} log=${st.log} />
     ${b.ask && html`<div class="rn-ask" role="dialog"><div>
       <h3>${W('run.ask.title', { name: b.ask })}</h3><p>${W('run.ask.text')}${(st.party.find(p => p.name === b.ask) || {}).feud ? ' ' + W('run.ask.feud') : ''}</p>

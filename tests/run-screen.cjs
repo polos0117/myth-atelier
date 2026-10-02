@@ -22,7 +22,11 @@ const { start, FOLD } = require('./browser-harness.cjs');
     await p.locator('.rn-btn.primary').click();
     await p.waitForSelector('.rn-hand .rn-card');
     assert.equal(await p.locator('.rn-party .rn-fig').count(), 3, '동료 셋이 선다');
-    assert.equal(await p.locator('.rn-enemy .rn-fig').count(), 1, '첫 상대 하나');
+    assert.equal(await p.locator('.rn-enemy .rn-fig').count(), 2, '첫 상대 둘');
+    assert.equal(await p.locator('.rn-enemy .rn-intent').count(), 2, '상대마다 예고');
+    assert((await p.locator('.rn-party .rn-incoming').count()) >= 1, '노려진 동료에 받을 피해');
+    const dock = await p.locator('.rn-dock').boundingBox();
+    assert(dock && dock.y + dock.height <= 900 + 1, '손패가 한 화면 안에');
     assert.equal(await p.locator('.rn-hand .rn-card').count(), 5, '손패 다섯');
     assert.equal(await p.locator('.rn-mana i.on').count(), 3, '마나 셋');
     assert((await p.locator('.rn-party .rn-fig img').count()) >= 1, '전신 그림이 걸린다');
@@ -31,6 +35,8 @@ const { start, FOLD } = require('./browser-harness.cjs');
     await p.reload(); await p.waitForSelector('.rn-hand .rn-card');
     /* 카드를 낸다 → 마나가 줄고 기록이 남는다 */
     await p.locator('.rn-hand .rn-card:not(:disabled)').first().click();
+    /* 상대가 둘이라 한 명 치는 카드는 누굴 칠지 고른다 */
+    if (await p.locator('.rn-fig.target').count()) await p.locator('.rn-fig.target').first().click();
     await p.waitForFunction(() => document.querySelectorAll('.rn-mana i.on').length < 3);
     assert((await p.locator('.rn-log div').count()) >= 2, '기록이 남는다');
     /* 턴 끝 → 2턴, 손패 새로 */
@@ -88,6 +94,7 @@ const { start, FOLD } = require('./browser-harness.cjs');
     await p.locator('.rn-btn.primary').click(); await p.waitForSelector('.rn-map'); await p.locator('.rn-btn.primary').click();
     await p.waitForSelector('.rn-hand .rn-card');
     assert(await p.evaluate(() => document.body.scrollWidth <= innerWidth + 1), '휴대폰 가로 넘침');
+    assert(await p.evaluate(() => { const r = document.querySelector('.rn-hand').getBoundingClientRect(); return r.top < innerHeight && r.bottom <= innerHeight + 1; }), '휴대폰도 손패가 화면 아래에 붙는다');
     /* 드래프트에서 온 출정 — 여섯 중 셋, 나머지는 예비, 상대는 넘겨받은 짝 */
     await p.setViewportSize({ width: 1280, height: 900 });
     await p.evaluate(() => { localStorage.removeItem('myth_run_v1'); localStorage.setItem('myth_handoff_v1', JSON.stringify({ pairs: [{ w: '궁니르', o: '오딘', s: 120 }, { w: '묠니르', o: '토르', s: 118 }, { w: '아이기스', o: '아테나', s: 110 }, { w: '그람', o: '시구르드', s: 70 }, { w: '레바테인', o: '수르트', s: 68 }, { w: '흐룬팅', o: '베오울프', s: 50 }],

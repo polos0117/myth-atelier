@@ -54,5 +54,5 @@
  },
  "loot": {"start": 0, "fight": 16, "perNode": 3, "spread": 8, "choices": 3, "commonWeight": 2, "rareWeight": 1},
  "shop": {"cards": 3, "common": 30, "rare": 55, "remove": 40, "heal": 30, "healRatio": 0.3, "purify": 90},
- "tune": {"hand": 5, "mana": 3, "gauge": 4, "awakenMult": 1.8, "curseAt": 0.35, "partyHpDiv": 5, "enemyHpDiv": 3, "enemyAtk": 0.46, "enemyHpPerNode": 0.18, "enemyAtkPerNode": 0.08, "bossHp": 1.25, "bossAtk": 1.2, "skillEvery": 3, "skillMult": 1.5, "restHeal": 0.3, "winHeal": 0.15}
+ "tune": {"hand": 5, "mana": 3, "gauge": 4, "awakenMult": 1.8, "curseAt": 0.35, "partyHpDiv": 3.5, "enemyHpDiv": 2.4, "enemyAtk": 0.25, "enemyHpPerNode": 0.18, "enemyAtkPerNode": 0.08, "bossHp": 1.25, "bossAtk": 1.2, "skillEvery": 3, "skillMult": 1.5, "restHeal": 0.3, "winHeal": 0.15, "foes": [2, 3, 3]}
 }
