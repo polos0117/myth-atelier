@@ -87,9 +87,10 @@ body {color:var(--text);font-size:15px}
 .du-mull .cap {display:none}
 .du-card.swapped {outline:3px solid var(--gold);outline-offset:-3px}
 .du-mull-left {margin:8px 0;font:700 12px ui-monospace,monospace;color:var(--muted)}
-.du-foe {display:flex;align-items:center;gap:10px;padding:8px 0 4px;font:700 11px ui-monospace,monospace;letter-spacing:.04em;color:var(--muted)}
+.du-foe {display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:8px 0 4px;font:700 11px ui-monospace,monospace;letter-spacing:.04em;color:var(--muted)}
 .du-foe .face {width:30px;aspect-ratio:2/3;border-radius:5px;overflow:hidden;background:var(--card2);flex:none}
 .du-foe b {color:var(--text);font-size:13px;margin-right:4px}
+.du-foe-hand,.du-foe-grave,.du-foe-faction {white-space:nowrap}
 .du-foe-faction[data-used="true"] {text-decoration:line-through;opacity:.6}
 .du-row {display:grid;grid-template-columns:44px minmax(0,1fr);gap:6px;align-items:stretch;margin-bottom:4px;padding:4px;border:1px solid var(--line);border-radius:10px;background:var(--card)}
 .du-row[data-side="me"] {border-color:var(--accent-soft)}
@@ -113,7 +114,7 @@ body {color:var(--text);font-size:15px}
 .du-unit .du-pw {left:2px;bottom:2px;min-width:20px;padding:1px 4px;font-size:11px;border-radius:5px}
 .du-pw.dim {opacity:.6;background:#3d7bd6}
 .du-fx {position:absolute;left:50%;top:-4px;z-index:3;transform:translateX(-50%);font:800 13px ui-monospace,monospace;color:#fff;text-shadow:0 1px 3px #000,0 0 6px #000;pointer-events:none;animation:du-float .8s ease-out forwards}
-.du-fx[data-kind="dmg"] {color:#ff7a7a} .du-fx[data-kind="buff"] {color:#8fe39a} .du-fx[data-kind="shield"] {color:#7fc8ff} .du-fx[data-kind="dead"] {color:#ccc}
+.du-fx[data-kind="rise"] {color:var(--gold)} .du-fx[data-kind="dmg"] {color:#ff7a7a} .du-fx[data-kind="buff"] {color:#8fe39a} .du-fx[data-kind="shield"] {color:#7fc8ff} .du-fx[data-kind="dead"] {color:#ccc}
 @keyframes du-float {from {opacity:1;transform:translate(-50%,0)} to {opacity:0;transform:translate(-50%,-28px)}}
 .du-bar {position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin:6px 0;padding:8px 10px;border:1px solid var(--line);border-top:2px solid var(--accent);border-radius:10px;background:var(--bg);font:700 12px ui-monospace,monospace;color:var(--muted)}
 .du-score {display:flex;align-items:baseline;gap:6px;font-size:12px}
@@ -123,7 +124,11 @@ body {color:var(--text);font-size:15px}
 .du-bar-act {display:flex;gap:6px;margin-left:auto}
 .du-last-round {flex-basis:100%;color:var(--text);font-size:12px}
 .du-turn[data-turn="me"] {color:var(--gold)}
-.du-hand {display:flex;gap:6px;overflow-x:auto;padding:8px 0 12px;scroll-snap-type:x proximity}
+/* 손패는 바닥에 붙는 칸 — 덮개 화면에서 판을 굴려도 손패가 늘 보인다 */
+.du-dock {position:sticky;bottom:0;z-index:6;margin-top:10px;padding:2px 10px calc(6px + env(safe-area-inset-bottom));background:var(--bg);border:1px solid var(--line);border-bottom:0;border-top:2px solid var(--accent);border-radius:12px 12px 0 0;box-shadow:0 -10px 24px #0007}
+.du-dock .sec {margin:4px 0 2px}
+.duel-page .collection-scroll:has(.du-dock) {padding-bottom:0}
+.du-hand {display:flex;gap:6px;overflow-x:auto;padding:4px 0 8px;scroll-snap-type:x proximity}
 .du-hand .du-card {flex:none;width:72px;scroll-snap-align:start}
 .du-hand .cap {padding:3px 4px 4px;font-size:10px} .du-hand .cnm {min-height:2.6em;max-height:2.6em;line-height:1.3} .du-hand .cap i {display:none}
 .du-hand .du-var {top:3px;right:3px;padding:1px 4px;font-size:9px}
@@ -134,7 +139,7 @@ body {color:var(--text);font-size:15px}
 .du-detail dl {margin:0;font-size:12px;line-height:1.5} .du-detail dt {color:var(--muted);margin-top:4px} .du-detail dd {margin:0;color:var(--text)}
 .du-detail .lore {margin:8px 0 0;color:var(--muted);font-size:12px;line-height:1.6;word-break:keep-all}
 .du-detail-act {display:flex;gap:8px;margin-top:12px} .du-detail-act #du-play {flex:1}
-.du-banner {position:fixed;left:50%;top:38%;z-index:60;transform:translate(-50%,-50%);padding:14px 24px;background:var(--card);border:1px solid var(--gold);border-radius:12px;color:var(--text);font:700 16px var(--display);white-space:nowrap;box-shadow:0 10px 30px #000a;animation:du-banner 1.2s forwards;pointer-events:none}
+.du-banner {position:fixed;left:50%;top:38%;z-index:60;transform:translate(-50%,-50%);max-width:calc(100vw - 32px);padding:14px 24px;background:var(--card);border:1px solid var(--gold);border-radius:12px;color:var(--text);font:700 16px var(--display);text-align:center;line-height:1.4;box-shadow:0 10px 30px #000a;animation:du-banner 1.2s forwards;pointer-events:none}
 @keyframes du-banner {0% {opacity:0;transform:translate(-50%,-40%)} 15% {opacity:1;transform:translate(-50%,-50%)} 80% {opacity:1} 100% {opacity:0}}
 @media (prefers-reduced-motion:reduce) {.du-unit.variant.flip .du-art {animation:none;transform:rotateY(180deg)} .du-fx,.du-wx,.du-banner {animation:none}}
 /* ── 결과 · 전적 ── */
@@ -204,6 +209,21 @@ function load() {
 function save(profile, match) { try { localStorage.setItem(STORE, JSON.stringify({ v: A.VERSION, profile, match })); } catch {} }
 function seed() { return (Date.now() ^ Math.floor(Math.random() * 1e9)) | 0; }
 const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* 저장에 모르는 카드 id 가 있을 수 있다 — 이름이 바뀌었거나 변형판의 그림이 내려간 뒤. 컬렉션·덱에서는 걸러 내고, 그런 판은 버린다 */
+function sanitise(data, profile, match) {
+  const D = A.cardsOf(data), known = id => !!D.cards[id];
+  let changed = false;
+  if (profile) {
+    const owned = profile.owned.filter(known), deck = profile.deck.filter(known);
+    if (owned.length !== profile.owned.length || deck.length !== profile.deck.length) { profile = { ...profile, owned, deck }; changed = true; }
+  }
+  if (match) {
+    const ids = [];
+    for (const side of ['me', 'foe']) { const sd = match[side] || {}; ids.push(...(sd.hand || []), ...(sd.deck || []), ...(sd.grave || [])); for (const r of A.ROWS) ids.push(...((sd.rows && sd.rows[r]) || []).map(u => u.id)); }
+    if (!ids.every(known)) { match = null; changed = true; }
+  }
+  return { profile, match, changed };
+}
 
 /* 그림 — 썸네일을 먼저, 없으면 원본. 파일이 없으면 빈 자리 */
 function Thumb({ file, cls }) {
@@ -228,7 +248,7 @@ function Card({ card, art, group, onClick, cls, attrs, children }) {
 /* 가진 카드를 권 차례 → 이름 → 변형 차례로 */
 function sortIds(data, ids) {
   const D = A.cardsOf(data), order = data.duel.bosses.map(b => b.myth);
-  return ids.slice().sort((a, b) => { const x = D.cards[a], y = D.cards[b];
+  return ids.filter(id => D.cards[id]).sort((a, b) => { const x = D.cards[a], y = D.cards[b];
     return (order.indexOf(x.myth) - order.indexOf(y.myth)) || x.name.localeCompare(y.name, 'ko') || (A.VARIANTS.indexOf(x.variant) - A.VARIANTS.indexOf(y.variant)); });
 }
 
@@ -247,7 +267,7 @@ function Mulligan({ data, group, st, actMatch }) {
 }
 /* 유닛의 보이는 값 — 영웅은 cur, 날씨 줄 비영웅은 1, 그 밖 cur */
 const shown = (st, row, u) => u.hero ? u.cur : st.weather[row] ? 1 : u.cur;
-const fxText = f => f.kind === 'dmg' ? '−' + f.n : f.kind === 'buff' ? '+' + f.n : f.kind === 'shield' ? '◈' : '✕';
+const fxText = f => f.kind === 'dmg' ? '−' + f.n : f.kind === 'buff' ? '+' + f.n : f.kind === 'shield' ? '◈' : f.kind === 'rise' ? '✦' : '✕';
 function Unit({ data, st, side, row, u, flip, onClick }) {
   const D = A.cardsOf(data), c = D.cards[u.id], base = D.cards[c.name], variant = c.variant !== 'base';
   const fx = st.last && st.last.fx.filter(f => f.side === side && f.at === u.at);
@@ -271,11 +291,11 @@ function Row({ data, st, side, row, sum, onDetail }) {
       ${st.weather[row] && html`<span class="du-wx">${W('duel.weather.' + row)}</span>`}
       <span class="du-row-sum">${sum}</span>
       ${dead && dead.map((f, i) => html`<span key=${'d' + st.log.length + i} class="du-fx" data-kind="dead">✕</span>`)}</div>
-    <div class="du-units">${list.map(u => html`<${Unit} key=${u.at} data=${data} st=${st} side=${side} row=${row} u=${u} flip=${u === fresh} onClick=${() => onDetail(u.id, false)} />`)}</div>
+    <div class="du-units">${list.map(u => html`<${Unit} key=${u.at} data=${data} st=${st} side=${side} row=${row} u=${u} flip=${u === fresh} onClick=${() => onDetail(u.id, false, u)} />`)}</div>
   </div>`;
 }
 /* 카드 상세 — 손패에서 열면 "내기" 가 붙는다. 변형판도 기본 그림(판에 놓일 때 뒤집힌다) */
-function Detail({ data, group, st, id, fromHand, canPlay, onPlay, onClose }) {
+function Detail({ data, group, st, id, unit, fromHand, canPlay, onPlay, onClose }) {
   const D = A.cardsOf(data), c = D.cards[id], base = D.cards[c.name], w = c.variant === 'weather';
   const sk = data.skills[data.cards.find(x => x.name === c.name).skill];
   return html`<div class="du-detail" data-id=${id} role="dialog" aria-label=${c.name}>
@@ -283,7 +303,7 @@ function Detail({ data, group, st, id, fromHand, canPlay, onPlay, onClose }) {
       <span class="face"><${Thumb} file=${base.file} />${c.variant !== 'base' && html`<span class="du-var" data-variant=${c.variant}>${W('duel.variant.' + c.variant)}</span>`}</span>
       <div><h4>${c.name}${c.hero ? html`<span class="du-tag">${W('duel.hero')}</span>` : ''}</h4>
         <dl>
-          <dt>${W('duel.row')}</dt><dd>${W('range.short.' + c.row)}${!w ? ' · ' + W('duel.power') + ' ' + c.power : ''}</dd>
+          <dt>${W('duel.row')}</dt><dd>${W('range.short.' + c.row)}${!w ? ' · ' + W('duel.power') + ' ' + (unit ? unit.cur + (unit.cur !== c.power ? ' (' + c.power + ')' : '') : c.power) : ''}</dd>
           ${w ? html`<dt>${W('duel.weather.' + c.row)}</dt><dd>${W('duel.weather.text')}</dd>`
             : html`<dt>${W('duel.ability')} — ${W('duel.ability.' + c.ability)}${sk ? ' · ' + sk.name : ''}</dt><dd>${W('duel.ability.' + c.ability + '.text', { n: c.n })}</dd>`}
           ${c.variant === 'awaken' || c.variant === 'cursed' ? html`<dt>${W('duel.variant.' + c.variant)}</dt><dd>${W('duel.variant.' + c.variant + '.text')}</dd>` : ''}
@@ -302,7 +322,7 @@ function Detail({ data, group, st, id, fromHand, canPlay, onPlay, onClose }) {
 function Match({ data, group, profile, st, actMatch }) {
   const D = A.cardsOf(data), boss = A.bossOf(data, st.boss), portrait = D.cards[boss.portrait];
   const sc = A.scores(data, st), L = A.legal(data, st, 'me'), mine = st.turn === 'me' && st.phase === 'play';
-  const [detail, setDetail] = useState(null);   /* {id, fromHand} */
+  const [detail, setDetail] = useState(null);   /* {id, fromHand, unit} */
   const [banner, setBanner] = useState(null);
   const rounds = useRef(st.roundLog.length);
   useEffect(() => {   /* 라운드가 끝난 수에는 결과 한 줄이 떴다 사라진다 */
@@ -311,7 +331,7 @@ function Match({ data, group, profile, st, actMatch }) {
   }, [st.roundLog.length]);
   const lastRound = st.roundLog.length ? st.roundLog[st.roundLog.length - 1] : null;
   const roundText = (r, n) => W('duel.round.' + (r.winner === 'me' ? 'win' : r.winner === 'foe' ? 'lose' : 'draw'), { n, me: r.me, foe: r.foe });
-  const open = (id, fromHand) => setDetail({ id, fromHand });
+  const open = (id, fromHand, unit) => setDetail({ id, fromHand, unit: unit || null });
   const flags = side => html`<span class="du-flags">${st[side].sealed && html`<span>${W('duel.sealed')}</span>`}${st[side].guard && html`<span>${W('duel.guard')}</span>`}${st[side].astra && html`<span>${W('duel.astra')}</span>`}</span>`;
   return html`<section class="du-screen du-board" data-screen="match">
     <div class="du-foe"><span class="face"><${Thumb} file=${portrait && portrait.file} /></span>
@@ -333,9 +353,9 @@ function Match({ data, group, profile, st, actMatch }) {
       ${lastRound && html`<span class="du-last-round">${roundText(lastRound, st.roundLog.length)}</span>`}
     </div>
     ${['melee', 'reach', 'ranged'].map(r => html`<${Row} key=${'m' + r} data=${data} st=${st} side="me" row=${r} sum=${sc.me.rows[r]} onDetail=${open} />`)}
-    <p class="sec">${W('duel.hand', { n: st.me.hand.length })}</p>
-    <div class="du-hand">${st.me.hand.map((id, i) => html`<${Card} key=${id + i} card=${D.cards[id]} art=${D.cards[D.cards[id].name].file} group=${group} cls="du-card" onClick=${() => open(id, true)} />`)}</div>
-    ${detail && html`<${Detail} data=${data} group=${group} st=${st} id=${detail.id} fromHand=${detail.fromHand} canPlay=${mine && L.cards.includes(detail.id)}
+    <div class="du-dock"><p class="sec">${W('duel.hand', { n: st.me.hand.length })}</p>
+    <div class="du-hand">${st.me.hand.map((id, i) => html`<${Card} key=${id + i} card=${D.cards[id]} art=${D.cards[D.cards[id].name].file} group=${group} cls="du-card" onClick=${() => open(id, true)} />`)}</div></div>
+    ${detail && html`<${Detail} data=${data} group=${group} st=${st} id=${detail.id} unit=${detail.unit} fromHand=${detail.fromHand} canPlay=${mine && L.cards.includes(detail.id)}
       onPlay=${() => { setDetail(null); actMatch(m => A.play(data, m, detail.id)); }} onClose=${() => setDetail(null)} />`}
     ${banner && lastRound && html`<div class="du-banner">${roundText(lastRound, st.roundLog.length)}</div>`}
   </section>`;
@@ -362,7 +382,7 @@ function Result({ data, group, st, onLobby, onAgain }) {
 /* ── 전적 — 로비에서 열고 닫는 패널 ── */
 function Stats({ data, group, profile, onClose }) {
   const D = A.cardsOf(data), v = A.statsView(data, profile), L = v.line;
-  const cell = e => W('duel.stats.cell', { win: e.win, games: e.games });
+  const cell = e => e.games ? W('duel.stats.cell', { win: e.win, games: e.games }) : W('duel.stats.none');
   const table = (cls, title, rows, key, name) => html`<table class=${cls}><thead><tr><th colspan="2">${title}</th></tr></thead>
     <tbody>${rows.map(r => html`<tr key=${r[key]} ...${{ ['data-' + (key === 'level' ? 'lv' : 'myth')]: r[key] }}><td>${name(r)}</td><td class="win">${cell(r)}</td></tr>`)}</tbody></table>`;
   return html`<section class="du-stats" aria-label=${W('duel.stats')}>
@@ -376,7 +396,7 @@ function Stats({ data, group, profile, onClose }) {
       </div>
       <div class="du-stats-nums"><span class="du-stats-best">${W('duel.stats.best', { n: v.bestRound })}</span><span class="du-stats-rounds">${W('duel.stats.rounds', { n: v.avgRounds === null ? W('duel.stats.none') : v.avgRounds })}</span></div>
       <div class="du-stats-cards"><p class="sec">${W('duel.stats.cards')}<span class="help">${W('duel.stats.cards.note')}</span></p>
-        <div class="grid">${v.cards.map(c => html`<${Card} key=${c.id} card=${D.cards[c.id]} group=${group}>
+        <div class="grid">${v.cards.filter(c => D.cards[c.id]).map(c => html`<${Card} key=${c.id} card=${D.cards[c.id]} group=${group}>
           <span class="du-stat">${W('duel.stats.card', { played: c.played, rate: c.rate === null ? W('duel.stats.none') : Math.round(c.rate * 100) + '%' })}</span><//>`)}</div></div>
       ${v.factions.length ? html`<p class="sec">${W('duel.stats.factions')}</p><ul class="du-stats-factions">${v.factions.map(f => html`<li key=${f.myth} data-myth=${f.myth}>${data.duel.factions[f.myth].name} ${f.n}</li>`)}</ul>` : ''}`}
   </section>`;
@@ -447,6 +467,12 @@ function App() {
   const [profile, setProfile] = useState(saved.profile), [match, setMatch] = useState(saved.match);
   const [screen, setScreen] = useState('lobby');   /* 'lobby' | 'build' | 'stats' — 판이 있으면 판이 앞선다 */
   const data = loaded && loaded.data, group = loaded && loaded.group;
+  const cleaned = useRef(false);
+  if (data && !cleaned.current) {   /* 자료를 읽은 첫 그리기 — 모르는 id 를 걸러 낸 뒤에 그린다 */
+    cleaned.current = true;
+    const r = sanitise(data, profile, match);
+    if (r.changed) { save(r.profile, r.match); setProfile(r.profile); setMatch(r.match); }
+  }
   /* 판을 고치는 손 — 사본에 엔진 함수를 적용하고 저장 */
   const actMatch = fn => { const next = JSON.parse(JSON.stringify(match)); const r = fn(next) || { ok: true }; if (r.ok !== false) { save(profile, next); setMatch(next); } return r; };
   /* 상대 턴 — 0.6초 뒤 한 수. 움직임 줄이기면 바로 */

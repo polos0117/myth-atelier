@@ -40,7 +40,8 @@ const heroSafe = D.list.find(id => D.cards[id].hero && D.cards[id].variant === '
   for (const v of ['awaken', 'cursed', 'weather'])
     ok(all.filter(c => c.variant === v).length === data.cards.filter(c => hasCut(c.name, v)).length, v + ' 판은 그림이 있는 카드 수와 같다');
   for (const c of all) {
-    ok(A.ROWS.includes(c.row) && typeof c.file === 'string' || c.file === null, c.id + ' 줄·그림');
+    ok(A.ROWS.includes(c.row) && (typeof c.file === 'string' || c.file === null), c.id + ' 줄·그림');
+    if (c.variant === 'base') ok(c.power >= 4 && c.power <= 13, c.id + ' 기본판 힘 4~13');
     if (c.variant === 'weather') ok(c.power === 0 && c.ability === null && !c.hero, c.id + ' 날씨판은 힘 0 · 능력 없음 · 영웅 아님');
     else ok(c.power >= 4 && c.power <= 18 && A.ABILITIES.includes(c.ability) && c.n >= 1 && c.n <= 3, c.id + ' 힘 4~18 · 능력 · 수치 1~3');
   }
@@ -222,6 +223,7 @@ const heroSafe = D.list.find(id => D.cards[id].hero && D.cards[id].variant === '
   { const k = byAb('strike'), st = fixture([k], [mend, mend, mend]); const c = put(st, 'me', D.list.find(id => D.cards[id].variant === 'cursed' && !D.cards[id].hero)), hc = put(st, 'me', cursedHero);
     st.passed.me = true; st.turn = 'foe'; A.play(data, st, mend); ok(c.cur === c.base - 1 && hc.cur === hc.base - 1, '상대가 내면 저주판 −1, 영웅 저주판도');
     c.cur = 1; A.play(data, st, mend); ok(c.cur === 1, '바닥 1');
+    c.cur = 5; st.foe.hand.push(D.list.find(id => D.cards[id].variant === 'weather')); A.play(data, st, st.foe.hand[st.foe.hand.length - 1]); ok(c.cur === 4, '날씨판을 내도 카드를 낸 것 — 출혈');
     ok(unitsOf(st.me).every(u => u.cur >= 1) && c.base === D.cards[c.id].power, '저주판 힘 = 기본 +5 그대로(base)'); }
   /* 아스트라 배율 · 호국 — 깃발만 세워 본다(진영 능력 자체는 과제 5) */
   { const s = byAb('strike'), st = solo([s]); const b = put(st, 'foe', strong); b.cur = 12; st.me.astra = true; A.play(data, st, s);
@@ -256,7 +258,8 @@ const heroSafe = D.list.find(id => D.cards[id].hero && D.cards[id].variant === '
   { const st = mk('india'); const b = put(st, 'foe', strong); b.cur = 12; A.useFaction(data, st); ok(st.me.astra, '아스트라 켜짐');
     A.play(data, st, k); ok(b.cur === 12 - 2 * D.cards[k].n && !st.me.astra, '다음 카드의 수치가 두 배'); }
   { const st = mk('egypt'); st.me.grave = [weather, strong]; const b = put(st, 'foe', strong); A.useFaction(data, st);
-    const u = st.me.rows[D.cards[strong].row].find(x => x.id === strong); ok(u && u.cur === u.base && st.me.grave.length === 1 && b.cur === b.base, '영생 — 묘지의 가장 센 카드를 자기 줄에, 능력은 안 터진다'); }
+    const u = st.me.rows[D.cards[strong].row].find(x => x.id === strong); ok(u && u.cur === u.base && st.me.grave.length === 1 && b.cur === b.base, '영생 — 묘지의 가장 센 카드를 자기 줄에, 능력은 안 터진다');
+    ok(st.last.fx.some(f => f.kind === 'rise' && f.at === u.at) && !st.last.fx.some(f => f.kind === 'buff'), '영생의 연출은 rise — +0 이 뜨지 않는다'); }
   { const st = mk('westasia'); const b = put(st, 'foe', strong); b.cur = 12; st.me.hurt = 5; A.useFaction(data, st); ok(b.cur === 7, '눈에는 눈 — 받은 피해 합만큼');
     const t = mk('westasia'); const c = put(t, 'foe', strong); A.useFaction(data, t); ok(c.cur === c.base && t.me.faction.used, '0 이면 아무것도 안 하고 쓴 것으로'); }
   { const st = mk('celtic'); const a = put(st, 'me', strong), b = put(st, 'foe', strong); b.cur = 99; A.useFaction(data, st); ok(a.cur === a.base + 2, '투혼 — 뒤지면 전부 +2');
@@ -328,6 +331,8 @@ const heroSafe = D.list.find(id => D.cards[id].hero && D.cards[id].variant === '
   ok(v.line.games === 4 && v.byBoss.length === 11 && v.byBoss[1].myth === 'greek' && v.byBoss[1].games === 4 && v.cards[0].id === k && v.cards[0].rate === null && v.avgRounds === 3 && v.factions[0].myth === 'norse', '보기 — 5판 미만은 승률 없음');
   p.stats.cards[k] = { played: 10, won: 7 }; ok(A.statsView(data, p).cards[0].rate === 0.7, '5판부터 승률');
   ok(A.statsView(data, A.newProfile(data, 'norse', 1)).avgRounds === null, '판이 없으면 평균 없음');
+  { const q2 = A.newProfile(data, 'norse', 2), st = done(q2, 'lose', []); st.coin = 'me'; st.roundLog = [{ me: 20, foe: 30, winner: 'foe', units: { me: 1, foe: 1 } }, { me: 9, foe: 30, winner: 'foe', units: { me: 1, foe: 1 } }];
+    A.settle(data, q2, st); ok(q2.stats.bestRound === 20 - A.FIRST_BONUS, '최고 합에 선공 보너스는 안 센다'); }
 }
 
 /* ── 끝 ── */

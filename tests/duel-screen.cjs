@@ -6,7 +6,11 @@ const d = f => JSON.parse(fs.readFileSync('data/' + f + '.json', 'utf8'));
 const data = { cards: d('card').cards, skills: d('skill').skills, img: d('img').img, duel: d('duel') }, D = A.derive(data);
 const STORE = 'myth_duel_v1';
 const tap = async (p, sel) => { for (const b of await p.locator(sel).evaluateAll(es => es.map(e => e.getBoundingClientRect()).map(r => [r.width, r.height]))) assert(b[0] >= 44 && b[1] >= 44, sel + ' 누르는 자리 44px: ' + b); };
-const noOverflow = async p => assert(await p.evaluate(() => document.body.scrollWidth <= innerWidth + 1), '가로 넘침');
+/* 가로 넘침 — .collection-scroll 이 overflow-x:hidden 이라 body 폭만 봐서는 모른다. 구르개 자체와 모든 요소의 오른쪽 끝을 본다(옆으로 미는 손패·줄 안은 뺀다) */
+const noOverflow = async p => { const bad = await p.evaluate(() => { const sc = document.querySelector('.collection-scroll'), out = [];
+  if (sc && sc.scrollWidth > sc.clientWidth + 1) out.push('scroller ' + sc.scrollWidth + '>' + sc.clientWidth);
+  for (const e of document.querySelectorAll('.du-screen *')) { if (e.closest('.du-units, .du-hand')) continue; const r = e.getBoundingClientRect(); if (r.width && r.right > innerWidth + 1) out.push((e.className || e.tagName) + ' ' + Math.round(r.right)); }
+  return out.slice(0, 5); }); assert.deepEqual(bad, [], '가로 넘침'); };
 const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
 (async () => {
   const harness = await start();
@@ -143,12 +147,14 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
     assert.equal(await p.locator('.du-stats-cards .cell[data-id="' + big + '"]').count(), 1, '낸 카드가 그리드에');
     assert((await p.locator('.du-stats-cards .cell[data-id="' + big + '"]').innerText()).includes('—'), '5판 미만은 —');
     assert((await p.locator('.du-stats-best').innerText()).includes(String(s.bestRound)), '최고 합');
+    assert.equal(await p.locator('.du-stats-boss tr[data-myth="norse"] td.win').innerText(), '—', '안 싸운 주인은 —');
     await noOverflow(p); await p.locator('#du-stats-close').click(); await p.waitForFunction(() => !document.querySelector('.du-stats'));
     /* 다시 — 같은 주인으로 새 판 */
     await p.locator('.du-boss[data-myth="greek"]').click(); await p.waitForSelector('.du-mull'); await p.locator('#du-mull-go').click(); await p.waitForSelector('.du-board');
     await p.evaluate(k => { const j = JSON.parse(localStorage.getItem(k)); j.match.phase = 'done'; j.match.winner = 'foe'; j.match.roundLog = [{ me: 1, foe: 9, winner: 'foe', units: { me: 1, foe: 1 } }, { me: 1, foe: 9, winner: 'foe', units: { me: 1, foe: 1 } }]; localStorage.setItem(k, JSON.stringify(j)); }, STORE);
     await p.reload(); await p.waitForSelector('.du-result[data-result="lose"] .du-reward-none');
     await p.locator('#du-result-again').click(); await p.waitForSelector('.du-mull');
+    assert.deepEqual(a.errors, []); assert.deepEqual(await p.evaluate(() => window.AtelierWords.missing()), []);
     await a.close();
     /* 옛 저장 — stats 없음, v 다름: 프로필은 살고 판은 버린다, 전적은 비어 있다 */
     const old = A.newProfile(data, 'korea', 4);
@@ -158,6 +164,18 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
     await q.locator('#du-stats').click(); await q.waitForSelector('.du-stats .du-stats-empty');
     assert.deepEqual(b.errors, []); assert.deepEqual(await q.evaluate(() => window.AtelierWords.missing()), []);
     await b.close();
+    /* 이름이 바뀌었거나 그림이 내려간 카드 — 컬렉션·덱·판·전적에 모르는 id 가 있어도 화면이 죽지 않는다. 모르는 id 는 걸러 내고 그런 판은 버린다.
+       (하네스의 store 는 새로고침마다 되돌아가므로 새 페이지로 연다) */
+    const stale = { v: A.VERSION, profile: { ...old, owned: old.owned.concat(['없는무기', '없는무기@awaken']), stats: { ...A.emptyStats(), games: 1, win: 1, cards: { '없는무기': { played: 1, won: 1 } } } },
+      match: { v: A.VERSION, phase: 'play', turn: 'me', round: 1, me: { hand: ['없는무기'], deck: [], rows: { melee: [], reach: [], ranged: [] }, grave: [] }, foe: { hand: [], deck: [], rows: { melee: [], reach: [], ranged: [] }, grave: [] } } };
+    const c = await harness.open('duel.html', { viewport: FOLD.cover, mobile: true, store: [STORE, JSON.stringify(stale)] }), r = c.page;
+    await r.waitForSelector('.du-lobby');
+    assert((await r.locator('.du-coll').innerText()).includes('25/'), '모르는 id 는 컬렉션에서 걸러 낸다');
+    assert.equal((await r.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE)).match, null, '모르는 id 가 든 판은 버린다');
+    await r.locator('#du-stats').click(); await r.waitForSelector('.du-stats .du-stats-line');
+    assert.equal(await r.locator('.du-stats-cards .cell').count(), 0, '모르는 카드는 전적 그리드에서 건너뛴다');
+    assert.deepEqual(c.errors, []); assert.deepEqual(await r.evaluate(() => window.AtelierWords.missing()), []);
+    await c.close();
     console.log('PASS 결투 화면: 첫 고르기 · 로비 · 덱 짜기 · 멀리건 · 대결 · 날씨 · 결과·보상 · 전적 · 새로고침 · 옛 저장');
   } finally { await harness.stop(); }
 })().catch(e => { console.error(e); process.exitCode = 1; });
