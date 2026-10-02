@@ -23,12 +23,20 @@ body {color:var(--text);font-size:15px}
 .dex-page > #app > main {flex:1 1 auto;min-height:0}
 .collection-scroll {display:block}
 .dex-page .collection-scroll {padding-bottom:calc(44px + env(safe-area-inset-bottom))}
+.auto-page .collection-scroll:has(.at-dock) {padding-bottom:0}
 /* 머리띠 — 라운드·체력·금 */
 .at-strip {display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;padding:10px 0 4px;font:700 12px ui-monospace,monospace;letter-spacing:.06em;color:var(--muted)}
 .at-strip b {color:var(--text);font-size:15px;margin-left:5px}
 .at-strip .at-hp b {color:var(--signal)}
 .at-strip .at-gold b {color:var(--gold)}
 .at-strip .at-tools {margin-left:auto;display:flex;gap:6px}
+/* 상점 단계의 바닥 바 — 라운드·금·레벨과 레벨 업·싸운다를 상점 곁에 둔다 */
+.at-dock {position:sticky;bottom:0;z-index:6;margin:14px 0 0;padding:6px 10px calc(10px + env(safe-area-inset-bottom));background:var(--bg);border:1px solid var(--line);border-bottom:0;border-top:2px solid var(--accent);border-radius:12px 12px 0 0;box-shadow:0 -10px 24px #0007}
+.at-dock .at-strip {padding:4px 0 8px;gap:4px 12px}
+.at-dock .at-strip b {font-size:14px}
+.at-dock-act {display:flex;gap:8px}
+.at-dock-act .at-btn {min-height:46px}
+.at-dock-act #at-fight {flex:1}
 .at-btn {min-height:40px;padding:8px 12px;background:var(--card2);color:var(--text);border:1px solid var(--line);border-radius:8px;font:inherit;font-size:12px;font-weight:700}
 .at-btn.primary {background:var(--accent);color:var(--on-accent);border-color:var(--accent);min-height:46px;font-size:14px}
 :is([data-theme="daylight"],[data-theme="blossom"],[data-theme="sand"]) .at-btn.primary {color:#fff}
@@ -384,13 +392,8 @@ function Plan({ st, data, group, img, act }) {
   const streak = st.streak >= 2 ? W('auto.streak.win', { n: st.streak }) : st.streak <= -2 ? W('auto.streak.lose', { n: -st.streak }) : '';
   return html`
     <div class="at-strip">
-      <span class="at-round">${W('auto.round', { n: st.round })}<b>${st.pve ? W('auto.round.pve') : W('auto.round.pvp')}</b></span>
-      <span class="at-hp">${W('auto.hp')}<b>${st.hp}</b></span>
-      <span class="at-gold">${W('auto.gold')}<b>${st.gold}</b></span>
-      <span class="at-level">${W('auto.level')}<b>${st.level}</b>${need ? html`<i title=${W('auto.level.xp', { xp: st.xp, need })}><u style=${'width:' + Math.round(st.xp / need * 100) + '%'}></u></i><small>${W('auto.level.xp', { xp: st.xp, need })}</small>` : html`<small>${W('auto.level.max')}</small>`}</span>
       <span>${W('auto.income', { n: A.income(st.gold, st.streak) })}${streak ? ' · ' + streak : ''}</span>
       <span class="at-tools">
-        <button class="at-btn" id="at-xp" title=${W('auto.xp.note', { n: A.XP_GAIN })} disabled=${st.gold < A.XP_COST || !need} onClick=${() => tryDo(act('xp'))}>${W('auto.xp.buy', { n: A.XP_COST })}</button>
         <button class="at-btn" id="at-auto" title=${W('auto.autoplan.note')} onClick=${() => { act('autoplan'); setPick(null); }}>${W('auto.autoplan')}</button>
         <button class="at-btn" id="at-new" title=${W('auto.new.note')} onClick=${() => act('new')}>${W('auto.new')}</button>
       </span>
@@ -435,8 +438,19 @@ function Plan({ st, data, group, img, act }) {
 
     ${info && info.who === 'shop' && html`<${CardInfo} data=${data} group=${group} name=${info.name} star=1 units=${A.boardUnits(st)} onClose=${() => setInfo(null)} />`}
 
-    <p class="sec" style="margin-top:20px"><button class="at-btn primary" id="at-fight" style="flex:1" onClick=${() => act('fight')}>${W('auto.fight')}</button></p>
-    <p class="note help">${W('auto.fight.note')} ${W('auto.saved')}</p>`;
+    <p class="note help">${W('auto.fight.note')} ${W('auto.saved')}</p>
+    <div class="at-dock">
+      <div class="at-strip">
+      <span class="at-round">${W('auto.round', { n: st.round })}<b>${st.pve ? W('auto.round.pve') : W('auto.round.pvp')}</b></span>
+      <span class="at-hp">${W('auto.hp')}<b>${st.hp}</b></span>
+      <span class="at-gold">${W('auto.gold')}<b>${st.gold}</b></span>
+      <span class="at-level">${W('auto.level')}<b>${st.level}</b>${need ? html`<i title=${W('auto.level.xp', { xp: st.xp, need })}><u style=${'width:' + Math.round(st.xp / need * 100) + '%'}></u></i><small>${W('auto.level.xp', { xp: st.xp, need })}</small>` : html`<small>${W('auto.level.max')}</small>`}</span>
+      </div>
+      <div class="at-dock-act">
+        <button class="at-btn" id="at-xp" title=${W('auto.xp.note', { n: A.XP_GAIN })} disabled=${st.gold < A.XP_COST || !need} onClick=${() => tryDo(act('xp'))}>${W('auto.xp.buy', { n: A.XP_COST })}</button>
+        <button class="at-btn primary" id="at-fight" onClick=${() => act('fight')}>${W('auto.fight')}</button>
+      </div>
+    </div>`;
 }
 function boardCells(list) {
   const cells = new Array(A.CELLS).fill(null);
