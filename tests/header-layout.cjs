@@ -35,7 +35,9 @@ function same(actual,expected,label){
      await p.evaluate(d=>window.AtelierAppearance.set('density',d),density);
      const reference=await geometry(p);
      for(const [file,ready] of PAGES){
-      await p.locator(`.workspace-nav a[href="${file}"]`).click();
+      /* 공방 탭은 덮개에서 숨는다 — 집으로는 문양·제목 링크로 간다 */
+      const tab=p.locator(`.workspace-nav a[href="${file}"]`);
+      await (file==='index.html'&&!await tab.isVisible()?p.locator('a.workspace-title'):tab).click();
       await p.waitForSelector(ready);
       same(await geometry(p),reference,`${viewport.width} ${density} ${file}`);
       assert(await p.evaluate(()=>document.body.scrollWidth<=innerWidth),'horizontal overflow');
@@ -48,6 +50,14 @@ function same(actual,expected,label){
       }
      }
     }
+    /* 덮개(599px 이하)에서는 항해가 한 줄 — 공방 탭은 숨고 문양·제목이 공방으로 가는 링크다. 넓은 화면에서는 일곱 탭 전부 */
+    await p.goto(h.base+'/duel.html');await p.waitForSelector('.du-screen');
+    const navH=(await p.locator('.workspace-nav').boundingBox()).height,narrow=viewport.width<=599;
+    assert(navH<=56,viewport.width+' 항해는 한 줄: '+navH);
+    const titleShown=await p.locator('a.workspace-title[href="index.html"]').isVisible();
+    assert.equal(await p.locator('.workspace-nav a[href="index.html"]').isVisible(),!narrow||!titleShown,viewport.width+' 공방 탭은 넓은 화면에서만(제목이 숨는 낮은 화면은 예외)');
+    assert(titleShown||await p.locator('.workspace-nav a[href="index.html"]').isVisible(),viewport.width+' 집으로 가는 길이 하나는 있다');
+    assert(await p.locator('.workspace-nav a[href="duel.html"]').isVisible()&&await p.locator('.workspace-nav a[href="prompt.html"]').isVisible(),viewport.width+' 결투·프롬프트 탭이 보인다');
     /* 접기 — 제목이 숨고 항해(와 ⚙)만 남는다. 다음 화면에서도 접힌 채다. 펼치면 돌아온다 */
     await p.goto(h.base+'/index.html');await p.waitForSelector('.workspace-nav');
     const open=await geometry(p);
