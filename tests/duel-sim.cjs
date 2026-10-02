@@ -22,6 +22,9 @@ function fixture(meHand, foeHand, opt) {
 }
 const byAb = (ab, f) => D.list.find(id => { const c = D.cards[id]; return c.variant === 'base' && c.ability === ab && !c.hero && (!f || f(c)); });
 const unitsOf = s => A.ROWS.flatMap(r => s.rows[r]);
+const put = (st, who, id) => { const u = A.makeUnit(data, st, id); st[who].rows[D.cards[id].row].push(u); return u; };
+const heroIn = row => D.list.find(id => D.cards[id].hero && D.cards[id].variant === 'base' && D.cards[id].row === row);
+const heroSafe = D.list.find(id => D.cards[id].hero && D.cards[id].variant === 'base' && ['mend', 'rally', 'shield'].includes(D.cards[id].ability)); /* 상대에게 아무것도 안 하는 영웅 */
 
 /* 파생 — 모든 카드에 줄·힘·능력, 변형판은 그림이 있는 것만, 영웅 33 */
 {
@@ -159,6 +162,65 @@ const unitsOf = s => A.ROWS.flatMap(r => s.rows[r]);
   ok(A.scores(data, b).me.total === u[0].cur + u[0].base + u[1].cur + u[1].base, '결속 — 각각 기본 힘만큼 더한다');
   b.weather[D.cards[pair[0]].row] = true;
   ok(A.scores(data, b).me.total === 2, '날씨 줄에서는 결속도 무시 — 1 + 1');
+}
+
+/* 능력 아홉 — 하나씩 손으로 짠 판. 상대는 패스해 두어 내 차례가 이어진다 */
+{
+  /* 상대는 패스해 두어 내 차례가 이어진다. 손 끝에 안 내는 카드 한 장을 더 둬 손이 비어 라운드가 끝나지 않게 한다 */
+  const solo = (meHand, main) => { const st = fixture(meHand.concat([byAb('strike')]), [byAb('strike'), byAb('strike')], { main }); st.passed.foe = true; return st; };
+  const mend = byAb('mend', c => c.power >= 7), weak = D.list.find(id => D.cards[id].variant === 'base' && !D.cards[id].hero && D.cards[id].power <= 5), strong = D.list.find(id => D.cards[id].variant === 'base' && !D.cards[id].hero && D.cards[id].power >= 9);
+  const cursedHero = D.list.find(id => D.cards[id].variant === 'cursed' && D.cards[id].hero);
+  ok(weak && strong && mend && heroSafe && cursedHero && A.ABILITIES.every(ab => byAb(ab)), '능력마다 비영웅 기본판이 있고, 힘 5 이하·9 이상·강화 7 이상·무해한 영웅·영웅 저주판이 있다');
+  /* 타격 — 가장 센 비영웅, 영웅은 면역, 바닥 1, fx */
+  { const s = byAb('strike'), st = solo([s, s]); const a = put(st, 'foe', weak), b = put(st, 'foe', strong), h = put(st, 'foe', heroIn('melee'));
+    h.cur = 99; A.play(data, st, s);
+    ok(b.cur === D.cards[strong].power - D.cards[s].n && a.cur === D.cards[weak].power && h.cur === 99, '타격 n — 가장 센 비영웅만, 영웅은 그대로');
+    ok(st.last.fx.some(f => f.kind === 'dmg' && f.side === 'foe' && f.at === b.at && f.n === D.cards[s].n) && st.foe.hurt === D.cards[s].n, 'fx 와 받은 피해 합');
+    a.cur = 1; b.cur = 1; st.me.hand = [s, s]; A.play(data, st, s); ok(a.cur === 1 && b.cur === 1 && unitsOf(st.foe).length === 3, '바닥 1 — 파괴는 안 된다'); }
+  /* 휩쓸기 — 같은 줄만 */
+  { const s = byAb('sweep'), row = D.cards[s].row, other = A.ROWS.find(r => r !== row), st = solo([s]);
+    const inRow = D.list.filter(id => D.cards[id].variant === 'base' && !D.cards[id].hero && D.cards[id].row === row).slice(0, 2).map(id => put(st, 'foe', id));
+    const out = put(st, 'foe', D.list.find(id => D.cards[id].variant === 'base' && !D.cards[id].hero && D.cards[id].row === other));
+    A.play(data, st, s); ok(inRow.every(u => u.cur === u.base - 1) && out.cur === out.base, '휩쓸기 — 상대 같은 줄 전부 −1'); }
+  /* 난사 — 무작위 n장 */
+  { const s = byAb('volley'), st = solo([s]); const us = [weak, strong, mend, byAb('rally')].map(id => put(st, 'foe', id)); us.forEach(u => { u.cur = 9; });
+    A.play(data, st, s); ok(us.filter(u => u.cur === 8).length === D.cards[s].n && us.every(u => u.cur >= 8), '난사 n — n장이 −1'); }
+  /* 처형 — 5 이하면 파괴, 아니면 −2 */
+  { const s = byAb('execute'), st = solo([s, s]); const a = put(st, 'foe', weak), b = put(st, 'foe', strong);
+    A.play(data, st, s); ok(!unitsOf(st.foe).includes(a) && st.foe.grave.includes(weak) && st.last.fx.some(f => f.kind === 'dead'), '가장 약한 비영웅이 5 이하 — 파괴, 묘지로');
+    A.play(data, st, s); ok(b.cur === b.base - 2, '5 넘으면 −2'); }
+  /* 봉인 — 상대 다음 비영웅 한 장, 영웅은 소모 안 함, 진영 능력은 안 걸린다(과제 5) */
+  { const s = byAb('seal'), k = byAb('strike'), st = fixture([s, s, k, k], [heroSafe, k, k]); const mine = put(st, 'me', strong); mine.cur = 50;
+    A.play(data, st, s); ok(st.foe.sealed && st.turn === 'foe', '봉인이 걸렸다');
+    A.play(data, st, heroSafe); ok(st.foe.sealed, '영웅을 내면 봉인은 남는다');
+    A.play(data, st, s); A.play(data, st, k); ok(!st.foe.sealed && mine.cur === 50, '다음 비영웅의 능력이 안 터지고 봉인은 풀린다');
+    A.play(data, st, k); A.play(data, st, k); ok(mine.cur === 50 - D.cards[k].n, '봉인이 없으면 터진다'); }
+  /* 강화 — 내 같은 줄 가장 약한 비영웅(자신 포함), 저주판·영웅은 못 받는다 */
+  { const row = D.cards[mend].row, st = solo([mend]); const w = put(st, 'me', D.list.find(id => D.cards[id].variant === 'base' && !D.cards[id].hero && D.cards[id].row === row && D.cards[id].power < D.cards[mend].power));
+    const c = put(st, 'me', D.list.find(id => D.cards[id].variant === 'cursed' && D.cards[id].row === row)); c.cur = 1; const h = put(st, 'me', heroIn(row)); h.cur = 1;
+    A.play(data, st, mend); ok(w.cur === w.base + D.cards[mend].n && c.cur === 1 && h.cur === 1, '강화 n — 저주판(1)·영웅(1)을 건너뛰고 가장 약한 비영웅에'); }
+  /* 결집 — 같은 줄 나머지 전부 +1 */
+  { const s = byAb('rally'), row = D.cards[s].row, st = solo([s]); const a = put(st, 'me', D.list.find(id => id !== s && D.cards[id].variant === 'base' && !D.cards[id].hero && D.cards[id].row === row)), o = put(st, 'me', D.list.find(id => D.cards[id].variant === 'base' && !D.cards[id].hero && D.cards[id].row !== row));
+    A.play(data, st, s); const self = st.me.rows[row].find(u => u.id === s); ok(a.cur === a.base + 1 && o.cur === o.base && self.cur === self.base, '결집 — 같은 줄 나머지만 +1, 자신은 아니다'); }
+  /* 보호막 — 자신과 양옆, 피해 한 번을 통째로 막고 사라진다, 파괴도 막는다 */
+  { const s = byAb('shield'), row = D.cards[s].row, k = byAb('strike'), st = fixture([s], [k, k, byAb('execute')]); const l = put(st, 'me', D.list.find(id => D.cards[id].variant === 'base' && !D.cards[id].hero && D.cards[id].row === row));
+    A.play(data, st, s); const self = st.me.rows[row].find(u => u.id === s); ok(l.shield && self.shield, '자신과 옆 카드에 보호막');
+    const big = Math.max(l.cur, self.cur), tgt = l.cur >= self.cur ? l : self; A.play(data, st, k);
+    ok(tgt.cur === big && !tgt.shield && st.me.hurt === 0, '피해 한 번을 막고 사라진다 — 받은 피해 합에도 안 든다');
+    tgt.cur = 3; tgt.shield = true; A.play(data, st, byAb('execute')); ok(unitsOf(st.me).includes(tgt) && !tgt.shield, '파괴도 막는다'); }
+  /* 흡혈 — 상대 −n, 자신 +n */
+  { const s = byAb('drain'), st = solo([s]); const b = put(st, 'foe', strong); A.play(data, st, s); const self = unitsOf(st.me)[0];
+    ok(b.cur === b.base - D.cards[s].n && self.cur === self.base + D.cards[s].n, '흡혈 n'); }
+  /* 저주 출혈 — 상대가 낼 때마다 −1, 바닥 1, 영웅 저주판도 */
+  { const k = byAb('strike'), st = fixture([k], [mend, mend, mend]); const c = put(st, 'me', D.list.find(id => D.cards[id].variant === 'cursed' && !D.cards[id].hero)), hc = put(st, 'me', cursedHero);
+    st.passed.me = true; st.turn = 'foe'; A.play(data, st, mend); ok(c.cur === c.base - 1 && hc.cur === hc.base - 1, '상대가 내면 저주판 −1, 영웅 저주판도');
+    c.cur = 1; A.play(data, st, mend); ok(c.cur === 1, '바닥 1');
+    ok(unitsOf(st.me).every(u => u.cur >= 1) && c.base === D.cards[c.id].power, '저주판 힘 = 기본 +5 그대로(base)'); }
+  /* 아스트라 배율 · 호국 — 깃발만 세워 본다(진영 능력 자체는 과제 5) */
+  { const s = byAb('strike'), st = solo([s]); const b = put(st, 'foe', strong); b.cur = 12; st.me.astra = true; A.play(data, st, s);
+    ok(b.cur === 12 - 2 * D.cards[s].n && !st.me.astra, '아스트라 — n×2, 한 번 쓰면 꺼진다'); }
+  { const k = byAb('strike'), st = fixture([], [k]); const m = put(st, 'me', strong); st.me.guard = true; st.passed.me = true; st.turn = 'foe'; A.play(data, st, k);
+    ok(m.cur === m.base && st.me.hurt === 0, '호국 — 피해를 안 받는다'); }
 }
 
 /* ── 끝 ── */
