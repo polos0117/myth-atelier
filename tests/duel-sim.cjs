@@ -10,6 +10,19 @@ let n = 0;
 const ok = (cond, msg) => { assert(cond, msg); n++; };
 const D = A.derive(data);
 
+/* 손으로 짠 판 — 멀리건을 건너뛰고 phase 'play', 내 차례. 손패와 덱을 바꿔 끼운다 */
+function fixture(meHand, foeHand, opt) {
+  opt = opt || {};
+  const p = A.newProfile(data, opt.main || 'norse', 1);
+  const st = A.newMatch(data, p, opt.boss || 'greek', opt.level || 'veteran', opt.seed || 11);
+  A.confirm(data, st);
+  st.me.hand = meHand.slice(); st.foe.hand = foeHand.slice(); st.turn = st.first = opt.turn || 'me';
+  st.me.deck = opt.meDeck || []; st.foe.deck = opt.foeDeck || [];
+  return st;
+}
+const byAb = (ab, f) => D.list.find(id => { const c = D.cards[id]; return c.variant === 'base' && c.ability === ab && !c.hero && (!f || f(c)); });
+const unitsOf = s => A.ROWS.flatMap(r => s.rows[r]);
+
 /* 파생 — 모든 카드에 줄·힘·능력, 변형판은 그림이 있는 것만, 영웅 33 */
 {
   const all = D.list.map(id => D.cards[id]);
@@ -85,6 +98,67 @@ const D = A.derive(data);
     ok(a.every(id => D.cards[id].variant === 'base' || D.cards[id].myth === b.myth), b.wielder + ' 변형판은 자기 권만');
   }
   ok(A.bossOf(data, 'norse').wielder === '토르', 'bossOf');
+}
+
+/* 판 진행 — 같은 시드 같은 판, 멀리건 2장, 선공, 패스 뒤엔 못 낸다, 둘 다 패스면 라운드 끝, 동점은 둘 다 잃는다 */
+{
+  const p = A.newProfile(data, 'norse', 1);
+  const a = A.newMatch(data, p, 'greek', 'veteran', 5), b = A.newMatch(data, p, 'greek', 'veteran', 5);
+  ok(JSON.stringify(a) === JSON.stringify(b) && a.phase === 'mulligan' && a.me.hand.length === 10 && a.me.deck.length === 15 && a.foe.hand.length === 10, '같은 시드 같은 판 · 손 10 덱 15');
+  ok(a.foe.faction.myth === 'greek' && a.me.faction.myth === 'norse' && a.lives.me === 2 && a.lives.foe === 2, '진영 · 목숨 둘');
+  const top = a.me.deck[0], old = a.me.hand[0];
+  ok(A.mulligan(a, 0).ok && a.me.hand[0] === top && a.me.deck[a.me.deck.length - 1] === old, '멀리건은 덱 맨 위와 바꾸고 옛 카드는 맨 아래로');
+  ok(A.mulligan(a, 1).ok && A.mulligan(a, 2).why === 'mulligan' && a.mulligans === 2, '2장까지');
+  ok(!A.play(data, a, a.me.hand[0]).ok, '멀리건 중에는 못 낸다');
+  A.confirm(data, a);
+  ok(a.phase === 'play' && ['me', 'foe'].includes(a.first) && a.turn === a.first && !A.mulligan(a, 0).ok, '선공은 동전 · 시작하면 멀리건 끝');
+  const firsts = new Set(); for (let s = 1; s <= 30; s++) { const m = A.newMatch(data, p, 'greek', 'veteran', s); A.confirm(data, m); firsts.add(m.first); }
+  ok(firsts.size === 2, '선공은 양쪽 다 나온다');
+
+  /* 손으로: 내가 내면 상대 차례, 패스하면 못 내고, 둘 다 패스하면 라운드가 끝난다 */
+  const s1 = byAb('strike'), s2 = byAb('strike', c => c.name !== D.cards[s1].name);
+  const st = fixture([s1, s2], [s1, s2]);
+  ok(A.play(data, st, s1).ok && st.turn === 'foe' && st.me.hand.length === 1 && st.me.rows[D.cards[s1].row].length === 1, '내면 자기 줄에 서고 상대 차례');
+  ok(A.play(data, st, '없는카드').why === 'hand', '손에 없는 카드');
+  ok(A.pass(data, st).ok && st.passed.foe && st.turn === 'me', '상대가 패스하면 내 차례');
+  ok(A.play(data, st, s2).ok && st.phase === 'play' && st.round === 2 && st.roundLog.length === 1, '상대가 패스한 뒤 내 마지막 카드를 내면 손이 비어 자동 패스 — 라운드 끝');
+  ok(st.roundLog[0].winner === 'me' && st.lives.foe === 1 && st.lives.me === 2, '합이 큰 쪽이 따고 진 쪽이 목숨을 잃는다');
+  ok(st.first === 'foe' && st.turn === 'foe' && unitsOf(st.me).length === 0 && st.me.grave.length === 2, '진 쪽이 선공 · 판은 묘지로');
+  /* 손이 빈 쪽은 바로 패스 — 나는 손이 비었고 상대만 남았다 */
+  ok(st.passed.me && !st.passed.foe, '손이 빈 쪽은 라운드 시작에 패스 상태');
+  ok(A.play(data, st, s1).ok && A.play(data, st, s2).ok && st.roundLog.length === 3 && st.roundLog[1].winner === 'foe', '상대가 둘을 내고 손이 비면 라운드 2 끝 — 내가 잃는다. 셋째는 둘 다 빈손이라 바로 0:0');
+  ok(st.phase === 'done' && st.winner === 'draw' && st.lives.me === 0 && st.lives.foe === 0 && st.roundLog[2].winner === 'draw', '동점은 둘 다 목숨을 잃는다 · 무승부');
+  ok(!A.play(data, st, s1).ok && !A.pass(data, st).ok, '끝난 판에는 못 둔다');
+  /* 패스 뒤에는 못 낸다 */
+  const t = fixture([s1, s2], [s1, s2]);
+  ok(A.pass(data, t).ok && t.turn === 'foe' && A.play(data, t, s1).ok && t.turn === 'foe', '내가 패스하면 상대는 계속 낸다');
+  ok(A.legal(data, t, 'me').cards.length === 0 && !A.legal(data, t, 'me').pass, '패스한 쪽은 낼 수 없다');
+}
+/* 합산 — 날씨 줄은 양쪽 비영웅 1, 영웅 그대로, 또 내면 걷히고 힘이 돌아온다, 라운드 끝에 걷힌다 · 결속 */
+{
+  const hero = D.list.find(id => D.cards[id].hero && D.cards[id].row === 'melee' && D.cards[id].variant === 'base');
+  const mel = byAb('mend', c => c.row === 'melee'), w = D.list.find(id => D.cards[id].variant === 'weather' && D.cards[id].row === 'melee');
+  const st = fixture([w, w, byAb('strike')], [mel, hero, byAb('strike')]); /* 셋째 장은 손이 비어 자동 패스되지 않게 */
+  st.passed.me = true; st.turn = 'foe'; A.play(data, st, mel); A.play(data, st, hero); /* 상대 근접 줄에 비영웅 하나 · 영웅 하나 */
+  st.passed.me = false; st.turn = 'me';
+  const before = A.scores(data, st).foe.rows.melee;
+  ok(before > 1 + D.cards[hero].power, '날씨 전 합');
+  ok(A.play(data, st, w).ok && st.weather.melee && st.me.grave.includes(w) && A.scores(data, st).foe.rows.melee === 1 + D.cards[hero].power, '서리 — 비영웅은 1, 영웅은 그대로, 날씨판은 묘지로');
+  ok(st.foe.rows.melee[0].cur >= D.cards[mel].power, '카드의 힘 자체는 안 건드린다');
+  st.turn = 'me';
+  ok(A.play(data, st, w).ok && !st.weather.melee && A.scores(data, st).foe.rows.melee === before, '같은 줄 날씨판을 또 내면 걷히고 돌아온다');
+  st.weather.melee = true; st.turn = 'me'; A.pass(data, st); A.pass(data, st); /* 둘 다 패스 — 상대 손에 한 장 남아 2라운드가 선다 */
+  ok(!st.weather.melee && st.round === 2 && st.phase === 'play', '라운드가 끝나면 걷힌다');
+  /* 결속 — 같은 주인 둘이 같은 줄이면 각각 기본 힘만큼 더 */
+  const pair = (() => { const by = {}; for (const id of D.list) { const c = D.cards[id]; if (c.variant !== 'base' || c.hero) continue; (by[c.wielder + '/' + c.row] = by[c.wielder + '/' + c.row] || []).push(id); } return Object.values(by).find(l => l.length >= 2); })();
+  ok(pair, '같은 주인·같은 줄 비영웅 둘이 있는 자료');
+  const b = fixture(pair.slice(0, 2).concat([byAb('strike')]), []); b.passed.foe = true; /* 셋째 장은 손이 비어 라운드가 끝나지 않게 */
+  A.play(data, b, pair[0]); ok(A.scores(data, b).me.total === unitsOf(b.me)[0].cur, '하나일 때는 결속 없음');
+  A.play(data, b, pair[1]);
+  const u = unitsOf(b.me);
+  ok(A.scores(data, b).me.total === u[0].cur + u[0].base + u[1].cur + u[1].base, '결속 — 각각 기본 힘만큼 더한다');
+  b.weather[D.cards[pair[0]].row] = true;
+  ok(A.scores(data, b).me.total === 2, '날씨 줄에서는 결속도 무시 — 1 + 1');
 }
 
 /* ── 끝 ── */
