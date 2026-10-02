@@ -32,13 +32,16 @@ body {color:var(--text);font-size:15px}
 .dex-page .collection-scroll {padding-bottom:calc(44px + env(safe-area-inset-bottom))}
 .grid {display:grid;gap:var(--gap)}
 .dex-page .grid {grid-template-columns:repeat(auto-fill,minmax(132px,1fr))}
-.cell {display:block;width:100%;padding:0;text-align:left;color:inherit;font:inherit;
+/* 칸은 위에서부터 쌓는다 — 버튼은 내용을 세로 가운데에 두어, 같은 줄에 긴 이름이 있으면
+   짧은 이름 칸의 그림과 글이 통째로 내려가 줄이 어긋났다. 이름 자리는 늘 두 줄로 잡는다 */
+.cell {display:flex;flex-direction:column;justify-content:flex-start;width:100%;padding:0;text-align:left;color:inherit;font:inherit;
   background:var(--card);border:1px solid var(--line);border-radius:11px;overflow:hidden}
-.face {display:block;position:relative;width:100%;aspect-ratio:2/3;background:var(--card2);overflow:hidden}
+.face {display:block;flex:none;position:relative;width:100%;aspect-ratio:2/3;background:var(--card2);overflow:hidden}
 .face img {display:block;width:100%;height:100%;object-fit:contain;object-position:center top}
 .ph {display:flex;align-items:center;justify-content:center;height:100%;padding:6px;
   color:var(--muted);font:10px/1.4 ui-monospace,monospace;letter-spacing:.06em;text-align:center}
-.cap {display:block;font-weight:700;overflow-wrap:anywhere}
+.cap {display:block;flex:1;font-weight:700;overflow-wrap:anywhere}
+.cap .cnm {display:block;min-height:2.8em;max-height:2.8em;overflow:hidden;word-break:keep-all}
 .cap i {display:block;margin-top:3px;font:400 11px ui-monospace,monospace;font-style:normal;color:var(--muted)}
 .cap .cost {float:right;margin-left:6px;padding:1px 7px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font:700 10px ui-monospace,monospace}
 .search-row {display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px}
@@ -419,7 +422,7 @@ function List({ st, filters, onFilter, onOpen, compact, onCompact }) {
             <span class="face">${file
               ? html`<${Pic} file=${file} alt=${c.name} />`
               : html`<span class="ph">${W('art.none')}</span>`}${enshrined ? html`<span class="hall-mark">${W('dex.hall.on')}</span>` : ''}</span>
-            <span class="cap"><span class="cost">${W('card.cost.n', { n: c.cost })}</span>${c.name}
+            <span class="cap"><span class="cnm"><span class="cost">${W('card.cost.n', { n: c.cost })}</span>${c.name}</span>
               <i>${st.group.myth.name[c.myth]} · ${st.group.kind.name[c.kind]}</i>
               <i>${states}</i>
             </span>
