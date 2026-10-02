@@ -149,7 +149,7 @@ body {color:var(--text);font-size:15px}
 .du-rounds {list-style:none;margin:6px 0 12px;padding:0;display:flex;gap:8px;flex-wrap:wrap;font:700 13px ui-monospace,monospace;color:var(--muted)}
 .du-rounds li {padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card)} .du-rounds li b {color:var(--text)}
 .du-reveal {display:flex;flex-direction:column;align-items:center;gap:10px;margin:10px 0 14px;padding:14px;border:1px solid var(--gold);border-radius:14px;background:var(--card)}
-.du-reveal .du-card {width:min(220px,70vw);cursor:default;animation:du-pop .5s}
+.du-reveal .du-card {width:100%;cursor:default}
 .du-reveal .du-card .cap {font-size:13px}
 .du-reward-none {margin:10px 0;color:var(--muted);font-size:13px}
 .du-result-act {display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
@@ -269,6 +269,26 @@ body {color:var(--text);font-size:15px}
 .du-toggle {min-height:44px;background:var(--card2);border:1px solid var(--line);border-radius:8px;color:var(--text);font:inherit;font-weight:700;font-size:12px;cursor:pointer}
 .du-toggle.in {background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
 .du-empty {margin:14px 0;color:var(--muted);font-size:13px;text-align:center}
+/* ── 카드 뒷면 — 박물관 깃발(museum_<권>_banner.webp)을 권 색 바탕에 세운다. 깃발이 없는 권(아메리카·기사 전설)과 오프라인은 문양만 ── */
+.du-back {position:relative;display:block;aspect-ratio:2/3;border-radius:6px;border:2px solid var(--gold);overflow:hidden;background:linear-gradient(160deg,var(--mc,#555) 0%,#1a1420 85%);box-shadow:inset 0 0 0 1px #0008}
+.du-back::before {content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,#ffffff12 0 2px,transparent 2px 9px),radial-gradient(circle at 50% 40%,#ffffff22,transparent 60%)}
+.du-back i {position:absolute;left:50%;top:50%;width:34%;aspect-ratio:1;transform:translate(-50%,-50%) rotate(45deg);border:2px solid var(--gold);border-radius:12%;box-shadow:inset 0 0 0 3px #0006,0 0 10px #0008}
+.du-back img {position:absolute;left:50%;top:5%;height:90%;width:auto;max-width:80%;transform:translateX(-50%);object-fit:contain;filter:drop-shadow(0 2px 4px #000a)}
+.du-foe-fan {display:flex;align-items:center;gap:6px}
+.du-foe-fan .du-cards {display:flex;height:36px;align-items:flex-end}
+.du-foe-fan .du-back {width:22px;margin-left:-11px;border-width:1px;border-radius:3px;box-shadow:0 1px 3px #000a} .du-foe-fan .du-back:first-child {margin-left:0} .du-foe-fan .du-back i {border-width:1px}
+.du-deck-pile {display:inline-flex;align-items:center;gap:6px;margin-left:auto;font:700 11px ui-monospace,monospace;letter-spacing:.04em;color:var(--muted)}
+.du-deck-pile .du-back {width:22px;border-width:1px;border-radius:3px;box-shadow:2px 2px 0 -1px var(--card2),2px 2px 0 0 var(--line)} .du-deck-pile .du-back i {border-width:1px}
+.du-ghost.back {perspective:400px}
+.du-ghost.back .du-back {width:100%;height:100%;border-radius:inherit}
+.du-flipcard {perspective:900px;width:min(220px,70vw)}
+.du-flipper {position:relative;transform-style:preserve-3d;animation:du-reveal .8s cubic-bezier(.3,.7,.2,1) forwards}
+.du-flipper > * {backface-visibility:hidden}
+.du-flipper .du-back {position:absolute;inset:0;aspect-ratio:auto;transform:rotateY(0)}
+.du-flipper .du-card {transform:rotateY(180deg)}
+@keyframes du-reveal {from {transform:rotateY(0)} to {transform:rotateY(180deg)}}
+.du-reveal .du-card {animation:none}
+@media (prefers-reduced-motion:reduce) {.du-flipper {animation:none;transform:rotateY(180deg)}}
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
 <script src="lib/words.js?v=myth41"></script>
@@ -336,6 +356,13 @@ function Thumb({ file, cls }) {
   return html`<img src=${IMG.thumbURL(file)} alt="" loading="lazy" class=${cls}
     onError=${e => { const t = e.currentTarget; if (t.dataset.f) return; t.dataset.f = '1'; t.src = IMG.imgURL(file); }} />`;
 }
+/* 카드 뒷면 — 그 권의 박물관 깃발. 내 쪽은 주 권, 상대 쪽은 그 주인의 권(둘 다 공개 정보라 숨은 패가 새지 않는다) */
+const bannerURL = (group, m) => { const r = group.museum && group.museum.rooms && group.museum.rooms[m]; return Array.isArray(r) && r.includes('banner') ? IMG.BASE + 'ui/museum_' + m + '_banner.webp' : null; };
+const backHTML = (group, m) => { const u = bannerURL(group, m); return `<span class="du-back" data-myth="${m}" style="--mc:${mythColor(group, m)}"><i></i>${u ? `<img src="${u}" alt="" onerror="this.remove()">` : ''}</span>`; };
+function CardBack({ group, myth }) {
+  const u = bannerURL(group, myth);
+  return html`<span class="du-back" data-myth=${myth} style=${'--mc:' + mythColor(group, myth)}><i></i>${u && html`<img src=${u} alt="" loading="lazy" onError=${e => e.currentTarget.remove()} />`}</span>`;
+}
 const mythName = (group, m) => group.myth.name[m] || m;
 const mythColor = (group, m) => (group.myth.color && group.myth.color[m]) || 'var(--accent)';
 /* 카드 한 칸 — 도감 칸 꼴. art 는 보여 줄 그림 파일(변형판은 자리에 따라 기본 그림을 쓴다) */
@@ -370,14 +397,19 @@ function spawn(cls, rect, ms, style, inner) {
 }
 const artTag = file => file ? `<img src="${IMG.thumbURL(file)}" alt="">` : '<span class="ph"></span>';
 /* 유령 카드 — from 에서 to 로 날아간다(크기도 맞춘다). 끝나면 onDone */
-function fly(file, from, to, cls, onDone) {
+function fly(file, from, to, cls, onDone, backHtml) {
   if (reduced() || !from || !to) { onDone && onDone(); return; }
-  const g = spawn('du-ghost ' + (cls || ''), { left: 0, top: 0, width: from.width, height: from.height }, 700, '', artTag(file));
+  const g = spawn('du-ghost ' + (cls || '') + (backHtml ? ' back' : ''), { left: 0, top: 0, width: from.width, height: from.height }, 900, '', backHtml || artTag(file));
   if (!g) { onDone && onDone(); return; }
-  const sx = to.width / from.width, sy = to.height / from.height;
-  const anim = g.animate([{ transform: `translate(${from.left}px,${from.top}px) scale(1,1)` }, { transform: `translate(${to.left}px,${to.top}px) scale(${sx},${sy})` }],
+  const sx = to.width / from.width, sy = to.height / from.height, land = `translate(${to.left}px,${to.top}px) scale(${sx},${sy})`;
+  const anim = g.animate([{ transform: `translate(${from.left}px,${from.top}px) scale(1,1)` }, { transform: land }],
     { duration: 380, easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'forwards' });
-  anim.onfinish = () => { g.remove(); onDone && onDone(); };
+  anim.onfinish = () => {
+    if (!backHtml) { g.remove(); onDone && onDone(); return; }
+    /* 뒷면으로 날아온 카드는 닿아서 반 바퀴 돌며 앞면(판 위 카드)을 드러낸다 */
+    const flip = g.animate([{ transform: land + ' rotateY(0)' }, { transform: land + ' rotateY(90deg)' }], { duration: 170, easing: 'ease-in', fill: 'forwards' });
+    flip.onfinish = () => { g.remove(); onDone && onDone(); };
+  };
 }
 const shake = el => el && !reduced() && el.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-5px) rotate(-2deg)' }, { transform: 'translateX(5px) rotate(2deg)' }, { transform: 'translateX(-3px)' }, { transform: 'translateX(0)' }], { duration: 380, easing: 'ease-out' });
 function sparks(rect, n) { for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2; spawn('du-spark', { left: rect.left + rect.width / 2 - 3, top: rect.top + rect.height / 2 - 3, width: 6, height: 6 }, 800, `--dx:${Math.round(Math.cos(a) * 26)}px;--dy:${Math.round(Math.sin(a) * 26 - 10)}px`); } }
@@ -535,14 +567,16 @@ function Match({ data, group, profile, st, actMatch, act }) {
     if (last && !reduced()) {
       if (last.kind === 'play') {
         const c = D.cards[last.id], base = D.cards[c.name], who = last.who;
-        const from = who === 'me' && flyRef.current && flyRef.current.id === last.id ? flyRef.current.from : (document.querySelector('.du-foe .face') || {}).getBoundingClientRect?.();
+        const fanCard = document.querySelector('.du-foe-fan .du-back:last-child') || document.querySelector('.du-foe .face');
+        const from = who === 'me' && flyRef.current && flyRef.current.id === last.id ? flyRef.current.from : fanCard && fanCard.getBoundingClientRect();
+        const back = who === 'foe' ? backHTML(group, st.boss) : null;
         if (c.variant === 'weather') {
           const head = document.querySelector(`.du-row[data-side="${who}"][data-row="${c.row}"] .du-row-head`);
-          fly(base.file, from, head && head.getBoundingClientRect(), 'wx', null);
+          fly(base.file, from, head && head.getBoundingClientRect(), 'wx', null, back);
           for (const row of document.querySelectorAll(`.du-row[data-row="${c.row}"]`)) spawn('du-rowflash', row.getBoundingClientRect(), 700, `--rc:var(--row-${c.row})`);
         } else {
           const unit = document.querySelector('.du-unit[data-fresh]');
-          fly(base.file, from, unit && unit.getBoundingClientRect(), '', () => unit && unit.classList.remove('late'));
+          fly(base.file, from, unit && unit.getBoundingClientRect(), '', () => unit && unit.classList.remove('late'), back);
         }
         setTimeout(() => { playFx(data, st, rects.current); abilityFx(data, st, rects.current); }, c.variant === 'weather' ? 0 : 300);
       } else playFx(data, st, rects.current);
@@ -559,7 +593,7 @@ function Match({ data, group, profile, st, actMatch, act }) {
   return html`<section class="du-screen du-board" data-screen="match">
     <div class="du-foe"><span class="face"><${Thumb} file=${portrait && portrait.file} /></span>
       <span><b>${boss.wielder}</b>${mythName(group, st.boss)} · ${W('duel.lv.' + st.level)}</span>
-      <span class="du-foe-hand">${W('duel.foe.hand', { n: st.foe.hand.length })}</span>
+      <span class="du-foe-fan"><span class="du-cards" aria-hidden="true">${st.foe.hand.map((_, i) => html`<${CardBack} key=${i} group=${group} myth=${st.boss} />`)}</span><span class="du-foe-hand">${W('duel.foe.hand', { n: st.foe.hand.length })}</span></span>
       <span class="du-foe-grave">${W('duel.foe.grave', { n: st.foe.grave.length })}</span>
       <button type="button" class="du-foe-faction" data-used=${st.foe.faction.used ? 'true' : 'false'} onClick=${() => setFsheet('foe')}>${data.duel.factions[st.boss].name}</button>${flags('foe')}</div>
     ${['ranged', 'reach', 'melee'].map(r => html`<${Row} key=${'f' + r} data=${data} st=${st} side="foe" row=${r} sum=${sc.foe.rows[r]} onDetail=${open} />`)}
@@ -577,7 +611,7 @@ function Match({ data, group, profile, st, actMatch, act }) {
       ${lastRound && html`<span class="du-last-round">${roundText(lastRound, st.roundLog.length)}</span>`}
     </div>
     ${['melee', 'reach', 'ranged'].map(r => html`<${Row} key=${'m' + r} data=${data} st=${st} side="me" row=${r} sum=${sc.me.rows[r]} onDetail=${open} />`)}
-    <div class="du-dock">${!profile.tutorial && html`<${Guide} st=${st} onSkip=${() => act(p => { p.tutorial = true; })} />`}<p class="sec">${W('duel.hand', { n: st.me.hand.length })}</p>
+    <div class="du-dock">${!profile.tutorial && html`<${Guide} st=${st} onSkip=${() => act(p => { p.tutorial = true; })} />`}<p class="sec">${W('duel.hand', { n: st.me.hand.length })}<span class="du-deck-pile"><${CardBack} group=${group} myth=${profile.main} />${W('duel.deck.left', { n: st.me.deck.length })}</span></p>
     <div class="du-hand">${st.me.hand.map((id, i) => html`<${Card} key=${id + i} card=${D.cards[id]} art=${D.cards[D.cards[id].name].file} group=${group} cls="du-card" onClick=${() => open(id, true)} />`)}</div></div>
     ${detail && html`<${Detail} data=${data} group=${group} st=${st} id=${detail.id} unit=${detail.unit} fromHand=${detail.fromHand} canPlay=${mine && L.cards.includes(detail.id)}
       onPlay=${() => { const el = document.querySelector(`.du-hand .du-card[data-id="${detail.id}"]`); flyRef.current = el ? { id: detail.id, from: el.getBoundingClientRect() } : null; setDetail(null); actMatch(m => A.play(data, m, detail.id)); }} onClose=${() => setDetail(null)} />`}
@@ -601,7 +635,7 @@ function Result({ data, group, st, onLobby, onAgain }) {
     ${o && html`<p class="sec">${W('duel.result.reward')}<span>${cards.length ? cards.length : ''}</span></p>`}
     ${o && !cards.length && html`<p class="du-reward-none">${W(o.result === 'win' ? 'duel.result.reward.all' : 'duel.result.reward.none')}</p>`}
     ${shown < cards.length && html`<div class="du-reveal">
-      <${Card} key=${cards[shown]} card=${D.cards[cards[shown]]} group=${group} cls="du-card" />
+      <div class="du-flipcard"><div key=${cards[shown]} class="du-flipper"><${CardBack} group=${group} myth=${D.cards[cards[shown]].myth} /><${Card} card=${D.cards[cards[shown]]} group=${group} cls="du-card" /></div></div>
       <button type="button" class="du-btn" id="du-reveal-next" onClick=${() => setShown(shown + 1)}>${W('duel.result.reveal')} ${shown + 1}/${cards.length}</button></div>`}
     <div class="du-result-act">
       <button type="button" class="du-btn primary" id="du-result-lobby" onClick=${onLobby}>${W('duel.result.lobby')}</button>

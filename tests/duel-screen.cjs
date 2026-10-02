@@ -112,6 +112,10 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
     await p.reload(); await p.waitForSelector('.du-board');
     assert.equal(await p.locator('.du-row[data-side="foe"][data-row="melee"] .du-unit .du-pw').innerText(), String(D.cards[foeUnit].power), '상대 근접 줄의 힘');
     assert.equal(await p.locator('.du-hand .du-card').count(), 10, '손패 열');
+    /* 카드 뒷면 — 상대 손패는 뒷면 부채, 내 덱은 더미와 남은 수 */
+    assert.equal(await p.locator('.du-foe-fan .du-back').count(), 10, '상대 손패 열 장이 뒷면 부채로');
+    assert.equal(await p.locator('.du-foe-fan .du-back').first().getAttribute('data-myth'), 'greek', '상대 뒷면은 그 주인의 권 깃발');
+    assert((await p.locator('.du-deck-pile').innerText()).includes('15') && await p.locator('.du-deck-pile .du-back[data-myth="norse"]').count() === 1, '내 덱 더미 — 주 권 깃발, 열다섯 장');
     assert.equal(await p.locator('.du-turn').innerText(), await p.evaluate(() => window.W('duel.turn.me')), '내 차례');
     /* 첫 판 길잡이 — 1단계부터, 손패 카드마다 줄 표시, ? 로 규칙 패널 */
     assert.equal(await p.locator('.du-guide').getAttribute('data-step'), '1', '첫 판엔 길잡이 1단계');
@@ -133,7 +137,9 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
     await p.waitForSelector('.du-ghost', { timeout: 2000 });   /* 손패에서 줄 머리로 날아가는 유령 카드 */
     await p.waitForSelector('.du-row[data-side="foe"][data-row="melee"][data-weather="true"]');
     assert((await p.locator('.du-rowflash').count()) >= 1, '날씨가 깔리는 줄이 번쩍인다');
+    await p.waitForSelector('.du-ghost.back', { timeout: 2500 });   /* 상대 카드는 부채에서 뒷면으로 날아와 뒤집힌다 */
     await p.waitForFunction(() => !document.querySelector('.du-ghost'), null, { timeout: 3000 });
+    assert.equal(await p.locator('.du-foe-fan .du-back').count(), 9, '상대가 내면 부채가 한 장 준다');
     assert.equal(await p.locator('.du-row[data-side="me"][data-row="melee"]').getAttribute('data-weather'), 'true', '내 줄에도');
     assert.equal(await p.locator('.du-row[data-side="foe"][data-row="melee"] .du-unit[data-at="900"] .du-pw').innerText(), '1', '비영웅은 1 로 보인다');
     assert.equal(await p.locator('.du-row[data-side="foe"] .du-wx').count(), 1, '줄 머리에 서리');
@@ -190,6 +196,7 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
     const gained = won.profile.owned.length - ownedAfterFirst;
     assert(gained === (won.profile.beaten.greek.veteran === 1 ? 3 : 1), '첫 승 3장 · 재대결 1장 — 받은 ' + gained);
     assert.equal(await p.locator('.du-reveal .du-card').count(), 1, '한 장씩 공개');
+    assert.equal(await p.locator('.du-reveal .du-flipcard .du-back').count(), 1, '뒷면이 뒤집히며 공개된다');
     assert.equal(await p.locator('.du-reveal .du-card').getAttribute('data-id'), won.match.outcome.cards[0], '첫 장이 먼저');
     /* 새로고침 — 결과가 그대로이고 두 번 더하지 않는다 */
     await p.reload(); await p.waitForSelector('.du-result[data-result="win"]');
