@@ -74,7 +74,7 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
     assert.equal(await p.locator('.du-turn').innerText(), await p.evaluate(() => window.W('duel.turn.me')), '내 차례');
     await tap(p, '.du-hand .du-card'); await tap(p, '#du-pass'); await tap(p, '#du-faction'); await noOverflow(p);
     /* 날씨판 — 상세의 단추 글이 "서리를 부른다", 내면 양쪽 줄 머리에 표시가 붙고 숫자가 1 로 */
-    await p.locator('.du-hand .du-card[data-id="' + wx + '"]').click(); await p.waitForSelector('.du-detail[data-id="' + wx + '"]');
+    await p.locator('.du-hand .du-card[data-id="' + wx + '"]').first().click(); /* 손패에 같은 카드가 또 있을 수 있다 */ await p.waitForSelector('.du-detail[data-id="' + wx + '"]');
     assert.equal(await p.locator('#du-play').innerText(), await p.evaluate(() => window.W('duel.weather.call', { w: window.W('duel.weather.melee') })), '날씨판의 내기 글');
     await p.locator('#du-play').click();
     await p.waitForSelector('.du-row[data-side="foe"][data-row="melee"][data-weather="true"]');
@@ -89,7 +89,7 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
     assert.equal(await p.locator('.du-round').innerText(), round, '새로고침해도 같은 라운드');
     assert.equal(await p.locator('.du-hand .du-card').count(), hand, '같은 손패');
     /* 타격 카드 — 상대 유닛에 피해 숫자가 뜬다(즉시 모드라 fx 요소만 본다) */
-    await p.locator('.du-hand .du-card[data-id="' + hit + '"]').click(); await p.waitForSelector('#du-play:not(:disabled)'); await p.locator('#du-play').click();
+    await p.locator('.du-hand .du-card[data-id="' + hit + '"]').first().click(); await p.waitForSelector('#du-play:not(:disabled)'); await p.locator('#du-play').click();
     await p.waitForSelector('.du-row[data-side="me"] .du-unit[data-id="' + hit + '"]');
     /* 패스 → 라운드가 끝나면 결과 한 줄 */
     await p.waitForSelector('#du-pass:not(:disabled)'); await p.locator('#du-pass').click();
@@ -104,9 +104,60 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
     }
     await p.waitForSelector('.du-result');
     /* ── 결과·전적 (과제 10) ── */
-    assert.deepEqual(a.errors, []);
-    assert.deepEqual(await p.evaluate(() => window.AtelierWords.missing()), []);
+    /* 아무 결과든 결과 화면이고, 로비로 돌아간다 */
+    assert(['win', 'lose', 'draw'].includes(await p.locator('.du-result').getAttribute('data-result')), '결과');
+    assert((await p.locator('.du-rounds li').count()) >= 2, '라운드 합');
+    const ownedAfterFirst = (await store(p)).profile.owned.length;
+    while (await p.locator('#du-reveal-next').count()) await p.locator('#du-reveal-next').click();
+    await p.locator('#du-result-lobby').click(); await p.waitForSelector('.du-lobby');
+    /* 이기는 판 — 3라운드, 상대 목숨 하나·빈손·패스, 내 손에 센 카드 하나 */
+    await p.locator('.du-boss[data-myth="greek"]').click(); await p.waitForSelector('.du-mull'); await p.locator('#du-mull-go').click(); await p.waitForSelector('.du-board');
+    const big = D.list.find(id => D.cards[id].variant === 'base' && D.cards[id].power >= 12);
+    await p.evaluate(([k, big]) => { const j = JSON.parse(localStorage.getItem(k)), m = j.match; m.round = 3; m.lives = { me: 2, foe: 1 }; m.turn = m.first = 'me'; m.passed = { me: false, foe: true };
+      m.me.hand = [big]; m.foe.hand = []; m.foe.rows = { melee: [], reach: [], ranged: [] }; m.me.rows = { melee: [], reach: [], ranged: [] }; m.weather = { melee: false, reach: false, ranged: false }; m.played = [];
+      m.roundLog = [{ me: 10, foe: 20, winner: 'foe', units: { me: 1, foe: 2 } }, { me: 30, foe: 20, winner: 'me', units: { me: 3, foe: 2 } }];
+      localStorage.setItem(k, JSON.stringify(j)); }, [STORE, big]);
+    await p.reload(); await p.waitForSelector('.du-board');
+    await p.locator('.du-hand .du-card').first().click(); await p.waitForSelector('#du-play:not(:disabled)'); await p.locator('#du-play').click();
+    await p.waitForSelector('.du-result[data-result="win"]');
+    const won = await store(p);
+    const gained = won.profile.owned.length - ownedAfterFirst;
+    assert(gained === (won.profile.beaten.greek.veteran === 1 ? 3 : 1), '첫 승 3장 · 재대결 1장 — 받은 ' + gained);
+    assert.equal(await p.locator('.du-reveal .du-card').count(), 1, '한 장씩 공개');
+    assert.equal(await p.locator('.du-reveal .du-card').getAttribute('data-id'), won.match.outcome.cards[0], '첫 장이 먼저');
+    /* 새로고침 — 결과가 그대로이고 두 번 더하지 않는다 */
+    await p.reload(); await p.waitForSelector('.du-result[data-result="win"]');
+    assert.equal((await store(p)).profile.owned.length, won.profile.owned.length, '보상을 두 번 주지 않는다');
+    assert.equal((await store(p)).profile.stats.games, won.profile.stats.games, '통계도 한 번');
+    while (await p.locator('#du-reveal-next').count()) await p.locator('#du-reveal-next').click();
+    assert.equal(await p.locator('.du-reveal .du-card').count(), 0, '다 보면 공개가 끝난다');
+    await tap(p, '#du-result-lobby'); await tap(p, '#du-result-again');
+    await p.locator('#du-result-lobby').click(); await p.waitForSelector('.du-lobby');
+    assert((await p.locator('.du-coll').innerText()).includes(won.profile.owned.length + '/'), '컬렉션이 늘었다');
+    /* 전적 */
+    await p.locator('#du-stats').click(); await p.waitForSelector('.du-stats');
+    const s = won.profile.stats;
+    assert((await p.locator('.du-stats-line').innerText()).includes(s.games + '판') && (await p.locator('.du-stats-line').innerText()).includes(s.win + '승'), '전적 줄');
+    assert.equal(await p.locator('.du-stats-boss tr[data-myth="greek"] td.win').innerText(), s.byBoss.greek.win + '/' + s.byBoss.greek.games, '주인별');
+    assert.equal(await p.locator('.du-stats-main tr[data-myth="norse"] td.win').innerText(), s.byMain.norse.win + '/' + s.byMain.norse.games, '주 권별');
+    assert.equal(await p.locator('.du-stats-cards .cell[data-id="' + big + '"]').count(), 1, '낸 카드가 그리드에');
+    assert((await p.locator('.du-stats-cards .cell[data-id="' + big + '"]').innerText()).includes('—'), '5판 미만은 —');
+    assert((await p.locator('.du-stats-best').innerText()).includes(String(s.bestRound)), '최고 합');
+    await noOverflow(p); await p.locator('#du-stats-close').click(); await p.waitForFunction(() => !document.querySelector('.du-stats'));
+    /* 다시 — 같은 주인으로 새 판 */
+    await p.locator('.du-boss[data-myth="greek"]').click(); await p.waitForSelector('.du-mull'); await p.locator('#du-mull-go').click(); await p.waitForSelector('.du-board');
+    await p.evaluate(k => { const j = JSON.parse(localStorage.getItem(k)); j.match.phase = 'done'; j.match.winner = 'foe'; j.match.roundLog = [{ me: 1, foe: 9, winner: 'foe', units: { me: 1, foe: 1 } }, { me: 1, foe: 9, winner: 'foe', units: { me: 1, foe: 1 } }]; localStorage.setItem(k, JSON.stringify(j)); }, STORE);
+    await p.reload(); await p.waitForSelector('.du-result[data-result="lose"] .du-reward-none');
+    await p.locator('#du-result-again').click(); await p.waitForSelector('.du-mull');
     await a.close();
-    console.log('PASS 결투 화면: 첫 고르기 · 로비 · 덱 짜기');
+    /* 옛 저장 — stats 없음, v 다름: 프로필은 살고 판은 버린다, 전적은 비어 있다 */
+    const old = A.newProfile(data, 'korea', 4);
+    const b = await harness.open('duel.html', { viewport: FOLD.cover, mobile: true, store: [STORE, JSON.stringify({ v: 0, profile: { main: 'korea', owned: old.owned, deck: old.deck }, match: { phase: 'play' } })] }), q = b.page;
+    await q.waitForSelector('.du-lobby');
+    assert((await q.locator('.du-main').innerText()).length > 0 && await q.locator('.du-deck').getAttribute('data-ok') === 'true', '옛 프로필로 로비');
+    await q.locator('#du-stats').click(); await q.waitForSelector('.du-stats .du-stats-empty');
+    assert.deepEqual(b.errors, []); assert.deepEqual(await q.evaluate(() => window.AtelierWords.missing()), []);
+    await b.close();
+    console.log('PASS 결투 화면: 첫 고르기 · 로비 · 덱 짜기 · 멀리건 · 대결 · 날씨 · 결과·보상 · 전적 · 새로고침 · 옛 저장');
   } finally { await harness.stop(); }
 })().catch(e => { console.error(e); process.exitCode = 1; });

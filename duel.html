@@ -137,6 +137,28 @@ body {color:var(--text);font-size:15px}
 .du-banner {position:fixed;left:50%;top:38%;z-index:60;transform:translate(-50%,-50%);padding:14px 24px;background:var(--card);border:1px solid var(--gold);border-radius:12px;color:var(--text);font:700 16px var(--display);white-space:nowrap;box-shadow:0 10px 30px #000a;animation:du-banner 1.2s forwards;pointer-events:none}
 @keyframes du-banner {0% {opacity:0;transform:translate(-50%,-40%)} 15% {opacity:1;transform:translate(-50%,-50%)} 80% {opacity:1} 100% {opacity:0}}
 @media (prefers-reduced-motion:reduce) {.du-unit.variant.flip .du-art {animation:none;transform:rotateY(180deg)} .du-fx,.du-wx,.du-banner {animation:none}}
+/* ── 결과 · 전적 ── */
+.du-result h2 {margin:14px 0 4px;font:700 26px var(--display);letter-spacing:.04em}
+.du-result[data-result="win"] h2 {color:var(--gold)} .du-result[data-result="lose"] h2 {color:var(--signal)}
+.du-rounds {list-style:none;margin:6px 0 12px;padding:0;display:flex;gap:8px;flex-wrap:wrap;font:700 13px ui-monospace,monospace;color:var(--muted)}
+.du-rounds li {padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card)} .du-rounds li b {color:var(--text)}
+.du-reveal {display:flex;flex-direction:column;align-items:center;gap:10px;margin:10px 0 14px;padding:14px;border:1px solid var(--gold);border-radius:14px;background:var(--card)}
+.du-reveal .du-card {width:min(220px,70vw);cursor:default;animation:du-pop .5s}
+.du-reveal .du-card .cap {font-size:13px}
+.du-reward-none {margin:10px 0;color:var(--muted);font-size:13px}
+.du-result-act {display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.du-stats {margin:10px 0;padding:12px 14px;border:1px solid var(--line);border-top:2px solid var(--accent);border-radius:12px;background:var(--card)}
+.du-stats-head {display:flex;align-items:center;justify-content:space-between;gap:8px} .du-stats-head h3 {margin:0;font:700 16px var(--display)}
+.du-stats-line {margin:8px 0;font:700 13px ui-monospace,monospace;color:var(--text)}
+.du-stats-tables {display:grid;grid-template-columns:1fr;gap:10px} @media (min-width:600px) {.du-stats-tables {grid-template-columns:repeat(3,minmax(0,1fr))}}
+.du-stats table {width:100%;border-collapse:collapse;font-size:12px} .du-stats th {text-align:left;color:var(--accent);font:700 11px ui-monospace,monospace;letter-spacing:.08em;padding:4px 0}
+.du-stats td {padding:3px 0;border-top:1px solid var(--line);color:var(--muted)} .du-stats td.win {text-align:right;color:var(--text);font:700 12px ui-monospace,monospace}
+.du-stats-nums {display:flex;gap:14px;flex-wrap:wrap;margin:10px 0;font:700 12px ui-monospace,monospace;color:var(--muted)}
+.du-stats-cards .grid {grid-template-columns:repeat(3,minmax(0,1fr))} @media (min-width:600px) {.du-stats-cards .grid {grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}}
+.du-stats-cards .cell {cursor:default} .du-stats-cards .cap i {display:none}
+.du-stat {position:absolute;right:4px;bottom:4px;padding:2px 6px;border-radius:6px;background:#000a;color:#fff;font:700 10px ui-monospace,monospace}
+.du-stats-factions {list-style:none;margin:6px 0 0;padding:0;display:flex;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.du-stats-empty {margin:8px 0;color:var(--muted);font-size:13px}
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
 <script src="lib/words.js?v=myth40"></script>
@@ -318,13 +340,47 @@ function Match({ data, group, profile, st, actMatch }) {
     ${banner && lastRound && html`<div class="du-banner">${roundText(lastRound, st.roundLog.length)}</div>`}
   </section>`;
 }
-/* 결과 — 과제 10 이 채운다 */
-function Result({ data, group, profile, st, onLobby }) {
-  return html`<section class="du-screen du-result" data-screen="result">
-    <button type="button" class="du-btn" id="du-result-lobby" onClick=${onLobby}>${W('duel.result.lobby')}</button>
+/* ── 결과 — 승·패·무, 라운드 셋, 얻은 카드를 한 장씩 크게 ── */
+function Result({ data, group, st, onLobby, onAgain }) {
+  const D = A.cardsOf(data), o = st.outcome, [shown, setShown] = useState(0);
+  const cards = (o && o.cards) || [];
+  return html`<section class="du-screen du-result" data-screen="result" data-result=${o ? o.result : undefined}>
+    ${o && html`<h2>${W('duel.result.' + o.result)}</h2>`}
+    <p class="sec">${W('duel.result.rounds')}</p>
+    <ul class="du-rounds">${st.roundLog.map((r, i) => html`<li key=${i} data-winner=${r.winner}>${W('duel.round', { n: i + 1 })} <b>${r.me}</b> : <b>${r.foe}</b></li>`)}</ul>
+    ${o && html`<p class="sec">${W('duel.result.reward')}<span>${cards.length ? cards.length : ''}</span></p>`}
+    ${o && !cards.length && html`<p class="du-reward-none">${W(o.result === 'win' ? 'duel.result.reward.all' : 'duel.result.reward.none')}</p>`}
+    ${shown < cards.length && html`<div class="du-reveal">
+      <${Card} key=${cards[shown]} card=${D.cards[cards[shown]]} group=${group} cls="du-card" />
+      <button type="button" class="du-btn" id="du-reveal-next" onClick=${() => setShown(shown + 1)}>${W('duel.result.reveal')} ${shown + 1}/${cards.length}</button></div>`}
+    <div class="du-result-act">
+      <button type="button" class="du-btn primary" id="du-result-lobby" onClick=${onLobby}>${W('duel.result.lobby')}</button>
+      <button type="button" class="du-btn" id="du-result-again" onClick=${onAgain}>${W('duel.result.again')}</button>
+    </div>
   </section>`;
 }
-
+/* ── 전적 — 로비에서 열고 닫는 패널 ── */
+function Stats({ data, group, profile, onClose }) {
+  const D = A.cardsOf(data), v = A.statsView(data, profile), L = v.line;
+  const cell = e => W('duel.stats.cell', { win: e.win, games: e.games });
+  const table = (cls, title, rows, key, name) => html`<table class=${cls}><thead><tr><th colspan="2">${title}</th></tr></thead>
+    <tbody>${rows.map(r => html`<tr key=${r[key]} ...${{ ['data-' + (key === 'level' ? 'lv' : 'myth')]: r[key] }}><td>${name(r)}</td><td class="win">${cell(r)}</td></tr>`)}</tbody></table>`;
+  return html`<section class="du-stats" aria-label=${W('duel.stats')}>
+    <div class="du-stats-head"><h3>${W('duel.stats')}</h3><button type="button" class="du-btn" id="du-stats-close" onClick=${onClose}>${W('duel.stats.close')}</button></div>
+    ${!L.games ? html`<p class="du-stats-empty">${W('duel.stats.empty')}</p>` : html`
+      <p class="du-stats-line">${W('duel.stats.line', { games: L.games, win: L.win, lose: L.lose, draw: L.draw, streak: L.streak, best: L.best })}</p>
+      <div class="du-stats-tables">
+        ${table('du-stats-boss', W('duel.stats.byBoss'), v.byBoss, 'myth', r => A.bossOf(data, r.myth).wielder)}
+        ${table('du-stats-level', W('duel.stats.byLevel'), v.byLevel, 'level', r => W('duel.lv.' + r.level))}
+        ${table('du-stats-main', W('duel.stats.byMain'), v.byMain, 'myth', r => mythName(group, r.myth))}
+      </div>
+      <div class="du-stats-nums"><span class="du-stats-best">${W('duel.stats.best', { n: v.bestRound })}</span><span class="du-stats-rounds">${W('duel.stats.rounds', { n: v.avgRounds === null ? W('duel.stats.none') : v.avgRounds })}</span></div>
+      <div class="du-stats-cards"><p class="sec">${W('duel.stats.cards')}<span class="help">${W('duel.stats.cards.note')}</span></p>
+        <div class="grid">${v.cards.map(c => html`<${Card} key=${c.id} card=${D.cards[c.id]} group=${group}>
+          <span class="du-stat">${W('duel.stats.card', { played: c.played, rate: c.rate === null ? W('duel.stats.none') : Math.round(c.rate * 100) + '%' })}</span><//>`)}</div></div>
+      ${v.factions.length ? html`<p class="sec">${W('duel.stats.factions')}</p><ul class="du-stats-factions">${v.factions.map(f => html`<li key=${f.myth} data-myth=${f.myth}>${data.duel.factions[f.myth].name} ${f.n}</li>`)}</ul>` : ''}`}
+  </section>`;
+}
 /* ── 첫 고르기 — 주 신화권 ── */
 function Pick({ data, group, onPick }) {
   const [myth, setMyth] = useState(null);
@@ -339,7 +395,7 @@ function Pick({ data, group, onPick }) {
 }
 
 /* ── 로비 — 덱 상태 · 컬렉션 · 난이도 · 주인 열하나 ── */
-function Lobby({ data, group, profile, act, setScreen, onChallenge }) {
+function Lobby({ data, group, profile, act, setScreen, onChallenge, stats }) {
   const D = A.cardsOf(data), v = A.validateDeck(data, profile), max = A.collectionMax(data);
   const conquered = A.conquered(data, profile);
   return html`<section class="du-screen du-lobby" data-screen="lobby">
@@ -352,6 +408,7 @@ function Lobby({ data, group, profile, act, setScreen, onChallenge }) {
       <button type="button" class="du-btn" id="du-build" onClick=${() => setScreen('build')}>${W('duel.lobby.build')}</button>
       <button type="button" class="du-btn" id="du-stats" onClick=${() => setScreen('stats')}>${W('duel.lobby.stats')}</button>
     </div>
+    ${stats && html`<${Stats} data=${data} group=${group} profile=${profile} onClose=${() => setScreen('lobby')} />`}
     <p class="sec">${W('duel.lobby.level')}<span class="help">${W('duel.lv.note')}</span></p>
     <div class="du-lv" role="group" aria-label=${W('duel.lobby.level')}>${A.LEVELS.map(l => html`<button key=${l} type="button" data-lv=${l}
       class=${profile.level === l ? 'on' : ''} aria-pressed=${profile.level === l} onClick=${() => act(p => { p.level = l; })}>${W('duel.lv.' + l)}</button>`)}</div>
@@ -398,6 +455,12 @@ function App() {
     const t = setTimeout(() => actMatch(m => A.aiTurn(data, m)), reduced() ? 0 : 600);
     return () => clearTimeout(t);
   }, [match, data]);
+  /* 판이 끝나면 한 번만 정산 — 보상과 통계. st.rewarded 가 두 번을 막는다(새로고침해도) */
+  useEffect(() => {
+    if (!data || !match || match.phase !== 'done' || match.rewarded) return;
+    const p = JSON.parse(JSON.stringify(profile)), m = JSON.parse(JSON.stringify(match));
+    A.settle(data, p, m); save(p, m); setProfile(p); setMatch(m);
+  }, [match, data]);
   if (!loaded) return html`<${Shell}><p class="empty">${W('ui.loading')}</p><//>`;
   if (loaded.error) return html`<${Shell}><p class="empty">${W('ui.error', { message: loaded.error })}</p><//>`;
   /* 프로필을 고치는 손 — 사본을 고치고 저장 */
@@ -405,14 +468,15 @@ function App() {
   const onPick = myth => { const p = A.newProfile(data, myth, seed()); save(p, null); setProfile(p); };
   const onChallenge = myth => { const m = A.newMatch(data, profile, myth, profile.level, seed()); save(profile, m); setMatch(m); };
   const onLobby = () => { save(profile, null); setMatch(null); setScreen('lobby'); };
+  const onAgain = () => { const m = A.newMatch(data, profile, match.boss, match.level, seed()); save(profile, m); setMatch(m); };
   const which = !profile ? 'pick' : match && match.phase === 'mulligan' ? 'mulligan' : match && match.phase === 'play' ? 'match' : match ? 'result' : screen;
   return html`<${Shell}>
     ${which === 'pick' ? html`<${Pick} data=${data} group=${group} onPick=${onPick} />`
     : which === 'mulligan' ? html`<${Mulligan} data=${data} group=${group} st=${match} actMatch=${actMatch} />`
     : which === 'match' ? html`<${Match} data=${data} group=${group} profile=${profile} st=${match} actMatch=${actMatch} />`
-    : which === 'result' ? html`<${Result} data=${data} group=${group} profile=${profile} st=${match} onLobby=${onLobby} />`
+    : which === 'result' ? html`<${Result} data=${data} group=${group} st=${match} onLobby=${onLobby} onAgain=${onAgain} />`
     : which === 'build' ? html`<${Build} data=${data} group=${group} profile=${profile} act=${act} setScreen=${setScreen} />`
-    : html`<${Lobby} data=${data} group=${group} profile=${profile} act=${act} setScreen=${setScreen} onChallenge=${onChallenge} />`}
+    : html`<${Lobby} data=${data} group=${group} profile=${profile} act=${act} setScreen=${setScreen} onChallenge=${onChallenge} stats=${which === 'stats'} />`}
   <//>`;
 }
 render(html`<${App} />`, document.getElementById('app'));
