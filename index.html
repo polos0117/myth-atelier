@@ -123,7 +123,7 @@ function App(){
     h(WorkspaceHeader,{page:'index'}),
     h(Hall),
     h(Patch),
-    h('div',{class:'lab-links'},['dex','auto','run','draft','prompt'].map(key=>
+    h('div',{class:'lab-links'},['dex','auto','run','draft','duel','prompt'].map(key=>
       h('a',{class:'lab-link',href:key+'.html',key},
         h('small',null,W('home.'+key+'.code')),h('h3',null,W('home.'+key+'.title')),
         h('p',null,W('home.'+key+'.note')),h('span',{class:'lab-arrow','aria-hidden':'true'},'↗')))),
