@@ -19,7 +19,7 @@
 
 ## 2026-10-02 · claude · 머리 — 테마·밀도·설명·접기를 ⚙ 하나로
 - lib/workspace-ui.js — 테마·화면 밀도 줄이 폭이 들쭉날쭉하고(테마 175px · 밀도 72px) 모든 화면에서 한 줄을 먹었다. 메뉴 줄 끝의 ⚙ 하나로 접고, 누르면 같은 폭 두 칸에 아랫줄로 설명 보기·머리 접기가 펼쳐진다. 바깥을 누르거나 Esc 면 닫힌다. ? 와 ▴ 가 빠져 메뉴 탭이 덮개 화면에서 38→45px 로 넓어졌다(ui myth11)
-- lib/workspace.css — 예전 테마 줄 규칙을 걷고 ⚙·펼침 패널 모양(css myth26)
+- lib/workspace.css — 예전 테마 줄 규칙을 걷고 ⚙·펼침 패널 모양. 고르개는 브라우저 화살표가 제 자리를 쓰므로 오른쪽 여백을 줄여 긴 이름이 안 잘린다(css myth27)
 - lib/words.js — ui.settings · ui.help.short(.on) · ui.header.fold.short. 머리 접기 설명에서 "테마" 를 뺐다(words myth38)
 - tests/header-layout.cjs · theme-screen.cjs — 테마·접기·설명을 누르기 전에 ⚙ 를 연다. 접어도 ⚙ 는 남는다
 

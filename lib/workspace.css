@@ -879,7 +879,7 @@ html:has(.dex-page) {height:100%;overflow:hidden;overscroll-behavior:none}
 .appearance-toggle[aria-expanded="true"] {background:var(--accent-soft)}
 .appearance-panel {position:absolute;right:0;top:calc(100% + 6px);z-index:90;width:min(340px,calc(100vw - 24px));display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 14px 34px #0009}
 .appearance-panel label {display:flex;flex-direction:column;gap:6px;min-width:0;font-size:12px;color:var(--muted)}
-.appearance-panel select {width:100%;min-width:0;min-height:44px;padding:8px 26px 8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card2);color:var(--text);font-size:13px;font-weight:600}
+.appearance-panel select {width:100%;min-width:0;min-height:44px;padding:8px 6px 8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card2);color:var(--text);font-size:13px;font-weight:600}
 .appearance-extra {grid-column:1/-1;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:8px;padding-top:10px;border-top:1px solid var(--line)}
 .appearance-extra button {flex:none;width:100%;min-height:42px;padding:6px 10px;font-size:12px;font-weight:700;border-radius:8px}
 .appearance-extra .header-help[aria-pressed="true"] {color:var(--gold);border-color:var(--gold);background:var(--accent-soft)}
