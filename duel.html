@@ -182,10 +182,10 @@ body {color:var(--text);font-size:15px}
 .du-rule-card b {display:block;margin-bottom:4px;font:700 14px var(--display)} .du-rule-card p {margin:0;font-size:12px;line-height:1.6;color:var(--muted);word-break:keep-all}
 .du-rules-act {display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .du-board .du-rules {position:fixed;left:12px;right:12px;top:10%;z-index:70;max-height:80dvh;overflow:auto;box-shadow:0 14px 40px #000b}
-.du-guide {display:flex;align-items:center;gap:10px;margin:6px 0 0;padding:8px 10px;border:1px solid var(--gold);border-radius:10px;background:var(--accent-soft);font-size:12px;line-height:1.5;color:var(--text);word-break:keep-all}
-.du-guide small {flex:none;align-self:flex-start;padding:2px 6px;border-radius:999px;background:var(--gold);color:#221a06;font:700 10px ui-monospace,monospace}
-.du-guide p {flex:1;margin:0}
-.du-guide .du-btn {flex:none;min-height:44px;padding:6px 10px;font-size:11px}
+.du-guide {display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 10px;margin:6px 0 0;padding:4px 10px 8px;border:1px solid var(--gold);border-radius:10px;background:var(--accent-soft);font-size:12px;line-height:1.5;color:var(--text);word-break:keep-all}
+.du-guide small {grid-column:1;grid-row:1;justify-self:start;padding:2px 6px;border-radius:999px;background:var(--gold);color:#221a06;font:700 10px ui-monospace,monospace}
+.du-guide p {grid-column:1/-1;grid-row:2;margin:0}
+.du-guide .du-btn {grid-column:2;grid-row:1;justify-self:end;min-height:44px;padding:4px 10px;font-size:11px;background:transparent;border-color:transparent;color:var(--muted)}
 .du-help {min-width:44px;padding:0 10px}
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
