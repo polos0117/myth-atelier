@@ -272,7 +272,8 @@ reward(profile, st, data)         → 새 카드 id[] (profile 을 고친다)
 ### 말
 
 화면 말은 전부 `lib/words.js` 의 `duel.*`. 능력 이름·설명과 날씨 이름(서리·안개·비)도 거기(`duel.ability.strike` · `duel.weather.melee` …).
-진영 능력 이름·설명과 주인 이름은 자료(`duel.json` · `card.wielder`)라 표가 아니다. `<title>` 은 `duel.title` 과 같아야 한다.
+진영 능력 이름·설명과 주인 이름은 자료(`duel.json` · `card.wielder`)라 표가 아니다. `<title>` 은 다른 화면과 같이 `app.title`(신화 무기 공방)이다 —
+`tests/words.cjs` 가 모든 화면의 `<title>` 을 `app.title` 과 견준다. 화면 제목 "신기 결투" 는 머리(`duel.title`)가 보여 준다.
 
 ## 10. 검사
 
