@@ -8,6 +8,10 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-10-02 · claude · 신기 결투 — 구현 계획 완성
+- docs/superpowers/plans/2026-10-02-duel-game.md — 과제 2~12 를 이어 썼다(프로필·덱 규칙·주인 덱 → 판 진행 → 능력 아홉 → 진영 능력 열하나 → AI·보상·통계·균형 보고 → 낱말·머리 메뉴 일곱·껍데기 → 세 화면 → 결과·전적 → 문서 → 메인 링크). 과제마다 실패하는 검사와 Interfaces 를 먼저 적었다. 코드는 아직 없다
+- docs/superpowers/specs/2026-10-02-duel-game-design.md — §9 엔진 API 를 계획의 이름과 같게(cardsOf·settle·legal·statsView, data 를 첫 인자로)
+
 ## 2026-10-02 · claude · 신기 결투 — 설계 문서
 - docs/superpowers/plans/2026-10-02-duel-game.md — 구현 계획. 과제 1(자료·파생)까지 적혔고 과제 2~12 는 미완 표시와 함께 다음 세션에 잇는다. 설계 문서의 <title> 규칙도 app.title 로 바로잡았다
 - docs/superpowers/specs/2026-10-02-duel-game-design.md — 검토 뒤 둘을 더했다: 일상컷 146장을 날씨판(넷째 변형 — 그 줄 양쪽 비영웅을 1로)으로, 전적 화면(주인·난이도·주 권별 승률에 카드별 승률까지). 컬렉션 상한 489→635

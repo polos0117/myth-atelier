@@ -236,23 +236,28 @@ stats: {games, win, lose, draw, streak, bestStreak, bestRound, rounds,
 
 ### 엔진 API (`lib/duel.js`)
 
+모든 함수는 자료 `data = {cards, skills, img, duel}` 를 첫 인자로 받고 안에서 `cardsOf(data)`(파생 결과를 `data` 에 붙여 둔 것)를 쓴다.
+`play`·`pass`·`useFaction` 은 **`st.turn` 쪽**의 한 수다 — 화면은 내 차례에만 부르고, 검사는 상대 수도 이걸로 둔다. 정확한 꼴은 구현 계획의 Interfaces 가 정본이다.
+
 ```
-derive(data)                      → {cards:{id→card}, byName}   // 파생 + overrides
-newProfile(data, mainMyth, seed)  → profile
-validateDeck(profile, cards)      → {ok, problems:[열쇠…]}
-newMatch(data, profile, boss, level, seed) → st        // phase 'mulligan'
-mulligan(st, handIndex)           // 2장까지
-confirm(st)                       // phase 'play', 선공 결정
-play(st, cardId)   useFaction(st)   pass(st)           // 사람 쪽 한 수
-aiTurn(st)                        // 상대 한 수. 화면이 0.6초마다 부른다
-scores(st)                        → {me:{rows,total}, foe:{…}}
-reward(profile, st, data)         → 새 카드 id[] (profile 을 고친다)
+derive(data) · cardsOf(data)                 → {cards:{id→card}, list:[id…]}   // 파생 + overrides
+newProfile(data, mainMyth, seed) · upgradeProfile(profile) · collectionMax(data)
+validateDeck(data, profile)                  → {ok, problems:[열쇠…], n, main, hero, weather}
+toggleDeck(data, profile, id) · setMain(profile, myth)
+bossOf(data, myth) · bossDeck(data, rng, myth, level)
+newMatch(data, profile, bossMyth, level, seed) → st        // phase 'mulligan'
+mulligan(st, handIndex)   confirm(data, st)                // 2장까지 · phase 'play', 선공 결정
+legal(data, st, who)      play(data, st, cardId)   useFaction(data, st)   pass(data, st)
+aiMove(data, st, level)   aiTurn(data, st, level)          // 상대 한 수. 화면이 0.6초마다 부른다
+scores(data, st)                             → {me:{rows,total}, foe:{…}}
+settle(data, profile, st)                    → {result, cards:[id…], first} | null   // 보상 + 통계, 한 번만(st.rewarded)
+winsOf(profile, myth) · conquered(data, profile) · statsView(data, profile)
 ```
 
-상태는 통째로 JSON — `{v, seed, rngState, boss, level, round, turn, first, passed, lives, weather, me, foe, lock, log, phase, winner, played}`.
-`weather` 는 `{melee, reach, ranged}` 불 셋(양쪽 공용). `played` 는 이 판에 내가 낸 카드 id 집합(통계용).
-`me`/`foe` 는 `{hand[], deck[], rows:{melee[],reach[],ranged[]}, grave[], faction:{myth, used}, hurt}`.
-판 위 카드는 `{id, base, cur, shield, cursed, at}`. 합산은 `scores()` 가 날씨·결속까지 넣어 센다 — 날씨 줄의 비영웅은 1.
+상태는 통째로 JSON — `{v, seed, rngState, boss, level, round, turn, first, passed, lives, weather, me, foe, seq, log, roundLog, phase, winner, played, mulligans, rewarded, outcome, last}`.
+`weather` 는 `{melee, reach, ranged}` 불 셋(양쪽 공용). `played` 는 이 판에 내가 낸 카드 id 목록(통계용).
+`me`/`foe` 는 `{hand[], deck[], rows:{melee[],reach[],ranged[]}, grave[], faction:{myth, used}, hurt, sealed, astra, guard}`.
+판 위 카드는 `{id, base, cur, hero, cursed, shield, at}`. 합산은 `scores()` 가 날씨·결속까지 넣어 센다 — 날씨 줄의 비영웅은 1.
 
 카드 id: `이름` · `이름@awaken` · `이름@cursed` · `이름@weather`.
 
