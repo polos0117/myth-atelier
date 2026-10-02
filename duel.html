@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow, noarchive, noimageindex">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#121016">
+<title>신화 무기 공방</title>
+<!--
+  신기 결투의 얼굴. 규칙은 lib/duel.js 에만 있다 — 여기는 상태를 그리고 단추를 엔진에 넘길 뿐이다.
+  프로필과 진행 중인 판은 이 브라우저(localStorage 의 myth_duel_v1)에 남는다. 상태가 통째로 JSON 이라 그대로 넣고 꺼낸다.
+  설계: docs/superpowers/specs/2026-10-02-duel-game-design.md
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap">
+<link rel="stylesheet" href="lib/workspace.css?v=myth30">
+<style>
+:root {--cc:var(--line)}
+* {box-sizing:border-box}
+html,body {margin:0;padding:0}
+body {color:var(--text);font-size:15px}
+.dex-page > #app {display:flex;flex-direction:column;min-height:0;height:100%}
+.dex-page > #app > main {flex:1 1 auto;min-height:0}
+.collection-scroll {display:block}
+.dex-page .collection-scroll {padding-bottom:calc(44px + env(safe-area-inset-bottom))}
+.du-screen {display:block;min-height:120px}
+</style>
+<script src="lib/workspace-theme.js?v=myth8"></script>
+<script src="lib/words.js?v=myth40"></script>
+<script src="lib/fresh.js?v=4"></script>
+<script src="lib/img.js?v=myth5"></script>
+<script src="lib/duel.js?v=1"></script>
+</head>
+<body class="dex-page duel-page">
+<div id="app"></div>
+<script type="module">
+import { h, render } from 'https://esm.sh/preact@10.24.3';
+import { useState, useEffect, useMemo, useRef } from 'https://esm.sh/preact@10.24.3/hooks';
+import htm from 'https://esm.sh/htm@3.1.1';
+import { WorkspaceHeader } from './lib/workspace-ui.js?v=myth12';
+const html = htm.bind(h);
+const W = window.W, IMG = window.AtelierImg, A = window.AtelierDuel;
+const STORE = 'myth_duel_v1';
+
+function Shell({ children }) {
+  return html`<main>
+    <${WorkspaceHeader} page="duel" />
+    <div class="collection-scroll" tabindex="0">${children}</div>
+  </main>`;
+}
+function useData() {
+  const [state, set] = useState(null);
+  useEffect(() => {
+    const get = f => fetch(f, { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(f + ' ' + r.status); return r.json(); });
+    Promise.all([get('data/card.json'), get('data/skill.json'), get('data/group.json'), get('data/duel.json'), IMG.load()])
+      .then(([card, skill, group, duel, img]) => set({ data: { cards: card.cards, skills: skill.skills, img, duel }, group }))
+      .catch(e => set({ error: String((e && e.message) || e) }));
+  }, []);
+  return state;
+}
+/* 저장 하나 — {v, profile, match}. v 가 다르면 판은 버리고 프로필만 살린다(upgradeProfile) */
+function load() {
+  try {
+    const j = JSON.parse(localStorage.getItem(STORE));
+    if (!j || !j.profile) return { profile: null, match: null };
+    return { profile: A.upgradeProfile(j.profile), match: j.v === A.VERSION && j.match ? j.match : null };
+  } catch { return { profile: null, match: null }; }
+}
+function save(profile, match) { try { localStorage.setItem(STORE, JSON.stringify({ v: A.VERSION, profile, match })); } catch {} }
+function seed() { return (Date.now() ^ Math.floor(Math.random() * 1e9)) | 0; }
+const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function App() {
+  const loaded = useData();
+  const [saved] = useState(load);
+  const [profile, setProfile] = useState(saved.profile), [match, setMatch] = useState(saved.match);
+  const [screen, setScreen] = useState('lobby');   /* 'lobby' | 'build' | 'stats' — 판이 있으면 판이 앞선다 */
+  if (!loaded) return html`<${Shell}><p class="empty">${W('ui.loading')}</p><//>`;
+  if (loaded.error) return html`<${Shell}><p class="empty">${W('ui.error', { message: loaded.error })}</p><//>`;
+  const which = !profile ? 'pick' : match && match.phase !== 'done' ? 'match' : match ? 'result' : screen;
+  return html`<${Shell}><section class="du-screen" data-screen=${which}></section><//>`;
+}
+render(html`<${App} />`, document.getElementById('app'));
+window.AtelierFresh.watch();
+</script>
+</body>
+</html>

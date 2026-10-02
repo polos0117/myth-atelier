@@ -797,8 +797,8 @@ html:has(.dex-page) {height:100%;overflow:hidden;overscroll-behavior:none}
   .rn-card .nm {font-size:13px}
 }
 
-/* 항해가 여섯 — 폰에서는 글자를 조금 줄인다 */
-@media (max-width:599px) { .workspace-nav a {font-size:10px;letter-spacing:-.03em;padding:0 1px} .workspace-nav a[href="index.html"],.workspace-nav a[href="prompt.html"] {flex-grow:1} }
+/* 항해가 일곱 — 폰에서는 두 줄(4 + 3). ⚙ 는 두 줄 높이로 늘어나 옆에 선다(쪽마다 단추 높이 규칙이 달라 고정 높이는 안 맞는다) */
+@media (max-width:599px) { .workspace-nav {flex-wrap:wrap} .workspace-nav a {flex:1 1 calc(25% - 2px);font-size:11px;letter-spacing:-.02em;padding:0 1px} .workspace-nav a[href="index.html"],.workspace-nav a[href="prompt.html"] {flex-grow:1} }
 /* 드래프트 — 팩 아홉 장이 가운데, 내 편성이 옆, 적은 접힌다 */
 .df-setup .rn-choice {grid-template-columns:repeat(2,minmax(0,1fr))}
 .df-opt {padding:12px 14px;border:1px solid var(--line);border-top:2px solid var(--gold);border-radius:8px;background:var(--card)}
