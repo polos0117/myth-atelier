@@ -223,5 +223,43 @@ const heroSafe = D.list.find(id => D.cards[id].hero && D.cards[id].variant === '
     ok(m.cur === m.base && st.me.hurt === 0, '호국 — 피해를 안 받는다'); }
 }
 
+/* 진영 능력 열하나 — 한 판에 한 번, 턴을 쓴다, 봉인에 안 걸린다, 묘지에 날씨판만 있으면 빈손 */
+{
+  const k = byAb('strike'), mend = byAb('mend'), strong = D.list.find(id => D.cards[id].variant === 'base' && !D.cards[id].hero && D.cards[id].power >= 9);
+  const weather = D.list.find(id => D.cards[id].variant === 'weather');
+  const mk = (main, meHand) => { const st = fixture(meHand || [k, k], [k, k, k], { main }); st.passed.foe = true; return st; };
+  /* 공통 */
+  { const st = mk('norse'); st.me.grave = [strong, weather]; st.foe.sealed = false; st.me.sealed = true;
+    ok(A.useFaction(data, st).ok && st.me.faction.used && st.me.hand.includes(strong) && st.me.grave.length === 1 && st.me.sealed, '발할라 — 묘지의 가장 센 카드를 손으로. 봉인은 안 걸리고 남는다');
+    ok(st.turn === 'me' && st.log.some(e => e.t === 'faction' && e.who === 'me'), '상대가 패스했으니 턴을 쓰고도 내 차례 · 기록');
+    ok(A.useFaction(data, st).why === 'used', '한 판에 한 번');
+    const t = mk('norse'); t.passed.me = true; ok(A.useFaction(data, t).why === 'passed', '패스한 쪽은 못 쓴다');
+    const u = mk('norse'); u.me.grave = [weather, weather]; ok(A.useFaction(data, u).ok && u.me.faction.used && u.me.hand.length === 2 && u.me.grave.length === 2, '묘지에 날씨판뿐이면 아무것도 안 고르지만 쓴 것으로 센다'); }
+  { const st = mk('norse', [k]); st.passed.foe = false; A.play(data, st, k); ok(st.passed.me && st.turn === 'foe' && !A.legal(data, st, 'me').faction && !st.me.faction.used, '마지막 카드를 내면 자동 패스 — 이 라운드엔 진영 능력을 쓸 차례가 안 온다'); }
+  { const st = mk('greek'); const a = put(st, 'me', strong), c = put(st, 'me', D.list.find(id => D.cards[id].variant === 'cursed')); c.cur = 99;
+    A.useFaction(data, st); ok(a.cur === a.base * 2 && c.cur === 99, '신의 가호 — 가장 센 비영웅·비저주에 기본 힘만큼(두 배)'); }
+  { const st = mk('korea', [k]); const a = put(st, 'me', strong); A.useFaction(data, st); ok(st.me.guard, '호국 켜짐');
+    st.passed.foe = false; st.turn = 'foe'; A.play(data, st, k); ok(a.cur === a.base, '이 라운드엔 피해 없음');
+    st.turn = 'me'; A.pass(data, st); A.pass(data, st); ok(!st.me.guard, '라운드가 끝나면 풀린다'); }
+  { const st = mk('china'); st.me.deck = [strong, mend, k]; A.useFaction(data, st); ok(st.me.hand.length === 4 && st.me.hand.includes(strong) && st.me.hand.includes(mend) && st.me.deck.length === 1, '기 — 덱 위 2장');
+    const t = mk('china'); t.me.deck = [strong]; A.useFaction(data, t); ok(t.me.hand.length === 3, '덱이 모자라면 있는 만큼'); }
+  { const st = mk('japan'); const b = put(st, 'foe', strong), h = put(st, 'foe', heroIn('reach')); h.cur = 50; A.useFaction(data, st);
+    ok(!unitsOf(st.foe).includes(b) && st.foe.grave.includes(strong) && unitsOf(st.foe).includes(h), '일섬 — 가장 센 비영웅 파괴, 영웅은 못 고른다');
+    const t = mk('japan'); const s = put(t, 'foe', strong); s.shield = true; A.useFaction(data, t); ok(unitsOf(t.foe).includes(s) && !s.shield, '보호막은 파괴도 막는다'); }
+  { const st = mk('india'); const b = put(st, 'foe', strong); b.cur = 12; A.useFaction(data, st); ok(st.me.astra, '아스트라 켜짐');
+    A.play(data, st, k); ok(b.cur === 12 - 2 * D.cards[k].n && !st.me.astra, '다음 카드의 수치가 두 배'); }
+  { const st = mk('egypt'); st.me.grave = [weather, strong]; const b = put(st, 'foe', strong); A.useFaction(data, st);
+    const u = st.me.rows[D.cards[strong].row].find(x => x.id === strong); ok(u && u.cur === u.base && st.me.grave.length === 1 && b.cur === b.base, '영생 — 묘지의 가장 센 카드를 자기 줄에, 능력은 안 터진다'); }
+  { const st = mk('westasia'); const b = put(st, 'foe', strong); b.cur = 12; st.me.hurt = 5; A.useFaction(data, st); ok(b.cur === 7, '눈에는 눈 — 받은 피해 합만큼');
+    const t = mk('westasia'); const c = put(t, 'foe', strong); A.useFaction(data, t); ok(c.cur === c.base && t.me.faction.used, '0 이면 아무것도 안 하고 쓴 것으로'); }
+  { const st = mk('celtic'); const a = put(st, 'me', strong), b = put(st, 'foe', strong); b.cur = 99; A.useFaction(data, st); ok(a.cur === a.base + 2, '투혼 — 뒤지면 전부 +2');
+    const t = mk('celtic'); const c = put(t, 'me', strong); A.useFaction(data, t); ok(c.cur === c.base, '앞서면 아무것도'); }
+  { const st = mk('america'); const b = put(st, 'foe', strong), a = put(st, 'me', strong), w = put(st, 'me', byAb('mend')); w.cur = 2; A.useFaction(data, st);
+    ok(b.cur === b.base - 3 && w.cur === 5 && a.cur === a.base, '비취의 숨 — 상대 가장 센 −3, 내 가장 약한 +3'); }
+  { const st = mk('knight'); st.me.grave = [k, k, k, k, k, k, k]; const a = put(st, 'me', strong); A.useFaction(data, st); ok(a.cur === a.base + 5, '롱스보 — 묘지 수만큼, 최대 5');
+    const t = mk('knight'); t.me.grave = [k, weather]; const c = put(t, 'me', strong); A.useFaction(data, t); ok(c.cur === c.base + 2, '날씨판도 묘지 수에 든다'); }
+  for (const m of Object.keys(data.duel.factions)) ok(typeof A.FACTION[m] === 'function', '진영 능력 함수 ' + m);
+}
+
 /* ── 끝 ── */
 console.log('PASS 결투 규칙: ' + n + ' 가지' + (quick ? ' (--quick)' : ''));
