@@ -126,7 +126,7 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,te
 .header-help[aria-pressed="true"] {color:var(--gold);border-color:var(--gold);background:var(--accent-soft)}
 /* 설명 글은 ? 를 켰을 때만 */
 html:not([data-help="on"]) .help {display:none !important}
-.workspace-header.folded .workspace-heading,.workspace-header.folded .appearance-controls {display:none}
+.workspace-header.folded .workspace-heading {display:none}
 .workspace-header.folded {margin-bottom:10px}
 .workspace-nav a {flex:1 1 0;display:flex;align-items:center;justify-content:center;min-width:0;min-height:44px;padding:0 2px;border:0;border-radius:5px;font-size:12px;font-weight:700;letter-spacing:.08em;transition:background-color .2s,color .2s,box-shadow .2s;opacity:1;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none}
 @media (max-width:599px) { .workspace-nav {gap:2px;padding:4px} .workspace-nav a {font-size:11px;letter-spacing:-.02em} .header-fold,.header-help {flex-basis:40px} }
@@ -134,9 +134,6 @@ html:not([data-help="on"]) .help {display:none !important}
 /* Reserve readable space for longer labels while keeping all four tabs on one row. */
 .workspace-nav a[href="index.html"] {flex-grow:1.25}
 .workspace-nav a[href="prompt.html"] {flex-grow:1.65}
-.appearance-controls {display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px 16px;margin:12px 0 0;color:var(--muted);font-size:11px}
-.appearance-controls label {display:flex;align-items:center;gap:6px;white-space:nowrap}
-.workspace-header .appearance-controls select {width:auto;min-width:0;max-width:180px;height:44px;min-height:44px;padding:7px 26px 7px 9px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--text);font:600 12px/1.35 'Pretendard','Apple SD Gothic Neo','Noto Sans KR',system-ui,sans-serif}
 .theme-dot {width:7px;height:7px;flex:none;border-radius:50%;background:var(--signal);box-shadow:0 0 0 3px var(--accent-soft)}
 .workspace-heading {display:flex;justify-content:space-between;align-items:center;gap:18px;height:150px;padding:12px 0 18px;position:relative}
 .workspace-title {display:flex;align-items:center;gap:14px;min-width:0}
@@ -314,9 +311,6 @@ body {background-color:var(--bg);background-image:
 /* Fold cover display (~344–400 CSS px) and narrow split-screen. */
 @media (max-width:599px) {
   .dex-page main,.prompt-page .wrap {padding-left:12px;padding-right:12px;padding-top:calc(12px + env(safe-area-inset-top))}
-  .appearance-controls {justify-content:space-between;gap:6px;margin-top:8px}
-  .appearance-controls label {gap:5px;font-size:10px}
-  .workspace-header .appearance-controls select {font-size:11px;max-width:150px;padding-right:4px}
   .workspace-heading {height:104px;padding:12px 0 14px;gap:10px}
   .workspace-title {gap:10px}
   .crest-mark {width:44px;height:44px;padding:5px;border-radius:6px}
@@ -345,9 +339,6 @@ body {background-color:var(--bg);background-image:
   .prompt-page .controls button {font-size:13px}
 }
 @media (max-width:359px) {
-  .workspace-header .appearance-controls select {max-width:133px;font-size:10px}
-  .appearance-controls {gap:5px}
-  .appearance-controls .theme-dot {display:none}
   .workspace-nav a {font-size:11px}
 }
 @media (prefers-reduced-motion:reduce) {*,*::before,*::after {scroll-behavior:auto!important;transition:none!important}}
@@ -357,7 +348,6 @@ body {background-color:var(--bg);background-image:
 @media (pointer:coarse) {
   .prompt-page .lab-lock {min-height:44px;padding-right:50px}
   .prompt-page .lab-lock .lockbtn.mini {width:44px;height:44px;min-height:44px}
-  .appearance-controls select,.workspace-nav a,.dex-page .view-tools button {min-height:44px}
 }
 .prompt-page .save-bar > span:last-child {max-width:100%}
 .prompt-page .param-actions button {min-width:0;overflow-wrap:anywhere}
@@ -396,8 +386,6 @@ html:has(.dex-page) {height:100%;overflow:hidden;overscroll-behavior:none}
 @media(max-height:550px) and (min-width:600px) {
  .workspace-header {display:flex;gap:8px;align-items:center}
  .workspace-nav {flex:1}
- .appearance-controls {margin:0}
- .appearance-controls label:last-child {display:none}
 }
 
 /* The laboratory's entry page also serves as the live theme palette. */
@@ -455,7 +443,6 @@ html:has(.dex-page) {height:100%;overflow:hidden;overscroll-behavior:none}
  .lab-links{grid-template-columns:1fr;gap:12px;margin:20px 0 28px}
  .lab-link{padding:20px}.theme-gallery-head{display:block}.theme-gallery-head p{margin-top:7px}
  .theme-gallery{gap:10px}.prompt-page .theme-card{padding:13px;min-height:163px}
- .appearance-controls label:first-child{flex:1}.workspace-header .appearance-controls label:first-child select{max-width:none;flex:1}
 }
 
 /* 신전 홀 — 집 화면 첫 칸. CSS 3D 하나로 돈다: 기둥 여섯이 뒤로 물러나고, 바닥 격자가
@@ -883,3 +870,16 @@ html:has(.dex-page) {height:100%;overflow:hidden;overscroll-behavior:none}
 [data-theme="lapis"] .hall[data-mode="cursed"] .hall-back > i {background:#ff2d55;opacity:1;animation:rune-flicker 1.3s steps(1,end) infinite}
 @media (max-width:599px) {[data-theme="lapis"] .hall-back {height:54%;bottom:40%;transform:translateX(-50%) translateZ(-520px) scale(1.6)}}
 @media (prefers-reduced-motion:reduce) {[data-theme="lapis"] .hall-back > i {animation:none;opacity:.6}}
+
+/* 설정 — 메뉴 줄 끝의 ⚙. 누르면 테마·화면 밀도가 같은 폭 두 칸, 아랫줄에 머리 조작 */
+.workspace-nav-row .workspace-nav {flex:1;min-width:0}
+.appearance-controls {position:relative;display:flex;flex:none;margin:0}
+.appearance-toggle {display:flex;align-items:center;justify-content:center;gap:5px;flex:0 0 54px;width:54px;min-height:44px;padding:0;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--muted);font:inherit;font-size:17px;line-height:1;cursor:pointer}
+.appearance-toggle:hover,.appearance-toggle[aria-expanded="true"] {color:var(--text);border-color:var(--accent)}
+.appearance-toggle[aria-expanded="true"] {background:var(--accent-soft)}
+.appearance-panel {position:absolute;right:0;top:calc(100% + 6px);z-index:90;width:min(340px,calc(100vw - 24px));display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 14px 34px #0009}
+.appearance-panel label {display:flex;flex-direction:column;gap:6px;min-width:0;font-size:12px;color:var(--muted)}
+.appearance-panel select {width:100%;min-width:0;min-height:44px;padding:8px 26px 8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card2);color:var(--text);font-size:13px;font-weight:600}
+.appearance-extra {grid-column:1/-1;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:8px;padding-top:10px;border-top:1px solid var(--line)}
+.appearance-extra button {flex:none;width:100%;min-height:42px;padding:6px 10px;font-size:12px;font-weight:700;border-radius:8px}
+.appearance-extra .header-help[aria-pressed="true"] {color:var(--gold);border-color:var(--gold);background:var(--accent-soft)}

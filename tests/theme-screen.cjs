@@ -51,6 +51,8 @@ const contrast=(a,b)=>{const x=luminance(a),y=luminance(b);return (Math.max(x,y)
    assert.equal(await p.evaluate(()=>document.documentElement.dataset.theme),keys[keys.length-1],'theme follows navigation');
    const before=page==='prompt.html'?await p.locator('#prompt-output').inputValue():null;
    for(const key of keys){
+    /* 테마는 ⚙ 패널 안에 있다. 도감은 자료를 읽고 머리를 다시 그려 패널이 닫힐 수 있어 매번 본다 */
+    if(!await p.locator('.appearance-panel').count())await p.locator('.appearance-toggle').click();
     await p.getByLabel('테마',{exact:true}).selectOption(key);
     assert.equal(await p.evaluate(()=>document.documentElement.dataset.theme),key);
     if(before)assert.equal(await p.locator('#prompt-output').inputValue(),before,'appearance never changes the prompt');
@@ -63,6 +65,7 @@ const contrast=(a,b)=>{const x=luminance(a),y=luminance(b);return (Math.max(x,y)
     }));
     assert(size.body<=size.width+1,page+' horizontal overflow: '+JSON.stringify(size));
     assert(size.scroll>100,page+' scroll area collapsed');
+    if(!await p.locator('.appearance-panel').count())await p.locator('.appearance-toggle').click();
     const theme=await p.getByLabel('테마',{exact:true}).boundingBox();
     assert(theme.x>=0&&theme.x+theme.width<=viewport.width+1,page+' theme selector clipped');
    }
