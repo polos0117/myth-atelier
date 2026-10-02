@@ -99,6 +99,7 @@ body {color:var(--text);font-size:15px}
 .du-row-sum {font-size:15px;color:var(--text)}
 .du-wx {padding:1px 5px;border-radius:999px;background:#3d7bd6;color:#fff;font-size:10px;animation:du-pop .4s}
 .du-units {display:flex;gap:4px;overflow-x:auto;min-height:70px;align-items:center;padding:1px}
+.du-units:empty {min-height:52px}   /* 빈 줄은 낮게 — 덮개에서 첫 화면에 막대의 단추까지 든다 */
 .du-unit {position:relative;flex:none;width:44px;height:66px;padding:0;border:1px solid var(--line);border-radius:6px;background:var(--card2);color:var(--text);font:inherit;cursor:pointer;perspective:300px}
 .du-unit.hero {border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
 .du-unit.cursed {border-color:var(--signal)}
