@@ -96,7 +96,6 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
     await p.waitForSelector('.du-row[data-side="foe"][data-row="melee"][data-weather="true"]');
     assert((await p.locator('.du-rowflash').count()) >= 1, '날씨가 깔리는 줄이 번쩍인다');
     await p.waitForFunction(() => !document.querySelector('.du-ghost'), null, { timeout: 3000 });
-    await p.emulateMedia({ reducedMotion: 'reduce' });
     assert.equal(await p.locator('.du-row[data-side="me"][data-row="melee"]').getAttribute('data-weather'), 'true', '내 줄에도');
     assert.equal(await p.locator('.du-row[data-side="foe"][data-row="melee"] .du-unit[data-at="900"] .du-pw').innerText(), '1', '비영웅은 1 로 보인다');
     assert.equal(await p.locator('.du-row[data-side="foe"] .du-wx').count(), 1, '줄 머리에 서리');
@@ -108,9 +107,11 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
     await p.reload(); await p.waitForSelector('.du-board');
     assert.equal(await p.locator('.du-round').innerText(), round, '새로고침해도 같은 라운드');
     assert.equal(await p.locator('.du-hand .du-card').count(), hand, '같은 손패');
-    /* 타격 카드 — 상대 유닛에 피해 숫자가 뜬다(즉시 모드라 fx 요소만 본다) */
+    /* 타격 카드 — 날아가 선 뒤 상대 가장 센 비영웅에 베는 선이 그어진다. 그 다음부터는 움직임을 끈다 */
     await p.locator('.du-hand .du-card[data-id="' + hit + '"]').first().click(); await p.waitForSelector('#du-play:not(:disabled)'); await p.locator('#du-play').click();
     await p.waitForSelector('.du-row[data-side="me"] .du-unit[data-id="' + hit + '"]');
+    await p.waitForSelector('.du-slash', { timeout: 2500 });
+    await p.emulateMedia({ reducedMotion: 'reduce' });
     /* 패스 → 라운드가 끝나면 결과 한 줄 */
     await p.waitForSelector('#du-pass:not(:disabled)'); await p.locator('#du-pass').click();
     await p.waitForFunction(() => document.querySelector('.du-last-round') || document.querySelector('.du-result'));

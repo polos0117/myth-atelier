@@ -227,7 +227,20 @@ body {color:var(--text);font-size:15px}
 @keyframes du-shout {0% {opacity:0;transform:translateX(-30px)} 15% {opacity:1;transform:none} 80% {opacity:1} 100% {opacity:0;transform:translateX(30px)}}
 .du-banner .du-count {display:inline-flex;gap:8px;align-items:baseline;margin-left:10px;font:800 22px ui-monospace,monospace}
 .du-banner .du-count b.win {color:var(--gold);text-shadow:0 0 12px var(--gold);animation:du-pop .5s .7s both}
-@media (prefers-reduced-motion:reduce) {.du-row[data-weather="true"]::after {animation:none} .du-unit.arrive,.du-unit.arrive.late {animation:none;opacity:1} .du-shout,.du-flash,.du-ring,.du-glow,.du-spark,.du-rowflash,.du-ghost {animation:none}}
+/* 능력별 선 — 타격은 베는 선, 휩쓸기는 줄을 가로지르는 파동, 난사는 가는 선 여럿, 처형은 붉은 ✕, 봉인은 상대 손패에 ⊘, 흡혈은 상대에서 자신으로 흐르는 띠 */
+.du-slash {position:fixed;pointer-events:none;overflow:hidden;border-radius:6px}
+.du-slash::before {content:'';position:absolute;left:-30%;top:50%;width:160%;height:4px;margin-top:-2px;background:linear-gradient(90deg,transparent,#fff,#ffd27a,transparent);box-shadow:0 0 10px #fff;animation:du-slash .35s ease-out forwards}
+.du-slash.thin::before {height:2px;animation-duration:.25s}
+@keyframes du-slash {0% {transform:rotate(-35deg) translateX(-60%);opacity:0} 20% {opacity:1} 100% {transform:rotate(-35deg) translateX(60%);opacity:0}}
+.du-wave {position:fixed;pointer-events:none;overflow:hidden;border-radius:10px}
+.du-wave::before {content:'';position:absolute;top:0;bottom:0;left:-30%;width:26%;background:linear-gradient(90deg,transparent,#ffd27a88,#fff9,transparent);animation:du-wave .55s ease-in-out forwards}
+@keyframes du-wave {to {left:110%}}
+.du-cross {position:fixed;pointer-events:none;display:flex;align-items:center;justify-content:center;font:900 40px ui-monospace,monospace;color:#ff4d4d;text-shadow:0 0 12px #ff4d4d;animation:du-cross .7s ease-out forwards}
+.du-cross.seal {font-size:28px;color:#c9a0ff;text-shadow:0 0 10px #c9a0ff;animation-duration:.9s}
+@keyframes du-cross {0% {opacity:0;transform:scale(1.8) rotate(-20deg)} 30% {opacity:1;transform:scale(1) rotate(0)} 100% {opacity:0}}
+.du-stream {position:fixed;height:4px;transform-origin:0 50%;border-radius:2px;pointer-events:none;background:repeating-linear-gradient(90deg,#ff6b6b 0 10px,#8fe39a 10px 20px);box-shadow:0 0 8px #8fe39a;animation:du-stream .6s linear forwards}
+@keyframes du-stream {0% {opacity:0;background-position:0 0} 20% {opacity:1} 100% {opacity:0;background-position:-80px 0}}
+@media (prefers-reduced-motion:reduce) {.du-slash,.du-wave,.du-cross,.du-stream {animation:none} .du-row[data-weather="true"]::after {animation:none} .du-unit.arrive,.du-unit.arrive.late {animation:none;opacity:1} .du-shout,.du-flash,.du-ring,.du-glow,.du-spark,.du-rowflash,.du-ghost {animation:none}}
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
 <script src="lib/words.js?v=myth41"></script>
@@ -352,6 +365,25 @@ function playFx(data, st, rects) {
     else if (f.kind === 'shield') spawn('du-ring', { left: r.left + r.width / 2 - 26, top: r.top + r.height / 2 - 26, width: 52, height: 52 }, 600);
     else if (f.kind === 'rise') { spawn('du-glow rise', r, 700); spawn('du-ring gold', { left: r.left + r.width / 2 - 26, top: r.top + r.height / 2 - 26, width: 52, height: 52 }, 600); }
     else if (f.kind === 'dead' && rects[f.at]) { const c = D.cards[rects[f.at].id]; spawn('du-ghost dead', { left: 0, top: 0, width: r.width, height: r.height }, 560, `--x:${r.left}px;--y:${r.top}px;transform:translate(${r.left}px,${r.top}px)`, artTag(c && c.file)); }
+  }
+}
+/* 능력별 선 — 낸 카드의 능력과 이 수의 fx 로 그린다. 봉인은 fx 가 없어 상대의 sealed 로 본다 */
+function abilityFx(data, st, rects) {
+  if (reduced() || !st.last || st.last.kind !== 'play') return;
+  const D = A.cardsOf(data), c = D.cards[st.last.id], who = st.last.who, you = who === 'me' ? 'foe' : 'me';
+  if (!c || c.variant === 'weather') return;
+  const rectOf = f => { const el = document.querySelector(`.du-unit[data-at="${f.at}"]`); return el ? el.getBoundingClientRect() : rects[f.at] && rects[f.at].rect; };
+  const hits = st.last.fx.filter(f => f.side === you && (f.kind === 'dmg' || f.kind === 'dead' || f.kind === 'shield'));
+  const center = r => ({ x: r.left + r.width / 2, y: r.top + r.height / 2 });
+  if (c.ability === 'strike' || c.ability === 'volley') for (const f of hits) { const r = rectOf(f); if (r) spawn('du-slash' + (c.ability === 'volley' ? ' thin' : ''), r, 400); }
+  else if (c.ability === 'sweep') { const row = document.querySelector(`.du-row[data-side="${you}"][data-row="${c.row}"]`); if (row && hits.length) spawn('du-wave', row.getBoundingClientRect(), 600); }
+  else if (c.ability === 'execute') for (const f of hits) { const r = rectOf(f); if (r) spawn('du-cross', r, 700, '', '✕'); }
+  else if (c.ability === 'drain') {
+    const me = document.querySelector('.du-unit[data-fresh]'), f = hits[0], r = f && rectOf(f);
+    if (me && r) { const a = center(r), b = center(me.getBoundingClientRect()), dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy);
+      spawn('du-stream', { left: a.x, top: a.y - 2, width: len, height: 4 }, 650, `transform:rotate(${Math.atan2(dy, dx) * 180 / Math.PI}deg)`); }
+  } else if (c.ability === 'seal' && st[you].sealed) {
+    const el = document.querySelector(you === 'foe' ? '.du-foe-hand' : '.du-dock .sec'); if (el) { const r = el.getBoundingClientRect(); spawn('du-cross seal', { left: r.left + r.width / 2 - 22, top: r.top + r.height / 2 - 22, width: 44, height: 44 }, 900, '', '⊘'); }
   }
 }
 /* 합이 세어 올라간다 */
@@ -481,7 +513,7 @@ function Match({ data, group, profile, st, actMatch, act }) {
           const unit = document.querySelector('.du-unit[data-fresh]');
           fly(base.file, from, unit && unit.getBoundingClientRect(), '', () => unit && unit.classList.remove('late'));
         }
-        setTimeout(() => playFx(data, st, rects.current), c.variant === 'weather' ? 0 : 300);
+        setTimeout(() => { playFx(data, st, rects.current); abilityFx(data, st, rects.current); }, c.variant === 'weather' ? 0 : 300);
       } else playFx(data, st, rects.current);
       if (last.kind === 'faction') { setShout({ who: last.who, name: data.duel.factions[st[last.who].faction.myth].name, key: st.log.length }); setTimeout(() => setShout(null), 1300); }
     }
