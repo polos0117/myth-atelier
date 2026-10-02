@@ -81,6 +81,62 @@ body {color:var(--text);font-size:15px}
 .du-pw.hero {background:var(--gold);color:#221a06}
 .du-pw.wx {background:#3d7bd6}
 .du-tag {display:inline-block;margin-left:6px;padding:1px 6px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font:700 10px ui-monospace,monospace}
+/* ── 대결 ── */
+.du-mull .grid {grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+@media (min-width:600px) {.du-mull .grid {grid-template-columns:repeat(10,minmax(0,1fr))}}
+.du-mull .cap {display:none}
+.du-card.swapped {outline:3px solid var(--gold);outline-offset:-3px}
+.du-mull-left {margin:8px 0;font:700 12px ui-monospace,monospace;color:var(--muted)}
+.du-foe {display:flex;align-items:center;gap:10px;padding:8px 0 4px;font:700 11px ui-monospace,monospace;letter-spacing:.04em;color:var(--muted)}
+.du-foe .face {width:30px;aspect-ratio:2/3;border-radius:5px;overflow:hidden;background:var(--card2);flex:none}
+.du-foe b {color:var(--text);font-size:13px;margin-right:4px}
+.du-foe-faction[data-used="true"] {text-decoration:line-through;opacity:.6}
+.du-row {display:grid;grid-template-columns:44px minmax(0,1fr);gap:6px;align-items:stretch;margin-bottom:4px;padding:4px;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+.du-row[data-side="me"] {border-color:var(--accent-soft)}
+.du-row[data-weather="true"] {background:linear-gradient(90deg,#3d7bd633,var(--card) 60%)}
+.du-row-head {display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font:700 10px ui-monospace,monospace;letter-spacing:.04em;color:var(--muted);text-align:center}
+.du-row-sum {font-size:15px;color:var(--text)}
+.du-wx {padding:1px 5px;border-radius:999px;background:#3d7bd6;color:#fff;font-size:10px;animation:du-pop .4s}
+.du-units {display:flex;gap:4px;overflow-x:auto;min-height:70px;align-items:center;padding:1px}
+.du-unit {position:relative;flex:none;width:44px;height:66px;padding:0;border:1px solid var(--line);border-radius:6px;background:var(--card2);color:var(--text);font:inherit;cursor:pointer;perspective:300px}
+.du-unit.hero {border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
+.du-unit.cursed {border-color:var(--signal)}
+.du-unit.shield::after {content:'';position:absolute;inset:-3px;border:2px solid #7fc8ff;border-radius:9px;pointer-events:none}
+.du-art {position:absolute;inset:0;border-radius:5px;overflow:hidden;transform-style:preserve-3d;transition:none}
+.du-art .du-face {position:absolute;inset:0;backface-visibility:hidden}
+.du-art .du-face.back {transform:rotateY(180deg)}
+.du-art img,.du-art .ph {width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
+.du-unit.variant .du-art {transform:rotateY(180deg)}
+.du-unit.variant.flip .du-art {animation:du-flip .55s ease-out forwards}
+@keyframes du-flip {from {transform:rotateY(0)} to {transform:rotateY(180deg)}}
+@keyframes du-pop {from {transform:scale(.4);opacity:0} to {transform:scale(1);opacity:1}}
+.du-unit .du-pw {left:2px;bottom:2px;min-width:20px;padding:1px 4px;font-size:11px;border-radius:5px}
+.du-pw.dim {opacity:.6;background:#3d7bd6}
+.du-fx {position:absolute;left:50%;top:-4px;z-index:3;transform:translateX(-50%);font:800 13px ui-monospace,monospace;color:#fff;text-shadow:0 1px 3px #000,0 0 6px #000;pointer-events:none;animation:du-float .8s ease-out forwards}
+.du-fx[data-kind="dmg"] {color:#ff7a7a} .du-fx[data-kind="buff"] {color:#8fe39a} .du-fx[data-kind="shield"] {color:#7fc8ff} .du-fx[data-kind="dead"] {color:#ccc}
+@keyframes du-float {from {opacity:1;transform:translate(-50%,0)} to {opacity:0;transform:translate(-50%,-28px)}}
+.du-bar {position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin:6px 0;padding:8px 10px;border:1px solid var(--line);border-top:2px solid var(--accent);border-radius:10px;background:var(--bg);font:700 12px ui-monospace,monospace;color:var(--muted)}
+.du-score {display:flex;align-items:baseline;gap:6px;font-size:12px}
+.du-score b {font-size:20px;color:var(--text)} .du-score b[data-side="foe"] {color:var(--signal)}
+.du-first-bonus {color:var(--gold);font-size:11px}
+.du-flags span {margin-left:6px;padding:1px 6px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:10px}
+.du-bar-act {display:flex;gap:6px;margin-left:auto}
+.du-last-round {flex-basis:100%;color:var(--text);font-size:12px}
+.du-turn[data-turn="me"] {color:var(--gold)}
+.du-hand {display:flex;gap:6px;overflow-x:auto;padding:8px 0 12px;scroll-snap-type:x proximity}
+.du-hand .du-card {flex:none;width:72px;scroll-snap-align:start}
+.du-hand .cap {padding:3px 4px 4px;font-size:10px} .du-hand .cnm {min-height:2.6em;max-height:2.6em;line-height:1.3} .du-hand .cap i {display:none}
+.du-hand .du-var {top:3px;right:3px;padding:1px 4px;font-size:9px}
+.du-detail {position:fixed;left:0;right:0;bottom:0;z-index:50;max-height:88dvh;overflow:auto;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:var(--card);border-top:2px solid var(--accent);border-radius:14px 14px 0 0;box-shadow:0 -10px 30px #000a}
+.du-detail-body {display:grid;grid-template-columns:120px minmax(0,1fr);gap:12px;align-items:start}
+.du-detail .face {border-radius:10px}
+.du-detail h4 {margin:0 0 6px;font:700 17px var(--display)}
+.du-detail dl {margin:0;font-size:12px;line-height:1.5} .du-detail dt {color:var(--muted);margin-top:4px} .du-detail dd {margin:0;color:var(--text)}
+.du-detail .lore {margin:8px 0 0;color:var(--muted);font-size:12px;line-height:1.6;word-break:keep-all}
+.du-detail-act {display:flex;gap:8px;margin-top:12px} .du-detail-act #du-play {flex:1}
+.du-banner {position:fixed;left:50%;top:38%;z-index:60;transform:translate(-50%,-50%);padding:14px 24px;background:var(--card);border:1px solid var(--gold);border-radius:12px;color:var(--text);font:700 16px var(--display);white-space:nowrap;box-shadow:0 10px 30px #000a;animation:du-banner 1.2s forwards;pointer-events:none}
+@keyframes du-banner {0% {opacity:0;transform:translate(-50%,-40%)} 15% {opacity:1;transform:translate(-50%,-50%)} 80% {opacity:1} 100% {opacity:0}}
+@media (prefers-reduced-motion:reduce) {.du-unit.variant.flip .du-art {animation:none;transform:rotateY(180deg)} .du-fx,.du-wx,.du-banner {animation:none}}
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
 <script src="lib/words.js?v=myth40"></script>
@@ -154,6 +210,121 @@ function sortIds(data, ids) {
     return (order.indexOf(x.myth) - order.indexOf(y.myth)) || x.name.localeCompare(y.name, 'ko') || (A.VARIANTS.indexOf(x.variant) - A.VARIANTS.indexOf(y.variant)); });
 }
 
+/* ── 대결 — 멀리건 ── */
+function Mulligan({ data, group, st, actMatch }) {
+  const D = A.cardsOf(data);
+  const [swapped, setSwapped] = useState([]);
+  const left = A.MULLIGAN - st.mulligans;
+  return html`<section class="du-screen du-mull" data-screen="mulligan">
+    <p class="sec">${W('duel.mull.title')}<span class="help">${W('duel.mull.note')}</span></p>
+    <p class="du-mull-left">${W('duel.mull.left', { n: left })}</p>
+    <div class="grid">${st.me.hand.map((id, i) => html`<${Card} key=${i} card=${D.cards[id]} art=${D.cards[D.cards[id].name].file} group=${group}
+      cls=${'du-card' + (swapped.includes(i) ? ' swapped' : '')} onClick=${() => { if (swapped.includes(i) || left <= 0) return; if (actMatch(m => A.mulligan(m, i)).ok) setSwapped(swapped.concat([i])); }} />`)}</div>
+    <button type="button" class="du-btn primary" id="du-mull-go" onClick=${() => actMatch(m => { A.confirm(data, m); return { ok: true }; })}>${W('duel.mull.go')}</button>
+  </section>`;
+}
+/* 유닛의 보이는 값 — 영웅은 cur, 날씨 줄 비영웅은 1, 그 밖 cur */
+const shown = (st, row, u) => u.hero ? u.cur : st.weather[row] ? 1 : u.cur;
+const fxText = f => f.kind === 'dmg' ? '−' + f.n : f.kind === 'buff' ? '+' + f.n : f.kind === 'shield' ? '◈' : '✕';
+function Unit({ data, st, side, row, u, flip, onClick }) {
+  const D = A.cardsOf(data), c = D.cards[u.id], base = D.cards[c.name], variant = c.variant !== 'base';
+  const fx = st.last && st.last.fx.filter(f => f.side === side && f.at === u.at);
+  return html`<button type="button" class=${'du-unit' + (u.hero ? ' hero' : '') + (u.cursed ? ' cursed' : '') + (u.shield ? ' shield' : '') + (variant ? ' variant' : '') + (flip ? ' flip' : '')}
+    data-at=${u.at} data-id=${u.id} onClick=${onClick}>
+    <span class="du-art">${variant
+      ? html`<span class="du-face front"><${Thumb} file=${base.file} /></span><span class="du-face back"><${Thumb} file=${c.file} /></span>`
+      : html`<span class="du-face"><${Thumb} file=${c.file} /></span>`}</span>
+    <span class=${'du-pw' + (u.hero ? ' hero' : '') + (st.weather[row] && !u.hero ? ' dim' : '')}>${shown(st, row, u)}</span>
+    ${fx && fx.map((f, i) => html`<span key=${st.log.length + '-' + i} class="du-fx" data-kind=${f.kind}>${fxText(f)}</span>`)}
+  </button>`;
+}
+function Row({ data, st, side, row, sum, onDetail }) {
+  const list = st[side].rows[row], last = st.last;
+  /* 방금 놓인 카드 — 기본 그림에서 변형 그림으로 뒤집힌다 */
+  let fresh = null;
+  if (last && last.kind === 'play' && last.who === side) for (const u of list) if (u.id === last.id && (!fresh || u.at > fresh.at)) fresh = u;
+  const dead = last && last.fx.filter(f => f.side === side && f.row === row && f.kind === 'dead');
+  return html`<div class="du-row" data-side=${side} data-row=${row} data-weather=${st.weather[row] ? 'true' : 'false'}>
+    <div class="du-row-head"><span>${W('range.short.' + row)}</span>
+      ${st.weather[row] && html`<span class="du-wx">${W('duel.weather.' + row)}</span>`}
+      <span class="du-row-sum">${sum}</span>
+      ${dead && dead.map((f, i) => html`<span key=${'d' + st.log.length + i} class="du-fx" data-kind="dead">✕</span>`)}</div>
+    <div class="du-units">${list.map(u => html`<${Unit} key=${u.at} data=${data} st=${st} side=${side} row=${row} u=${u} flip=${u === fresh} onClick=${() => onDetail(u.id, false)} />`)}</div>
+  </div>`;
+}
+/* 카드 상세 — 손패에서 열면 "내기" 가 붙는다. 변형판도 기본 그림(판에 놓일 때 뒤집힌다) */
+function Detail({ data, group, st, id, fromHand, canPlay, onPlay, onClose }) {
+  const D = A.cardsOf(data), c = D.cards[id], base = D.cards[c.name], w = c.variant === 'weather';
+  const sk = data.skills[data.cards.find(x => x.name === c.name).skill];
+  return html`<div class="du-detail" data-id=${id} role="dialog" aria-label=${c.name}>
+    <div class="du-detail-body">
+      <span class="face"><${Thumb} file=${base.file} />${c.variant !== 'base' && html`<span class="du-var" data-variant=${c.variant}>${W('duel.variant.' + c.variant)}</span>`}</span>
+      <div><h4>${c.name}${c.hero ? html`<span class="du-tag">${W('duel.hero')}</span>` : ''}</h4>
+        <dl>
+          <dt>${W('duel.row')}</dt><dd>${W('range.short.' + c.row)}${!w ? ' · ' + W('duel.power') + ' ' + c.power : ''}</dd>
+          ${w ? html`<dt>${W('duel.weather.' + c.row)}</dt><dd>${W('duel.weather.text')}</dd>`
+            : html`<dt>${W('duel.ability')} — ${W('duel.ability.' + c.ability)}${sk ? ' · ' + sk.name : ''}</dt><dd>${W('duel.ability.' + c.ability + '.text', { n: c.n })}</dd>`}
+          ${c.variant === 'awaken' || c.variant === 'cursed' ? html`<dt>${W('duel.variant.' + c.variant)}</dt><dd>${W('duel.variant.' + c.variant + '.text')}</dd>` : ''}
+          ${c.hero && html`<dt>${W('duel.hero')}</dt><dd>${W('duel.hero.text')}</dd>`}
+          <dt>${W('card.myth')}</dt><dd>${mythName(group, c.myth)}${c.wielder ? ' · ' + c.wielder : ''}</dd>
+        </dl>
+        ${c.text && html`<p class="lore">${c.text}</p>`}</div>
+    </div>
+    <div class="du-detail-act">
+      ${fromHand && html`<button type="button" class="du-btn primary" id="du-play" disabled=${!canPlay} onClick=${onPlay}>${w ? W('duel.weather.call', { w: W('duel.weather.' + c.row) }) : W('duel.play')}</button>`}
+      <button type="button" class="du-btn" id="du-close" onClick=${onClose}>${W('duel.close')}</button>
+    </div>
+  </div>`;
+}
+/* ── 대결 — 판 ── */
+function Match({ data, group, profile, st, actMatch }) {
+  const D = A.cardsOf(data), boss = A.bossOf(data, st.boss), portrait = D.cards[boss.portrait];
+  const sc = A.scores(data, st), L = A.legal(data, st, 'me'), mine = st.turn === 'me' && st.phase === 'play';
+  const [detail, setDetail] = useState(null);   /* {id, fromHand} */
+  const [banner, setBanner] = useState(null);
+  const rounds = useRef(st.roundLog.length);
+  useEffect(() => {   /* 라운드가 끝난 수에는 결과 한 줄이 떴다 사라진다 */
+    if (st.roundLog.length > rounds.current && !reduced()) { setBanner(st.roundLog.length); const t = setTimeout(() => setBanner(null), 1200); rounds.current = st.roundLog.length; return () => clearTimeout(t); }
+    rounds.current = st.roundLog.length;
+  }, [st.roundLog.length]);
+  const lastRound = st.roundLog.length ? st.roundLog[st.roundLog.length - 1] : null;
+  const roundText = (r, n) => W('duel.round.' + (r.winner === 'me' ? 'win' : r.winner === 'foe' ? 'lose' : 'draw'), { n, me: r.me, foe: r.foe });
+  const open = (id, fromHand) => setDetail({ id, fromHand });
+  const flags = side => html`<span class="du-flags">${st[side].sealed && html`<span>${W('duel.sealed')}</span>`}${st[side].guard && html`<span>${W('duel.guard')}</span>`}${st[side].astra && html`<span>${W('duel.astra')}</span>`}</span>`;
+  return html`<section class="du-screen du-board" data-screen="match">
+    <div class="du-foe"><span class="face"><${Thumb} file=${portrait && portrait.file} /></span>
+      <span><b>${boss.wielder}</b>${mythName(group, st.boss)} · ${W('duel.lv.' + st.level)}</span>
+      <span class="du-foe-hand">${W('duel.foe.hand', { n: st.foe.hand.length })}</span>
+      <span class="du-foe-grave">${W('duel.foe.grave', { n: st.foe.grave.length })}</span>
+      <span class="du-foe-faction" data-used=${st.foe.faction.used ? 'true' : 'false'}>${data.duel.factions[st.boss].name}</span>${flags('foe')}</div>
+    ${['ranged', 'reach', 'melee'].map(r => html`<${Row} key=${'f' + r} data=${data} st=${st} side="foe" row=${r} sum=${sc.foe.rows[r]} onDetail=${open} />`)}
+    <div class="du-bar">
+      <span class="du-score"><b data-side="me">${sc.me.total}</b>${st.round === 1 && st.coin === 'me' && html`<small class="du-first-bonus">${W('duel.first.bonus', { n: A.FIRST_BONUS })}</small>`}
+        <span>:</span><b data-side="foe">${sc.foe.total}</b>${st.round === 1 && st.coin === 'foe' && html`<small class="du-first-bonus">${W('duel.first.bonus', { n: A.FIRST_BONUS })}</small>`}</span>
+      <span class="du-round">${W('duel.round', { n: st.round })}</span>
+      <span class="du-lives" data-me=${st.lives.me} data-foe=${st.lives.foe}>${W('duel.lives')} ${'♥'.repeat(st.lives.me)}${'♡'.repeat(A.LIVES - st.lives.me)} : ${'♥'.repeat(st.lives.foe)}${'♡'.repeat(A.LIVES - st.lives.foe)}</span>
+      <span class="du-turn" data-turn=${st.turn || ''}>${st.passed.me ? W('duel.passed') : W(mine ? 'duel.turn.me' : 'duel.turn.foe')}</span>${flags('me')}
+      <span class="du-bar-act">
+        <button type="button" class="du-btn" id="du-faction" disabled=${!L.faction} title=${data.duel.factions[profile.main].text} onClick=${() => actMatch(m => A.useFaction(data, m))}>${W('duel.faction.use', { name: data.duel.factions[profile.main].name })}</button>
+        <button type="button" class="du-btn" id="du-pass" disabled=${!L.pass} onClick=${() => { setDetail(null); actMatch(m => A.pass(data, m)); }}>${W('duel.pass')}</button>
+      </span>
+      ${lastRound && html`<span class="du-last-round">${roundText(lastRound, st.roundLog.length)}</span>`}
+    </div>
+    ${['melee', 'reach', 'ranged'].map(r => html`<${Row} key=${'m' + r} data=${data} st=${st} side="me" row=${r} sum=${sc.me.rows[r]} onDetail=${open} />`)}
+    <p class="sec">${W('duel.hand', { n: st.me.hand.length })}</p>
+    <div class="du-hand">${st.me.hand.map((id, i) => html`<${Card} key=${id + i} card=${D.cards[id]} art=${D.cards[D.cards[id].name].file} group=${group} cls="du-card" onClick=${() => open(id, true)} />`)}</div>
+    ${detail && html`<${Detail} data=${data} group=${group} st=${st} id=${detail.id} fromHand=${detail.fromHand} canPlay=${mine && L.cards.includes(detail.id)}
+      onPlay=${() => { setDetail(null); actMatch(m => A.play(data, m, detail.id)); }} onClose=${() => setDetail(null)} />`}
+    ${banner && lastRound && html`<div class="du-banner">${roundText(lastRound, st.roundLog.length)}</div>`}
+  </section>`;
+}
+/* 결과 — 과제 10 이 채운다 */
+function Result({ data, group, profile, st, onLobby }) {
+  return html`<section class="du-screen du-result" data-screen="result">
+    <button type="button" class="du-btn" id="du-result-lobby" onClick=${onLobby}>${W('duel.result.lobby')}</button>
+  </section>`;
+}
+
 /* ── 첫 고르기 — 주 신화권 ── */
 function Pick({ data, group, onPick }) {
   const [myth, setMyth] = useState(null);
@@ -218,19 +389,30 @@ function App() {
   const [saved] = useState(load);
   const [profile, setProfile] = useState(saved.profile), [match, setMatch] = useState(saved.match);
   const [screen, setScreen] = useState('lobby');   /* 'lobby' | 'build' | 'stats' — 판이 있으면 판이 앞선다 */
+  const data = loaded && loaded.data, group = loaded && loaded.group;
+  /* 판을 고치는 손 — 사본에 엔진 함수를 적용하고 저장 */
+  const actMatch = fn => { const next = JSON.parse(JSON.stringify(match)); const r = fn(next) || { ok: true }; if (r.ok !== false) { save(profile, next); setMatch(next); } return r; };
+  /* 상대 턴 — 0.6초 뒤 한 수. 움직임 줄이기면 바로 */
+  useEffect(() => {
+    if (!data || !match || match.phase !== 'play' || match.turn !== 'foe') return;
+    const t = setTimeout(() => actMatch(m => A.aiTurn(data, m)), reduced() ? 0 : 600);
+    return () => clearTimeout(t);
+  }, [match, data]);
   if (!loaded) return html`<${Shell}><p class="empty">${W('ui.loading')}</p><//>`;
   if (loaded.error) return html`<${Shell}><p class="empty">${W('ui.error', { message: loaded.error })}</p><//>`;
-  const { data, group } = loaded;
   /* 프로필을 고치는 손 — 사본을 고치고 저장 */
   const act = fn => { const next = JSON.parse(JSON.stringify(profile)); fn(next); save(next, match); setProfile(next); };
   const onPick = myth => { const p = A.newProfile(data, myth, seed()); save(p, null); setProfile(p); };
   const onChallenge = myth => { const m = A.newMatch(data, profile, myth, profile.level, seed()); save(profile, m); setMatch(m); };
-  const which = !profile ? 'pick' : match && match.phase !== 'done' ? 'match' : match ? 'result' : screen;
+  const onLobby = () => { save(profile, null); setMatch(null); setScreen('lobby'); };
+  const which = !profile ? 'pick' : match && match.phase === 'mulligan' ? 'mulligan' : match && match.phase === 'play' ? 'match' : match ? 'result' : screen;
   return html`<${Shell}>
     ${which === 'pick' ? html`<${Pick} data=${data} group=${group} onPick=${onPick} />`
+    : which === 'mulligan' ? html`<${Mulligan} data=${data} group=${group} st=${match} actMatch=${actMatch} />`
+    : which === 'match' ? html`<${Match} data=${data} group=${group} profile=${profile} st=${match} actMatch=${actMatch} />`
+    : which === 'result' ? html`<${Result} data=${data} group=${group} profile=${profile} st=${match} onLobby=${onLobby} />`
     : which === 'build' ? html`<${Build} data=${data} group=${group} profile=${profile} act=${act} setScreen=${setScreen} />`
-    : which === 'lobby' || which === 'stats' ? html`<${Lobby} data=${data} group=${group} profile=${profile} act=${act} setScreen=${setScreen} onChallenge=${onChallenge} />`
-    : html`<section class="du-screen" data-screen=${which}></section>`}
+    : html`<${Lobby} data=${data} group=${group} profile=${profile} act=${act} setScreen=${setScreen} onChallenge=${onChallenge} />`}
   <//>`;
 }
 render(html`<${App} />`, document.getElementById('app'));

@@ -23,7 +23,8 @@
 - lib/workspace-ui.js — 머리 메뉴 일곱, 결투 제목·부제(myth12)
 - lib/workspace.css — 덮개에서 항해 두 줄 4+3, ⚙ 는 두 줄 높이로(myth30)
 - duel.html — 껍데기, 첫 고르기·로비·덱 짜기
-- tests/duel-screen.cjs — 덮개 화면 흐름(시작)
+- duel.html — 대결 화면: 멀리건·세 줄·손패·상세·상대 턴 0.6초·뒤집히는 변형판·숫자 연출·선공 보너스 표시·수마다 저장
+- tests/duel-screen.cjs — 덮개 화면 흐름(고르기·덱 짜기·멀리건·대결·날씨·새로고침)
 - tests/header-layout.cjs · tests/theme-screen.cjs — duel.html, 탭 일곱
 - index.html · dex.html · auto.html · run.html · draft.html · prompt.html · museum.html — 공유 파일 버전 표시
 
