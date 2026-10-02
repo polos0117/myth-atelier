@@ -58,7 +58,9 @@ const heroSafe = D.list.find(id => D.cards[id].hero && D.cards[id].variant === '
 {
   const p = A.newProfile(data, 'norse', 7), q = A.newProfile(data, 'norse', 7);
   ok(p.owned.length === 25 && p.deck.length === 25 && JSON.stringify(p.deck) === JSON.stringify(q.deck), '시작 덱 25 · 같은 시드 같은 덱');
-  ok(p.owned.filter(id => D.cards[id].myth === 'norse').length === 17 && p.owned.every(id => D.cards[id].variant === 'base'), '주 권 17 + 기본판만');
+  ok(p.owned.filter(id => D.cards[id].myth === 'norse' && D.cards[id].variant === 'base').length === 17, '주 권 기본판 17');
+  ok(p.owned.filter(id => D.cards[id].variant === 'weather').length === 1 && D.cards[p.owned.find(id => D.cards[id].variant === 'weather')].myth === 'norse', '주 권 날씨판 1장 — 첫 판부터 날씨를 써 본다');
+  ok(p.owned.filter(id => D.cards[id].myth !== 'norse').length === 7 && p.owned.filter(id => D.cards[id].myth !== 'norse').every(id => D.cards[id].variant === 'base' && !D.cards[id].hero), '다른 권 비영웅 기본판 7');
   ok(p.stats.games === 0 && p.level === 'rookie' && p.v === A.VERSION, '빈 통계 · 신참 · 판');
   const old = A.upgradeProfile({ main: 'greek', owned: p.owned.slice(), deck: p.deck.slice() });
   ok(old.stats && old.stats.cards && old.beaten && old.level === 'rookie', '옛 저장(stats 없음)도 올린다');
@@ -305,7 +307,7 @@ const heroSafe = D.list.find(id => D.cards[id].hero && D.cards[id].variant === '
 }
 /* 보상 · 통계 */
 {
-  const done = (p, winner, played) => { const st = A.newMatch(data, p, 'greek', 'rookie', 3); A.confirm(data, st); st.phase = 'done'; st.winner = winner;
+  const done = (p, winner, played, level) => { const st = A.newMatch(data, p, 'greek', level || 'rookie', 3); A.confirm(data, st); st.phase = 'done'; st.winner = winner;
     st.roundLog = [{ me: 30, foe: 20, winner: 'me', units: { me: 3, foe: 2 } }, { me: 12, foe: 25, winner: 'foe', units: { me: 1, foe: 3 } }, { me: 41, foe: 19, winner: 'me', units: { me: 4, foe: 2 } }];
     st.played = played; st.me.faction.used = true; return st; };
   const p = A.newProfile(data, 'norse', 9), k = byAb('strike');
@@ -318,9 +320,17 @@ const heroSafe = D.list.find(id => D.cards[id].hero && D.cards[id].variant === '
   const st2 = done(p, 'me', [k]); ok(A.settle(data, p, st2).cards.length === 1 && !A.settle(data, p, st2) && s.games === 2 && s.cards[k].played === 2, '재대결 승리 1장 · 두 번 더하지 않는다(st.rewarded)');
   ok(A.settle(data, p, done(p, 'foe', [k])).cards.length === 0 && s.lose === 1 && s.streak === 0 && s.cards[k].won === 2, '패배 — 보상 없음, 연승 끊김');
   ok(A.settle(data, p, done(p, 'draw', [])).cards.length === 0 && s.draw === 1 && s.games === 4, '무승부도 없음');
+  /* 난이도별 첫 승 — 신참은 기본판, 숙련은 각성판·저주판, 에이스는 날씨판 3장. 재대결은 없는 것 차례대로 */
+  { const e = A.newProfile(data, 'norse', 9);
+    let r = A.settle(data, e, done(e, 'me', [], 'ace')); ok(r.first && r.cards.length === 3 && r.cards.every(id => D.cards[id].variant === 'weather' && D.cards[id].myth === 'greek'), '에이스 첫 승 — 그 권 날씨판 3장');
+    r = A.settle(data, e, done(e, 'me', [], 'veteran')); ok(r.first && r.cards.length === 3 && r.cards.every(id => ['awaken', 'cursed'].includes(D.cards[id].variant) && D.cards[id].myth === 'greek'), '숙련 첫 승 — 각성판·저주판 3장');
+    r = A.settle(data, e, done(e, 'me', [], 'ace')); ok(!r.first && r.cards.length === 1 && D.cards[r.cards[0]].variant === 'base', '에이스 재대결 — 없는 것 차례(기본판)대로 1장');
+    const f = A.newProfile(data, 'norse', 9); f.owned = f.owned.concat(D.list.filter(id => D.cards[id].variant === 'weather' && D.cards[id].myth === 'greek'));
+    r = A.settle(data, f, done(f, 'me', [], 'ace')); ok(r.cards.length === 3 && r.cards.every(id => D.cards[id].variant === 'weather' && D.cards[id].myth !== 'greek'), '그 권 날씨판을 다 가졌으면 다른 권 날씨판'); }
   /* 보상 차례 — 기본판이 다 있으면 각성판, 그 권이 다 차면 다른 권, 전부면 그만 */
   const q = A.newProfile(data, 'norse', 9); q.owned = q.owned.concat(D.list.filter(id => D.cards[id].myth === 'greek' && D.cards[id].variant === 'base' && !q.owned.includes(id)));
-  ok(A.settle(data, q, done(q, 'me', [])).cards.every(id => D.cards[id].variant === 'awaken' && D.cards[id].myth === 'greek'), '기본판이 다 있으면 각성판');
+  let rq = A.settle(data, q, done(q, 'me', [])); ok(rq.first && rq.cards.length === 3 && rq.cards.every(id => D.cards[id].variant === 'base' && D.cards[id].myth !== 'greek'), '신참 첫 승인데 그 권 기본판이 다 있으면 다른 권 기본판');
+  rq = A.settle(data, q, done(q, 'me', [])); ok(!rq.first && rq.cards.length === 1 && D.cards[rq.cards[0]].variant === 'awaken' && D.cards[rq.cards[0]].myth === 'greek', '재대결은 없는 것 차례 — 기본판이 다 있으면 각성판');
   q.owned = q.owned.concat(D.list.filter(id => D.cards[id].myth === 'greek' && !q.owned.includes(id)));
   ok(A.settle(data, q, done(q, 'me', [])).cards.every(id => D.cards[id].myth !== 'greek'), '그 권이 다 차면 다른 권');
   q.owned = D.list.slice(); ok(A.settle(data, q, done(q, 'me', [])).cards.length === 0, '전부 가졌으면 보상 없음 — 멈추지 않는다');
