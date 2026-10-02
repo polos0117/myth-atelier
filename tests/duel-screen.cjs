@@ -36,10 +36,17 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
     await p.locator('.du-lv [data-lv="veteran"]').click();
     assert.equal((await store(p)).profile.level, 'veteran', '난이도는 저장된다');
     await tap(p, '.du-boss'); await tap(p, '.du-lv button'); await noOverflow(p);
+    /* 배우기 — 규칙 한눈에 네 장 */
+    await p.locator('#du-learn').click(); await p.waitForSelector('.du-rules');
+    assert.equal(await p.locator('.du-rules .du-rule-card').count(), 4, '규칙 카드 넷');
+    await tap(p, '#du-rules-close'); await noOverflow(p);
+    await p.locator('#du-rules-close').click(); await p.waitForSelector('.du-lobby:not(:has(.du-rules))');
     /* 덱 짜기 — 빼면 규칙 줄이 빨개지고 출전이 막힌다 */
     await p.locator('#du-build').click(); await p.waitForSelector('.du-build .cell');
     assert.equal(await p.locator('.du-build .cell').count(), 25, '가진 카드만 보인다');
     assert.equal(await p.locator('.du-build .cell.in').count(), 25, '전부 덱에');
+    assert.equal(await p.locator('.du-build .cell .du-row-tag').count(), 25, '카드마다 줄 표시');
+    for (const r of await p.locator('.du-build .cell .du-row-tag').evaluateAll(es => es.map(e => e.dataset.row))) assert(A.ROWS.includes(r), '줄 표시의 값: ' + r);
     const first = await p.locator('.du-build .cell.in').first().getAttribute('data-id');
     await p.locator('.du-build .cell[data-id="' + first + '"]').click();
     await p.waitForSelector('.du-rule[data-ok="false"]');
@@ -76,6 +83,10 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
     assert.equal(await p.locator('.du-row[data-side="foe"][data-row="melee"] .du-unit .du-pw').innerText(), String(D.cards[foeUnit].power), '상대 근접 줄의 힘');
     assert.equal(await p.locator('.du-hand .du-card').count(), 10, '손패 열');
     assert.equal(await p.locator('.du-turn').innerText(), await p.evaluate(() => window.W('duel.turn.me')), '내 차례');
+    /* 첫 판 길잡이 — 1단계부터, 손패 카드마다 줄 표시, ? 로 규칙 패널 */
+    assert.equal(await p.locator('.du-guide').getAttribute('data-step'), '1', '첫 판엔 길잡이 1단계');
+    assert.equal(await p.locator('.du-hand .du-card .du-row-tag, .du-hand .du-card .du-pw.wx').count(), 10, '손패 카드마다 줄(또는 날씨) 표시');
+    await p.locator('#du-help').click(); await p.waitForSelector('.du-rules'); await p.locator('#du-rules-close').click(); await p.waitForFunction(() => !document.querySelector('.du-rules'));
     await tap(p, '.du-hand .du-card'); await tap(p, '#du-pass'); await tap(p, '#du-faction'); await noOverflow(p);
     /* 날씨판 — 상세의 단추 글이 "서리를 부른다", 내면 양쪽 줄 머리에 표시가 붙고 숫자가 1 로 */
     await p.locator('.du-hand .du-card[data-id="' + wx + '"]').first().click(); /* 손패에 같은 카드가 또 있을 수 있다 */ await p.waitForSelector('.du-detail[data-id="' + wx + '"]');
@@ -88,6 +99,7 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
     assert.equal(await p.locator('.du-hand .du-card').count(), 9, '손패 아홉');
     /* 상대가 두고(즉시) 다시 내 차례. 새로고침해도 판이 이어진다 */
     await p.waitForSelector('#du-pass:not(:disabled)');
+    assert(+(await p.locator('.du-guide').getAttribute('data-step')) >= 2, '내가 내고 상대가 두면 길잡이가 넘어간다');
     const round = await p.locator('.du-round').innerText(), hand = await p.locator('.du-hand .du-card').count();
     await p.reload(); await p.waitForSelector('.du-board');
     assert.equal(await p.locator('.du-round').innerText(), round, '새로고침해도 같은 라운드');
@@ -98,6 +110,13 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
     /* 패스 → 라운드가 끝나면 결과 한 줄 */
     await p.waitForSelector('#du-pass:not(:disabled)'); await p.locator('#du-pass').click();
     await p.waitForFunction(() => document.querySelector('.du-last-round') || document.querySelector('.du-result'));
+    if (await p.locator('.du-guide').count()) {
+      assert(+(await p.locator('.du-guide').getAttribute('data-step')) >= 4, '라운드가 끝나면 결과·목숨 단계');
+      await tap(p, '#du-guide-skip'); await p.locator('#du-guide-skip').click(); await p.waitForFunction(() => !document.querySelector('.du-guide'));
+      assert.equal((await store(p)).profile.tutorial, true, '그만 보기는 저장된다');
+      await p.reload(); await p.waitForSelector('.du-board, .du-result');
+      assert.equal(await p.locator('.du-guide').count(), 0, '새로고침해도 안 뜬다');
+    }
     /* 끝까지 — 내 차례면 첫 카드를 내고, 없으면 패스 */
     for (let i = 0; i < 60 && !(await p.locator('.du-result').count()); i++) {
       if (await p.locator('#du-pass:not(:disabled)').count()) {

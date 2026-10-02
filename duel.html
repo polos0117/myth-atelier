@@ -164,9 +164,32 @@ body {color:var(--text);font-size:15px}
 .du-stat {position:absolute;right:4px;bottom:4px;padding:2px 6px;border-radius:6px;background:#000a;color:#fff;font:700 10px ui-monospace,monospace}
 .du-stats-factions {list-style:none;margin:6px 0 0;padding:0;display:flex;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
 .du-stats-empty {margin:8px 0;color:var(--muted);font-size:13px}
+/* ── 줄 표시 — 카드와 판의 줄이 같은 색 ── */
+:root {--row-melee:#d9574f;--row-reach:#d9a94a;--row-ranged:#4a8fd9}
+.du-row-tag {position:absolute;right:4px;bottom:4px;white-space:nowrap;padding:2px 6px;border-radius:6px;font:700 10px ui-monospace,monospace;letter-spacing:.02em;color:#fff;background:#000a;border-left:4px solid var(--rc)}
+.du-row-tag[data-row="melee"],.du-pw.wx[data-row="melee"] {--rc:var(--row-melee)} .du-row-tag[data-row="reach"],.du-pw.wx[data-row="reach"] {--rc:var(--row-reach)} .du-row-tag[data-row="ranged"],.du-pw.wx[data-row="ranged"] {--rc:var(--row-ranged)}
+.du-pw.wx {background:var(--rc,#3d7bd6)}
+.du-row-head[data-row="melee"] {--rc:var(--row-melee)} .du-row-head[data-row="reach"] {--rc:var(--row-reach)} .du-row-head[data-row="ranged"] {--rc:var(--row-ranged)}
+.du-row-head {border-left:4px solid var(--rc);border-radius:4px}
+.du-row-head > span:first-child {color:var(--rc)}
+.du-hand .du-row-tag {right:3px;bottom:3px;padding:1px 4px;font-size:9px}
+.du-detail .du-row-tag {position:static;display:inline-block;margin-left:6px;vertical-align:middle}
+/* ── 규칙 한눈에 · 첫 판 길잡이 ── */
+.du-rules {margin:10px 0;padding:12px 14px;border:1px solid var(--line);border-top:2px solid var(--gold);border-radius:12px;background:var(--card)}
+.du-rules-head {display:flex;align-items:center;justify-content:space-between;gap:8px} .du-rules-head h3 {margin:0;font:700 16px var(--display)}
+.du-rules-grid {display:grid;grid-template-columns:1fr;gap:8px;margin-top:10px} @media (min-width:600px) {.du-rules-grid {grid-template-columns:repeat(2,minmax(0,1fr))}}
+.du-rule-card {padding:10px 12px;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;background:var(--card2)}
+.du-rule-card b {display:block;margin-bottom:4px;font:700 14px var(--display)} .du-rule-card p {margin:0;font-size:12px;line-height:1.6;color:var(--muted);word-break:keep-all}
+.du-rules-act {display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.du-board .du-rules {position:fixed;left:12px;right:12px;top:10%;z-index:70;max-height:80dvh;overflow:auto;box-shadow:0 14px 40px #000b}
+.du-guide {display:flex;align-items:center;gap:10px;margin:6px 0 0;padding:8px 10px;border:1px solid var(--gold);border-radius:10px;background:var(--accent-soft);font-size:12px;line-height:1.5;color:var(--text);word-break:keep-all}
+.du-guide small {flex:none;align-self:flex-start;padding:2px 6px;border-radius:999px;background:var(--gold);color:#221a06;font:700 10px ui-monospace,monospace}
+.du-guide p {flex:1;margin:0}
+.du-guide .du-btn {flex:none;min-height:44px;padding:6px 10px;font-size:11px}
+.du-help {min-width:44px;padding:0 10px}
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
-<script src="lib/words.js?v=myth40"></script>
+<script src="lib/words.js?v=myth41"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth5"></script>
 <script src="lib/duel.js?v=1"></script>
@@ -239,7 +262,8 @@ function Card({ card, art, group, onClick, cls, attrs, children }) {
   return html`<button type="button" class=${'cell ' + (cls || '')} data-id=${card.id} onClick=${onClick} ...${attrs || {}}>
     <span class="face"><${Thumb} file=${art === undefined ? card.file : art} />
       ${card.variant !== 'base' && html`<span class="du-var" data-variant=${card.variant}>${W('duel.variant.' + card.variant)}</span>`}
-      <span class=${'du-pw' + (card.hero ? ' hero' : '') + (w ? ' wx' : '')}>${w ? W('duel.weather.' + card.row) : card.power}</span>
+      <span class=${'du-pw' + (card.hero ? ' hero' : '') + (w ? ' wx' : '')} data-row=${w ? card.row : undefined}>${w ? W('duel.weather.' + card.row) : card.power}</span>
+      ${!w && html`<span class="du-row-tag" data-row=${card.row}>${W('range.short.' + card.row)}</span>`}
       ${children}</span>
     <span class="cap"><span class="cnm">${card.name}</span>
       <i>${mythName(group, card.myth)} · ${W('range.short.' + card.row)}${card.hero ? html`<span class="du-tag">${W('duel.hero')}</span>` : ''}</i></span>
@@ -250,6 +274,34 @@ function sortIds(data, ids) {
   const D = A.cardsOf(data), order = data.duel.bosses.map(b => b.myth);
   return ids.filter(id => D.cards[id]).sort((a, b) => { const x = D.cards[a], y = D.cards[b];
     return (order.indexOf(x.myth) - order.indexOf(y.myth)) || x.name.localeCompare(y.name, 'ko') || (A.VARIANTS.indexOf(x.variant) - A.VARIANTS.indexOf(y.variant)); });
+}
+
+/* ── 규칙 한눈에 — 로비의 "배우기" 와 대결의 ? 가 연다 ── */
+function Rules({ onClose, onGuideAgain }) {
+  return html`<section class="du-rules" role="dialog" aria-label=${W('duel.rules.title')}>
+    <div class="du-rules-head"><h3>${W('duel.rules.title')}</h3><button type="button" class="du-btn" id="du-rules-close" onClick=${onClose}>${W('duel.close')}</button></div>
+    <div class="du-rules-grid">${[1, 2, 3, 4].map(i => html`<div key=${i} class="du-rule-card"><b>${W('duel.rules.' + i + '.title')}</b><p>${W('duel.rules.' + i + '.text')}</p></div>`)}</div>
+    ${onGuideAgain && html`<div class="du-rules-act"><button type="button" class="du-btn" id="du-guide-again" onClick=${onGuideAgain}>${W('duel.guide.again')}</button></div>`}
+  </section>`;
+}
+/* 첫 판 길잡이 — 판의 상태에서 단계를 읽는다. 1 내기 → 2 상대 수 → 3 합과 패스 → 4 라운드 결과 → 5 진영 능력 → 6 변형판·날씨 */
+const GUIDE_STEPS = 6;
+function guideStep(st) {
+  const log = st.log, mePlays = log.filter(e => e.t === 'play' && e.who === 'me').length, foePlays = log.filter(e => e.t === 'play' && e.who === 'foe').length;
+  const passed = log.some(e => e.t === 'pass'), rounds = st.roundLog.length;
+  let lastRound = -1; log.forEach((e, i) => { if (e.t === 'round') lastRound = i; });
+  const mePlaysThisRound = log.slice(lastRound + 1).filter(e => e.t === 'play' && e.who === 'me').length;
+  if (!mePlays) return 1;
+  if (!foePlays) return 2;
+  if (!passed && !rounds) return 3;
+  if (rounds && !mePlaysThisRound) return 4;
+  if (!st.me.faction.used && st.round < 3) return 5;
+  return 6;
+}
+function Guide({ st, onSkip }) {
+  const n = guideStep(st);
+  return html`<div class="du-guide" data-step=${n}><small>${W('duel.guide.step', { n, total: GUIDE_STEPS })}</small><p>${W('duel.guide.' + n)}</p>
+    <button type="button" class="du-btn" id="du-guide-skip" onClick=${onSkip}>${W('duel.guide.skip')}</button></div>`;
 }
 
 /* ── 대결 — 멀리건 ── */
@@ -287,7 +339,7 @@ function Row({ data, st, side, row, sum, onDetail }) {
   if (last && last.kind === 'play' && last.who === side) for (const u of list) if (u.id === last.id && (!fresh || u.at > fresh.at)) fresh = u;
   const dead = last && last.fx.filter(f => f.side === side && f.row === row && f.kind === 'dead');
   return html`<div class="du-row" data-side=${side} data-row=${row} data-weather=${st.weather[row] ? 'true' : 'false'}>
-    <div class="du-row-head"><span>${W('range.short.' + row)}</span>
+    <div class="du-row-head" data-row=${row}><span>${W('range.short.' + row)}</span>
       ${st.weather[row] && html`<span class="du-wx">${W('duel.weather.' + row)}</span>`}
       <span class="du-row-sum">${sum}</span>
       ${dead && dead.map((f, i) => html`<span key=${'d' + st.log.length + i} class="du-fx" data-kind="dead">✕</span>`)}</div>
@@ -303,7 +355,7 @@ function Detail({ data, group, st, id, unit, fromHand, canPlay, onPlay, onClose 
       <span class="face"><${Thumb} file=${base.file} />${c.variant !== 'base' && html`<span class="du-var" data-variant=${c.variant}>${W('duel.variant.' + c.variant)}</span>`}</span>
       <div><h4>${c.name}${c.hero ? html`<span class="du-tag">${W('duel.hero')}</span>` : ''}</h4>
         <dl>
-          <dt>${W('duel.row')}</dt><dd>${W('range.short.' + c.row)}${!w ? ' · ' + W('duel.power') + ' ' + (unit ? unit.cur + (unit.cur !== c.power ? ' (' + c.power + ')' : '') : c.power) : ''}</dd>
+          <dt>${W('duel.row')}</dt><dd><span class="du-row-tag" data-row=${c.row}>${W('range.short.' + c.row)}</span>${!w ? ' · ' + W('duel.power') + ' ' + (unit ? unit.cur + (unit.cur !== c.power ? ' (' + c.power + ')' : '') : c.power) : ''}</dd>
           ${w ? html`<dt>${W('duel.weather.' + c.row)}</dt><dd>${W('duel.weather.text')}</dd>`
             : html`<dt>${W('duel.ability')} — ${W('duel.ability.' + c.ability)}${sk ? ' · ' + sk.name : ''}</dt><dd>${W('duel.ability.' + c.ability + '.text', { n: c.n })}</dd>`}
           ${c.variant === 'awaken' || c.variant === 'cursed' ? html`<dt>${W('duel.variant.' + c.variant)}</dt><dd>${W('duel.variant.' + c.variant + '.text')}</dd>` : ''}
@@ -319,11 +371,11 @@ function Detail({ data, group, st, id, unit, fromHand, canPlay, onPlay, onClose 
   </div>`;
 }
 /* ── 대결 — 판 ── */
-function Match({ data, group, profile, st, actMatch }) {
+function Match({ data, group, profile, st, actMatch, act }) {
   const D = A.cardsOf(data), boss = A.bossOf(data, st.boss), portrait = D.cards[boss.portrait];
   const sc = A.scores(data, st), L = A.legal(data, st, 'me'), mine = st.turn === 'me' && st.phase === 'play';
   const [detail, setDetail] = useState(null);   /* {id, fromHand, unit} */
-  const [banner, setBanner] = useState(null);
+  const [banner, setBanner] = useState(null), [help, setHelp] = useState(false);
   const rounds = useRef(st.roundLog.length);
   useEffect(() => {   /* 라운드가 끝난 수에는 결과 한 줄이 떴다 사라진다 */
     if (st.roundLog.length > rounds.current && !reduced()) { setBanner(st.roundLog.length); const t = setTimeout(() => setBanner(null), 1200); rounds.current = st.roundLog.length; return () => clearTimeout(t); }
@@ -347,16 +399,18 @@ function Match({ data, group, profile, st, actMatch }) {
       <span class="du-lives" data-me=${st.lives.me} data-foe=${st.lives.foe}>${W('duel.lives')} ${'♥'.repeat(st.lives.me)}${'♡'.repeat(A.LIVES - st.lives.me)} : ${'♥'.repeat(st.lives.foe)}${'♡'.repeat(A.LIVES - st.lives.foe)}</span>
       <span class="du-turn" data-turn=${st.turn || ''}>${st.passed.me ? W('duel.passed') : W(mine ? 'duel.turn.me' : 'duel.turn.foe')}</span>${flags('me')}
       <span class="du-bar-act">
+        <button type="button" class="du-btn du-help" id="du-help" aria-label=${W('duel.rules.title')} title=${W('duel.rules.title')} onClick=${() => setHelp(true)}>?</button>
         <button type="button" class="du-btn" id="du-faction" disabled=${!L.faction} title=${data.duel.factions[profile.main].text} onClick=${() => actMatch(m => A.useFaction(data, m))}>${W('duel.faction.use', { name: data.duel.factions[profile.main].name })}</button>
         <button type="button" class="du-btn" id="du-pass" disabled=${!L.pass} onClick=${() => { setDetail(null); actMatch(m => A.pass(data, m)); }}>${W('duel.pass')}</button>
       </span>
       ${lastRound && html`<span class="du-last-round">${roundText(lastRound, st.roundLog.length)}</span>`}
     </div>
     ${['melee', 'reach', 'ranged'].map(r => html`<${Row} key=${'m' + r} data=${data} st=${st} side="me" row=${r} sum=${sc.me.rows[r]} onDetail=${open} />`)}
-    <div class="du-dock"><p class="sec">${W('duel.hand', { n: st.me.hand.length })}</p>
+    <div class="du-dock">${!profile.tutorial && html`<${Guide} st=${st} onSkip=${() => act(p => { p.tutorial = true; })} />`}<p class="sec">${W('duel.hand', { n: st.me.hand.length })}</p>
     <div class="du-hand">${st.me.hand.map((id, i) => html`<${Card} key=${id + i} card=${D.cards[id]} art=${D.cards[D.cards[id].name].file} group=${group} cls="du-card" onClick=${() => open(id, true)} />`)}</div></div>
     ${detail && html`<${Detail} data=${data} group=${group} st=${st} id=${detail.id} unit=${detail.unit} fromHand=${detail.fromHand} canPlay=${mine && L.cards.includes(detail.id)}
       onPlay=${() => { setDetail(null); actMatch(m => A.play(data, m, detail.id)); }} onClose=${() => setDetail(null)} />`}
+    ${help && html`<${Rules} onClose=${() => setHelp(false)} />`}
     ${banner && lastRound && html`<div class="du-banner">${roundText(lastRound, st.roundLog.length)}</div>`}
   </section>`;
 }
@@ -415,7 +469,7 @@ function Pick({ data, group, onPick }) {
 }
 
 /* ── 로비 — 덱 상태 · 컬렉션 · 난이도 · 주인 열하나 ── */
-function Lobby({ data, group, profile, act, setScreen, onChallenge, stats }) {
+function Lobby({ data, group, profile, act, setScreen, onChallenge, stats, learn }) {
   const D = A.cardsOf(data), v = A.validateDeck(data, profile), max = A.collectionMax(data);
   const conquered = A.conquered(data, profile);
   return html`<section class="du-screen du-lobby" data-screen="lobby">
@@ -427,7 +481,9 @@ function Lobby({ data, group, profile, act, setScreen, onChallenge, stats }) {
     <div class="du-tools">
       <button type="button" class="du-btn" id="du-build" onClick=${() => setScreen('build')}>${W('duel.lobby.build')}</button>
       <button type="button" class="du-btn" id="du-stats" onClick=${() => setScreen('stats')}>${W('duel.lobby.stats')}</button>
+      <button type="button" class="du-btn" id="du-learn" onClick=${() => setScreen('learn')}>${W('duel.learn')}</button>
     </div>
+    ${learn && html`<${Rules} onClose=${() => setScreen('lobby')} onGuideAgain=${() => { act(p => { p.tutorial = false; }); setScreen('lobby'); }} />`}
     ${stats && html`<${Stats} data=${data} group=${group} profile=${profile} onClose=${() => setScreen('lobby')} />`}
     <p class="sec">${W('duel.lobby.level')}<span class="help">${W('duel.lv.note')}</span></p>
     <div class="du-lv" role="group" aria-label=${W('duel.lobby.level')}>${A.LEVELS.map(l => html`<button key=${l} type="button" data-lv=${l}
@@ -485,7 +541,7 @@ function App() {
   useEffect(() => {
     if (!data || !match || match.phase !== 'done' || match.rewarded) return;
     const p = JSON.parse(JSON.stringify(profile)), m = JSON.parse(JSON.stringify(match));
-    A.settle(data, p, m); save(p, m); setProfile(p); setMatch(m);
+    A.settle(data, p, m); p.tutorial = true; save(p, m); setProfile(p); setMatch(m);
   }, [match, data]);
   if (!loaded) return html`<${Shell}><p class="empty">${W('ui.loading')}</p><//>`;
   if (loaded.error) return html`<${Shell}><p class="empty">${W('ui.error', { message: loaded.error })}</p><//>`;
@@ -499,10 +555,10 @@ function App() {
   return html`<${Shell}>
     ${which === 'pick' ? html`<${Pick} data=${data} group=${group} onPick=${onPick} />`
     : which === 'mulligan' ? html`<${Mulligan} data=${data} group=${group} st=${match} actMatch=${actMatch} />`
-    : which === 'match' ? html`<${Match} data=${data} group=${group} profile=${profile} st=${match} actMatch=${actMatch} />`
+    : which === 'match' ? html`<${Match} data=${data} group=${group} profile=${profile} st=${match} actMatch=${actMatch} act=${act} />`
     : which === 'result' ? html`<${Result} data=${data} group=${group} st=${match} onLobby=${onLobby} onAgain=${onAgain} />`
     : which === 'build' ? html`<${Build} data=${data} group=${group} profile=${profile} act=${act} setScreen=${setScreen} />`
-    : html`<${Lobby} data=${data} group=${group} profile=${profile} act=${act} setScreen=${setScreen} onChallenge=${onChallenge} stats=${which === 'stats'} />`}
+    : html`<${Lobby} data=${data} group=${group} profile=${profile} act=${act} setScreen=${setScreen} onChallenge=${onChallenge} stats=${which === 'stats'} learn=${which === 'learn'} />`}
   <//>`;
 }
 render(html`<${App} />`, document.getElementById('app'));
