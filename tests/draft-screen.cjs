@@ -18,6 +18,7 @@ const { start, FOLD } = require('./browser-harness.cjs');
     const picked = await onM(); assert.equal(picked.length, 3, '무작위 셋');
     await p.locator('.rn-btn.primary').click();
     await p.waitForSelector('.df-pack .df-card');
+    assert.equal(await p.locator('.map-stage[data-has-map]').count(), 1, '팩 뒤에 맵 — 판의 첫 권');
     const cardMyth = JSON.parse(require('node:fs').readFileSync('data/card.json', 'utf8')).cards.reduce((m, c) => (m[c.name] = c.myth, m), {});
     for (const nm of await p.locator('.df-pack .df-card').evaluateAll(es => es.map(e => e.dataset.name))) assert(picked.includes(cardMyth[nm]), '팩은 고른 셋에서만: ' + nm);
     assert.equal(await p.locator('.df-pack .df-card').count(), 9, '팩 아홉');

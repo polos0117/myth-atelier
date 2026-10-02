@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap">
-<link rel="stylesheet" href="lib/workspace.css?v=myth31">
+<link rel="stylesheet" href="lib/workspace.css?v=myth32">
 <style>
 .dex-page > #app {display:flex;flex-direction:column;min-height:0;height:100%}
 .dex-page > #app > main {flex:1 1 auto;min-height:0}
@@ -58,7 +58,7 @@
 <script src="lib/workspace-theme.js?v=myth8"></script>
 <script src="lib/words.js?v=myth41"></script>
 <script src="lib/fresh.js?v=4"></script>
-<script src="lib/img.js?v=myth5"></script>
+<script src="lib/img.js?v=myth6"></script>
 <script src="lib/run.js?v=6"></script>
 </head>
 <body class="dex-page rn-page">
@@ -162,9 +162,9 @@ function Sortie({ data, group, img, hand, onStart, onPlain }) {
   </div>`;
 }
 
-function Map({ st, data, onGo }) {
-  const list = R.nodes(data);
-  return html`<div>
+function Map({ st, data, group, onGo }) {
+  const list = R.nodes(data), first = st.party[0] && R.cardOf(data, st.party[0].name);
+  return html`<div class="map-stage" ...${IMG.mapStage(group, first && first.myth)}>
     <div class="rn-head"><h2>${W('run.map.title')}</h2><p class="help">${W('run.map.note')}</p></div>
     <${Purse} st=${st} />
     <div class="rn-map">${list.map((k, i) => html`<div key=${i} class=${'rn-node ' + k + (i < st.node ? ' done' : '') + (i === st.node ? ' here' : '')} data-index=${i}><b>${i + 1}</b>${W('run.node.' + k)}</div>`)}</div>
@@ -204,7 +204,7 @@ function Battle({ st, data, img, group, act }) {
   alive.forEach(e => { const it = e.intent; if (!it || e.stunned) return;
     if (it.k === 'all') living.forEach(p => add(p.name, it.d));
     else add(b.taunt && living.some(p => p.name === b.taunt) ? b.taunt : it.b, it.d, !!b.taunt); });
-  return html`<div class="rn-battle">
+  return html`<div class="rn-battle map-stage" ...${IMG.mapStage(group, foes[0] && (R.cardOf(data, foes[0].name) || {}).myth)}>
     <div class="rn-head"><h2>${b.boss ? W('run.node.boss') : W('run.node.fight')} <small class="rn-note">${W('run.battle.turn', { n: b.turn })}</small></h2>
       <p>${W('run.battle.deck', { n: b.deck.length, m: b.discard.length })}</p></div>
     <div class="rn-arena">
@@ -312,7 +312,7 @@ function App() {
     onStart=${(pairs, reserve) => { const s = R.newRun(data, seed(), null, { pairs, reserve, foes: hand.foes, boss: hand.boss, rank: hand.rank }); clearHandoff(); setHand(null); save(s); setSt(s); }}
     onPlain=${() => { clearHandoff(); setHand(null); }} />`;
   else if (!st) body = html`<${Pick} data=${data} group=${group} img=${img} onStart=${names => { const s = R.newRun(data, seed(), names); save(s); setSt(s); }} />`;
-  else if (st.phase === 'map') body = html`<${Map} st=${st} data=${data} onGo=${() => act(x => R.proceed(x, data))} />`;
+  else if (st.phase === 'map') body = html`<${Map} st=${st} data=${data} group=${group} onGo=${() => act(x => R.proceed(x, data))} />`;
   else if (st.phase === 'battle') body = html`<${Battle} st=${st} data=${data} img=${img} group=${group} act=${act} />`;
   else if (st.phase === 'result') body = html`<${Result} st=${st} data=${data} img=${img} group=${group} act=${act} />`;
   else if (st.phase === 'shop' && st.shop) body = html`<${Shop} st=${st} data=${data} img=${img} group=${group} act=${act} />`;

@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap">
-<link rel="stylesheet" href="lib/workspace.css?v=myth31">
+<link rel="stylesheet" href="lib/workspace.css?v=myth32">
 <style>
 :root {--cc:var(--line)}
 * {box-sizing:border-box}
@@ -192,7 +192,7 @@ body {color:var(--text);font-size:15px}
 <script src="lib/workspace-theme.js?v=myth8"></script>
 <script src="lib/words.js?v=myth41"></script>
 <script src="lib/fresh.js?v=4"></script>
-<script src="lib/img.js?v=myth5"></script>
+<script src="lib/img.js?v=myth6"></script>
 <script src="lib/auto.js?v=13"></script>
 </head>
 <body class="dex-page auto-page">
@@ -405,6 +405,7 @@ function Plan({ st, data, group, img, act }) {
     <${Lobby} st=${st} data=${data} group=${group} img=${img} oppId=${opp ? opp.id : null} scout=${scout} setScout=${setScout} onInfo=${showInfo} />
     ${info && info.who != null && info.who !== 'enemy' && info.who !== 'shop' && html`<${CardInfo} data=${data} group=${group} name=${info.name} star=${info.star} units=${infoUnits(info)} onClose=${() => setInfo(null)} />`}
 
+    <div class="map-stage" ...${IMG.mapStage(group, (A.liveMyths(st, data) || [])[0])}>
     <p class="sec">${e.pve ? W('auto.enemy.pve') : e.ghost ? W('auto.enemy.ghost', { name: nameOf(opp) }) : W('auto.enemy.player', { name: nameOf(opp) })}
       <span>${e.pve ? W('auto.enemy.pve.note', { n: A.pveReward(st.round), myth: group.myth.name[st.pve.myth] }) : e.ghost ? W('auto.enemy.ghost.note') : W('auto.enemy.player.note', { level: opp.level, hp: opp.hp, base: A.stageDamage(st.round) })}</span></p>
     <${Board} cells=${boardCells(e.units)} side="them" color=${color} img=${img} onCell=${(i, u) => u && showInfo({ ...u, who: 'enemy' })} />
@@ -412,6 +413,7 @@ function Plan({ st, data, group, img, act }) {
 
     <p class="sec">${W('auto.board')}<span>${W('auto.board.cap', { n: A.onBoard(st), cap })}</span></p>
     <${Board} cells=${st.board} side="me" color=${color} img=${img} picked=${pick} targets=${!!picked} onCell=${onCell('board')} />
+    </div>
 
     <p class="sec">${W('auto.bench')}</p>
     <div class="at-bench">${st.bench.map((u, i) => html`<${Cell} key=${i} unit=${u} index=${i} zone="bench" img=${img}
@@ -528,7 +530,7 @@ function Result({ st, data, group, img, act }) {
           <button class="at-btn primary" id="at-new" onClick=${() => act('new')}>${W('auto.new')}</button>
         </div>` : html`<p class="sec" style="margin-top:14px"><button class="at-btn primary" id="at-next" style="flex:1" onClick=${() => act('next')}>${W('auto.next')}</button></p>`}`}
 
-    <div class=${'at-arena' + (crit ? ' shake' + (crit.i % 2) : '')}>
+    <div class=${'at-arena map-stage' + (crit ? ' shake' + (crit.i % 2) : '')} ...${IMG.mapStage(group, (A.liveMyths(st, data) || [])[0])}>
     <p class="sec">${r.pve ? W('auto.enemy.pve') : r.ghost ? W('auto.enemy.ghost', { name: nameOf(A.playerOf(st, r.opp)) }) : W('auto.enemy.player', { name: nameOf(A.playerOf(st, r.opp)) })}</p>
     <${Board} cells=${boardCells(st.enemy.units)} side="them" color=${color} img=${img} hpOf=${hpThem} skills=${data.skills} onCell=${(i, u) => u && setInfo({ ...u, side: 'them' })} />
     ${info && info.side === 'them' && html`<${CardInfo} data=${data} group=${group} name=${info.name} star=${info.star} units=${st.enemy.units} onClose=${() => setInfo(null)} />`}

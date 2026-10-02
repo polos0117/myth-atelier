@@ -21,6 +21,7 @@ const { start, FOLD } = require('./browser-harness.cjs');
     assert.equal(await p.locator('.rn-node.here').count(), 0, '아직 첫 칸 앞');
     await p.locator('.rn-btn.primary').click();
     await p.waitForSelector('.rn-hand .rn-card');
+    assert.equal(await p.locator('.rn-battle.map-stage[data-has-map]').count(), 1, '싸움 뒤에 맵 — 첫 상대의 권');
     assert.equal(await p.locator('.rn-party .rn-fig').count(), 3, '동료 셋이 선다');
     assert.equal(await p.locator('.rn-enemy .rn-fig').count(), 2, '첫 상대 둘');
     assert.equal(await p.locator('.rn-enemy .rn-intent').count(), 2, '상대마다 예고');

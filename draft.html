@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap">
-<link rel="stylesheet" href="lib/workspace.css?v=myth31">
+<link rel="stylesheet" href="lib/workspace.css?v=myth32">
 <style>
 .dex-page > #app {display:flex;flex-direction:column;min-height:0;height:100%}
 .dex-page > #app > main {flex:1 1 auto;min-height:0}
@@ -63,7 +63,7 @@
 <script src="lib/workspace-theme.js?v=myth8"></script>
 <script src="lib/words.js?v=myth41"></script>
 <script src="lib/fresh.js?v=4"></script>
-<script src="lib/img.js?v=myth5"></script>
+<script src="lib/img.js?v=myth6"></script>
 <script src="lib/draft.js?v=3"></script>
 </head>
 <body class="dex-page df-page">
@@ -211,7 +211,7 @@ function Board({ st, data, group, img, act }) {
     <p class="note df-myths-now">${W('draft.myths')} — ${st.myths ? st.myths.map(k => group.myth.name[k]).join(' · ') : W('draft.myths.all')}</p>
     ${pg.length ? html`<div class=${'df-bond' + (pg.every(g => g.feud) ? ' feud' : '')} key=${'bond' + st.log.length} role="status">
       <span class="df-fired">${W('draft.fired', { list: fb.fired.join(' · ') })}</span></div>` : ''}
-    <div class="df-layout">
+    <div class="df-layout map-stage" ...${IMG.mapStage(group, st.myths ? st.myths[0] : null)}>
       <div>
         <p class="note help">${W('draft.pack.note')}</p>
         <div class="df-pack" key=${packKey}>${(st.pack || []).map((n, i) => html`<${Card} key=${n} data=${data} group=${group} img=${img} type=${type} name=${n} delta=${previews[n]}

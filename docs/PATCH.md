@@ -8,6 +8,13 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-10-02 · claude · 맵을 네 놀이에 — 공용 IMG.mapURL
+- lib/img.js — mapURL(group, 권)(맵 → 박물관 끝 벽 그림 → 없음)·mapStage(group, 권)(판을 감싸는 요소에 붙일 속성)를 결투에서 옮겨 공용으로(myth6)
+- lib/workspace.css — .map-stage: 그림을 어둡게 깔고 비네트, 판의 칸(.at-cell·.rn-fig·.df-card·.du-row)은 살짝 비친다(myth32)
+- auto.html — 상점 단계의 두 판과 싸움 다시 보기의 두 판 뒤에 이번 판 첫 권의 맵 · run.html — 길 화면은 첫 동료 무기의 권, 싸움 화면은 첫 상대 무기의 권 · draft.html — 판 뒤에 판의 첫 권 · duel.html — 공용 함수로
+- docs/MAP_ART.md — 어디에 어느 권이 깔리는지 표, 지금 상태(열한 장 다 올라옴) · docs/GAME_CONCEPT.md — 가리킴
+- tests/auto-screen.cjs · run-screen.cjs · draft-screen.cjs — 판 뒤에 맵이 있다
+
 ## 2026-10-02 · claude · 맵 그림 — 켈트·아메리카·기사 전설, 열한 권 끝
 - data/group.json — museum.maps 에 celtic·america·knight. 열한 권 전부 맵이 있다(그림 저장소 img/ui/map_<권>.webp, 1024×1536). 박물관 그림이 없던 아메리카·기사 전설도 이제 결투 판 배경이 있다
 - docs/MAP_ART.md — 지금 상태: 열한 권 끝, 다음은 다른 놀이로 넓히기

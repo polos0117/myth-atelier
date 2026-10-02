@@ -7,6 +7,7 @@ const A = require('../lib/auto.js');
   try {
     const a = await harness.open('auto.html', { viewport: { width: 1280, height: 900 } }), p = a.page;
     await p.waitForSelector('.at-shop .at-card');
+    assert.equal(await p.locator('.map-stage[data-has-map]').count(), 1, '두 판 뒤에 맵 — 이번 판 첫 권');
     const gold = async () => +(await p.locator('.at-gold b').innerText());
     assert.equal(await p.locator('.at-shop .at-card').count(), A.SHOP, '상점 다섯');
     assert.equal(await p.locator('.at-board[data-side="me"] .at-cell').count(), A.CELLS, '내 판 열두 칸');

@@ -922,3 +922,10 @@ html:has(.dex-page) {height:100%;overflow:hidden;overscroll-behavior:none}
   /* 4. 누르는 자리 */
   .hall-pick {display:inline-flex;align-items:center;min-height:44px;margin-top:6px}
 }
+
+/* 놀이 판 배경(맵) — .map-stage 에 --map 이 있으면 그림을 어둡게 깔고 가장자리를 비네트로. 판의 칸은 살짝 비친다(color-mix 를 모르는 브라우저는 그대로) */
+.map-stage {position:relative;isolation:isolate}
+.map-stage[data-has-map] {padding:8px;margin:0 -8px;border-radius:16px}
+.map-stage[data-has-map]::before {content:'';position:absolute;inset:0;z-index:-1;border-radius:inherit;background:linear-gradient(rgba(8,6,10,.5),rgba(8,6,10,.72)),var(--map) center/cover no-repeat;box-shadow:inset 0 0 90px #000c}
+.map-stage[data-has-map] :is(.at-cell,.rn-fig,.df-card,.du-row) {background:color-mix(in srgb,var(--card) 78%,transparent)}
+.map-stage[data-has-map] .at-cell.empty {background:color-mix(in srgb,var(--card2) 60%,transparent)}
