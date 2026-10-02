@@ -335,6 +335,23 @@ const heroSafe = D.list.find(id => D.cards[id].hero && D.cards[id].variant === '
     A.settle(data, q2, st); ok(q2.stats.bestRound === 20 - A.FIRST_BONUS, '최고 합에 선공 보너스는 안 센다'); }
 }
 
+/* 자동 채우기 — 규칙(25·주 권 15·영웅 4·날씨 3·같은 id 1)을 지키며 센 카드부터 채우고, 넘치면 약한 것부터 뺀다 */
+{
+  const p = A.newProfile(data, 'norse', 5);
+  p.deck = []; let r = A.autoFill(data, p);
+  ok(r.ok && p.deck.length === 25 && A.validateDeck(data, p).ok && r.added.length === 25, '빈 덱을 25장으로 — 규칙에 맞게');
+  const q = A.newProfile(data, 'norse', 5); q.owned = D.list.slice(); q.deck = [];
+  r = A.autoFill(data, q); const v = A.validateDeck(data, q);
+  ok(r.ok && v.ok && v.hero === 4 && v.weather <= 3 && v.main >= 15, '전부 가졌을 때 — 영웅 4·날씨 3 이하·주 권 15 이상');
+  ok(q.deck.every((id, i) => i === 0 || D.cards[q.deck[i - 1]].myth !== 'norse' || D.cards[id].myth !== 'norse' || D.cards[q.deck[i - 1]].power >= D.cards[id].power || D.cards[q.deck[i - 1]].hero || D.cards[id].hero || D.cards[id].variant === 'weather'), '주 권은 센 카드부터');
+  q.deck = q.deck.concat(D.list.filter(id => !q.deck.includes(id)).slice(0, 10)); r = A.autoFill(data, q);
+  ok(q.deck.length === 25 && r.removed.length === 10 && A.validateDeck(data, q).ok, '35장이면 10장을 빼 25장');
+  const w = A.newProfile(data, 'norse', 5); w.deck = w.deck.slice(0, 20); w.deck.push(w.deck[0]);
+  r = A.autoFill(data, w); ok(A.validateDeck(data, w).ok && new Set(w.deck).size === 25, '겹친 카드는 빼고 채운다');
+  const few = A.newProfile(data, 'norse', 5); A.setMain(few, 'greek'); few.deck = [];
+  r = A.autoFill(data, few); ok(!r.ok && few.deck.length === 25 && A.validateDeck(data, few).problems.includes('main'), '주 권 카드가 모자라면 채우되 ok 는 아니다');
+}
+
 /* ── 끝 ── */
 console.log('PASS 결투 규칙: ' + n + ' 가지' + (quick ? ' (--quick)' : ''));
 if (quick) process.exit(0);

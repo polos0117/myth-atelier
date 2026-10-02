@@ -45,28 +45,53 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
     assert.equal(await p.locator('.du-rules .du-factions li').count(), 11, '진영 능력 열하나 표');
     await tap(p, '#du-rules-close'); await noOverflow(p);
     await p.locator('#du-rules-close').click(); await p.waitForSelector('.du-lobby:not(:has(.du-rules))');
-    /* 덱 짜기 — 빼면 규칙 줄이 빨개지고 출전이 막힌다 */
+    /* 덱 짜기 — 그림을 누르면 상세(능력 글)와 넣기/빼기, 아래 단추로 바로 넣기/빼기, 거르개, 줄별 수, 자동 채우기. 빼면 규칙 줄이 빨개지고 출전이 막힌다 */
     await p.locator('#du-build').click(); await p.waitForSelector('.du-build .cell');
     assert.equal(await p.locator('.du-build .cell').count(), 25, '가진 카드만 보인다');
     assert.equal(await p.locator('.du-build .cell.in').count(), 25, '전부 덱에');
     assert.equal(await p.locator('.du-build .cell .du-row-tag').count(), 25, '카드마다 줄 표시');
     for (const r of await p.locator('.du-build .cell .du-row-tag').evaluateAll(es => es.map(e => e.dataset.row))) assert(A.ROWS.includes(r), '줄 표시의 값: ' + r);
+    const rowSum = async () => (await p.locator('.du-rowcount [data-row]').evaluateAll(es => es.map(e => +e.dataset.n))).reduce((a, b) => a + b, 0);
+    assert.equal(await p.locator('.du-rowcount [data-row]').count(), 3, '줄별 장 수 셋');
+    assert.equal(await rowSum(), 25, '줄별 합이 덱 장 수');
     const first = await p.locator('.du-build .cell.in').first().getAttribute('data-id');
-    await p.locator('.du-build .cell[data-id="' + first + '"]').click();
-    await p.waitForSelector('.du-rule[data-ok="false"]');
+    /* 상세 — 능력 글이 보이고, 거기서 뺀다 */
+    await p.locator('.du-build .cell[data-id="' + first + '"]').click(); await p.waitForSelector('.du-detail[data-id="' + first + '"]');
+    assert((await p.locator('.du-detail').innerText()).includes(await p.evaluate(() => window.W('duel.ability'))), '상세에 능력 칸이 있다');
+    assert.equal(await p.locator('.du-detail #du-detail-act').innerText(), await p.evaluate(() => window.W('duel.build.remove')), '덱에 든 카드는 빼기');
+    await p.locator('#du-detail-act').click(); await p.waitForSelector('.du-rule[data-ok="false"]');
+    assert.equal(await p.locator('.du-detail').count(), 0, '누르면 창이 닫힌다');
     assert.equal(await p.locator('.du-build .cell.in').count(), 24, '빼면 24');
+    assert.equal(await rowSum(), 24, '줄별 합도 24');
     assert(await p.locator('[data-rule="count"].bad').count() === 1 && (await p.locator('.du-why').innerText()).length > 3, '장 수 규칙이 빨갛고 이유가 보인다');
+    /* 거르개 — 안 든 것만 보면 한 장, 줄로 거르면 그 줄만 */
+    await p.locator('.du-chips [data-view="out"]').click();
+    assert.equal(await p.locator('.du-build .cell').count(), 1, '안 든 것은 한 장');
+    assert.equal(await p.locator('.du-build .cell').getAttribute('data-id'), first, '그 한 장');
+    await p.locator('.du-chips [data-view="all"]').click();
+    await p.locator('.du-chips [data-rowf="melee"]').click();
+    const shown = await p.locator('.du-build .cell .du-row-tag').evaluateAll(es => es.map(e => e.dataset.row));
+    assert(shown.length >= 1 && shown.every(r => r === 'melee'), '근접만');
+    await p.locator('.du-chips [data-rowf="all"]').click(); await p.waitForFunction(() => document.querySelectorAll('.du-build .cell').length === 25);
+    /* 아래 단추로 넣기 → 25, 다시 빼기 → 24 */
+    await p.locator('.du-build .du-toggle[data-id="' + first + '"]').click(); await p.waitForSelector('.du-rule[data-ok="true"]');
+    assert.equal(await p.locator('.du-build .du-toggle[data-id="' + first + '"]').innerText(), await p.evaluate(() => window.W('duel.build.remove')), '든 카드의 단추는 빼기');
+    await p.locator('.du-build .du-toggle[data-id="' + first + '"]').click(); await p.waitForSelector('.du-rule[data-ok="false"]');
+    /* 자동 채우기 — 모자란 한 장을 채운다(가진 카드가 25장이라 그 한 장) */
+    await tap(p, '#du-autofill'); await p.locator('#du-autofill').click(); await p.waitForSelector('.du-rule[data-ok="true"]');
+    assert.equal(await p.locator('.du-build .cell.in').count(), 25, '자동 채우기로 25');
+    await p.locator('.du-build .du-toggle[data-id="' + first + '"]').click(); await p.waitForSelector('.du-rule[data-ok="false"]');
     await p.locator('.du-build .du-main-pick [data-myth="greek"]').click();
     assert.equal(await p.locator('[data-rule="main"].bad').count(), 1, '주 권을 바꾸면 15장 규칙이 빨갛다');
     await p.locator('.du-build .du-main-pick [data-myth="norse"]').click();
-    await tap(p, '.du-build .cell'); await noOverflow(p);
+    await tap(p, '.du-build .cell'); await tap(p, '.du-build .du-toggle'); await tap(p, '.du-chips button'); await noOverflow(p);
     await p.locator('#du-build-done').click(); await p.waitForSelector('.du-lobby');
     assert.equal(await p.locator('.du-deck').getAttribute('data-ok'), 'false', '로비도 안다');
     assert.equal(await p.locator('.du-boss:disabled').count(), 11, '출전이 막힌다');
     await p.reload(); await p.waitForSelector('.du-lobby');
     assert.equal(await p.locator('.du-boss:disabled').count(), 11, '새로고침해도 그대로(저장)');
     await p.locator('#du-build').click(); await p.waitForSelector('.du-build .cell');
-    await p.locator('.du-build .cell[data-id="' + first + '"]').click(); await p.waitForSelector('.du-rule[data-ok="true"]');
+    await p.locator('.du-build .du-toggle[data-id="' + first + '"]').click(); await p.waitForSelector('.du-rule[data-ok="true"]');
     await p.locator('#du-build-done').click(); await p.waitForSelector('.du-boss:not(:disabled)');
     /* ── 대결 (과제 9) ── */
     /* 도전 → 멀리건 */

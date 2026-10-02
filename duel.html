@@ -252,6 +252,23 @@ body {color:var(--text);font-size:15px}
 .du-faction-sheet small {display:block;font:700 11px ui-monospace,monospace;letter-spacing:.1em;color:var(--accent)} .du-faction-sheet h4 {margin:4px 0 6px;font:700 18px var(--display)}
 .du-faction-sheet p {margin:0;font-size:13px;line-height:1.6;color:var(--text);word-break:keep-all} .du-faction-sheet p.note {color:var(--muted);font-size:12px}
 .du-faction-sheet .du-detail-act {margin-top:12px}
+/* ── 덱 짜기 — 거르개 칩 · 줄별 띠 · 넣기/빼기 단추 ── */
+.du-chips {display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin:6px 0}
+.du-chips > i {flex:none;margin-right:4px;font:700 10px ui-monospace,monospace;letter-spacing:.1em;color:var(--accent);font-style:normal}
+.du-chips button {min-height:44px;padding:0 12px;background:var(--card);border:1px solid var(--line);border-radius:999px;color:var(--muted);font:inherit;font-weight:700;font-size:12px;cursor:pointer}
+.du-chips button.on {background:var(--accent-soft);color:var(--text);border-color:var(--accent)}
+.du-chips button[data-rowf="melee"].on {border-color:var(--row-melee)} .du-chips button[data-rowf="reach"].on {border-color:var(--row-reach)} .du-chips button[data-rowf="ranged"].on {border-color:var(--row-ranged)}
+.du-rowcount {display:flex;gap:6px;margin:6px 0}
+.du-rowcount span {flex:1;display:flex;align-items:center;justify-content:center;gap:6px;min-height:36px;border-radius:8px;border:1px solid var(--line);border-left:5px solid var(--rc);background:var(--card);font:700 12px ui-monospace,monospace;color:var(--text)}
+.du-rowcount span[data-row="melee"] {--rc:var(--row-melee)} .du-rowcount span[data-row="reach"] {--rc:var(--row-reach)} .du-rowcount span[data-row="ranged"] {--rc:var(--row-ranged)}
+.du-rowcount span.zero {opacity:.45}
+.du-rowcount span b {font-size:15px;color:var(--rc)}
+.du-build-act {display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.du-pick-cell {display:flex;flex-direction:column;gap:4px}
+.du-pick-cell .cell {flex:1}
+.du-toggle {min-height:44px;background:var(--card2);border:1px solid var(--line);border-radius:8px;color:var(--text);font:inherit;font-weight:700;font-size:12px;cursor:pointer}
+.du-toggle.in {background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+.du-empty {margin:14px 0;color:var(--muted);font-size:13px;text-align:center}
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
 <script src="lib/words.js?v=myth41"></script>
@@ -477,7 +494,7 @@ function Row({ data, st, side, row, sum, onDetail }) {
   </div>`;
 }
 /* 카드 상세 — 손패에서 열면 "내기" 가 붙는다. 변형판도 기본 그림(판에 놓일 때 뒤집힌다) */
-function Detail({ data, group, st, id, unit, fromHand, canPlay, onPlay, onClose }) {
+function Detail({ data, group, st, id, unit, fromHand, canPlay, onPlay, onClose, action }) {
   const D = A.cardsOf(data), c = D.cards[id], base = D.cards[c.name], w = c.variant === 'weather';
   const sk = data.skills[data.cards.find(x => x.name === c.name).skill];
   return html`<div class="du-detail" data-id=${id} role="dialog" aria-label=${c.name}>
@@ -496,6 +513,7 @@ function Detail({ data, group, st, id, unit, fromHand, canPlay, onPlay, onClose 
     </div>
     <div class="du-detail-act">
       ${fromHand && html`<button type="button" class="du-btn primary" id="du-play" disabled=${!canPlay} onClick=${onPlay}>${w ? W('duel.weather.call', { w: W('duel.weather.' + c.row) }) : W('duel.play')}</button>`}
+      ${action && html`<button type="button" class=${'du-btn ' + (action.cls || 'primary')} id="du-detail-act" onClick=${action.onClick}>${action.label}</button>`}
       <button type="button" class="du-btn" id="du-close" onClick=${onClose}>${W('duel.close')}</button>
     </div>
   </div>`;
@@ -660,7 +678,14 @@ function Lobby({ data, group, profile, act, setScreen, onChallenge, stats, learn
 /* ── 덱 짜기 — 주 권 · 규칙 줄 · 컬렉션 그리드 ── */
 function Build({ data, group, profile, act, setScreen }) {
   const D = A.cardsOf(data), v = A.validateDeck(data, profile), ids = useMemo(() => sortIds(data, profile.owned), [profile.owned]);
+  const [view, setView] = useState('all'), [rowf, setRowf] = useState('all'), [mythf, setMythf] = useState('all'), [detail, setDetail] = useState(null);
+  const inDeck = id => profile.deck.includes(id);
+  const shown = ids.filter(id => { const c = D.cards[id];
+    return (view === 'all' || (view === 'in') === inDeck(id)) && (rowf === 'all' || c.row === rowf) && (mythf === 'all' || (mythf === 'main') === (c.myth === profile.main)); });
+  const rows = { melee: 0, reach: 0, ranged: 0 }; for (const id of profile.deck) if (D.cards[id]) rows[D.cards[id].row]++;
   const rule = (key, text) => html`<span data-rule=${key} class=${v.problems.includes(key) ? 'bad' : ''}>${text}</span>`;
+  const chips = (label, attr, cur, set, list) => html`<div class="du-chips" role="group" aria-label=${label}><i>${label}</i>${list.map(([k, text]) => html`<button key=${k} type="button" ...${{ [attr]: k }} class=${cur === k ? 'on' : ''} aria-pressed=${cur === k} onClick=${() => set(k)}>${text}</button>`)}</div>`;
+  const toggle = id => act(p => A.toggleDeck(data, p, id));
   return html`<section class="du-screen du-build" data-screen="build">
     <p class="sec">${W('duel.build')}<span class="help">${W('duel.build.note')}</span></p>
     <div class="du-main-pick" role="group" aria-label=${W('duel.lobby.main')}>${data.duel.bosses.map(b => html`<button key=${b.myth} type="button" data-myth=${b.myth}
@@ -670,9 +695,20 @@ function Build({ data, group, profile, act, setScreen }) {
       ${rule('hero', W('duel.build.rule.hero', { n: v.hero }))}${rule('weather', W('duel.build.rule.weather', { n: v.weather }))}
     </div>
     <p class="du-why">${v.problems.map(k => W('duel.why.' + k)).join(' · ')}</p>
-    <button type="button" class="du-btn primary" id="du-build-done" onClick=${() => setScreen('lobby')}>${W('duel.build.done')}</button>
-    <div class="grid">${ids.map(id => html`<${Card} key=${id} card=${D.cards[id]} group=${group} cls=${profile.deck.includes(id) ? 'in' : ''}
-      attrs=${{ 'aria-pressed': profile.deck.includes(id) }} onClick=${() => act(p => A.toggleDeck(data, p, id))} />`)}</div>
+    <div class="du-rowcount" role="group" aria-label=${W('duel.build.rows')}>${A.ROWS.map(r => html`<span key=${r} data-row=${r} data-n=${rows[r]} class=${rows[r] ? '' : 'zero'}>${W('range.short.' + r)} <b>${rows[r]}</b></span>`)}</div>
+    <div class="du-build-act">
+      <button type="button" class="du-btn primary" id="du-build-done" onClick=${() => setScreen('lobby')}>${W('duel.build.done')}</button>
+      <button type="button" class="du-btn" id="du-autofill" title=${W('duel.build.autofill.note')} onClick=${() => act(p => A.autoFill(data, p))}>${W('duel.build.autofill')}</button>
+    </div>
+    ${chips(W('duel.build.view'), 'data-view', view, setView, [['all', W('duel.build.view.all')], ['in', W('duel.build.view.in')], ['out', W('duel.build.view.out')]])}
+    ${chips(W('duel.build.filter.row'), 'data-rowf', rowf, setRowf, [['all', W('duel.build.view.all')]].concat(A.ROWS.map(r => [r, W('range.short.' + r)])))}
+    ${chips(W('duel.build.filter.myth'), 'data-mythf', mythf, setMythf, [['all', W('duel.build.view.all')], ['main', W('duel.build.filter.main')], ['other', W('duel.build.filter.other')]])}
+    ${shown.length ? html`<div class="grid">${shown.map(id => html`<div key=${id} class="du-pick-cell">
+      <${Card} card=${D.cards[id]} group=${group} cls=${inDeck(id) ? 'in' : ''} attrs=${{ 'aria-pressed': inDeck(id) }} onClick=${() => setDetail(id)} />
+      <button type="button" class=${'du-toggle' + (inDeck(id) ? ' in' : '')} data-id=${id} onClick=${() => toggle(id)}>${W(inDeck(id) ? 'duel.build.remove' : 'duel.build.add')}</button></div>`)}</div>`
+      : html`<p class="du-empty">${W('duel.stats.none')}</p>`}
+    ${detail && html`<${Detail} data=${data} group=${group} id=${detail} fromHand=${false} onClose=${() => setDetail(null)}
+      action=${{ label: W(inDeck(detail) ? 'duel.build.remove' : 'duel.build.add'), cls: inDeck(detail) ? '' : 'primary', onClick: () => { toggle(detail); setDetail(null); } }} />`}
   </section>`;
 }
 
