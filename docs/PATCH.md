@@ -8,6 +8,10 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-10-02 · claude · 맵 그림 — 켈트·아메리카·기사 전설, 열한 권 끝
+- data/group.json — museum.maps 에 celtic·america·knight. 열한 권 전부 맵이 있다(그림 저장소 img/ui/map_<권>.webp, 1024×1536). 박물관 그림이 없던 아메리카·기사 전설도 이제 결투 판 배경이 있다
+- docs/MAP_ART.md — 지금 상태: 열한 권 끝, 다음은 다른 놀이로 넓히기
+
 ## 2026-10-02 · claude · 맵 그림 — 인도·이집트·서아시아
 - data/group.json — museum.maps 에 india·egypt·westasia. 그림 저장소 img/ui/map_<권>.webp(1024×1536, docs/MAP_ART.md 문장)
 - docs/MAP_ART.md — 지금 상태: 여덟 권 있음, 켈트·아메리카·기사 전설 남음
