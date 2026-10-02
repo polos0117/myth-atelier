@@ -25,6 +25,8 @@
 - duel.html — 껍데기, 첫 고르기·로비·덱 짜기
 - duel.html — 대결 화면: 멀리건·세 줄·손패·상세·상대 턴 0.6초·뒤집히는 변형판·숫자 연출·선공 보너스 표시·수마다 저장
 - duel.html — 결과·보상 한 장씩 공개·전적 패널(카드별 승률)·옛 저장 올리기
+- docs/DUEL_GAME.md — 놀이 규칙 문서
+- docs/GAME_CONCEPT.md · AGENTS.md · README.md — 다섯째 놀이 칸(균형 보고 수치), 검사 목록, 화면 목록
 - tests/duel-screen.cjs — 덮개 화면 흐름(고르기·덱 짜기·멀리건·대결·날씨·결과·보상·전적·새로고침·옛 저장)
 - tests/header-layout.cjs · tests/theme-screen.cjs — duel.html, 탭 일곱
 - index.html · dex.html · auto.html · run.html · draft.html · prompt.html · museum.html — 공유 파일 버전 표시

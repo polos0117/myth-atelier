@@ -70,6 +70,10 @@
 균형은 `node tests/auto-sim.cjs` 로 잰다. `--quick` 은 규칙만 보고, 빼고 돌리면 수천 판을
 굴려 표를 찍는다 — 그건 실패가 아니라 보고다.
 
+결투 규칙은 `lib/duel.js` 에만 있다. 수치는 `card.json` 에서 파생하고 `data/duel.json` 의 `overrides` 로만 덮어쓴다 —
+규칙은 `docs/DUEL_GAME.md`. `node tests/duel-sim.cjs` 를 `--quick` 없이 돌리면 297판 균형 보고를 찍고, 선공 승률 40~60% ·
+권별 승률 25~75% 를 벗어나면 실패한다.
+
 ## 검사
 
 ```bash
@@ -78,6 +82,7 @@ node tests/workspace-theme.cjs   # 결 여덟 · 밀도 · 문양
 node tests/data.cjs              # 카드·이름표·기술·화풍·그림 목록이 서로 맞나
 node tests/patch.cjs             # 패치 기록의 모양
 node tests/auto-sim.cjs --quick  # 싸움 규칙 (빼면 균형 표)
+node tests/duel-sim.cjs --quick  # 결투 규칙 (빼면 297판 균형 보고)
 node tests/prompt-engine.cjs     # 프롬프트가 화면 없이 나오나
 ```
 
@@ -101,6 +106,7 @@ ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/prompt-screen.cjs   # �
 ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/header-layout.cjs   # 화면의 머리가 같은 자리에
 ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/theme-screen.cjs    # 결이 화면을 따라다니나
 ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/patch-screen.cjs    # 패치 기록 단추
+ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/duel-screen.cjs     # 결투 — 고르기·덱 짜기·대결·결과·전적
 ```
 
 **검사를 고칠 때는 일부러 어겨 실패하는 것을 먼저 본다.** 통과하는데 아무것도 안 보는 검사가 제일 나쁘다.
