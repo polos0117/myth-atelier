@@ -8,6 +8,12 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-10-02 · claude · 결투 — 보상 뒤집기
+- lib/duel.js — 이기면 뒷장 5장(buildRewardPool: 난이도별 종류 비율 신참 65·20·10·5 / 숙련 35·30·20·15 / 에이스 15·25·25·35%, 값 가중치 신참 0·숙련 1·에이스 2 지수, 그 주인의 권 먼저, 아직 없는 카드만), 첫 승 3장·재대결 1장을 pickReward 로 골라 뒤집고 finishRewards 가 안 뒤집은 몫을 자동으로. settle 은 이제 판을 깔기만 한다(outcome.pool/picks/taken)
+- duel.html — 결과 화면에 뒷장 다섯이 깔리고 눌러서 뒤집는다. 값(1·2금 흰빛·3금 푸른빛·4금 보랏빛·5금 금빛+고리)·종류(각성판 금빛 햇살·저주판 진홍 맥동과 떨림·날씨판 줄 색)에 따라 연출이 다르다. 다 고르면 나머지는 흐리게 뒤집혀 놓친 카드로. 로비로·다시는 남은 몫을 자동으로. 판 위에 각성판·저주판·영웅이 놓일 때도 같은 결의 연출
+- lib/words.js — 뒤집기 안내 글(열쇠만 늘었다) · 설계 §6 · docs/DUEL_GAME.md · docs/GAME_CONCEPT.md — 같은 내용
+- tests/duel-sim.cjs — 뒷장 5장·고르기·같은 자리 두 번 금지·자동 마무리·난이도별 비율(120판씩)·그 권이 다 차면 다른 권 · tests/duel-screen.cjs — 뒷장 → 누른 장만 뒤집힘·값/종류 표시·새로고침·놓친 카드·자동 마무리
+
 ## 2026-10-02 · claude · 맵을 네 놀이에 — 공용 IMG.mapURL
 - lib/img.js — mapURL(group, 권)(맵 → 박물관 끝 벽 그림 → 없음)·mapStage(group, 권)(판을 감싸는 요소에 붙일 속성)를 결투에서 옮겨 공용으로(myth6)
 - lib/workspace.css — .map-stage: 그림을 어둡게 깔고 비네트, 판의 칸(.at-cell·.rn-fig·.df-card·.du-row)은 살짝 비친다(myth32)

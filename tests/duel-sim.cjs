@@ -305,40 +305,45 @@ const heroSafe = D.list.find(id => D.cards[id].hero && D.cards[id].variant === '
     mel.slice(0, 3).forEach(id => { put(st, 'foe', id).cur = 10; });
     ok(A.aiMove(data, st, 'ace').id === w, '상대가 세 장 깔면 서리(이득 27)'); }
 }
-/* 보상 · 통계 */
+/* 보상 · 통계 — 이기면 뒷장 5장이 깔리고 첫 승 3장·재대결 1장을 골라 뒤집는다. 5장의 구성은 난이도가 정한다 */
 {
   const done = (p, winner, played, level) => { const st = A.newMatch(data, p, 'greek', level || 'rookie', 3); A.confirm(data, st); st.phase = 'done'; st.winner = winner;
     st.roundLog = [{ me: 30, foe: 20, winner: 'me', units: { me: 3, foe: 2 } }, { me: 12, foe: 25, winner: 'foe', units: { me: 1, foe: 3 } }, { me: 41, foe: 19, winner: 'me', units: { me: 4, foe: 2 } }];
     st.played = played; st.me.faction.used = true; return st; };
-  const p = A.newProfile(data, 'norse', 9), k = byAb('strike');
-  const r = A.settle(data, p, done(p, 'me', [k, '묠니르']));
-  ok(r.result === 'win' && r.first && r.cards.length === 3 && r.cards.every(id => D.cards[id].myth === 'greek' && D.cards[id].variant === 'base') && p.owned.length === 28 && r.cards.every(id => p.owned.includes(id)), '첫 승 — 그 권 기본판 3장, 컬렉션에 든다');
+  const p = A.newProfile(data, 'norse', 9), k = byAb('strike'), owned0 = p.owned.length;
+  const st1 = done(p, 'me', [k, '묠니르']), r = A.settle(data, p, st1);
+  ok(r.result === 'win' && r.first && r.picks === 3 && r.pool.length === A.REWARD_POOL && r.taken.length === 0 && st1.outcome === r, '첫 승 — 뒷장 5장, 3장 고르기, 아직 하나도 안 뒤집었다');
+  ok(new Set(r.pool).size === 5 && r.pool.every(id => D.cards[id] && !p.owned.includes(id)) && p.owned.length === owned0, '5장은 서로 다르고 아직 없는 카드, 컬렉션은 아직 그대로');
+  ok(r.pool.every(id => D.cards[id].myth === 'greek'), '그 주인의 권에서 먼저');
   ok(p.beaten.greek.rookie === 1 && A.winsOf(p, 'greek') === 1 && !A.conquered(data, p), '이긴 수');
   const s = p.stats;
   ok(s.games === 1 && s.win === 1 && s.streak === 1 && s.bestStreak === 1 && s.bestRound === 41 && s.rounds === 3, '전적 줄');
   ok(s.byBoss.greek.win === 1 && s.byLevel.rookie.games === 1 && s.byMain.norse.win === 1 && s.cards[k].played === 1 && s.cards[k].won === 1 && s.cards['묠니르'].played === 1 && s.factions.norse === 1, '주인·난이도·주 권·카드·진영 능력');
-  const st2 = done(p, 'me', [k]); ok(A.settle(data, p, st2).cards.length === 1 && !A.settle(data, p, st2) && s.games === 2 && s.cards[k].played === 2, '재대결 승리 1장 · 두 번 더하지 않는다(st.rewarded)');
-  ok(A.settle(data, p, done(p, 'foe', [k])).cards.length === 0 && s.lose === 1 && s.streak === 0 && s.cards[k].won === 2, '패배 — 보상 없음, 연승 끊김');
-  ok(A.settle(data, p, done(p, 'draw', [])).cards.length === 0 && s.draw === 1 && s.games === 4, '무승부도 없음');
-  /* 난이도별 첫 승 — 신참은 기본판, 숙련은 각성판·저주판, 에이스는 날씨판 3장. 재대결은 없는 것 차례대로 */
-  { const e = A.newProfile(data, 'norse', 9);
-    let r = A.settle(data, e, done(e, 'me', [], 'ace')); ok(r.first && r.cards.length === 3 && r.cards.every(id => D.cards[id].variant === 'weather' && D.cards[id].myth === 'greek'), '에이스 첫 승 — 그 권 날씨판 3장');
-    r = A.settle(data, e, done(e, 'me', [], 'veteran')); ok(r.first && r.cards.length === 3 && r.cards.every(id => ['awaken', 'cursed'].includes(D.cards[id].variant) && D.cards[id].myth === 'greek'), '숙련 첫 승 — 각성판·저주판 3장');
-    r = A.settle(data, e, done(e, 'me', [], 'ace')); ok(!r.first && r.cards.length === 1 && D.cards[r.cards[0]].variant === 'weather' && D.cards[r.cards[0]].myth === 'greek', '에이스 재대결도 그 권 날씨판 1장');
-    r = A.settle(data, e, done(e, 'me', [], 'rookie')); ok(r.first && r.cards.every(id => D.cards[id].variant === 'base'), '신참 첫 승 — 기본판');
-    r = A.settle(data, e, done(e, 'me', [], 'rookie')); ok(!r.first && r.cards.length === 1 && D.cards[r.cards[0]].variant === 'base', '신참 재대결 — 기본판');
-    r = A.settle(data, e, done(e, 'me', [], 'veteran')); ok(!r.first && r.cards.length === 1 && ['awaken', 'cursed'].includes(D.cards[r.cards[0]].variant), '숙련 재대결 — 각성판·저주판');
-    const f = A.newProfile(data, 'norse', 9); f.owned = f.owned.concat(D.list.filter(id => D.cards[id].variant === 'weather' && D.cards[id].myth === 'greek'));
-    r = A.settle(data, f, done(f, 'me', [], 'ace')); ok(r.cards.length === 3 && r.cards.every(id => D.cards[id].variant === 'weather' && D.cards[id].myth !== 'greek'), '그 권 날씨판을 다 가졌으면 다른 권 날씨판'); }
-  /* 보상 차례 — 기본판이 다 있으면 각성판, 그 권이 다 차면 다른 권, 전부면 그만 */
-  const q = A.newProfile(data, 'norse', 9); q.owned = q.owned.concat(D.list.filter(id => D.cards[id].myth === 'greek' && D.cards[id].variant === 'base' && !q.owned.includes(id)));
-  let rq = A.settle(data, q, done(q, 'me', [])); ok(rq.first && rq.cards.length === 3 && rq.cards.every(id => D.cards[id].variant === 'base' && D.cards[id].myth !== 'greek'), '신참 첫 승인데 그 권 기본판이 다 있으면 다른 권 기본판');
-  rq = A.settle(data, q, done(q, 'me', [])); ok(!rq.first && rq.cards.length === 1 && D.cards[rq.cards[0]].variant === 'base' && D.cards[rq.cards[0]].myth !== 'greek', '신참 재대결 — 그 권 기본판이 다 있으면 다른 권 기본판');
-  q.owned = q.owned.concat(D.list.filter(id => D.cards[id].variant === 'base' && !q.owned.includes(id)));
-  rq = A.settle(data, q, done(q, 'me', [])); ok(!rq.first && rq.cards.length === 1 && D.cards[rq.cards[0]].variant === 'awaken' && D.cards[rq.cards[0]].myth === 'greek', '기본판이 아무 데도 없으면 그제야 없는 것 차례 — 각성판');
-  q.owned = q.owned.concat(D.list.filter(id => D.cards[id].myth === 'greek' && !q.owned.includes(id)));
-  ok(A.settle(data, q, done(q, 'me', [])).cards.every(id => D.cards[id].myth !== 'greek'), '그 권이 다 차면 다른 권');
-  q.owned = D.list.slice(); ok(A.settle(data, q, done(q, 'me', [])).cards.length === 0, '전부 가졌으면 보상 없음 — 멈추지 않는다');
+  /* 뒤집기 — 고른 자리의 카드가 컬렉션에, 같은 자리 두 번은 안 되고, 셋을 다 고르면 더는 못 고른다 */
+  ok(A.pickReward(data, p, st1, 1).ok && p.owned.includes(r.pool[1]) && r.taken.includes(1) && p.owned.length === owned0 + 1, '한 장 뒤집으면 그 카드가 내 것');
+  ok(A.pickReward(data, p, st1, 1).why === 'taken' && A.pickReward(data, p, st1, 9).why === 'index', '같은 자리 두 번·없는 자리는 안 된다');
+  ok(A.pickReward(data, p, st1, 0).ok && A.pickReward(data, p, st1, 4).ok && A.pickReward(data, p, st1, 2).why === 'done' && p.owned.length === owned0 + 3, '셋을 고르면 끝');
+  ok(!A.settle(data, p, st1) && s.games === 1, '두 번 더하지 않는다(st.rewarded)');
+  /* 남은 몫은 자동으로 — 로비로 갈 때 */
+  const st2 = done(p, 'me', [k]), r2 = A.settle(data, p, st2);
+  ok(r2.picks === 1 && !r2.first && r2.pool.length === 5, '재대결 — 5장 중 1장');
+  const got = A.finishRewards(data, p, st2); ok(got.length === 1 && r2.taken.length === 1 && p.owned.includes(got[0]) && A.finishRewards(data, p, st2).length === 0, '안 뒤집은 몫은 자동으로 뒤집히고, 두 번은 없다');
+  ok(A.settle(data, p, done(p, 'foe', [k])).pool.length === 0 && s.lose === 1 && s.streak === 0 && s.cards[k].won === 2, '패배 — 보상 없음, 연승 끊김');
+  ok(A.settle(data, p, done(p, 'draw', [])).picks === 0 && s.draw === 1 && s.games === 4, '무승부도 없음');
+  /* 난이도별 구성 — 수백 판 굴려 비율을 본다 */
+  const share = level => { const n = { base: 0, awaken: 0, cursed: 0, weather: 0, hero: 0, total: 0 };
+    for (let seed = 1; seed <= 120; seed++) { const q = A.newProfile(data, 'norse', seed); const st = A.newMatch(data, q, data.duel.bosses[seed % 11].myth, level, seed); A.confirm(data, st); st.phase = 'done'; st.winner = 'me'; st.roundLog = []; st.played = [];
+      const o = A.settle(data, q, st); for (const id of o.pool) { n[D.cards[id].variant]++; if (D.cards[id].hero) n.hero++; n.total++; } }
+    for (const key of Object.keys(n)) if (key !== 'total') n[key] = n[key] / n.total; return n; };
+  const R = share('rookie'), V = share('veteran'), E = share('ace');
+  ok(R.base > 0.5 && R.weather < 0.15, '신참 — 기본판이 반 넘고 날씨판은 드물다: ' + JSON.stringify(R));
+  ok(E.weather > 0.25 && E.base < 0.3, '에이스 — 날씨판이 넷에 하나 넘고 기본판은 적다: ' + JSON.stringify(E));
+  ok(V.base < R.base && V.base > E.base && V.weather > R.weather && V.weather < E.weather, '숙련은 그 사이');
+  ok(E.hero > R.hero, '에이스일수록 영웅(5금)이 자주 깔린다: ' + R.hero.toFixed(2) + ' → ' + E.hero.toFixed(2));
+  /* 가진 게 많으면 — 그 권이 다 차면 다른 권, 전부면 빈 판 */
+  const q = A.newProfile(data, 'norse', 9); q.owned = q.owned.concat(D.list.filter(id => D.cards[id].myth === 'greek' && !q.owned.includes(id)));
+  ok(A.settle(data, q, done(q, 'me', [])).pool.every(id => D.cards[id].myth !== 'greek'), '그 권이 다 차면 다른 권');
+  q.owned = D.list.slice(); ok(A.settle(data, q, done(q, 'me', [])).pool.length === 0, '전부 가졌으면 빈 판 — 멈추지 않는다');
   /* 옛 저장 — stats 없이도 settle 된다 · 화면용 보기 */
   const old = { v: A.VERSION, main: 'norse', owned: p.owned.slice(), deck: p.deck.slice(), beaten: {} };
   ok(A.settle(data, old, done(p, 'me', [k])).result === 'win' && old.stats.games === 1, 'stats 가 없던 프로필도');
@@ -349,7 +354,6 @@ const heroSafe = D.list.find(id => D.cards[id].hero && D.cards[id].variant === '
   { const q2 = A.newProfile(data, 'norse', 2), st = done(q2, 'lose', []); st.coin = 'me'; st.roundLog = [{ me: 20, foe: 30, winner: 'foe', units: { me: 1, foe: 1 } }, { me: 9, foe: 30, winner: 'foe', units: { me: 1, foe: 1 } }];
     A.settle(data, q2, st); ok(q2.stats.bestRound === 20 - A.FIRST_BONUS, '최고 합에 선공 보너스는 안 센다'); }
 }
-
 /* 자동 채우기 — 규칙(25·주 권 15·영웅 4·날씨 3·같은 id 1)을 지키며 센 카드부터 채우고, 넘치면 약한 것부터 뺀다 */
 {
   const p = A.newProfile(data, 'norse', 5);

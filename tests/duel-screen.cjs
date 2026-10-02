@@ -184,9 +184,8 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
     /* 아무 결과든 결과 화면이고, 로비로 돌아간다 */
     assert(['win', 'lose', 'draw'].includes(await p.locator('.du-result').getAttribute('data-result')), '결과');
     assert((await p.locator('.du-rounds li').count()) >= 2, '라운드 합');
+    await p.locator('#du-result-lobby').click(); await p.waitForSelector('.du-lobby');   /* 안 뒤집은 몫은 로비로 갈 때 자동으로 */
     const ownedAfterFirst = (await store(p)).profile.owned.length;
-    while (await p.locator('#du-reveal-next').count()) await p.locator('#du-reveal-next').click();
-    await p.locator('#du-result-lobby').click(); await p.waitForSelector('.du-lobby');
     /* 이기는 판 — 3라운드, 상대 목숨 하나·빈손·패스, 내 손에 센 카드 하나 */
     await p.locator('.du-boss[data-myth="greek"]').click(); await p.waitForSelector('.du-mull'); await p.locator('#du-mull-go').click(); await p.waitForSelector('.du-board');
     const big = D.list.find(id => D.cards[id].variant === 'base' && D.cards[id].power >= 12);
@@ -197,21 +196,35 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
     await p.reload(); await p.waitForSelector('.du-board');
     await p.locator('.du-hand .du-card').first().click(); await p.waitForSelector('#du-play:not(:disabled)'); await p.locator('#du-play').click();
     await p.waitForSelector('.du-result[data-result="win"]');
-    const won = await store(p);
-    const gained = won.profile.owned.length - ownedAfterFirst;
-    assert(gained === (won.profile.beaten.greek.veteran === 1 ? 3 : 1), '첫 승 3장 · 재대결 1장 — 받은 ' + gained);
-    assert.equal(await p.locator('.du-reveal .du-card').count(), 1, '한 장씩 공개');
-    assert.equal(await p.locator('.du-reveal .du-flipcard .du-back').count(), 1, '뒷면이 뒤집히며 공개된다');
-    assert.equal(await p.locator('.du-reveal .du-card').getAttribute('data-id'), won.match.outcome.cards[0], '첫 장이 먼저');
-    /* 새로고침 — 결과가 그대로이고 두 번 더하지 않는다 */
+    const won = await store(p), o = won.match.outcome;
+    assert(o.picks === (won.profile.beaten.greek.veteran === 1 ? 3 : 1) && o.pool.length >= o.picks && o.pool.length <= 5, '뒷장 5장, 첫 승 3장·재대결 1장 고르기');
+    assert.equal(won.profile.owned.length, ownedAfterFirst, '뒤집기 전엔 컬렉션이 그대로');
+    assert.equal(await p.locator('.du-reveal .du-flipcard').count(), o.pool.length, '뒷장이 다 깔렸다');
+    assert.equal(await p.locator('.du-reveal .du-flipcard.flipped').count(), 0, '처음엔 전부 뒷장');
+    assert((await p.locator('.du-result-left').innerText()).includes(String(o.picks)), '몇 장 뒤집을지 보인다');
+    await tap(p, '.du-reveal .du-flipcard');
+    /* 한 장 뒤집기 — 그 자리만 뒤집히고 그 카드가 컬렉션에. 등급(값)·종류 표시가 붙어 연출이 달라진다 */
+    await p.locator('.du-flipcard[data-index="0"]').click(); await p.waitForSelector('.du-flipcard[data-index="0"].flipped');
+    assert.equal(await p.locator('.du-flipcard.flipped').count(), 1, '누른 장만 뒤집힌다');
+    const c0 = D.cards[o.pool[0]];
+    assert.equal(await p.locator('.du-flipcard[data-index="0"]').getAttribute('data-cost'), String(c0.cost), '값 표시');
+    assert.equal(await p.locator('.du-flipcard[data-index="0"]').getAttribute('data-variant'), c0.variant, '종류 표시');
+    assert((await store(p)).profile.owned.includes(o.pool[0]) && (await store(p)).profile.owned.length === ownedAfterFirst + 1, '뒤집은 카드가 내 것');
+    /* 새로고침 — 뒤집힌 채 그대로, 두 번 더하지 않는다 */
     await p.reload(); await p.waitForSelector('.du-result[data-result="win"]');
-    assert.equal((await store(p)).profile.owned.length, won.profile.owned.length, '보상을 두 번 주지 않는다');
+    assert.equal(await p.locator('.du-flipcard.flipped').count(), 1, '새로고침해도 뒤집힌 채');
+    assert.equal((await store(p)).profile.owned.length, ownedAfterFirst + 1, '보상을 두 번 주지 않는다');
     assert.equal((await store(p)).profile.stats.games, won.profile.stats.games, '통계도 한 번');
-    while (await p.locator('#du-reveal-next').count()) await p.locator('#du-reveal-next').click();
-    assert.equal(await p.locator('.du-reveal .du-card').count(), 0, '다 보면 공개가 끝난다');
+    assert(await p.locator('.du-flipcard[data-index="0"]').isDisabled(), '같은 자리는 두 번 안 뒤집힌다(단추가 잠긴다)');
+    for (let i = 1; i < o.picks; i++) { await p.locator('.du-flipcard[data-index="' + i + '"]').click(); await p.waitForSelector('.du-flipcard[data-index="' + i + '"].flipped'); }
+    await p.waitForSelector('.du-flipcard.missed');
+    assert.equal(await p.locator('.du-flipcard.missed').count(), o.pool.length - o.picks, '다 고르면 나머지는 놓친 카드로 흐리게 뒤집힌다');
+    assert.equal((await store(p)).profile.owned.length, ownedAfterFirst + o.picks, '고른 만큼 받았다');
+    assert(await p.locator('.du-flipcard[data-index="' + (o.pool.length - 1) + '"]').isDisabled() && (await store(p)).profile.owned.length === ownedAfterFirst + o.picks, '놓친 카드는 잠겨 안 들어온다');
     await tap(p, '#du-result-lobby'); await tap(p, '#du-result-again');
     await p.locator('#du-result-lobby').click(); await p.waitForSelector('.du-lobby');
-    assert((await p.locator('.du-coll').innerText()).includes(won.profile.owned.length + '/'), '컬렉션이 늘었다');
+    const wonOwned = (await store(p)).profile.owned.length;
+    assert((await p.locator('.du-coll').innerText()).includes(wonOwned + '/'), '컬렉션이 늘었다');
     /* 전적 */
     await p.locator('#du-stats').click(); await p.waitForSelector('.du-stats');
     const s = won.profile.stats;

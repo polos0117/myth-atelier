@@ -150,6 +150,29 @@ body {color:var(--text);font-size:15px}
 .du-rounds li {padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card)} .du-rounds li b {color:var(--text)}
 .du-reveal {display:flex;flex-direction:column;align-items:center;gap:10px;margin:10px 0 14px;padding:14px;border:1px solid var(--gold);border-radius:14px;background:var(--card)}
 .du-reveal .du-card {width:100%;cursor:default}
+.du-pool {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;width:100%}
+.du-pool .du-flipcard {width:100%;min-height:44px;padding:0;border:0;background:transparent;font:inherit;color:inherit;cursor:pointer}
+.du-pool .du-flipcard:disabled {cursor:default}
+.du-result-left {font:700 12px ui-monospace,monospace;color:var(--gold)}
+/* 뒤집는 순간 — 값(1~5금)이 빛의 색, 각성판은 금빛 햇살, 저주판은 진홍 맥동, 날씨판은 그 줄 색 */
+.du-flipcard {position:relative;--rc:#e8e8e8}
+.du-flipcard[data-cost="3"] {--rc:#4a8fd9} .du-flipcard[data-cost="4"] {--rc:#b07cff} .du-flipcard[data-cost="5"] {--rc:var(--gold)}
+.du-flipcard[data-variant="weather"][data-row="melee"] {--rc:#bfe8ff} .du-flipcard[data-variant="weather"][data-row="reach"] {--rc:#d9d9d9} .du-flipcard[data-variant="weather"][data-row="ranged"] {--rc:#6fa8ff}
+.du-flipcard[data-variant="cursed"] {--rc:#ff3b5c}
+.du-flipcard .du-flipper {animation:none;transform:rotateY(0)}
+.du-flipcard.flipped .du-flipper {animation:du-reveal .8s cubic-bezier(.3,.7,.2,1) forwards}
+.du-flipcard.flipped .du-card {box-shadow:0 0 0 2px var(--rc),0 0 24px var(--rc)}
+.du-flipcard.flipped::before {content:'';position:absolute;inset:-18%;z-index:-1;border-radius:50%;background:radial-gradient(circle,var(--rc) 0,transparent 62%);opacity:0;animation:du-burst 1s .45s both}
+.du-flipcard[data-variant="awaken"].flipped::before {background:repeating-conic-gradient(from 0deg,var(--gold) 0 5deg,transparent 5deg 16deg),radial-gradient(circle,var(--gold) 0,transparent 60%);animation:du-rays 1.6s .45s both}
+.du-flipcard[data-variant="cursed"].flipped::before {animation:du-pulse 1.3s .45s both}
+.du-flipcard[data-variant="cursed"].flipped .du-flipper {animation:du-reveal .8s cubic-bezier(.3,.7,.2,1) forwards,du-tremble .5s .85s}
+.du-flipcard[data-hero].flipped::after {content:'';position:absolute;inset:0;border:3px solid var(--gold);border-radius:12px;opacity:0;animation:du-ring 1s .6s both}
+@keyframes du-burst {0% {opacity:0;transform:scale(.6)} 30% {opacity:.8} 100% {opacity:0;transform:scale(1.4)}}
+@keyframes du-rays {0% {opacity:0;transform:scale(.6) rotate(0)} 25% {opacity:.9} 100% {opacity:0;transform:scale(1.5) rotate(40deg)}}
+@keyframes du-pulse {0% {opacity:0;transform:scale(.7)} 20% {opacity:.9;transform:scale(1.1)} 45% {opacity:.3;transform:scale(.95)} 65% {opacity:.8;transform:scale(1.2)} 100% {opacity:0;transform:scale(1.4)}}
+@keyframes du-tremble {0%,100% {transform:rotateY(180deg) translateX(0)} 25% {transform:rotateY(180deg) translateX(-3px)} 75% {transform:rotateY(180deg) translateX(3px)}}
+.du-flipcard.missed .du-flipper {animation:none;transform:rotateY(180deg);transition:transform .6s} .du-flipcard.missed {opacity:.45;filter:grayscale(.6)}
+.du-glow.cursed {box-shadow:0 0 0 2px #ff3b5c,0 0 26px #ff3b5c}
 .du-reveal .du-card .cap {font-size:13px}
 .du-reward-none {margin:10px 0;color:var(--muted);font-size:13px}
 .du-result-act {display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
@@ -288,7 +311,7 @@ body {color:var(--text);font-size:15px}
 .du-flipper .du-card {transform:rotateY(180deg)}
 @keyframes du-reveal {from {transform:rotateY(0)} to {transform:rotateY(180deg)}}
 .du-reveal .du-card {animation:none}
-@media (prefers-reduced-motion:reduce) {.du-flipper {animation:none;transform:rotateY(180deg)}}
+@media (prefers-reduced-motion:reduce) {.du-flipcard.flipped .du-flipper {animation:none;transform:rotateY(180deg)} .du-flipcard.flipped::before,.du-flipcard.flipped::after {animation:none;opacity:0}}
 /* ── 판 배경(맵) — 그 주인의 권 그림을 판 뒤에 어둡게 깔고 가장자리를 비네트로 감싼다. 줄은 살짝 비쳐 그림이 보인다 ── */
 .du-board.map-stage[data-has-map] {margin:0;padding:6px}
 .du-board[data-has-map] .du-row[data-weather="true"] {background:linear-gradient(90deg,#3d7bd633,color-mix(in srgb,var(--card) 76%,transparent) 60%)}
@@ -580,7 +603,10 @@ function Match({ data, group, profile, st, actMatch, act }) {
           for (const row of document.querySelectorAll(`.du-row[data-row="${c.row}"]`)) spawn('du-rowflash', row.getBoundingClientRect(), 700, `--rc:var(--row-${c.row})`);
         } else {
           const unit = document.querySelector('.du-unit[data-fresh]');
-          fly(base.file, from, unit && unit.getBoundingClientRect(), '', () => unit && unit.classList.remove('late'), back);
+          fly(base.file, from, unit && unit.getBoundingClientRect(), '', () => { if (!unit) return; unit.classList.remove('late'); const r = unit.getBoundingClientRect();
+            /* 각성판은 금빛 햇살, 저주판은 진홍 맥동, 영웅은 금빛 고리 — 등급·상태가 보이게 */
+            if (c.variant === 'awaken') { spawn('du-glow rise', r, 700); sparks(r, 8); } else if (c.variant === 'cursed') spawn('du-glow cursed', r, 700);
+            if (c.hero) spawn('du-ring gold', { left: r.left + r.width / 2 - 30, top: r.top + r.height / 2 - 30, width: 60, height: 60 }, 700); }, back);
         }
         setTimeout(() => { playFx(data, st, rects.current); abilityFx(data, st, rects.current); }, c.variant === 'weather' ? 0 : 300);
       } else playFx(data, st, rects.current);
@@ -628,19 +654,22 @@ function Match({ data, group, profile, st, actMatch, act }) {
     ${shout && html`<div key=${shout.key} class="du-shout" data-who=${shout.who}><small>${W('duel.faction')}</small>${shout.name}</div>`}
   </section>`;
 }
-/* ── 결과 — 승·패·무, 라운드 셋, 얻은 카드를 한 장씩 크게 ── */
-function Result({ data, group, st, onLobby, onAgain }) {
-  const D = A.cardsOf(data), o = st.outcome, [shown, setShown] = useState(0);
-  const cards = (o && o.cards) || [];
+/* ── 결과 — 승·패·무, 라운드 셋, 뒷장 다섯을 눌러 뒤집는다 ── */
+function Result({ data, group, st, onLobby, onAgain, onFlip }) {
+  const D = A.cardsOf(data), o = st.outcome;
+  const pool = (o && o.pool) || [], taken = (o && o.taken) || [], picks = o ? o.picks : 0, left = Math.max(0, picks - taken.length), done = o && left === 0;
   return html`<section class="du-screen du-result" data-screen="result" data-result=${o ? o.result : undefined}>
     ${o && html`<h2>${W('duel.result.' + o.result)}</h2>`}
     <p class="sec">${W('duel.result.rounds')}</p>
     <ul class="du-rounds">${st.roundLog.map((r, i) => html`<li key=${i} data-winner=${r.winner}>${W('duel.round', { n: i + 1 })} <b>${r.me}</b> : <b>${r.foe}</b></li>`)}</ul>
-    ${o && html`<p class="sec">${W('duel.result.reward')}<span>${cards.length ? cards.length : ''}</span></p>`}
-    ${o && !cards.length && html`<p class="du-reward-none">${W(o.result === 'win' ? 'duel.result.reward.all' : 'duel.result.reward.none')}</p>`}
-    ${shown < cards.length && html`<div class="du-reveal">
-      <div class="du-flipcard"><div key=${cards[shown]} class="du-flipper"><${CardBack} group=${group} myth=${D.cards[cards[shown]].myth} /><${Card} card=${D.cards[cards[shown]]} group=${group} cls="du-card" /></div></div>
-      <button type="button" class="du-btn" id="du-reveal-next" onClick=${() => setShown(shown + 1)}>${W('duel.result.reveal')} ${shown + 1}/${cards.length}</button></div>`}
+    ${o && html`<p class="sec">${W('duel.result.reward')}<span class="help">${W('duel.result.pool.note')}</span></p>`}
+    ${o && !pool.length && html`<p class="du-reward-none">${W(o.result === 'win' ? 'duel.result.reward.all' : 'duel.result.reward.none')}</p>`}
+    ${pool.length ? html`<div class="du-reveal">
+      <p class="du-result-left">${done ? W('duel.result.flipped') : taken.length ? W('duel.result.left', { n: left }) : W('duel.result.flip', { n: picks })}</p>
+      <div class="du-pool">${pool.map((id, i) => { const c = D.cards[id], flipped = taken.includes(i), missed = done && !flipped;
+        return html`<button type="button" key=${id} class=${'du-flipcard' + (flipped ? ' flipped' : '') + (missed ? ' missed' : '')} data-index=${i} data-cost=${c.cost} data-variant=${c.variant} data-row=${c.row} data-hero=${c.hero ? '1' : undefined}
+          disabled=${flipped || done} aria-label=${flipped || missed ? c.name : W('duel.result.flip', { n: picks })} onClick=${() => onFlip(i)}>
+          <div class="du-flipper"><${CardBack} group=${group} myth=${c.myth} /><${Card} card=${c} group=${group} cls="du-card" /></div></button>`; })}</div></div>` : ''}
     <div class="du-result-act">
       <button type="button" class="du-btn primary" id="du-result-lobby" onClick=${onLobby}>${W('duel.result.lobby')}</button>
       <button type="button" class="du-btn" id="du-result-again" onClick=${onAgain}>${W('duel.result.again')}</button>
@@ -782,14 +811,17 @@ function App() {
   const act = fn => { const next = JSON.parse(JSON.stringify(profile)); fn(next); save(next, match); setProfile(next); };
   const onPick = myth => { const p = A.newProfile(data, myth, seed()); save(p, null); setProfile(p); };
   const onChallenge = myth => { const m = A.newMatch(data, profile, myth, profile.level, seed()); save(profile, m); setMatch(m); };
-  const onLobby = () => { save(profile, null); setMatch(null); setScreen('lobby'); };
-  const onAgain = () => { const m = A.newMatch(data, profile, match.boss, match.level, seed()); save(profile, m); setMatch(m); };
+  /* 보상 — 뒷장 한 장을 뒤집는다(프로필과 판을 함께 저장). 떠날 때 안 뒤집은 몫은 자동으로 */
+  const onFlip = i => { const p = JSON.parse(JSON.stringify(profile)), m = JSON.parse(JSON.stringify(match)); if (!A.pickReward(data, p, m, i).ok) return; save(p, m); setProfile(p); setMatch(m); };
+  const finish = () => { const p = JSON.parse(JSON.stringify(profile)), m = JSON.parse(JSON.stringify(match)); A.finishRewards(data, p, m); return p; };
+  const onLobby = () => { const p = finish(); save(p, null); setProfile(p); setMatch(null); setScreen('lobby'); };
+  const onAgain = () => { const p = finish(); const m = A.newMatch(data, p, match.boss, match.level, seed()); save(p, m); setProfile(p); setMatch(m); };
   const which = !profile ? 'pick' : match && match.phase === 'mulligan' ? 'mulligan' : match && match.phase === 'play' ? 'match' : match ? 'result' : screen;
   return html`<${Shell}>
     ${which === 'pick' ? html`<${Pick} data=${data} group=${group} onPick=${onPick} />`
     : which === 'mulligan' ? html`<${Mulligan} data=${data} group=${group} st=${match} actMatch=${actMatch} />`
     : which === 'match' ? html`<${Match} data=${data} group=${group} profile=${profile} st=${match} actMatch=${actMatch} act=${act} />`
-    : which === 'result' ? html`<${Result} data=${data} group=${group} st=${match} onLobby=${onLobby} onAgain=${onAgain} />`
+    : which === 'result' ? html`<${Result} data=${data} group=${group} st=${match} onLobby=${onLobby} onAgain=${onAgain} onFlip=${onFlip} />`
     : which === 'build' ? html`<${Build} data=${data} group=${group} profile=${profile} act=${act} setScreen=${setScreen} />`
     : html`<${Lobby} data=${data} group=${group} profile=${profile} act=${act} setScreen=${setScreen} onChallenge=${onChallenge} stats=${which === 'stats'} learn=${which === 'learn'} />`}
   <//>`;
