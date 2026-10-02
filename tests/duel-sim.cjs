@@ -18,6 +18,7 @@ function fixture(meHand, foeHand, opt) {
   A.confirm(data, st);
   st.me.hand = meHand.slice(); st.foe.hand = foeHand.slice(); st.turn = st.first = opt.turn || 'me';
   st.me.deck = opt.meDeck || []; st.foe.deck = opt.foeDeck || [];
+  st.coin = null;   /* 손으로 짠 판에는 선공 보너스를 두지 않는다 — 합을 그대로 센다 */
   return st;
 }
 const byAb = (ab, f) => D.list.find(id => { const c = D.cards[id]; return c.variant === 'base' && c.ability === ab && !c.hero && (!f || f(c)); });
@@ -136,6 +137,12 @@ const heroSafe = D.list.find(id => D.cards[id].hero && D.cards[id].variant === '
   const t = fixture([s1, s2], [s1, s2]);
   ok(A.pass(data, t).ok && t.turn === 'foe' && A.play(data, t, s1).ok && t.turn === 'foe', '내가 패스하면 상대는 계속 낸다');
   ok(A.legal(data, t, 'me').cards.length === 0 && !A.legal(data, t, 'me').pass, '패스한 쪽은 낼 수 없다');
+}
+/* 선공 보너스 — 1라운드에만 동전 쪽 합 +FIRST_BONUS */
+{
+  const st = fixture([], []); st.coin = 'me';
+  ok(A.scores(data, st).me.total === A.FIRST_BONUS && A.scores(data, st).foe.total === 0, '1라운드 선공 +' + A.FIRST_BONUS);
+  st.round = 2; ok(A.scores(data, st).me.total === 0, '2라운드부터는 없다');
 }
 /* 합산 — 날씨 줄은 양쪽 비영웅 1, 영웅 그대로, 또 내면 걷히고 힘이 돌아온다, 라운드 끝에 걷힌다 · 결속 */
 {
@@ -261,5 +268,85 @@ const heroSafe = D.list.find(id => D.cards[id].hero && D.cards[id].variant === '
   for (const m of Object.keys(data.duel.factions)) ok(typeof A.FACTION[m] === 'function', '진영 능력 함수 ' + m);
 }
 
+/* AI — 늘 합법, 세 난이도의 버릇 */
+{
+  const k = byAb('strike'), hero = heroIn('melee'), cursed = D.list.find(id => D.cards[id].variant === 'cursed' && !D.cards[id].hero), w = D.list.find(id => D.cards[id].variant === 'weather' && D.cards[id].row === 'melee');
+  const mel = D.list.filter(id => D.cards[id].variant === 'base' && !D.cards[id].hero && D.cards[id].row === 'melee');
+  /* 합법 — 세 난이도로 한 판씩 끝까지, 수마다 ok */
+  for (const level of A.LEVELS) {
+    const p = A.newProfile(data, 'china', 2), st = A.newMatch(data, p, 'japan', level, 21); A.confirm(data, st);
+    let guard = 0; while (st.phase === 'play' && guard++ < 80) { const r = A.aiTurn(data, st, st.turn === 'me' ? 'veteran' : level); ok(r.ok, level + ' AI 는 합법인 수만: ' + JSON.stringify(r.move)); }
+    ok(st.phase === 'done' && ['me', 'foe', 'draw'].includes(st.winner) && guard < 80, level + ' 끝까지 간다');
+  }
+  /* evaluate 는 원본을 안 건드린다 */
+  { const st = fixture([k], [k]); const before = JSON.stringify(st); const g = A.evaluate(data, st, { kind: 'card', id: k }); ok(g === D.cards[k].power && JSON.stringify(st) === before, '변화 = 낸 카드의 힘 · 원본 그대로'); }
+  /* 패스 — 앞서는데 상대가 패스했으면 셋 다 패스 */
+  { const st = fixture([k, k], [k]); put(st, 'me', k); st.passed.foe = true; for (const l of A.LEVELS) ok(A.aiMove(data, st, l).kind === 'pass', l + ' — 앞서는데 상대 패스면 패스'); }
+  /* 패스 — 뒤지는데 못 뒤집으면 숙련·에이스는 패스, 신참은 낸다, 목숨 하나면 낸다 */
+  { const st = fixture([mel[0]], [k]); const b = put(st, 'foe', k); b.cur = 60;
+    ok(A.aiMove(data, st, 'veteran').kind === 'pass' && A.aiMove(data, st, 'ace').kind === 'pass' && A.aiMove(data, st, 'rookie').kind !== 'pass', '못 뒤집으면 숙련·에이스만 패스(신참은 상위 셋 중 하나 — 진영 능력일 수도)');
+    st.lives.me = 1; ok(A.aiMove(data, st, 'veteran').kind === 'card', '목숨 하나면 끝까지 낸다'); }
+  /* 에이스 — 1라운드엔 영웅·저주판·진영 능력을 아낀다, 저주판은 손 셋 이하, 날씨판은 이득 4 이상 */
+  { const st = fixture([hero, mel[0]], [k], { main: 'japan' }); const b = put(st, 'foe', k); b.cur = 1;
+    ok(A.aiMove(data, st, 'ace').id === mel[0] && A.aiMove(data, st, 'ace').kind !== 'faction', '에이스 1라운드 — 영웅·진영 능력 대신 비영웅');
+    st.me.hand = [hero]; ok(A.aiMove(data, st, 'ace').kind === 'pass', '영웅뿐이면 1라운드엔 패스');
+    st.round = 2; ok(A.aiMove(data, st, 'ace').id === hero, '2라운드엔 영웅도 낸다');
+    st.round = 1; st.passed.foe = true; b.cur = 5; ok(A.aiMove(data, st, 'ace').id === hero, '상대가 패스했고 뒤지면 1라운드에도 영웅을 낸다'); }
+  { const st = fixture([cursed, mel[0], mel[1], mel[2]], [k]); st.round = 2; put(st, 'foe', k).cur = 1;
+    ok(A.aiMove(data, st, 'ace').id !== cursed, '손 넷이면 저주판을 안 낸다');
+    st.me.hand = [cursed]; ok(A.aiMove(data, st, 'ace').id === cursed, '손 하나면 낸다'); }
+  { const st = fixture([w, mel[0]], [k]); st.round = 2; st.lives.me = 1; /* 목숨 하나 — 못 뒤집어도 패스하지 않는다 */
+    ok(A.aiMove(data, st, 'ace').id === mel[0], '상대 줄이 비면 날씨판은 이득이 없다 — 안 낸다');
+    mel.slice(0, 3).forEach(id => { put(st, 'foe', id).cur = 10; });
+    ok(A.aiMove(data, st, 'ace').id === w, '상대가 세 장 깔면 서리(이득 27)'); }
+}
+/* 보상 · 통계 */
+{
+  const done = (p, winner, played) => { const st = A.newMatch(data, p, 'greek', 'rookie', 3); A.confirm(data, st); st.phase = 'done'; st.winner = winner;
+    st.roundLog = [{ me: 30, foe: 20, winner: 'me', units: { me: 3, foe: 2 } }, { me: 12, foe: 25, winner: 'foe', units: { me: 1, foe: 3 } }, { me: 41, foe: 19, winner: 'me', units: { me: 4, foe: 2 } }];
+    st.played = played; st.me.faction.used = true; return st; };
+  const p = A.newProfile(data, 'norse', 9), k = byAb('strike');
+  const r = A.settle(data, p, done(p, 'me', [k, '묠니르']));
+  ok(r.result === 'win' && r.first && r.cards.length === 3 && r.cards.every(id => D.cards[id].myth === 'greek' && D.cards[id].variant === 'base') && p.owned.length === 28 && r.cards.every(id => p.owned.includes(id)), '첫 승 — 그 권 기본판 3장, 컬렉션에 든다');
+  ok(p.beaten.greek.rookie === 1 && A.winsOf(p, 'greek') === 1 && !A.conquered(data, p), '이긴 수');
+  const s = p.stats;
+  ok(s.games === 1 && s.win === 1 && s.streak === 1 && s.bestStreak === 1 && s.bestRound === 41 && s.rounds === 3, '전적 줄');
+  ok(s.byBoss.greek.win === 1 && s.byLevel.rookie.games === 1 && s.byMain.norse.win === 1 && s.cards[k].played === 1 && s.cards[k].won === 1 && s.cards['묠니르'].played === 1 && s.factions.norse === 1, '주인·난이도·주 권·카드·진영 능력');
+  const st2 = done(p, 'me', [k]); ok(A.settle(data, p, st2).cards.length === 1 && !A.settle(data, p, st2) && s.games === 2 && s.cards[k].played === 2, '재대결 승리 1장 · 두 번 더하지 않는다(st.rewarded)');
+  ok(A.settle(data, p, done(p, 'foe', [k])).cards.length === 0 && s.lose === 1 && s.streak === 0 && s.cards[k].won === 2, '패배 — 보상 없음, 연승 끊김');
+  ok(A.settle(data, p, done(p, 'draw', [])).cards.length === 0 && s.draw === 1 && s.games === 4, '무승부도 없음');
+  /* 보상 차례 — 기본판이 다 있으면 각성판, 그 권이 다 차면 다른 권, 전부면 그만 */
+  const q = A.newProfile(data, 'norse', 9); q.owned = q.owned.concat(D.list.filter(id => D.cards[id].myth === 'greek' && D.cards[id].variant === 'base' && !q.owned.includes(id)));
+  ok(A.settle(data, q, done(q, 'me', [])).cards.every(id => D.cards[id].variant === 'awaken' && D.cards[id].myth === 'greek'), '기본판이 다 있으면 각성판');
+  q.owned = q.owned.concat(D.list.filter(id => D.cards[id].myth === 'greek' && !q.owned.includes(id)));
+  ok(A.settle(data, q, done(q, 'me', [])).cards.every(id => D.cards[id].myth !== 'greek'), '그 권이 다 차면 다른 권');
+  q.owned = D.list.slice(); ok(A.settle(data, q, done(q, 'me', [])).cards.length === 0, '전부 가졌으면 보상 없음 — 멈추지 않는다');
+  /* 옛 저장 — stats 없이도 settle 된다 · 화면용 보기 */
+  const old = { v: A.VERSION, main: 'norse', owned: p.owned.slice(), deck: p.deck.slice(), beaten: {} };
+  ok(A.settle(data, old, done(p, 'me', [k])).result === 'win' && old.stats.games === 1, 'stats 가 없던 프로필도');
+  const v = A.statsView(data, p);
+  ok(v.line.games === 4 && v.byBoss.length === 11 && v.byBoss[1].myth === 'greek' && v.byBoss[1].games === 4 && v.cards[0].id === k && v.cards[0].rate === null && v.avgRounds === 3 && v.factions[0].myth === 'norse', '보기 — 5판 미만은 승률 없음');
+  p.stats.cards[k] = { played: 10, won: 7 }; ok(A.statsView(data, p).cards[0].rate === 0.7, '5판부터 승률');
+  ok(A.statsView(data, A.newProfile(data, 'norse', 1)).avgRounds === null, '판이 없으면 평균 없음');
+}
+
 /* ── 끝 ── */
 console.log('PASS 결투 규칙: ' + n + ' 가지' + (quick ? ' (--quick)' : ''));
+if (quick) process.exit(0);
+/* ── 보고: AI 끼리 11권 × 3난이도 × 9시드 = 297판. 선공 승률 40~60% · 권별 승률 25~75% 를 벗어나면 실패 ── */
+const myths = data.duel.bosses.map(b => b.myth), tally = {}, add = (m, win) => { tally[m] = tally[m] || { g: 0, w: 0 }; tally[m].g++; if (win) tally[m].w++; };
+let first = 0, decided = 0, rounds = 0, units = 0, unitRounds = 0, games = 0;
+myths.forEach((main, i) => A.LEVELS.forEach((level, li) => { for (let s = 1; s <= 9; s++) {
+  const boss = myths[(i + s) % myths.length], p = A.newProfile(data, main, s * 100 + i), st = A.newMatch(data, p, boss, level, s * 1000 + i * 10 + li);
+  A.confirm(data, st); let guard = 0;
+  while (st.phase === 'play' && guard++ < 80) assert(A.aiTurn(data, st, st.turn === 'me' ? 'veteran' : level).ok, '보고 중 비합법 수');
+  assert(st.phase === 'done', '80수 안에 끝나지 않는 판: ' + main + '/' + boss + '/' + level + '/' + s);
+  games++; rounds += st.roundLog.length; st.roundLog.forEach(r => { units += r.units.me + r.units.foe; unitRounds += 2; });
+  if (st.winner !== 'draw') { decided++; if (st.winner === st.coin) first++; }   /* coin — 처음 동전. first 는 라운드마다 바뀐다 */
+  add(main, st.winner === 'me'); add(boss, st.winner === 'foe');
+} }));
+const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
+console.log('\n결투 ' + games + '판 — 선공 승률 ' + pct(first, decided) + '% (무승부 ' + (games - decided) + ') · 평균 라운드 ' + (rounds / games).toFixed(2) + ' · 라운드 끝 판 위 평균 ' + (units / unitRounds).toFixed(1) + '장');
+for (const m of myths) console.log('  ' + m.padEnd(9) + String(pct(tally[m].w, tally[m].g)).padStart(3) + '%  (' + tally[m].g + ')');
+assert(pct(first, decided) >= 40 && pct(first, decided) <= 60, '선공 승률이 40~60% 를 벗어났다');
+for (const m of myths) assert(pct(tally[m].w, tally[m].g) >= 25 && pct(tally[m].w, tally[m].g) <= 75, m + ' 승률이 25~75% 를 벗어났다');
