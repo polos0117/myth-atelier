@@ -96,4 +96,22 @@ for (const c of cards) {
       assert(Object.keys(one).every(x => ['base', 'awaken', 'cursed'].includes(x)), c.name + ' 스킨 ' + key + ' 의 칸은 base·awaken·cursed');
     }
 }
+/* 결투 자료 — 진영 능력은 권마다, 주인 열하나는 실재하는 카드·주인·이웃 권, 덮어쓰기는 실재하는 카드와 아는 능력 */
+{
+  const duel = read('duel'), DU = require('../lib/duel.js');
+  for (const m of group.myth.order) assert(duel.factions[m] && duel.factions[m].name && duel.factions[m].text, '진영 능력이 없다: ' + m);
+  assert.equal(duel.bosses.length, group.myth.order.length, '주인은 권마다 하나');
+  for (const b of duel.bosses) {
+    assert(group.myth.order.includes(b.myth) && group.myth.order.includes(b.ally) && b.ally !== b.myth, b.wielder + ' 의 권·이웃 권');
+    const portrait = cards.find(c => c.name === b.portrait);
+    assert(portrait && portrait.myth === b.myth && portrait.cost === 5, b.wielder + ' 의 초상은 그 권 5금 카드');
+    assert(cards.some(c => c.wielder === b.wielder && c.myth === b.myth), b.wielder + ' 는 그 권 무기의 주인');
+  }
+  for (const [name, o] of Object.entries(duel.overrides)) {
+    assert(cards.some(c => c.name === name), '덮어쓰기의 카드가 없다: ' + name);
+    assert(o.power === undefined || (o.power >= 1 && o.power <= 18), name + ' 덮어쓰기 힘은 1~18');
+    assert(o.ability === undefined || DU.ABILITIES.includes(o.ability), name + ' 덮어쓰기 능력');
+    assert(o.n === undefined || (o.n >= 1 && o.n <= 3), name + ' 덮어쓰기 수치는 1~3');
+  }
+}
 console.log('PASS 자료: 카드 ' + cards.length + ' · 기술 ' + Object.keys(skill.skills).length + ' · 화풍 ' + style.styles.length + ' · 그림 ' + Object.keys(img.img || {}).length + ' · 스킨 ' + skinN);

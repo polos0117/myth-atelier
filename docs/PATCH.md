@@ -8,6 +8,11 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-10-02 · claude · 신기 결투 — 다섯째 놀이
+- data/duel.json — 덮어쓰기(빈)·진영 능력 열하나·주인 열하나
+- lib/duel.js — 엔진 뼈대와 derive(): 줄=range, 힘=atk/8, 능력=effect→9종, 영웅=5금, 변형판은 img.json 에 그림이 있는 카드만
+- tests/duel-sim.cjs — 파생 검사 · tests/data.cjs — duel.json 이 자료와 맞나
+
 ## 2026-10-02 · claude · 신기 결투 — 구현 계획 완성
 - docs/superpowers/plans/2026-10-02-duel-game.md — 과제 2~12 를 이어 썼다(프로필·덱 규칙·주인 덱 → 판 진행 → 능력 아홉 → 진영 능력 열하나 → AI·보상·통계·균형 보고 → 낱말·머리 메뉴 일곱·껍데기 → 세 화면 → 결과·전적 → 문서 → 메인 링크). 과제마다 실패하는 검사와 Interfaces 를 먼저 적었다. 코드는 아직 없다
 - docs/superpowers/specs/2026-10-02-duel-game-design.md — §9 엔진 API 를 계획의 이름과 같게(cardsOf·settle·legal·statsView, data 를 첫 인자로)

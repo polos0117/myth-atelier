@@ -1,0 +1,30 @@
+{
+  "note": "신기 결투 자료. overrides 는 카드 이름 → {power, ability, n} 으로 lib/duel.js 의 derive() 가 공식으로 만든 값을 덮어쓴다(비어 있어도 된다). factions 는 신화권 → 진영 능력 {name, text} — 뜻은 data/synergy.json 의 이름을 궨트 말로 옮긴 것이고 효과는 엔진 useFaction() 에 있다. bosses 는 열한 주인 — myth 는 신화권, wielder 는 card.json 의 wielder 와 같은 글자, portrait 는 초상으로 쓰는 카드 이름, ally 는 덱에 8장 섞는 이웃 권.",
+  "overrides": {},
+  "factions": {
+    "norse": {"name": "발할라", "text": "내 묘지에서 가장 센 카드 한 장을 손으로 되돌린다"},
+    "greek": {"name": "신의 가호", "text": "내 판의 가장 센 비영웅에 기본 힘만큼 더한다 — 두 배"},
+    "korea": {"name": "호국", "text": "이 라운드 동안 내 카드는 피해·파괴를 받지 않는다"},
+    "china": {"name": "기", "text": "덱에서 두 장 뽑는다"},
+    "japan": {"name": "일섬", "text": "상대 가장 센 비영웅을 파괴한다"},
+    "india": {"name": "아스트라", "text": "다음에 내는 카드의 능력 수치가 두 배"},
+    "egypt": {"name": "영생", "text": "내 묘지에서 가장 센 카드 한 장을 바로 자기 줄에 놓는다 — 능력은 안 터진다"},
+    "westasia": {"name": "눈에는 눈", "text": "이 라운드에 내 카드가 받은 피해 합만큼 상대 가장 센 비영웅에서 깎는다"},
+    "celtic": {"name": "투혼", "text": "내 합이 상대보다 낮으면 내 모든 비영웅 +2"},
+    "america": {"name": "비취의 숨", "text": "상대 가장 센 비영웅 −3, 내 가장 약한 비영웅 +3"},
+    "knight": {"name": "롱스보의 맹세", "text": "내 묘지의 카드 수만큼(최대 5) 내 가장 센 비영웅에 더한다"}
+  },
+  "bosses": [
+    {"myth": "norse", "wielder": "토르", "portrait": "묠니르", "ally": "celtic"},
+    {"myth": "greek", "wielder": "아테나", "portrait": "아이기스", "ally": "egypt"},
+    {"myth": "korea", "wielder": "이순신", "portrait": "거북선", "ally": "china"},
+    {"myth": "china", "wielder": "손오공", "portrait": "여의봉", "ally": "korea"},
+    {"myth": "japan", "wielder": "스사노오", "portrait": "천총운검", "ally": "china"},
+    {"myth": "india", "wielder": "비슈누", "portrait": "수다르샤나", "ally": "westasia"},
+    {"myth": "egypt", "wielder": "라", "portrait": "라의 칼", "ally": "greek"},
+    {"myth": "westasia", "wielder": "마르두크", "portrait": "마르두크의 활", "ally": "india"},
+    {"myth": "celtic", "wielder": "아서", "portrait": "엑스칼리버", "ally": "knight"},
+    {"myth": "america", "wielder": "우이칠로포치틀리", "portrait": "시우코아틀", "ally": "egypt"},
+    {"myth": "knight", "wielder": "롤랑", "portrait": "뒤랑달", "ally": "celtic"}
+  ]
+}
