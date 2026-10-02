@@ -883,3 +883,23 @@ html:has(.dex-page) {height:100%;overflow:hidden;overscroll-behavior:none}
 .appearance-extra {grid-column:1/-1;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:8px;padding-top:10px;border-top:1px solid var(--line)}
 .appearance-extra button {flex:none;width:100%;min-height:42px;padding:6px 10px;font-size:12px;font-weight:700;border-radius:8px}
 .appearance-extra .header-help[aria-pressed="true"] {color:var(--gold);border-color:var(--gold);background:var(--accent-soft)}
+
+/* 세로 화면(덮개·펼친 폴드) — 글을 무대에 겹치면 무대가 위 40% 남짓으로 줄어 카드가 위로 몰리고 이름이 제목에 가렸다.
+   무대를 먼저 세우고 글은 그 아래로 내린다. 기둥·카드·고리는 무대 안에서 가운데에 선다. 넓은 화면은 겹친 그대로 */
+@media (max-width:899px) {
+  .hall {height:auto;padding-top:420px;perspective-origin:50% 200px}
+  .hall-scene {bottom:auto;height:420px}
+  .hall-fog {top:240px;bottom:auto;height:180px}
+  .hall-copy {position:relative;background:linear-gradient(transparent,var(--bg) 36px)}
+  :is(html) .hall .hall-col {bottom:9%;height:78%}
+  .hall-carousel {top:48%}
+  .hall-rings {top:66%}
+  [data-theme="lapis"] .hall-back {height:72%;bottom:16%}
+}
+@media (max-width:599px) {
+  .hall {padding-top:360px;perspective-origin:50% 175px}
+  .hall-scene {height:360px}
+  .hall-fog {top:200px;height:160px}
+  .hall-carousel {top:51%}
+  .hall-rings {top:67%}
+}

@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap">
-<link rel="stylesheet" href="lib/workspace.css?v=myth27">
+<link rel="stylesheet" href="lib/workspace.css?v=myth28">
 <script src="lib/workspace-theme.js?v=myth8"></script>
 <script src="lib/words.js?v=myth39"></script>
 <script src="lib/img.js?v=myth5"></script>
@@ -97,8 +97,10 @@ function Hall(){
     h('div',{class:'hall-halo','aria-hidden':'true'}),
     h('div',{class:'hall-fog','aria-hidden':'true'}),
     h('div',{class:'hall-scene','aria-hidden':'true'},
-      h('div',{class:'hall-floor'}),
+      /* 기둥이 장면의 첫 여섯 자식이어야 한다 — CSS 가 .hall-col:nth-child(1~6) 으로 자리를 준다.
+         바닥이 앞에 있으면 번호가 한 칸씩 밀려 기둥이 엉뚱한 자리에 선다 */
       [0,1,2,3,4,5].map(i=>h('div',{class:'hall-col',key:i},h('i'))),
+      h('div',{class:'hall-floor'}),
       h('div',{class:'hall-back'},h('i')),
       h('div',{class:'hall-rings'},h('div',{class:'hall-ring'}),h('div',{class:'hall-ring'}),h('div',{class:'hall-ring'})),
       h('div',{class:'hall-carousel'},(cards||[]).map((c,i)=>{
