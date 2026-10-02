@@ -8,6 +8,10 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-10-02 · claude · 맵 그림 — 북유럽
+- data/group.json — museum.maps 에 norse. 그림 저장소 img/ui/map_norse.webp(1024×1536, docs/MAP_ART.md 문장으로 생성). 결투에서 북유럽 주인의 판 뒤에 끝 벽 그림 대신 이 맵이 깔린다
+- docs/MAP_ART.md — 지금 상태에 북유럽 한 장
+
 ## 2026-10-02 · claude · 결투 — 판 배경(맵)
 - duel.html — 판 뒤에 그 주인의 권 그림을 어둡게 깔고 가장자리를 비네트로. 줄은 살짝 비친다. map_<권>.webp(group.json museum.maps)가 있으면 그것, 없으면 박물관 끝 벽 그림, 둘 다 없으면 테마 바탕
 - data/group.json — museum.maps(비어 있음)와 note
