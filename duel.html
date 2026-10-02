@@ -316,6 +316,22 @@ body {color:var(--text);font-size:15px}
 .du-board.map-stage[data-has-map] {margin:0;padding:6px}
 .du-board[data-has-map] .du-row[data-weather="true"] {background:linear-gradient(90deg,#3d7bd633,color-mix(in srgb,var(--card) 76%,transparent) 60%)}
 .du-board[data-has-map] .du-foe {padding-left:8px;padding-right:8px}
+/* ── 상점 — 뒷장 여섯에 값표, 희귀 자리는 금빛, 산 자리는 뒤집힌 채 ── */
+.du-shop {margin:10px 0;padding:12px 14px;border:1px solid var(--line);border-top:2px solid var(--gold);border-radius:12px;background:var(--card)}
+.du-shop-head {display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap} .du-shop-head h3 {margin:0;font:700 16px var(--display)}
+.du-shop-head .du-gold {font:800 15px ui-monospace,monospace;color:var(--gold)}
+.du-shop-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:10px 0}
+.du-shop-slot {width:100%;min-height:44px;padding:0;border:0;background:transparent;font:inherit;color:inherit;cursor:pointer}
+.du-shop-slot:disabled {cursor:default}
+.du-shop-slot.empty {display:flex;align-items:center;justify-content:center;aspect-ratio:2/3;border:1px dashed var(--line);border-radius:8px;color:var(--muted);font-size:12px}
+.du-shop-slot:disabled:not(.flipped):not(.empty) {opacity:.6}
+.du-price {position:absolute;left:50%;bottom:8%;transform:translateX(-50%);padding:3px 9px;border-radius:999px;background:#000c;color:var(--gold);font:800 12px ui-monospace,monospace;white-space:nowrap;border:1px solid var(--gold)}
+.du-shop-slot.flipped .du-price {display:none}
+.du-rare {position:absolute;left:50%;top:7%;transform:translateX(-50%);padding:2px 8px;border-radius:999px;background:var(--gold);color:#221a06;font:800 10px ui-monospace,monospace;letter-spacing:.1em}
+.du-shop-slot[data-rare] .du-back {border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 0 16px var(--gold)}
+.du-shop-act {display:flex;gap:8px;flex-wrap:wrap}
+.du-gold-earned {display:inline-block;margin-left:10px;color:var(--gold);font:800 16px ui-monospace,monospace}
+.du-head .du-gold {color:var(--gold)}
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
 <script src="lib/words.js?v=myth41"></script>
@@ -368,6 +384,9 @@ function sanitise(data, profile, match) {
   if (profile) {
     const owned = profile.owned.filter(known), deck = profile.deck.filter(known);
     if (owned.length !== profile.owned.length || deck.length !== profile.deck.length) { profile = { ...profile, owned, deck }; changed = true; }
+    /* 상점 진열이 비어 있으면(옛 저장·자료 없이 올린 프로필) 자료로 채운다. 모르는 카드가 든 자리는 비운다 */
+    const stock = (profile.shop && profile.shop.stock) || [];
+    if (stock.length < A.SHOP_SLOTS || stock.some(x => x && !known(x.id))) { profile = JSON.parse(JSON.stringify(profile)); if (profile.shop) profile.shop.stock = stock.filter(x => !x || known(x.id)); A.upgradeProfile(profile, data); changed = true; }
   }
   if (match) {
     const ids = [];
@@ -659,7 +678,7 @@ function Result({ data, group, st, onLobby, onAgain, onFlip }) {
   const D = A.cardsOf(data), o = st.outcome;
   const pool = (o && o.pool) || [], taken = (o && o.taken) || [], picks = o ? o.picks : 0, left = Math.max(0, picks - taken.length), done = o && left === 0;
   return html`<section class="du-screen du-result" data-screen="result" data-result=${o ? o.result : undefined}>
-    ${o && html`<h2>${W('duel.result.' + o.result)}</h2>`}
+    ${o && html`<h2>${W('duel.result.' + o.result)}${o.gold ? html`<span class="du-gold-earned">${W('duel.gold.earned', { n: o.gold })}</span>` : ''}</h2>`}
     <p class="sec">${W('duel.result.rounds')}</p>
     <ul class="du-rounds">${st.roundLog.map((r, i) => html`<li key=${i} data-winner=${r.winner}>${W('duel.round', { n: i + 1 })} <b>${r.me}</b> : <b>${r.foe}</b></li>`)}</ul>
     ${o && html`<p class="sec">${W('duel.result.reward')}<span class="help">${W('duel.result.pool.note')}</span></p>`}
@@ -673,6 +692,27 @@ function Result({ data, group, st, onLobby, onAgain, onFlip }) {
     <div class="du-result-act">
       <button type="button" class="du-btn primary" id="du-result-lobby" onClick=${onLobby}>${W('duel.result.lobby')}</button>
       <button type="button" class="du-btn" id="du-result-again" onClick=${onAgain}>${W('duel.result.again')}</button>
+    </div>
+  </section>`;
+}
+/* ── 상점 — 뒷장 여섯 장에 값표만. 사면 그 자리에서 뒤집힌다(연출은 보상과 같다) ── */
+function Shop({ data, group, profile, act, onClose }) {
+  const D = A.cardsOf(data), stock = profile.shop.stock, gold = profile.gold || 0, closed = A.shopClosed(data, profile);
+  return html`<section class="du-shop" aria-label=${W('duel.shop')}>
+    <div class="du-shop-head"><h3>${W('duel.shop')}</h3><span class="du-gold">${W('duel.gold', { n: gold })}</span></div>
+    <p class="note help">${W('duel.shop.note')}</p>
+    ${closed && html`<p class="du-reward-none">${W('duel.shop.closed')}</p>`}
+    <div class="du-shop-grid">${stock.map((slot, i) => { if (!slot) return html`<button key=${'e' + i} type="button" class="du-shop-slot empty" data-index=${i} disabled>${W('duel.shop.empty')}</button>`;
+      const c = D.cards[slot.id]; if (!c) return html`<button key=${'x' + i} type="button" class="du-shop-slot empty" data-index=${i} disabled>${W('duel.shop.empty')}</button>`;
+      return html`<button key=${slot.id} type="button" class=${'du-shop-slot du-flipcard' + (slot.bought ? ' flipped' : '')} data-index=${i} data-rare=${slot.rare ? '1' : undefined}
+        data-cost=${c.cost} data-variant=${c.variant} data-row=${c.row} data-hero=${c.hero ? '1' : undefined} disabled=${slot.bought || gold < slot.price}
+        aria-label=${slot.bought ? c.name : W('duel.shop.price', { n: slot.price })} onClick=${() => act(p => A.shopBuy(data, p, i))}>
+        <div class="du-flipper"><${CardBack} group=${group} myth=${c.myth} /><${Card} card=${c} group=${group} cls="du-card" /></div>
+        ${slot.rare && !slot.bought && html`<span class="du-rare">${W('duel.shop.rare')}</span>`}
+        <span class="du-price">${W('duel.shop.price', { n: slot.price })}</span></button>`; })}</div>
+    <div class="du-shop-act">
+      <button type="button" class="du-btn" id="du-shop-reroll" disabled=${gold < A.SHOP_REROLL} onClick=${() => act(p => A.shopReroll(data, p))}>${W('duel.shop.reroll', { n: A.SHOP_REROLL })}</button>
+      <button type="button" class="du-btn primary" id="du-shop-done" onClick=${onClose}>${W('duel.shop.done')}</button>
     </div>
   </section>`;
 }
@@ -712,7 +752,7 @@ function Pick({ data, group, onPick }) {
 }
 
 /* ── 로비 — 덱 상태 · 컬렉션 · 난이도 · 주인 열하나 ── */
-function Lobby({ data, group, profile, act, setScreen, onChallenge, stats, learn }) {
+function Lobby({ data, group, profile, act, setScreen, onChallenge, stats, learn, shop }) {
   const D = A.cardsOf(data), v = A.validateDeck(data, profile), max = A.collectionMax(data);
   const conquered = A.conquered(data, profile);
   return html`<section class="du-screen du-lobby" data-screen="lobby">
@@ -720,13 +760,16 @@ function Lobby({ data, group, profile, act, setScreen, onChallenge, stats, learn
       <span>${W('duel.lobby.main')} <b class="du-main">${mythName(group, profile.main)}</b></span>
       <span class="du-deck" data-ok=${v.ok ? 'true' : 'false'}><b>${W('duel.lobby.deck', { n: v.n, max: A.DECK })}</b> ${W(v.ok ? 'duel.lobby.deck.ok' : 'duel.lobby.deck.bad')}</span>
       <span class="du-coll">${W('duel.lobby.collection', { n: profile.owned.length, max })}</span>
+      <span class="du-gold">${W('duel.gold', { n: profile.gold || 0 })}</span>
       <span class="du-main-faction">${W('duel.faction')} · <b>${data.duel.factions[profile.main].name}</b> — ${data.duel.factions[profile.main].text}</span>
     </div>
     <div class="du-tools">
       <button type="button" class="du-btn" id="du-build" onClick=${() => setScreen('build')}>${W('duel.lobby.build')}</button>
       <button type="button" class="du-btn" id="du-stats" onClick=${() => setScreen('stats')}>${W('duel.lobby.stats')}</button>
+      <button type="button" class="du-btn" id="du-shop" onClick=${() => setScreen('shop')}>${W('duel.lobby.shop')}</button>
       <button type="button" class="du-btn" id="du-learn" onClick=${() => setScreen('learn')}>${W('duel.learn')}</button>
     </div>
+    ${shop && html`<${Shop} data=${data} group=${group} profile=${profile} act=${act} onClose=${() => setScreen('lobby')} />`}
     ${learn && html`<${Rules} data=${data} group=${group} onClose=${() => setScreen('lobby')} onGuideAgain=${() => { act(p => { p.tutorial = false; }); setScreen('lobby'); }} />`}
     ${stats && html`<${Stats} data=${data} group=${group} profile=${profile} onClose=${() => setScreen('lobby')} />`}
     <p class="sec">${W('duel.lobby.level')}<span class="help">${W('duel.lv.note')}</span></p>
@@ -823,7 +866,7 @@ function App() {
     : which === 'match' ? html`<${Match} data=${data} group=${group} profile=${profile} st=${match} actMatch=${actMatch} act=${act} />`
     : which === 'result' ? html`<${Result} data=${data} group=${group} st=${match} onLobby=${onLobby} onAgain=${onAgain} onFlip=${onFlip} />`
     : which === 'build' ? html`<${Build} data=${data} group=${group} profile=${profile} act=${act} setScreen=${setScreen} />`
-    : html`<${Lobby} data=${data} group=${group} profile=${profile} act=${act} setScreen=${setScreen} onChallenge=${onChallenge} stats=${which === 'stats'} learn=${which === 'learn'} />`}
+    : html`<${Lobby} data=${data} group=${group} profile=${profile} act=${act} setScreen=${setScreen} onChallenge=${onChallenge} stats=${which === 'stats'} learn=${which === 'learn'} shop=${which === 'shop'} />`}
   <//>`;
 }
 render(html`<${App} />`, document.getElementById('app'));

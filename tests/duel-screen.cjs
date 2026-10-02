@@ -39,6 +39,16 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
     await p.locator('.du-lv [data-lv="veteran"]').click();
     assert.equal((await store(p)).profile.level, 'veteran', '난이도는 저장된다');
     await tap(p, '.du-boss'); await tap(p, '.du-lv button'); await noOverflow(p);
+    /* 상점 — 처음엔 0금. 뒷장 여섯 장에 값표만, 금이 모자라 전부 잠겨 있다 */
+    assert((await p.locator('.du-gold').innerText()).includes('0'), '시작은 0금');
+    await p.locator('#du-shop').click(); await p.waitForSelector('.du-shop .du-shop-slot');
+    assert.equal(await p.locator('.du-shop .du-shop-slot').count(), 6, '진열 여섯 칸');
+    assert.equal(await p.locator('.du-shop .du-price').count(), 6, '값표 여섯');
+    assert.equal(await p.locator('.du-shop .du-shop-slot:disabled').count(), 6, '0금이면 전부 잠김');
+    assert(await p.locator('#du-shop-reroll').isDisabled(), '새로 깔기도 잠김');
+    assert.equal(await p.locator('.du-shop .du-shop-slot.flipped').count(), 0, '아직 뒷장');
+    await tap(p, '.du-shop .du-shop-slot'); await tap(p, '#du-shop-done'); await noOverflow(p);
+    await p.locator('#du-shop-done').click(); await p.waitForSelector('.du-lobby:not(:has(.du-shop))');
     /* 배우기 — 규칙 한눈에 네 장 */
     await p.locator('#du-learn').click(); await p.waitForSelector('.du-rules');
     assert.equal(await p.locator('.du-rules .du-rule-card').count(), 4, '규칙 카드 넷');
@@ -200,6 +210,7 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
     assert(o.picks === (won.profile.beaten.greek.veteran === 1 ? 3 : 1) && o.pool.length >= o.picks && o.pool.length <= 5, '뒷장 5장, 첫 승 3장·재대결 1장 고르기');
     assert.equal(won.profile.owned.length, ownedAfterFirst, '뒤집기 전엔 컬렉션이 그대로');
     assert.equal(await p.locator('.du-reveal .du-flipcard').count(), o.pool.length, '뒷장이 다 깔렸다');
+    assert((await p.locator('.du-gold-earned').innerText()).includes(String(o.gold)) && o.gold === A.GOLD.win.veteran, '숙련 승리의 금');
     assert.equal(await p.locator('.du-reveal .du-flipcard.flipped').count(), 0, '처음엔 전부 뒷장');
     assert((await p.locator('.du-result-left').innerText()).includes(String(o.picks)), '몇 장 뒤집을지 보인다');
     await tap(p, '.du-reveal .du-flipcard');
@@ -236,6 +247,21 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
     assert((await p.locator('.du-stats-best').innerText()).includes(String(s.bestRound)), '최고 합');
     assert.equal(await p.locator('.du-stats-boss tr[data-myth="norse"] td.win').innerText(), '—', '안 싸운 주인은 —');
     await noOverflow(p); await p.locator('#du-stats-close').click(); await p.waitForFunction(() => !document.querySelector('.du-stats'));
+    /* 상점에서 사기 — 금을 넉넉히 쥐여 주고, 한 칸을 사면 뒤집혀 내 것, 금이 값만큼 줄고 자리는 산 채. 새로 깔기는 10금 */
+    await p.evaluate(k => { const j = JSON.parse(localStorage.getItem(k)); j.profile.gold = 999; localStorage.setItem(k, JSON.stringify(j)); }, STORE);
+    await p.reload(); await p.waitForSelector('.du-lobby'); assert((await p.locator('.du-gold').innerText()).includes('999'), '금이 보인다');
+    await p.locator('#du-shop').click(); await p.waitForSelector('.du-shop .du-shop-slot');
+    assert.equal(await p.locator('.du-shop .du-shop-slot:not(.empty):disabled').count(), 0, '금이 있으면 산 자리 말고는 다 살 수 있다');
+    const slot0 = (await store(p)).profile.shop.stock[0], ownedBefore = (await store(p)).profile.owned.length;
+    assert((await p.locator('.du-shop-slot[data-index="0"] .du-price').innerText()).includes(String(slot0.price)), '값표는 값만');
+    await p.locator('.du-shop-slot[data-index="0"]').click(); await p.waitForSelector('.du-shop-slot[data-index="0"].flipped');
+    const after = (await store(p)).profile;
+    assert(after.owned.includes(slot0.id) && after.owned.length === ownedBefore + 1 && after.gold === 999 - slot0.price && after.shop.stock[0].bought, '사면 뒤집혀 내 것, 금이 줄고 자리는 산 채');
+    assert(await p.locator('.du-shop-slot[data-index="0"]').isDisabled(), '산 자리는 잠긴다');
+    await p.locator('#du-shop-reroll').click(); await p.waitForFunction(() => !document.querySelector('.du-shop-slot.flipped'));
+    assert.equal((await store(p)).profile.gold, 999 - slot0.price - A.SHOP_REROLL, '새로 깔기는 10금');
+    assert.equal(await p.locator('.du-shop .du-shop-slot').count(), 6, '여섯 장이 새로');
+    await p.locator('#du-shop-done').click(); await p.waitForSelector('.du-lobby:not(:has(.du-shop))');
     /* 다시 — 같은 주인으로 새 판 */
     await p.locator('.du-boss[data-myth="greek"]').click(); await p.waitForSelector('.du-mull'); await p.locator('#du-mull-go').click(); await p.waitForSelector('.du-board');
     await p.evaluate(k => { const j = JSON.parse(localStorage.getItem(k)); j.match.phase = 'done'; j.match.winner = 'foe'; j.match.roundLog = [{ me: 1, foe: 9, winner: 'foe', units: { me: 1, foe: 1 } }, { me: 1, foe: 9, winner: 'foe', units: { me: 1, foe: 1 } }]; localStorage.setItem(k, JSON.stringify(j)); }, STORE);

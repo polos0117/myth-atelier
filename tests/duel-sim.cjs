@@ -371,6 +371,42 @@ const heroSafe = D.list.find(id => D.cards[id].hero && D.cards[id].variant === '
   r = A.autoFill(data, few); ok(!r.ok && few.deck.length === 25 && A.validateDeck(data, few).problems.includes('main'), '주 권 카드가 모자라면 채우되 ok 는 아니다');
 }
 
+/* 상점 — 이기면 난이도별 금, 뒷장 여섯 장 진열(값표만), 15% 희귀 자리, 판마다 한 칸 돌림, 10금에 새로 깔기 */
+{
+  const p = A.newProfile(data, 'norse', 3);
+  ok(p.gold === 0 && p.shop && p.shop.stock.length === A.SHOP_SLOTS && p.shop.stock.every(x => x && D.cards[x.id] && !p.owned.includes(x.id) && x.price > 0), '시작은 0금, 진열 여섯 장은 아직 없는 카드');
+  ok(new Set(p.shop.stock.map(x => x.id)).size === A.SHOP_SLOTS, '진열에 같은 카드 없음');
+  /* 값 — 기본판 15~30(값 따라), 각성·저주판 40~60, 날씨판 45, 영웅 +20 */
+  const pr = id => A.shopPrice(data, id), baseLow = D.list.find(id => D.cards[id].variant === 'base' && D.cards[id].cost === 1), hero = D.list.find(id => D.cards[id].variant === 'base' && D.cards[id].hero);
+  ok(pr(baseLow) === 15 && pr(hero) === 30 + 20 && pr(hero + '@awaken') === 60 + 20 && pr(D.list.find(id => D.cards[id].variant === 'weather')) === 45, '값: ' + [pr(baseLow), pr(hero), pr(hero + '@awaken')].join('/'));
+  const aw1 = D.list.find(id => D.cards[id].variant === 'awaken' && D.cards[id].cost === 1); ok(pr(aw1) === 40, '1금 각성판 40');
+  /* 사기 — 금이 모자라면 못 사고, 사면 뒤집혀 내 것, 그 자리는 산 채로 남는다 */
+  ok(A.shopBuy(data, p, 0).why === 'gold' && p.owned.length === 25, '0금으로는 못 산다');
+  p.gold = 999; const first = p.shop.stock[0].id, price0 = p.shop.stock[0].price;
+  const b = A.shopBuy(data, p, 0); ok(b.ok && b.id === first && p.owned.includes(first) && p.gold === 999 - price0 && p.shop.stock[0].bought, '사면 내 것, 금이 줄고 자리는 산 채');
+  ok(A.shopBuy(data, p, 0).why === 'bought' && A.shopBuy(data, p, 9).why === 'index', '산 자리·없는 자리');
+  /* 희귀 자리 — 각성·저주·날씨판 가운데 값 4~5금, 금빛 테두리. 많이 깔면 15% 언저리 */
+  let rare = 0, total = 0; const q = A.newProfile(data, 'norse', 5); q.gold = 0;
+  for (let i = 0; i < 300; i++) { q.gold += A.SHOP_REROLL; A.shopReroll(data, q); for (const x of q.shop.stock) if (x) { total++; if (x.rare) { rare++; ok(D.cards[x.id].variant !== 'base' && D.cards[x.id].cost >= 4, '희귀 자리는 변형판 4~5금: ' + x.id); } } }
+  ok(rare / total > 0.08 && rare / total < 0.24, '희귀 자리 비율 15% 언저리: ' + (rare / total).toFixed(3));
+  ok(q.gold === 0, '새로 깔기는 10금');
+  ok(A.shopReroll(data, q).why === 'gold', '금이 모자라면 새로 못 깐다');
+  /* 판이 끝나면 금 — 신참 10 · 숙련 20 · 에이스 35, 지면 3 — 과 진열 한 칸 돌림(가장 오래된 한 장이 나간다) */
+  const done = (pf, winner, level) => { const st = A.newMatch(data, pf, 'greek', level, 3); A.confirm(data, st); st.phase = 'done'; st.winner = winner; st.roundLog = []; st.played = []; return st; };
+  const g = A.newProfile(data, 'norse', 7); const before = g.shop.stock.map(x => x.id);
+  let o = A.settle(data, g, done(g, 'me', 'ace')); ok(g.gold === 35 && o.gold === 35, '에이스 승리 +35금');
+  ok(g.shop.stock.length === A.SHOP_SLOTS && g.shop.stock[A.SHOP_SLOTS - 1].id !== before[A.SHOP_SLOTS - 1] && JSON.stringify(g.shop.stock.slice(0, 5).map(x => x.id)) === JSON.stringify(before.slice(1)), '한 칸 돌림 — 맨 앞이 나가고 새 장이 맨 뒤에');
+  o = A.settle(data, g, done(g, 'me', 'veteran')); ok(g.gold === 55, '숙련 승리 +20');
+  o = A.settle(data, g, done(g, 'me', 'rookie')); ok(g.gold === 65, '신참 승리 +10');
+  o = A.settle(data, g, done(g, 'foe', 'ace')); ok(g.gold === 68 && o.gold === 3, '패배도 참가비 3');
+  o = A.settle(data, g, done(g, 'draw', 'ace')); ok(g.gold === 71, '무승부도 3');
+  /* 전부 가졌으면 진열이 비고 닫힌다 · 옛 저장은 금 0 과 진열을 받는다 */
+  const all = A.newProfile(data, 'norse', 9); all.owned = D.list.slice(); all.gold = 10; A.shopReroll(data, all);
+  ok(all.shop.stock.every(x => x === null) && A.shopClosed(data, all), '다 모으면 빈 진열 — 닫힘');
+  const old = A.upgradeProfile({ main: 'norse', owned: p.owned.slice(), deck: p.deck.slice() }, data);
+  ok(old.gold === 0 && old.shop && old.shop.stock.length === A.SHOP_SLOTS, '옛 저장도 상점을 받는다(자료를 주면 진열까지)');
+}
+
 /* ── 끝 ── */
 console.log('PASS 결투 규칙: ' + n + ' 가지' + (quick ? ' (--quick)' : ''));
 if (quick) process.exit(0);
