@@ -241,6 +241,17 @@ body {color:var(--text);font-size:15px}
 .du-stream {position:fixed;height:4px;transform-origin:0 50%;border-radius:2px;pointer-events:none;background:repeating-linear-gradient(90deg,#ff6b6b 0 10px,#8fe39a 10px 20px);box-shadow:0 0 8px #8fe39a;animation:du-stream .6s linear forwards}
 @keyframes du-stream {0% {opacity:0;background-position:0 0} 20% {opacity:1} 100% {opacity:0;background-position:-80px 0}}
 @media (prefers-reduced-motion:reduce) {.du-slash,.du-wave,.du-cross,.du-stream {animation:none} .du-row[data-weather="true"]::after {animation:none} .du-unit.arrive,.du-unit.arrive.late {animation:none;opacity:1} .du-shout,.du-flash,.du-ring,.du-glow,.du-spark,.du-rowflash,.du-ghost {animation:none}}
+/* ── 진영 능력 설명 ── */
+.du-faction-text {display:block;margin-top:3px;font-weight:400;font-size:11px;line-height:1.45;color:var(--muted);word-break:keep-all}
+.du-main-faction {flex-basis:100%;font-weight:400;letter-spacing:0;font-size:12px;line-height:1.5;color:var(--muted);word-break:keep-all} .du-main-faction b {font-size:12px}
+.du-factions {list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px;font-size:12px;line-height:1.5;color:var(--muted);word-break:keep-all}
+.du-factions li {padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card2)} .du-factions b {color:var(--text)} .du-factions i {font-style:normal;color:var(--accent);margin-right:6px}
+.du-foe-faction {min-height:44px;padding:0 8px;margin:-8px 0;border:0;border-radius:8px;background:transparent;color:var(--gold);font:inherit;font-weight:700;cursor:pointer;text-decoration:underline dotted}
+.du-foe-faction[data-used="true"] {text-decoration:line-through;opacity:.6}
+.du-faction-sheet {position:fixed;left:0;right:0;bottom:0;z-index:50;padding:14px 16px calc(12px + env(safe-area-inset-bottom));background:var(--card);border-top:2px solid var(--gold);border-radius:14px 14px 0 0;box-shadow:0 -10px 30px #000a}
+.du-faction-sheet small {display:block;font:700 11px ui-monospace,monospace;letter-spacing:.1em;color:var(--accent)} .du-faction-sheet h4 {margin:4px 0 6px;font:700 18px var(--display)}
+.du-faction-sheet p {margin:0;font-size:13px;line-height:1.6;color:var(--text);word-break:keep-all} .du-faction-sheet p.note {color:var(--muted);font-size:12px}
+.du-faction-sheet .du-detail-act {margin-top:12px}
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
 <script src="lib/words.js?v=myth41"></script>
@@ -394,10 +405,12 @@ function Count({ to, win }) {
 }
 
 /* ── 규칙 한눈에 — 로비의 "배우기" 와 대결의 ? 가 연다 ── */
-function Rules({ onClose, onGuideAgain }) {
+function Rules({ data, group, onClose, onGuideAgain }) {
   return html`<section class="du-rules" role="dialog" aria-label=${W('duel.rules.title')}>
     <div class="du-rules-head"><h3>${W('duel.rules.title')}</h3><button type="button" class="du-btn" id="du-rules-close" onClick=${onClose}>${W('duel.close')}</button></div>
     <div class="du-rules-grid">${[1, 2, 3, 4].map(i => html`<div key=${i} class="du-rule-card"><b>${W('duel.rules.' + i + '.title')}</b><p>${W('duel.rules.' + i + '.text')}</p></div>`)}</div>
+    <p class="sec">${W('duel.rules.factions')}</p>
+    <ul class="du-factions">${data.duel.bosses.map(b => html`<li key=${b.myth} data-myth=${b.myth}><i>${mythName(group, b.myth)}</i><b>${data.duel.factions[b.myth].name}</b> — ${data.duel.factions[b.myth].text}</li>`)}</ul>
     ${onGuideAgain && html`<div class="du-rules-act"><button type="button" class="du-btn" id="du-guide-again" onClick=${onGuideAgain}>${W('duel.guide.again')}</button></div>`}
   </section>`;
 }
@@ -492,7 +505,7 @@ function Match({ data, group, profile, st, actMatch, act }) {
   const D = A.cardsOf(data), boss = A.bossOf(data, st.boss), portrait = D.cards[boss.portrait];
   const sc = A.scores(data, st), L = A.legal(data, st, 'me'), mine = st.turn === 'me' && st.phase === 'play';
   const [detail, setDetail] = useState(null);   /* {id, fromHand, unit} */
-  const [banner, setBanner] = useState(null), [help, setHelp] = useState(false), [shout, setShout] = useState(null);
+  const [banner, setBanner] = useState(null), [help, setHelp] = useState(false), [shout, setShout] = useState(null), [fsheet, setFsheet] = useState(null);   /* 'me' | 'foe' — 진영 능력 설명 창 */
   const rounds = useRef(st.roundLog.length), flyRef = useRef(null), rects = useRef({});
   useEffect(() => {   /* 라운드가 끝난 수에는 결과 한 줄이 떴다 사라진다 */
     if (st.roundLog.length > rounds.current && !reduced()) { setBanner(st.roundLog.length); const t = setTimeout(() => setBanner(null), 1200); rounds.current = st.roundLog.length; return () => clearTimeout(t); }
@@ -530,7 +543,7 @@ function Match({ data, group, profile, st, actMatch, act }) {
       <span><b>${boss.wielder}</b>${mythName(group, st.boss)} · ${W('duel.lv.' + st.level)}</span>
       <span class="du-foe-hand">${W('duel.foe.hand', { n: st.foe.hand.length })}</span>
       <span class="du-foe-grave">${W('duel.foe.grave', { n: st.foe.grave.length })}</span>
-      <span class="du-foe-faction" data-used=${st.foe.faction.used ? 'true' : 'false'}>${data.duel.factions[st.boss].name}</span>${flags('foe')}</div>
+      <button type="button" class="du-foe-faction" data-used=${st.foe.faction.used ? 'true' : 'false'} onClick=${() => setFsheet('foe')}>${data.duel.factions[st.boss].name}</button>${flags('foe')}</div>
     ${['ranged', 'reach', 'melee'].map(r => html`<${Row} key=${'f' + r} data=${data} st=${st} side="foe" row=${r} sum=${sc.foe.rows[r]} onDetail=${open} />`)}
     <div class="du-bar">
       <span class="du-score"><b data-side="me">${sc.me.total}</b>${st.round === 1 && st.coin === 'me' && html`<small class="du-first-bonus">${W('duel.first.bonus', { n: A.FIRST_BONUS })}</small>`}
@@ -540,7 +553,7 @@ function Match({ data, group, profile, st, actMatch, act }) {
       <span class="du-turn" data-turn=${st.turn || ''}>${st.passed.me ? W('duel.passed') : W(mine ? 'duel.turn.me' : 'duel.turn.foe')}</span>${flags('me')}
       <span class="du-bar-act">
         <button type="button" class="du-btn du-help" id="du-help" aria-label=${W('duel.rules.title')} title=${W('duel.rules.title')} onClick=${() => setHelp(true)}>?</button>
-        <button type="button" class="du-btn" id="du-faction" disabled=${!L.faction} title=${data.duel.factions[profile.main].text} onClick=${() => actMatch(m => A.useFaction(data, m))}>${W('duel.faction.use', { name: data.duel.factions[profile.main].name })}</button>
+        <button type="button" class="du-btn" id="du-faction" disabled=${st.me.faction.used} aria-haspopup="dialog" onClick=${() => setFsheet('me')}>${W('duel.faction.use', { name: data.duel.factions[profile.main].name })}</button>
         <button type="button" class="du-btn" id="du-pass" disabled=${!L.pass} onClick=${() => { setDetail(null); actMatch(m => A.pass(data, m)); }}>${W('duel.pass')}</button>
       </span>
       ${lastRound && html`<span class="du-last-round">${roundText(lastRound, st.roundLog.length)}</span>`}
@@ -550,7 +563,11 @@ function Match({ data, group, profile, st, actMatch, act }) {
     <div class="du-hand">${st.me.hand.map((id, i) => html`<${Card} key=${id + i} card=${D.cards[id]} art=${D.cards[D.cards[id].name].file} group=${group} cls="du-card" onClick=${() => open(id, true)} />`)}</div></div>
     ${detail && html`<${Detail} data=${data} group=${group} st=${st} id=${detail.id} unit=${detail.unit} fromHand=${detail.fromHand} canPlay=${mine && L.cards.includes(detail.id)}
       onPlay=${() => { const el = document.querySelector(`.du-hand .du-card[data-id="${detail.id}"]`); flyRef.current = el ? { id: detail.id, from: el.getBoundingClientRect() } : null; setDetail(null); actMatch(m => A.play(data, m, detail.id)); }} onClose=${() => setDetail(null)} />`}
-    ${help && html`<${Rules} onClose=${() => setHelp(false)} />`}
+    ${help && html`<${Rules} data=${data} group=${group} onClose=${() => setHelp(false)} />`}
+    ${fsheet && (() => { const f = data.duel.factions[fsheet === 'me' ? profile.main : st.boss], used = st[fsheet].faction.used; return html`<div class="du-faction-sheet" data-who=${fsheet} role="dialog" aria-label=${f.name}>
+      <small>${W(fsheet === 'me' ? 'duel.faction.mine' : 'duel.faction.foe')}${used ? ' · ' + W('duel.faction.used') : ''}</small><h4>${f.name}</h4><p>${f.text}</p><p class="note">${W('duel.faction.once')}</p>
+      <div class="du-detail-act">${fsheet === 'me' && html`<button type="button" class="du-btn primary" id="du-faction-use" disabled=${!L.faction} onClick=${() => { setFsheet(null); actMatch(m => A.useFaction(data, m)); }}>${W('duel.faction.sheet.use')}</button>`}
+        <button type="button" class="du-btn" id="du-faction-close" onClick=${() => setFsheet(null)}>${W('duel.close')}</button></div></div>`; })()}
     ${banner && lastRound && html`<div class="du-banner">${W('duel.round.' + (lastRound.winner === 'me' ? 'win' : lastRound.winner === 'foe' ? 'lose' : 'draw') + '.short', { n: st.roundLog.length })}<span class="du-count"><${Count} to=${lastRound.me} win=${lastRound.winner === 'me'} /> : <${Count} to=${lastRound.foe} win=${lastRound.winner === 'foe'} /></span></div>`}
     ${shout && html`<div key=${shout.key} class="du-shout" data-who=${shout.who}><small>${W('duel.faction')}</small>${shout.name}</div>`}
   </section>`;
@@ -604,7 +621,7 @@ function Pick({ data, group, onPick }) {
     <p class="note">${W('duel.pick.note')}</p>
     <div class="du-myths" role="group" aria-label=${W('duel.pick.title')}>${data.duel.bosses.map(b => html`<button key=${b.myth} type="button"
       class=${'du-myth' + (myth === b.myth ? ' on' : '')} data-myth=${b.myth} style=${'--mc:' + mythColor(group, b.myth)} aria-pressed=${myth === b.myth} onClick=${() => setMyth(b.myth)}>
-      <span>${mythName(group, b.myth)}<small>${data.duel.factions[b.myth].name} · ${b.wielder}</small></span></button>`)}</div>
+      <span>${mythName(group, b.myth)}<small>${data.duel.factions[b.myth].name} · ${b.wielder}</small><span class="du-faction-text">${data.duel.factions[b.myth].text}</span></span></button>`)}</div>
     <button type="button" class="du-btn primary" id="du-pick-go" disabled=${!myth} onClick=${() => onPick(myth)}>${W('duel.pick.go')}</button>
   </section>`;
 }
@@ -618,13 +635,14 @@ function Lobby({ data, group, profile, act, setScreen, onChallenge, stats, learn
       <span>${W('duel.lobby.main')} <b class="du-main">${mythName(group, profile.main)}</b></span>
       <span class="du-deck" data-ok=${v.ok ? 'true' : 'false'}><b>${W('duel.lobby.deck', { n: v.n, max: A.DECK })}</b> ${W(v.ok ? 'duel.lobby.deck.ok' : 'duel.lobby.deck.bad')}</span>
       <span class="du-coll">${W('duel.lobby.collection', { n: profile.owned.length, max })}</span>
+      <span class="du-main-faction">${W('duel.faction')} · <b>${data.duel.factions[profile.main].name}</b> — ${data.duel.factions[profile.main].text}</span>
     </div>
     <div class="du-tools">
       <button type="button" class="du-btn" id="du-build" onClick=${() => setScreen('build')}>${W('duel.lobby.build')}</button>
       <button type="button" class="du-btn" id="du-stats" onClick=${() => setScreen('stats')}>${W('duel.lobby.stats')}</button>
       <button type="button" class="du-btn" id="du-learn" onClick=${() => setScreen('learn')}>${W('duel.learn')}</button>
     </div>
-    ${learn && html`<${Rules} onClose=${() => setScreen('lobby')} onGuideAgain=${() => { act(p => { p.tutorial = false; }); setScreen('lobby'); }} />`}
+    ${learn && html`<${Rules} data=${data} group=${group} onClose=${() => setScreen('lobby')} onGuideAgain=${() => { act(p => { p.tutorial = false; }); setScreen('lobby'); }} />`}
     ${stats && html`<${Stats} data=${data} group=${group} profile=${profile} onClose=${() => setScreen('lobby')} />`}
     <p class="sec">${W('duel.lobby.level')}<span class="help">${W('duel.lv.note')}</span></p>
     <div class="du-lv" role="group" aria-label=${W('duel.lobby.level')}>${A.LEVELS.map(l => html`<button key=${l} type="button" data-lv=${l}

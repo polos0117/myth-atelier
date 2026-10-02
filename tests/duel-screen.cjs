@@ -20,6 +20,8 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
     /* 첫 고르기 */
     await p.waitForSelector('.du-pick .du-myth');
     assert.equal(await p.locator('.du-myth').count(), 11, '열한 권');
+    assert.equal(await p.locator('.du-myth .du-faction-text').count(), 11, '권마다 진영 능력 설명');
+    assert((await p.locator('.du-myth[data-myth="norse"] .du-faction-text').innerText()).includes(data.duel.factions.norse.text), '설명은 자료의 글');
     assert(await p.locator('#du-pick-go').isDisabled(), '고르기 전엔 못 간다');
     await tap(p, '.du-myth'); await noOverflow(p);
     await p.locator('.du-myth[data-myth="norse"]').click();
@@ -31,6 +33,7 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
     assert((await p.locator('.du-deck').innerText()).includes('25/25'), '덱 25/25');
     assert((await p.locator('.du-coll').innerText()).includes('25/' + max), '컬렉션 25/' + max);
     assert.equal(await p.locator('.du-boss').count(), 11, '주인 열하나');
+    assert((await p.locator('.du-main-faction').innerText()).includes(data.duel.factions.norse.text), '로비에 주 권의 진영 능력 설명');
     assert.equal(await p.locator('.du-boss:disabled').count(), 0, '다 도전할 수 있다');
     assert.equal(await p.locator('.du-lv .on').getAttribute('data-lv'), 'rookie', '처음은 신참');
     await p.locator('.du-lv [data-lv="veteran"]').click();
@@ -39,6 +42,7 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
     /* 배우기 — 규칙 한눈에 네 장 */
     await p.locator('#du-learn').click(); await p.waitForSelector('.du-rules');
     assert.equal(await p.locator('.du-rules .du-rule-card').count(), 4, '규칙 카드 넷');
+    assert.equal(await p.locator('.du-rules .du-factions li').count(), 11, '진영 능력 열하나 표');
     await tap(p, '#du-rules-close'); await noOverflow(p);
     await p.locator('#du-rules-close').click(); await p.waitForSelector('.du-lobby:not(:has(.du-rules))');
     /* 덱 짜기 — 빼면 규칙 줄이 빨개지고 출전이 막힌다 */
@@ -87,6 +91,14 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
     assert.equal(await p.locator('.du-guide').getAttribute('data-step'), '1', '첫 판엔 길잡이 1단계');
     assert.equal(await p.locator('.du-hand .du-card .du-row-tag, .du-hand .du-card .du-pw.wx').count(), 10, '손패 카드마다 줄(또는 날씨) 표시');
     await p.locator('#du-help').click(); await p.waitForSelector('.du-rules'); await p.locator('#du-rules-close').click(); await p.waitForFunction(() => !document.querySelector('.du-rules'));
+    /* 진영 능력 — 단추는 바로 쓰지 않고 확인 창(이름·설명·쓰기)을 연다. 상대 띠의 이름을 누르면 상대 능력 설명 */
+    await p.locator('#du-faction').click(); await p.waitForSelector('.du-faction-sheet[data-who="me"]');
+    assert((await p.locator('.du-faction-sheet').innerText()).includes(data.duel.factions.norse.text) && await p.locator('#du-faction-use').count() === 1, '내 진영 능력 설명과 쓰기');
+    assert.equal((await store(p)).match.me.faction.used, false, '열기만 해서는 안 쓴다');
+    await tap(p, '#du-faction-use'); await tap(p, '#du-faction-close'); await p.locator('#du-faction-close').click(); await p.waitForFunction(() => !document.querySelector('.du-faction-sheet'));
+    await p.locator('.du-foe-faction').click(); await p.waitForSelector('.du-faction-sheet[data-who="foe"]');
+    assert((await p.locator('.du-faction-sheet').innerText()).includes(data.duel.factions.greek.text) && await p.locator('#du-faction-use').count() === 0, '상대 진영 능력 설명, 쓰기 없음');
+    await p.locator('#du-faction-close').click(); await p.waitForFunction(() => !document.querySelector('.du-faction-sheet'));
     await tap(p, '.du-hand .du-card'); await tap(p, '#du-pass'); await tap(p, '#du-faction'); await noOverflow(p);
     /* 날씨판 — 상세의 단추 글이 "서리를 부른다", 내면 양쪽 줄 머리에 표시가 붙고 숫자가 1 로 */
     await p.locator('.du-hand .du-card[data-id="' + wx + '"]').first().click(); /* 손패에 같은 카드가 또 있을 수 있다 */ await p.waitForSelector('.du-detail[data-id="' + wx + '"]');
