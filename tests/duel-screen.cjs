@@ -215,19 +215,27 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
     assert((await p.locator('.du-result-left').innerText()).includes(String(o.picks)), '몇 장 뒤집을지 보인다');
     await tap(p, '.du-reveal .du-flipcard');
     /* 한 장 뒤집기 — 그 자리만 뒤집히고 그 카드가 컬렉션에. 등급(값)·종류 표시가 붙어 연출이 달라진다 */
-    await p.locator('.du-flipcard[data-index="0"]').click(); await p.waitForSelector('.du-flipcard[data-index="0"].flipped');
+    assert(o.picks >= 2, '첫 승이라 두 장 넘게 고른다');
+    await p.locator('.du-flipcard[data-index="1"]').click(); await p.waitForSelector('.du-flipcard[data-index="1"].flipped');
     assert.equal(await p.locator('.du-flipcard.flipped').count(), 1, '누른 장만 뒤집힌다');
+    /* 뒤집힌 장의 빛 연출이 옆 장을 덮어 손가락을 가로채면 안 된다 — 0번 오른쪽 가장자리를 짚으면 0번이 잡히고, 거기를 눌러도 0번이 뒤집힌다 */
+    await p.waitForTimeout(1200);
+    const r0 = await p.locator('.du-flipcard[data-index="0"]').boundingBox(), edge = [r0.x + r0.width * .92, r0.y + r0.height / 2];
+    const hitEdge = await p.evaluate(([x, y]) => { const e = document.elementFromPoint(x, y), b = e && e.closest('.du-flipcard'); return b ? b.dataset.index : String(e && e.className); }, edge);
+    assert.equal(hitEdge, "0", "옆 장의 연출이 0번 가장자리를 가로채지 않는다");
+    await p.mouse.click(edge[0], edge[1]); await p.waitForSelector('.du-flipcard[data-index="0"].flipped');
+    assert.equal(await p.locator('.du-flipcard.flipped').count(), 2, '가장자리를 눌러도 뒤집힌다');
     const c0 = D.cards[o.pool[0]];
     assert.equal(await p.locator('.du-flipcard[data-index="0"]').getAttribute('data-cost'), String(c0.cost), '값 표시');
     assert.equal(await p.locator('.du-flipcard[data-index="0"]').getAttribute('data-variant'), c0.variant, '종류 표시');
-    assert((await store(p)).profile.owned.includes(o.pool[0]) && (await store(p)).profile.owned.length === ownedAfterFirst + 1, '뒤집은 카드가 내 것');
+    assert((await store(p)).profile.owned.includes(o.pool[0]) && (await store(p)).profile.owned.length === ownedAfterFirst + 2, '뒤집은 카드가 내 것');
     /* 새로고침 — 뒤집힌 채 그대로, 두 번 더하지 않는다 */
     await p.reload(); await p.waitForSelector('.du-result[data-result="win"]');
-    assert.equal(await p.locator('.du-flipcard.flipped').count(), 1, '새로고침해도 뒤집힌 채');
-    assert.equal((await store(p)).profile.owned.length, ownedAfterFirst + 1, '보상을 두 번 주지 않는다');
+    assert.equal(await p.locator('.du-flipcard.flipped').count(), 2, '새로고침해도 뒤집힌 채');
+    assert.equal((await store(p)).profile.owned.length, ownedAfterFirst + 2, '보상을 두 번 주지 않는다');
     assert.equal((await store(p)).profile.stats.games, won.profile.stats.games, '통계도 한 번');
     assert(await p.locator('.du-flipcard[data-index="0"]').isDisabled(), '같은 자리는 두 번 안 뒤집힌다(단추가 잠긴다)');
-    for (let i = 1; i < o.picks; i++) { await p.locator('.du-flipcard[data-index="' + i + '"]').click(); await p.waitForSelector('.du-flipcard[data-index="' + i + '"].flipped'); }
+    for (let i = 2; i < o.picks; i++) { await p.locator('.du-flipcard[data-index="' + i + '"]').click(); await p.waitForSelector('.du-flipcard[data-index="' + i + '"].flipped'); }
     await p.waitForSelector('.du-flipcard.missed');
     assert.equal(await p.locator('.du-flipcard.missed').count(), o.pool.length - o.picks, '다 고르면 나머지는 놓친 카드로 흐리게 뒤집힌다');
     assert.equal((await store(p)).profile.owned.length, ownedAfterFirst + o.picks, '고른 만큼 받았다');
@@ -258,6 +266,11 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
     const after = (await store(p)).profile;
     assert(after.owned.includes(slot0.id) && after.owned.length === ownedBefore + 1 && after.gold === 999 - slot0.price && after.shop.stock[0].bought, '사면 뒤집혀 내 것, 금이 줄고 자리는 산 채');
     assert(await p.locator('.du-shop-slot[data-index="0"]').isDisabled(), '산 자리는 잠긴다');
+    /* 정렬 — 뒷장 여섯은 같은 크기, 산 자리의 앞면은 그 자리를 꽉 채운다(뒷장은 앞면 크기를 따라가므로 앞면이 좁으면 뒷장이 어긋난다) */
+    const boxes = await p.locator('.du-shop .du-shop-slot .du-flipper').evaluateAll(es => es.map(e => { const r = e.getBoundingClientRect(), c = e.querySelector('.du-card').getBoundingClientRect(), b = e.querySelector('.du-back').getBoundingClientRect(); return [r.width, r.height, c.width, c.height, b.width, b.height].map(Math.round); }));
+    assert.equal(boxes.length, 6, '여섯 자리');
+    for (const b of boxes) assert(Math.abs(b[0] - b[2]) <= 1 && Math.abs(b[1] - b[3]) <= 1 && Math.abs(b[0] - b[4]) <= 1 && Math.abs(b[1] - b[5]) <= 1, '앞면·뒷장이 자리를 꽉 채운다: ' + b);
+    for (const b of boxes) assert(Math.abs(b[0] - boxes[0][0]) <= 1 && Math.abs(b[1] - boxes[0][1]) <= 2, '여섯 자리가 같은 크기: ' + b + ' vs ' + boxes[0]);
     await p.locator('#du-shop-reroll').click(); await p.waitForFunction(() => !document.querySelector('.du-shop-slot.flipped'));
     assert.equal((await store(p)).profile.gold, 999 - slot0.price - A.SHOP_REROLL, '새로 깔기는 10금');
     assert.equal(await p.locator('.du-shop .du-shop-slot').count(), 6, '여섯 장이 새로');

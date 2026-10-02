@@ -149,13 +149,14 @@ body {color:var(--text);font-size:15px}
 .du-rounds {list-style:none;margin:6px 0 12px;padding:0;display:flex;gap:8px;flex-wrap:wrap;font:700 13px ui-monospace,monospace;color:var(--muted)}
 .du-rounds li {padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card)} .du-rounds li b {color:var(--text)}
 .du-reveal {display:flex;flex-direction:column;align-items:center;gap:10px;margin:10px 0 14px;padding:14px;border:1px solid var(--gold);border-radius:14px;background:var(--card)}
-.du-reveal .du-card {width:100%;cursor:default}
+.du-flipcard .du-card {width:100%;cursor:default}
 .du-pool {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;width:100%}
 .du-pool .du-flipcard {width:100%;min-height:44px;padding:0;border:0;background:transparent;font:inherit;color:inherit;cursor:pointer}
 .du-pool .du-flipcard:disabled {cursor:default}
 .du-result-left {font:700 12px ui-monospace,monospace;color:var(--gold)}
 /* 뒤집는 순간 — 값(1~5금)이 빛의 색, 각성판은 금빛 햇살, 저주판은 진홍 맥동, 날씨판은 그 줄 색 */
 .du-flipcard {position:relative;--rc:#e8e8e8}
+.du-flipcard::before,.du-flipcard::after {pointer-events:none} /* 빛 연출은 옆 장 위로 번지므로 손가락을 받지 않는다 */
 .du-flipcard[data-cost="3"] {--rc:#4a8fd9} .du-flipcard[data-cost="4"] {--rc:#b07cff} .du-flipcard[data-cost="5"] {--rc:var(--gold)}
 .du-flipcard[data-variant="weather"][data-row="melee"] {--rc:#bfe8ff} .du-flipcard[data-variant="weather"][data-row="reach"] {--rc:#d9d9d9} .du-flipcard[data-variant="weather"][data-row="ranged"] {--rc:#6fa8ff}
 .du-flipcard[data-variant="cursed"] {--rc:#ff3b5c}
@@ -173,7 +174,7 @@ body {color:var(--text);font-size:15px}
 @keyframes du-tremble {0%,100% {transform:rotateY(180deg) translateX(0)} 25% {transform:rotateY(180deg) translateX(-3px)} 75% {transform:rotateY(180deg) translateX(3px)}}
 .du-flipcard.missed .du-flipper {animation:none;transform:rotateY(180deg);transition:transform .6s} .du-flipcard.missed {opacity:.45;filter:grayscale(.6)}
 .du-glow.cursed {box-shadow:0 0 0 2px #ff3b5c,0 0 26px #ff3b5c}
-.du-reveal .du-card .cap {font-size:13px}
+.du-flipcard .du-card .cap {font-size:13px} .du-flipcard .du-card .cap i {white-space:nowrap;overflow:hidden;text-overflow:ellipsis} /* 권·줄 글이 두 줄로 꺾이면 자리마다 키가 달라진다 */
 .du-reward-none {margin:10px 0;color:var(--muted);font-size:13px}
 .du-result-act {display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .du-stats {margin:10px 0;padding:12px 14px;border:1px solid var(--line);border-top:2px solid var(--accent);border-radius:12px;background:var(--card)}
@@ -310,7 +311,7 @@ body {color:var(--text);font-size:15px}
 .du-flipper .du-back {position:absolute;inset:0;aspect-ratio:auto;transform:rotateY(0)}
 .du-flipper .du-card {transform:rotateY(180deg)}
 @keyframes du-reveal {from {transform:rotateY(0)} to {transform:rotateY(180deg)}}
-.du-reveal .du-card {animation:none}
+.du-flipcard .du-card {animation:none}
 @media (prefers-reduced-motion:reduce) {.du-flipcard.flipped .du-flipper {animation:none;transform:rotateY(180deg)} .du-flipcard.flipped::before,.du-flipcard.flipped::after {animation:none;opacity:0}}
 /* ── 판 배경(맵) — 그 주인의 권 그림을 판 뒤에 어둡게 깔고 가장자리를 비네트로 감싼다. 줄은 살짝 비쳐 그림이 보인다 ── */
 .du-board.map-stage[data-has-map] {margin:0;padding:6px}

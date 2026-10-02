@@ -8,6 +8,10 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-10-02 · claude · 결투 — 뒤집기 손가락 가로채기·상점 정렬 고침
+- duel.html — 뒤집힌 장의 빛 연출(::before/::after 가 카드 밖 18%+1.4배로 번진다)이 왼쪽·위 옆 장의 가장자리를 덮어 손가락을 가로채던 것을 pointer-events:none 으로 막는다. 뒷장 앞면 width:100%·캡션 글자는 .du-reveal 에만 있어 상점의 앞면이 좁고 뒷장이 앞면 키를 따라 어긋나던 것을 .du-flipcard 전체로 옮기고, 권·줄 글은 한 줄로 잘라 여섯 자리 키를 맞춘다
+- tests/duel-screen.cjs — 1번을 뒤집은 뒤 0번 가장자리를 elementFromPoint 로 짚어 0번이 잡히고 거기를 눌러 뒤집히는지, 상점 여섯 자리와 앞면·뒷장이 같은 크기인지 본다
+
 ## 2026-10-02 · claude · 결투 — 금과 상점
 - lib/duel.js — 판이 끝나면 금(승리 신참 10·숙련 20·에이스 35, 패배·무승부 3). 상점: 뒷장 여섯 장 진열(shopFill — 아직 없는 카드, 15% 희귀 자리는 변형판 4~5금), 값(shopPrice — 기본 15~30·각성/저주 40~60·날씨 45·영웅 +20), 사기(shopBuy)·판마다 한 칸 돌림(shopRotate — 산 자리부터)·10금에 새로 깔기(shopReroll)·닫힘(shopClosed). 프로필에 gold·shop{rngState, stock}, upgradeProfile(profile, data) 가 옛 저장에도 채운다
 - duel.html — 로비 머리에 금, "상점" 단추와 상점 화면(뒷장에 값표, 희귀 자리 금빛, 사면 그 자리에서 뒤집히며 등급·종류 연출), 결과 제목 옆 +금
