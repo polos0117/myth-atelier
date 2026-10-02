@@ -8,6 +8,11 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-10-02 · claude · 맵 그림 — 그리스·한국·중국·일본
+- data/group.json — museum.maps 에 greek·korea·china·japan. 그림 저장소 img/ui/map_<권>.webp(1024×1536, docs/MAP_ART.md 문장). 결투에서 그 권 주인의 판 뒤에 깔린다
+- docs/MAP_ART.md — 지금 상태: 다섯 권 있음, 여섯 권 남음
+- tests/duel-screen.cjs — 그리스에 맵이 생겨 "맵 없는 권은 끝 벽 그림" 검사가 깨졌다. group.json 의 maps 를 읽어 있으면 맵, 없으면 끝 벽 그림을 기대한다
+
 ## 2026-10-02 · claude · 맵 그림 — 북유럽
 - data/group.json — museum.maps 에 norse. 그림 저장소 img/ui/map_norse.webp(1024×1536, docs/MAP_ART.md 문장으로 생성). 결투에서 북유럽 주인의 판 뒤에 끝 벽 그림 대신 이 맵이 깔린다
 - docs/MAP_ART.md — 지금 상태에 북유럽 한 장

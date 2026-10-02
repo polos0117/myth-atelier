@@ -114,7 +114,9 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
     assert.equal(await p.locator('.du-hand .du-card').count(), 10, '손패 열');
     /* 판 배경(맵) — 그 주인의 권 그림. map_<권>.webp 가 group.json 에 적혀 있으면 그것, 아니면 박물관 끝 벽 그림 */
     assert.equal(await p.locator('.du-board').getAttribute('data-map'), 'greek', '판 배경은 주인의 권');
-    assert((await p.locator('.du-board').evaluate(e => getComputedStyle(e).getPropertyValue('--map'))).includes('museum_greek_mural.webp'), '맵 그림이 없는 권은 박물관 끝 벽 그림');
+    { const maps = (JSON.parse(require('node:fs').readFileSync('data/group.json', 'utf8')).museum || {}).maps || [];
+      const want = maps.includes('greek') ? 'ui/map_greek.webp' : 'museum_greek_mural.webp';
+      assert((await p.locator('.du-board').evaluate(e => getComputedStyle(e).getPropertyValue('--map'))).includes(want), '맵이 있으면 맵, 없으면 박물관 끝 벽 그림 — ' + want); }
     /* 카드 뒷면 — 상대 손패는 뒷면 부채, 내 덱은 더미와 남은 수 */
     assert.equal(await p.locator('.du-foe-fan .du-back').count(), 10, '상대 손패 열 장이 뒷면 부채로');
     assert.equal(await p.locator('.du-foe-fan .du-back').first().getAttribute('data-myth'), 'greek', '상대 뒷면은 그 주인의 권 깃발');
