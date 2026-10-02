@@ -16,7 +16,7 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
   const harness = await start();
   try {
     const a = await harness.open('duel.html', { viewport: FOLD.cover, mobile: true }), p = a.page;
-    await p.emulateMedia({ reducedMotion: 'reduce' });
+    /* 움직임은 켠 채로 시작한다 — 첫 내기의 연출을 본 뒤 끈다(상대 턴 0.6초를 기다리지 않으려고) */
     /* 첫 고르기 */
     await p.waitForSelector('.du-pick .du-myth');
     assert.equal(await p.locator('.du-myth').count(), 11, '열한 권');
@@ -92,7 +92,11 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
     await p.locator('.du-hand .du-card[data-id="' + wx + '"]').first().click(); /* 손패에 같은 카드가 또 있을 수 있다 */ await p.waitForSelector('.du-detail[data-id="' + wx + '"]');
     assert.equal(await p.locator('#du-play').innerText(), await p.evaluate(() => window.W('duel.weather.call', { w: window.W('duel.weather.melee') })), '날씨판의 내기 글');
     await p.locator('#du-play').click();
+    await p.waitForSelector('.du-ghost', { timeout: 2000 });   /* 손패에서 줄 머리로 날아가는 유령 카드 */
     await p.waitForSelector('.du-row[data-side="foe"][data-row="melee"][data-weather="true"]');
+    assert((await p.locator('.du-rowflash').count()) >= 1, '날씨가 깔리는 줄이 번쩍인다');
+    await p.waitForFunction(() => !document.querySelector('.du-ghost'), null, { timeout: 3000 });
+    await p.emulateMedia({ reducedMotion: 'reduce' });
     assert.equal(await p.locator('.du-row[data-side="me"][data-row="melee"]').getAttribute('data-weather'), 'true', '내 줄에도');
     assert.equal(await p.locator('.du-row[data-side="foe"][data-row="melee"] .du-unit[data-at="900"] .du-pw').innerText(), '1', '비영웅은 1 로 보인다');
     assert.equal(await p.locator('.du-row[data-side="foe"] .du-wx').count(), 1, '줄 머리에 서리');

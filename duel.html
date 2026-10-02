@@ -188,6 +188,46 @@ body {color:var(--text);font-size:15px}
 .du-guide p {grid-column:1/-1;grid-row:2;margin:0}
 .du-guide .du-btn {grid-column:2;grid-row:1;justify-self:end;min-height:44px;padding:4px 10px;font-size:11px;background:transparent;border-color:transparent;color:var(--muted)}
 .du-help {min-width:44px;padding:0 10px}
+/* ── 연출 — 유령 카드·흔들림·조각·고리·빛·날씨 배경·진영 띠·합 세기. 움직임 줄이기면 전부 꺼진다 ── */
+#du-fxlayer {position:fixed;inset:0;z-index:45;pointer-events:none;overflow:hidden}
+.du-ghost {position:fixed;left:0;top:0;border-radius:6px;overflow:hidden;background:var(--card2);box-shadow:0 10px 24px #000a;will-change:transform}
+.du-ghost img,.du-ghost .ph {width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
+.du-ghost.wx {border:2px solid var(--rc);box-shadow:0 0 18px var(--rc)}
+.du-ghost.dead {animation:du-shatter .55s ease-in forwards;filter:grayscale(.6)}
+.du-ghost.dead::after {content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 45%,#fff8 50%,transparent 55%),linear-gradient(45deg,transparent 30%,#fff6 33%,transparent 36%)}
+@keyframes du-shatter {0% {opacity:1;transform:translate(var(--x),var(--y)) scale(1) rotate(0)} 100% {opacity:0;transform:translate(var(--x),calc(var(--y) + 34px)) scale(.85) rotate(9deg)}}
+.du-unit.arrive {animation:du-land .32s cubic-bezier(.2,.8,.3,1.3) both}
+.du-unit.arrive.late {animation-delay:.36s;opacity:0}
+@keyframes du-land {0% {opacity:0;transform:scale(1.25)} 60% {opacity:1} 100% {opacity:1;transform:scale(1)}}
+.du-flash {position:fixed;border-radius:7px;pointer-events:none;animation:du-flash .45s ease-out forwards}
+.du-flash.dmg {background:radial-gradient(circle,#ff6b6bcc,#ff3b3b55 60%,transparent 75%)}
+@keyframes du-flash {0% {opacity:1} 100% {opacity:0}}
+.du-ring {position:fixed;border:3px solid #7fc8ff;border-radius:50%;box-shadow:0 0 12px #7fc8ff,inset 0 0 12px #7fc8ff88;pointer-events:none;animation:du-ring .6s ease-out forwards}
+.du-ring.gold {border-color:var(--gold);box-shadow:0 0 14px var(--gold)}
+@keyframes du-ring {0% {opacity:1;transform:scale(.5)} 100% {opacity:0;transform:scale(1.6)}}
+.du-glow {position:fixed;border-radius:8px;pointer-events:none;animation:du-glow .7s ease-out forwards}
+.du-glow.buff {box-shadow:0 0 0 2px #8fe39a,0 0 22px #8fe39a} .du-glow.rise {box-shadow:0 0 0 2px var(--gold),0 0 26px var(--gold)}
+@keyframes du-glow {0% {opacity:0;transform:scale(1.1)} 30% {opacity:1} 100% {opacity:0;transform:scale(1)}}
+.du-spark {position:fixed;width:6px;height:6px;border-radius:50%;background:#b8f5c0;box-shadow:0 0 8px #8fe39a;pointer-events:none;animation:du-spark .8s ease-out forwards}
+@keyframes du-spark {0% {opacity:1;transform:translate(0,0) scale(1)} 100% {opacity:0;transform:translate(var(--dx),var(--dy)) scale(.3)}}
+.du-rowflash {position:fixed;border-radius:10px;pointer-events:none;background:var(--rc);opacity:.45;animation:du-rowflash .7s ease-out forwards}
+@keyframes du-rowflash {0% {opacity:.5} 100% {opacity:0}}
+.du-row {position:relative;overflow:hidden}
+.du-row::after {content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;opacity:0;transition:opacity .4s}
+.du-row[data-weather="true"]::after {opacity:1}
+.du-row[data-weather="true"][data-row="melee"]::after {background:linear-gradient(90deg,#bfe8ff2e,transparent 70%);box-shadow:inset 0 0 0 1px #bfe8ff55,inset 0 0 18px #bfe8ff33;animation:du-frost 2.6s ease-in-out infinite alternate}
+@keyframes du-frost {from {box-shadow:inset 0 0 0 1px #bfe8ff44,inset 0 0 12px #bfe8ff22} to {box-shadow:inset 0 0 0 1px #e8f7ffaa,inset 0 0 26px #bfe8ff55}}
+.du-row[data-weather="true"][data-row="reach"]::after {background:radial-gradient(60% 120% at 20% 50%,#d9d9d944,transparent 70%),radial-gradient(50% 120% at 70% 50%,#d9d9d93a,transparent 70%);background-size:200% 100%;animation:du-fog 7s linear infinite}
+@keyframes du-fog {from {background-position:0 0,0 0} to {background-position:200% 0,-200% 0}}
+.du-row[data-weather="true"][data-row="ranged"]::after {background:repeating-linear-gradient(105deg,transparent 0 10px,#9cc7ff2e 10px 11px);background-size:100% 100%;animation:du-rain .5s linear infinite}
+@keyframes du-rain {from {background-position:0 0} to {background-position:-14px 28px}}
+.du-shout {position:fixed;left:0;right:0;top:36%;z-index:60;padding:12px 0;text-align:center;font:700 22px var(--display);letter-spacing:.12em;color:var(--on-accent);background:linear-gradient(90deg,transparent,var(--accent) 20%,var(--accent) 80%,transparent);pointer-events:none;animation:du-shout 1.3s ease-out forwards}
+.du-shout[data-who="foe"] {background:linear-gradient(90deg,transparent,var(--signal) 20%,var(--signal) 80%,transparent);color:#fff}
+.du-shout small {display:block;font:700 11px ui-monospace,monospace;letter-spacing:.2em;opacity:.85}
+@keyframes du-shout {0% {opacity:0;transform:translateX(-30px)} 15% {opacity:1;transform:none} 80% {opacity:1} 100% {opacity:0;transform:translateX(30px)}}
+.du-banner .du-count {display:inline-flex;gap:8px;align-items:baseline;margin-left:10px;font:800 22px ui-monospace,monospace}
+.du-banner .du-count b.win {color:var(--gold);text-shadow:0 0 12px var(--gold);animation:du-pop .5s .7s both}
+@media (prefers-reduced-motion:reduce) {.du-row[data-weather="true"]::after {animation:none} .du-unit.arrive,.du-unit.arrive.late {animation:none;opacity:1} .du-shout,.du-flash,.du-ring,.du-glow,.du-spark,.du-rowflash,.du-ghost {animation:none}}
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
 <script src="lib/words.js?v=myth41"></script>
@@ -277,6 +317,50 @@ function sortIds(data, ids) {
     return (order.indexOf(x.myth) - order.indexOf(y.myth)) || x.name.localeCompare(y.name, 'ko') || (A.VARIANTS.indexOf(x.variant) - A.VARIANTS.indexOf(y.variant)); });
 }
 
+/* ── 연출 층 — 판 위 좌표에 유령 카드·번쩍임·고리·빛을 띄운다. 규칙과 무관하고, 움직임 줄이기면 아무것도 안 띄운다 ── */
+const fxLayer = () => { let l = document.getElementById('du-fxlayer'); if (!l) { l = document.createElement('div'); l.id = 'du-fxlayer'; document.body.appendChild(l); } return l; };
+function spawn(cls, rect, ms, style, inner) {
+  if (reduced() || !rect) return null;
+  const el = document.createElement('div'); el.className = cls;
+  el.style.cssText = `left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;height:${rect.height}px;${style || ''}`;
+  if (inner) el.innerHTML = inner;
+  fxLayer().appendChild(el); setTimeout(() => el.remove(), ms);
+  return el;
+}
+const artTag = file => file ? `<img src="${IMG.thumbURL(file)}" alt="">` : '<span class="ph"></span>';
+/* 유령 카드 — from 에서 to 로 날아간다(크기도 맞춘다). 끝나면 onDone */
+function fly(file, from, to, cls, onDone) {
+  if (reduced() || !from || !to) { onDone && onDone(); return; }
+  const g = spawn('du-ghost ' + (cls || ''), { left: 0, top: 0, width: from.width, height: from.height }, 700, '', artTag(file));
+  if (!g) { onDone && onDone(); return; }
+  const sx = to.width / from.width, sy = to.height / from.height;
+  const anim = g.animate([{ transform: `translate(${from.left}px,${from.top}px) scale(1,1)` }, { transform: `translate(${to.left}px,${to.top}px) scale(${sx},${sy})` }],
+    { duration: 380, easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'forwards' });
+  anim.onfinish = () => { g.remove(); onDone && onDone(); };
+}
+const shake = el => el && !reduced() && el.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-5px) rotate(-2deg)' }, { transform: 'translateX(5px) rotate(2deg)' }, { transform: 'translateX(-3px)' }, { transform: 'translateX(0)' }], { duration: 380, easing: 'ease-out' });
+function sparks(rect, n) { for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2; spawn('du-spark', { left: rect.left + rect.width / 2 - 3, top: rect.top + rect.height / 2 - 3, width: 6, height: 6 }, 800, `--dx:${Math.round(Math.cos(a) * 26)}px;--dy:${Math.round(Math.sin(a) * 26 - 10)}px`); } }
+/* 한 수의 연출 — st.last.fx 를 판 위 요소에 입힌다. 파괴된 카드는 지난 그리기의 자리(rects)에서 조각난다 */
+function playFx(data, st, rects) {
+  if (reduced() || !st.last) return;
+  const D = A.cardsOf(data);
+  for (const f of st.last.fx) {
+    const el = document.querySelector(`.du-unit[data-at="${f.at}"]`), r = el ? el.getBoundingClientRect() : rects[f.at] && rects[f.at].rect;
+    if (!r) continue;
+    if (f.kind === 'dmg') { shake(el); spawn('du-flash dmg', r, 450); }
+    else if (f.kind === 'buff') { spawn('du-glow buff', r, 700); sparks(r, 6); }
+    else if (f.kind === 'shield') spawn('du-ring', { left: r.left + r.width / 2 - 26, top: r.top + r.height / 2 - 26, width: 52, height: 52 }, 600);
+    else if (f.kind === 'rise') { spawn('du-glow rise', r, 700); spawn('du-ring gold', { left: r.left + r.width / 2 - 26, top: r.top + r.height / 2 - 26, width: 52, height: 52 }, 600); }
+    else if (f.kind === 'dead' && rects[f.at]) { const c = D.cards[rects[f.at].id]; spawn('du-ghost dead', { left: 0, top: 0, width: r.width, height: r.height }, 560, `--x:${r.left}px;--y:${r.top}px;transform:translate(${r.left}px,${r.top}px)`, artTag(c && c.file)); }
+  }
+}
+/* 합이 세어 올라간다 */
+function Count({ to, win }) {
+  const [n, setN] = useState(reduced() ? to : 0);
+  useEffect(() => { if (reduced()) { setN(to); return; } let raf, t0; const step = t => { t0 = t0 || t; const k = Math.min(1, (t - t0) / 700); setN(Math.round(to * (1 - Math.pow(1 - k, 3)))); if (k < 1) raf = requestAnimationFrame(step); }; raf = requestAnimationFrame(step); return () => cancelAnimationFrame(raf); }, [to]);
+  return html`<b class=${win ? 'win' : ''}>${n}</b>`;
+}
+
 /* ── 규칙 한눈에 — 로비의 "배우기" 와 대결의 ? 가 연다 ── */
 function Rules({ onClose, onGuideAgain }) {
   return html`<section class="du-rules" role="dialog" aria-label=${W('duel.rules.title')}>
@@ -321,11 +405,11 @@ function Mulligan({ data, group, st, actMatch }) {
 /* 유닛의 보이는 값 — 영웅은 cur, 날씨 줄 비영웅은 1, 그 밖 cur */
 const shown = (st, row, u) => u.hero ? u.cur : st.weather[row] ? 1 : u.cur;
 const fxText = f => f.kind === 'dmg' ? '−' + f.n : f.kind === 'buff' ? '+' + f.n : f.kind === 'shield' ? '◈' : f.kind === 'rise' ? '✦' : '✕';
-function Unit({ data, st, side, row, u, flip, onClick }) {
+function Unit({ data, st, side, row, u, flip, fresh, onClick }) {
   const D = A.cardsOf(data), c = D.cards[u.id], base = D.cards[c.name], variant = c.variant !== 'base';
   const fx = st.last && st.last.fx.filter(f => f.side === side && f.at === u.at);
-  return html`<button type="button" class=${'du-unit' + (u.hero ? ' hero' : '') + (u.cursed ? ' cursed' : '') + (u.shield ? ' shield' : '') + (variant ? ' variant' : '') + (flip ? ' flip' : '')}
-    data-at=${u.at} data-id=${u.id} onClick=${onClick}>
+  return html`<button type="button" class=${'du-unit' + (u.hero ? ' hero' : '') + (u.cursed ? ' cursed' : '') + (u.shield ? ' shield' : '') + (variant ? ' variant' : '') + (flip ? ' flip' : '') + (fresh ? ' arrive late' : '')}
+    data-at=${u.at} data-id=${u.id} data-fresh=${fresh ? '1' : undefined} onClick=${onClick}>
     <span class="du-art">${variant
       ? html`<span class="du-face front"><${Thumb} file=${base.file} /></span><span class="du-face back"><${Thumb} file=${c.file} /></span>`
       : html`<span class="du-face"><${Thumb} file=${c.file} /></span>`}</span>
@@ -344,7 +428,7 @@ function Row({ data, st, side, row, sum, onDetail }) {
       ${st.weather[row] && html`<span class="du-wx">${W('duel.weather.' + row)}</span>`}
       <span class="du-row-sum">${sum}</span>
       ${dead && dead.map((f, i) => html`<span key=${'d' + st.log.length + i} class="du-fx" data-kind="dead">✕</span>`)}</div>
-    <div class="du-units">${list.map(u => html`<${Unit} key=${u.at} data=${data} st=${st} side=${side} row=${row} u=${u} flip=${u === fresh} onClick=${() => onDetail(u.id, false, u)} />`)}</div>
+    <div class="du-units">${list.map(u => html`<${Unit} key=${u.at} data=${data} st=${st} side=${side} row=${row} u=${u} flip=${u === fresh} fresh=${u === fresh} onClick=${() => onDetail(u.id, false, u)} />`)}</div>
   </div>`;
 }
 /* 카드 상세 — 손패에서 열면 "내기" 가 붙는다. 변형판도 기본 그림(판에 놓일 때 뒤집힌다) */
@@ -376,12 +460,35 @@ function Match({ data, group, profile, st, actMatch, act }) {
   const D = A.cardsOf(data), boss = A.bossOf(data, st.boss), portrait = D.cards[boss.portrait];
   const sc = A.scores(data, st), L = A.legal(data, st, 'me'), mine = st.turn === 'me' && st.phase === 'play';
   const [detail, setDetail] = useState(null);   /* {id, fromHand, unit} */
-  const [banner, setBanner] = useState(null), [help, setHelp] = useState(false);
-  const rounds = useRef(st.roundLog.length);
+  const [banner, setBanner] = useState(null), [help, setHelp] = useState(false), [shout, setShout] = useState(null);
+  const rounds = useRef(st.roundLog.length), flyRef = useRef(null), rects = useRef({});
   useEffect(() => {   /* 라운드가 끝난 수에는 결과 한 줄이 떴다 사라진다 */
     if (st.roundLog.length > rounds.current && !reduced()) { setBanner(st.roundLog.length); const t = setTimeout(() => setBanner(null), 1200); rounds.current = st.roundLog.length; return () => clearTimeout(t); }
     rounds.current = st.roundLog.length;
   }, [st.roundLog.length]);
+  /* 수마다 연출 — 낸 카드가 날아가고, 맞은 카드가 흔들리고, 파괴된 카드가 조각난다. 그 뒤 다음 수를 위해 판 위 자리를 적어 둔다 */
+  useEffect(() => {
+    const last = st.last;
+    if (last && !reduced()) {
+      if (last.kind === 'play') {
+        const c = D.cards[last.id], base = D.cards[c.name], who = last.who;
+        const from = who === 'me' && flyRef.current && flyRef.current.id === last.id ? flyRef.current.from : (document.querySelector('.du-foe .face') || {}).getBoundingClientRect?.();
+        if (c.variant === 'weather') {
+          const head = document.querySelector(`.du-row[data-side="${who}"][data-row="${c.row}"] .du-row-head`);
+          fly(base.file, from, head && head.getBoundingClientRect(), 'wx', null);
+          for (const row of document.querySelectorAll(`.du-row[data-row="${c.row}"]`)) spawn('du-rowflash', row.getBoundingClientRect(), 700, `--rc:var(--row-${c.row})`);
+        } else {
+          const unit = document.querySelector('.du-unit[data-fresh]');
+          fly(base.file, from, unit && unit.getBoundingClientRect(), '', () => unit && unit.classList.remove('late'));
+        }
+        setTimeout(() => playFx(data, st, rects.current), c.variant === 'weather' ? 0 : 300);
+      } else playFx(data, st, rects.current);
+      if (last.kind === 'faction') { setShout({ who: last.who, name: data.duel.factions[st[last.who].faction.myth].name, key: st.log.length }); setTimeout(() => setShout(null), 1300); }
+    }
+    flyRef.current = null;
+    const snap = {}; for (const el of document.querySelectorAll('.du-unit')) snap[el.dataset.at] = { id: el.dataset.id, rect: el.getBoundingClientRect() };
+    rects.current = snap;
+  }, [st.log.length]);
   const lastRound = st.roundLog.length ? st.roundLog[st.roundLog.length - 1] : null;
   const roundText = (r, n) => W('duel.round.' + (r.winner === 'me' ? 'win' : r.winner === 'foe' ? 'lose' : 'draw'), { n, me: r.me, foe: r.foe });
   const open = (id, fromHand, unit) => setDetail({ id, fromHand, unit: unit || null });
@@ -410,9 +517,10 @@ function Match({ data, group, profile, st, actMatch, act }) {
     <div class="du-dock">${!profile.tutorial && html`<${Guide} st=${st} onSkip=${() => act(p => { p.tutorial = true; })} />`}<p class="sec">${W('duel.hand', { n: st.me.hand.length })}</p>
     <div class="du-hand">${st.me.hand.map((id, i) => html`<${Card} key=${id + i} card=${D.cards[id]} art=${D.cards[D.cards[id].name].file} group=${group} cls="du-card" onClick=${() => open(id, true)} />`)}</div></div>
     ${detail && html`<${Detail} data=${data} group=${group} st=${st} id=${detail.id} unit=${detail.unit} fromHand=${detail.fromHand} canPlay=${mine && L.cards.includes(detail.id)}
-      onPlay=${() => { setDetail(null); actMatch(m => A.play(data, m, detail.id)); }} onClose=${() => setDetail(null)} />`}
+      onPlay=${() => { const el = document.querySelector(`.du-hand .du-card[data-id="${detail.id}"]`); flyRef.current = el ? { id: detail.id, from: el.getBoundingClientRect() } : null; setDetail(null); actMatch(m => A.play(data, m, detail.id)); }} onClose=${() => setDetail(null)} />`}
     ${help && html`<${Rules} onClose=${() => setHelp(false)} />`}
-    ${banner && lastRound && html`<div class="du-banner">${roundText(lastRound, st.roundLog.length)}</div>`}
+    ${banner && lastRound && html`<div class="du-banner">${W('duel.round.' + (lastRound.winner === 'me' ? 'win' : lastRound.winner === 'foe' ? 'lose' : 'draw') + '.short', { n: st.roundLog.length })}<span class="du-count"><${Count} to=${lastRound.me} win=${lastRound.winner === 'me'} /> : <${Count} to=${lastRound.foe} win=${lastRound.winner === 'foe'} /></span></div>`}
+    ${shout && html`<div key=${shout.key} class="du-shout" data-who=${shout.who}><small>${W('duel.faction')}</small>${shout.name}</div>`}
   </section>`;
 }
 /* ── 결과 — 승·패·무, 라운드 셋, 얻은 카드를 한 장씩 크게 ── */
