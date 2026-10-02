@@ -23,6 +23,41 @@
 .at-myth.on {border-color:var(--cc);color:var(--text);background:var(--accent-soft);box-shadow:inset 0 -2px var(--cc)}
 .at-myth-n {font:700 11px ui-monospace,monospace;color:var(--muted)}
 .df-myths {grid-column:1 / -1}
+/* 이펙트 — 팩 펼치기, 날아가기, 미리보기 빛, 인연 띠, 짝·결속·적 지명 반짝임, 결과 발표. 전부 코드로 */
+.df-card.deal {animation:df-deal .5s cubic-bezier(.2,.8,.3,1) backwards;animation-delay:var(--d,0ms);transform-origin:50% 60%}
+@keyframes df-deal {0% {opacity:0;transform:perspective(700px) translateY(-24px) rotateY(90deg)} 60% {opacity:1;transform:perspective(700px) translateY(2px) rotateY(-8deg)} 100% {opacity:1;transform:none}}
+.df-card {box-shadow:0 0 calc(var(--g,0) * 16px) calc(var(--g,0) * 1px) color-mix(in srgb,var(--gold) calc(var(--g,0) * 70%),transparent)}
+.df-card.best::after {content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(115deg,transparent 35%,#fff3 48%,transparent 60%) 0 0/250% 100%;animation:df-sheen 2.4s ease-in-out infinite}
+@keyframes df-sheen {0%,40% {background-position:120% 0} 100% {background-position:-120% 0}}
+.df-ghost {transition:none!important;animation:none!important;box-shadow:0 0 24px var(--halo)}
+.df-bond {position:relative;margin:4px 0 8px;overflow:hidden;border-radius:6px;animation:df-unfurl .55s cubic-bezier(.2,.8,.3,1) both}
+.df-bond .df-fired {display:block;padding:10px 14px;font:700 13px var(--display);background:linear-gradient(90deg,#d9b45a33,#f3dc9a55,#d9b45a33);border-color:var(--gold);box-shadow:0 0 18px var(--halo)}
+.df-bond::after {content:'';position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,#fff8 50%,transparent 70%) 0 0/300% 100%;animation:df-sweep 1.1s .3s ease-out both;pointer-events:none}
+.df-bond.feud .df-fired {background:linear-gradient(90deg,#5a101c,#8e1b2b,#5a101c);border-color:#ff6b84;color:#ffd6dd;box-shadow:0 0 18px #c0143c88}
+.df-bond.feud::after {background:repeating-linear-gradient(115deg,transparent 0 18px,#ff6b84aa 18px 20px,transparent 20px 44px);animation:df-crack .5s .2s steps(4) both}
+@keyframes df-unfurl {from {opacity:0;clip-path:inset(0 50% 0 50%)} to {opacity:1;clip-path:inset(0 0 0 0)}}
+@keyframes df-sweep {from {background-position:120% 0} to {background-position:-120% 0}}
+@keyframes df-crack {from {opacity:0} 50% {opacity:1} to {opacity:.35}}
+.df-pair.own {border-color:color-mix(in srgb,var(--gold) 60%,var(--line))}
+.df-pair.fresh {animation:df-in .7s cubic-bezier(.2,.8,.3,1) both}
+.df-pair.fresh.own {animation:df-in .7s cubic-bezier(.2,.8,.3,1) both,df-own 1.2s .2s ease-out both}
+.df-pair.bond {position:relative;overflow:hidden}
+.df-pair.bond::after {content:'';position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,#f3dc9a99 50%,transparent 70%) 0 0/300% 100%;animation:df-sweep 1s .45s ease-out both;pointer-events:none}
+.df-pair.took {animation:df-took 1.1s ease-out both}
+@keyframes df-in {0% {opacity:0;transform:translateX(-14px) scale(.96);box-shadow:0 0 0 1px var(--gold),0 0 18px var(--halo)} 60% {opacity:1;transform:none} 100% {box-shadow:none}}
+@keyframes df-own {0% {box-shadow:0 0 0 2px #fff3c0,0 0 30px 6px #f3dc9a} 100% {box-shadow:0 0 0 0 transparent}}
+@keyframes df-took {0% {background:color-mix(in srgb,var(--signal,#ff6b84) 35%,var(--card2));box-shadow:0 0 0 1px var(--signal,#ff6b84)} 100% {background:var(--card2);box-shadow:none}}
+.df-rows li.up {animation:df-up .9s ease-out both}
+.df-rows li.up b {animation:df-pop .5s ease-out both}
+@keyframes df-up {0% {background:#f3dc9a44;color:var(--text)} 100% {background:transparent}}
+@keyframes df-pop {0% {transform:scale(1.5);color:var(--gold)} 100% {transform:none}}
+.df-reveal {animation:df-rise .55s cubic-bezier(.2,.8,.3,1) both;animation-delay:var(--d,0ms)}
+@keyframes df-rise {from {opacity:0;transform:translateY(18px) scale(.97)} to {opacity:1;transform:none}}
+.df-confetti {position:fixed;inset:0;pointer-events:none;z-index:40;overflow:hidden}
+.df-confetti i {position:absolute;top:-20px;left:var(--x);width:7px;height:12px;border-radius:2px;background:hsl(var(--h) 85% 62%);box-shadow:0 0 6px hsl(var(--h) 90% 60% / .7);
+  animation:df-fall 2.8s cubic-bezier(.3,.6,.4,1) both;animation-delay:calc(var(--d) + 1.6s);rotate:var(--r)}
+@keyframes df-fall {0% {opacity:0;transform:translateY(0) rotate(0)} 10% {opacity:1} 100% {opacity:0;transform:translateY(105vh) rotate(540deg)}}
+@media (prefers-reduced-motion:reduce) {.df-card.deal,.df-bond,.df-bond::after,.df-pair,.df-pair::after,.df-rows li,.df-rows li b,.df-reveal,.df-card.best::after {animation:none!important} .df-confetti {display:none}}
 .df-myths-now {margin:4px 0 0}
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
@@ -35,7 +70,7 @@
 <div id="app"></div>
 <script type="module">
 import { h, render } from 'https://esm.sh/preact@10.24.3';
-import { useState, useEffect } from 'https://esm.sh/preact@10.24.3/hooks';
+import { useState, useEffect, useRef } from 'https://esm.sh/preact@10.24.3/hooks';
 import htm from 'https://esm.sh/htm@3.1.1';
 import { WorkspaceHeader } from './lib/workspace-ui.js?v=myth10';
 const html = htm.bind(h);
@@ -64,13 +99,28 @@ function recLoad() { try { return JSON.parse(localStorage.getItem(REC)) || { gam
 function recSave(r) { try { localStorage.setItem(REC, JSON.stringify(r)); } catch {} }
 function seed() { return (Date.now() ^ Math.floor(Math.random() * 1e9)) | 0; }
 const signed = n => (n > 0 ? '+' : '') + n;
+const calm = () => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { return false; } };
+/* 집은 카드가 내 편성 칸으로 날아간다 — 카드 모양을 떠서 화면 위에 띄우고 옮긴 뒤 지운다. 화면이 다시 그려져도 상관없다 */
+function flyToTeam(name) {
+  if (calm()) return;
+  const from = document.querySelector('.df-pack .df-card[data-name="' + CSS.escape(name) + '"]'), to = document.querySelector('.df-panel[data-seat="0"]');
+  if (!from || !to || !from.animate) return;
+  const a = from.getBoundingClientRect(), b = to.getBoundingClientRect(), ghost = from.cloneNode(true);
+  ghost.classList.add('df-ghost'); ghost.removeAttribute('data-name');
+  Object.assign(ghost.style, { position: 'fixed', left: a.left + 'px', top: a.top + 'px', width: a.width + 'px', height: a.height + 'px', margin: 0, zIndex: 50, pointerEvents: 'none' });
+  document.body.appendChild(ghost);
+  const dx = b.left + 24 - a.left, dy = b.top + 40 - a.top, k = Math.min(1, 60 / a.width);
+  ghost.animate([{ transform: 'translate(0,0) scale(1)', opacity: 1 }, { transform: 'translate(' + dx * 0.55 + 'px,' + (dy * 0.55 - 40) + 'px) scale(.7) rotate(-6deg)', opacity: 1, offset: 0.55 },
+    { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(' + k + ') rotate(0deg)', opacity: 0 }], { duration: 560, easing: 'cubic-bezier(.3,.7,.3,1)' }).onfinish = () => ghost.remove();
+}
 
 /* 카드 한 장 — 무기는 그림, 주인은 이름표. 색 테두리는 신화권 */
-function Card({ data, group, img, type, name, delta, on, onClick, compact }) {
+function Card({ data, group, img, type, name, delta, on, onClick, compact, deal, glow }) {
   const c = type === 'weapon' ? D.weapon(data, name) : D.wielder(data, name);
   const file = type === 'weapon' ? IMG.dressOf(img[name], name, V, 1, false).file : null;
   const color = group.myth.color[c.myth];
-  return html`<button type="button" class=${'df-card ' + type + (on ? ' on' : '')} data-name=${name} data-type=${type} style=${'--cc:' + color} onClick=${onClick} disabled=${!onClick}>
+  return html`<button type="button" class=${'df-card ' + type + (on ? ' on' : '') + (deal != null ? ' deal' : '') + (glow > 0.99 ? ' best' : '')} data-name=${name} data-type=${type}
+    style=${'--cc:' + color + (deal != null ? ';--d:' + deal * 55 + 'ms' : '') + (glow != null ? ';--g:' + glow.toFixed(2) : '')} onClick=${onClick} disabled=${!onClick}>
     <span class="face">${file ? html`<img src=${IMG.thumbURL(file)} alt="" loading="lazy" />` : html`<span class="ph">${name}</span>`}</span>
     <span class="cap"><b>${name}</b>
       <i>${type === 'weapon' ? group.myth.name[c.myth] + ' · ' + group.kind.name[c.kind] + ' · ' + W('draft.stat.weapon', { n: D.wp(c) })
@@ -80,10 +130,15 @@ function Card({ data, group, img, type, name, delta, on, onClick, compact }) {
     </span></button>`;
 }
 
-function Rows({ rows, total, group }) {
+function Rows({ rows, total, group, live }) {
+  /* 결속·인연 줄의 값이 오르면 그 줄이 튀며 빛난다 — 앞 값과 견준다 */
+  const prev = useRef(null), was = prev.current || {};
+  const keyOf = r => r.k + ':' + (r.axis || '') + ':' + (r.key || r.name || '');
+  useEffect(() => { const m = {}; rows.forEach(r => { m[keyOf(r)] = r.v; }); prev.current = m; });
   const label = r => r.k === 'pairs' ? W('draft.score.pairs', { n: r.n }) : r.k === 'solo' ? W('draft.score.solo', { n: r.n })
     : r.k === 'syn' ? W('draft.score.syn.' + r.axis, { key: group[r.axis].name[r.key], n: r.n }) : W('draft.score.' + r.k, { name: r.name });
-  return html`<ul class="df-rows">${rows.map((r, i) => html`<li key=${i} class=${r.k === 'feud' ? 'feud' : ''}><span>${label(r)}</span><b>${signed(r.v)}</b></li>`)}
+  const up = r => live && prev.current && (r.k === 'syn' || r.k === 'pledge') && (was[keyOf(r)] == null || r.v > was[keyOf(r)]);
+  return html`<ul class="df-rows">${rows.map((r, i) => html`<li key=${keyOf(r) + (up(r) ? ':' + r.v : '')} class=${(r.k === 'feud' ? 'feud' : '') + (up(r) ? ' up' : '')}><span>${label(r)}</span><b>${signed(r.v)}</b></li>`)}
     <li class="total"><span>${W('draft.score.total')}</span><b>${total}</b></li></ul>`;
 }
 function Thumb({ data, img, type, name }) {
@@ -91,16 +146,18 @@ function Thumb({ data, img, type, name }) {
   const file = type === 'weapon' ? IMG.dressOf(img[name], name, V, 1, false).file : null;
   return file ? html`<img src=${IMG.thumbURL(file)} alt="" loading="lazy" />` : html`<i>${name.charAt(0)}</i>`;
 }
-function TeamPanel({ st, data, group, img, ti, title, open }) {
+function TeamPanel({ st, data, group, img, ti, title, open, fresh, bond, took, live }) {
   const t = st.teams[ti], ev = D.evaluate(data, t);
-  const pairs = ev.units;
+  const pairs = ev.units, has = (list, u) => list && (list.includes(u.w) || list.includes(u.o));
+  const own = u => u.w && u.o && D.weapon(data, u.w).wielder === u.o;
+  const cls = u => 'df-pair' + (own(u) ? ' own' : '') + (has(fresh, u) ? ' fresh' : '') + (has(bond, u) ? ' bond' : '') + (has(took, u) ? ' took' : '');
   return html`<section class="df-panel" data-seat=${ti}>
     <h3>${title} · ${W('draft.team.pairs', { n: pairs.filter(u => u.w && u.o).length })}</h3>
-    ${pairs.length ? html`<ul class="df-pairs">${pairs.map((u, i) => html`<li key=${i} class="df-pair">
+    ${pairs.length ? html`<ul class="df-pairs">${pairs.map((u, i) => html`<li key=${(u.w || '') + '|' + (u.o || '') + (has(fresh, u) || has(took, u) ? '|n' + st.log.length : '')} class=${cls(u)}>
       <span class="tn"><${Thumb} data=${data} img=${img} type="weapon" name=${u.w} /><${Thumb} data=${data} img=${img} type="wielder" name=${u.o} /></span>
       <span class="nm">${u.w || W('draft.unpaired')} · ${u.o || W('draft.unpaired')}${u.sync ? html`<small>${W('draft.sync', { n: u.sync })}</small>` : ''}</span>
       <span class="sc">${Math.round(u.s)}</span></li>`)}</ul>` : html`<p class="note">${W('draft.team.empty')}</p>`}
-    ${open ? html`<${Rows} rows=${ev.rows} total=${ev.total} group=${group} />` : ''}
+    ${open ? html`<${Rows} rows=${ev.rows} total=${ev.total} group=${group} live=${live} />` : ''}
   </section>`;
 }
 
@@ -138,24 +195,35 @@ function Board({ st, data, group, img, act }) {
   const [sel, setSel] = useState(null);
   const type = D.typeNow(st, data), total = D.schedule(data).length;
   const previews = {}; (st.pack || []).forEach(n => { previews[n] = D.preview(st, data, n).delta; });
-  const choose = n => { if (sel === n) { setSel(null); act(x => D.pick(x, data, n)); } else setSel(n); };
+  const choose = n => { if (sel === n) { setSel(null); flyToTeam(n); act(x => D.pick(x, data, n)); } else setSel(n); };
+  /* 팩이 바뀔 때마다(새 라운드·보급) 카드가 한 장씩 뒤집히며 깔린다 */
+  const packKey = st.round + ':' + st.rerolls[0] + ':' + (st.pack || []).join();
+  const best = Math.max(1, ...Object.values(previews));
+  /* 인연 — 방금 집어 맺어진 인연. 악연이면 붉게 */
+  const fb = st.feedback, pg = fb && fb.fired.length ? D.pledges(data, st.teams[0]).filter(g => fb.fired.includes(g.n)) : [];
+  const bond = pg.length ? pg.flatMap(g => g.got) : null;
+  /* 적이 막 가져간 것 — 내 마지막 지명 뒤의 적 기록 */
+  let mine = -1; st.log.forEach((l, i) => { if (l.ti === 0 && !l.rr) mine = i; });
+  const took = ti => st.log.slice(mine + 1).filter(l => l.ti === ti && !l.rr).map(l => l.c);
   return html`<div>
     <div class="df-top"><div><span class="df-round">${W('draft.round', { n: st.round + 1, total })}</span><h2>${W('draft.pack.' + type)}</h2></div>
       <div class="df-seats">${D.turnSeq(st).map((s, i) => html`<span key=${i} class=${'df-seat' + (i === st.si ? ' on' : '')}>${W('draft.seat.' + s)}</span>`)}</div></div>
     <p class="note df-myths-now">${W('draft.myths')} — ${st.myths ? st.myths.map(k => group.myth.name[k]).join(' · ') : W('draft.myths.all')}</p>
-    ${st.feedback && st.feedback.fired.length ? html`<p class="df-fired">${W('draft.fired', { list: st.feedback.fired.join(' · ') })}</p>` : ''}
+    ${pg.length ? html`<div class=${'df-bond' + (pg.every(g => g.feud) ? ' feud' : '')} key=${'bond' + st.log.length} role="status">
+      <span class="df-fired">${W('draft.fired', { list: fb.fired.join(' · ') })}</span></div>` : ''}
     <div class="df-layout">
       <div>
         <p class="note help">${W('draft.pack.note')}</p>
-        <div class="df-pack">${(st.pack || []).map(n => html`<${Card} key=${n} data=${data} group=${group} img=${img} type=${type} name=${n} delta=${previews[n]} on=${sel === n} onClick=${() => choose(n)} />`)}</div>
+        <div class="df-pack" key=${packKey}>${(st.pack || []).map((n, i) => html`<${Card} key=${n} data=${data} group=${group} img=${img} type=${type} name=${n} delta=${previews[n]}
+          deal=${i} glow=${Math.max(0, previews[n]) / best} on=${sel === n} onClick=${() => choose(n)} />`)}</div>
         <div class="df-bar">
           <button type="button" class="rn-btn primary" data-pick="1" disabled=${!sel} onClick=${() => sel && choose(sel)}>${W('draft.pick')}</button>
           <button type="button" class="rn-btn" data-resupply="1" disabled=${st.rerolls[0] < 1 || st.round >= total - 1} onClick=${() => { setSel(null); act(x => D.resupply(x, data)); }}>${W('draft.resupply')}</button>
           <span class="note">${W('draft.resupply.left', { n: st.rerolls[0] })}</span></div>
       </div>
       <div class="df-side">
-        <${TeamPanel} st=${st} data=${data} group=${group} img=${img} ti=${0} title=${W('draft.team.title')} open=${true} />
-        ${[1, 2].map(ti => html`<${TeamPanel} key=${ti} st=${st} data=${data} group=${group} img=${img} ti=${ti} title=${W('draft.seat.' + ti)} />`)}
+        <${TeamPanel} st=${st} data=${data} group=${group} img=${img} ti=${0} title=${W('draft.team.title')} open=${true} live=${true} fresh=${fb ? [fb.c] : null} bond=${bond} />
+        ${[1, 2].map(ti => html`<${TeamPanel} key=${ti} st=${st} data=${data} group=${group} img=${img} ti=${ti} title=${W('draft.seat.' + ti)} took=${took(ti)} />`)}
         <section class="df-panel"><h3>${W('draft.log.title')}</h3><ol class="df-log">${st.log.slice().reverse().slice(0, 14).map((l, i) => html`<li key=${i}><span>R${l.r}</span><b>${W('draft.seat.' + l.ti)}</b>${l.rr ? W('draft.log.rr') : l.c}</li>`)}</ol></section>
       </div>
     </div>
@@ -175,17 +243,34 @@ function handoff(st, data, res) {
   try { localStorage.setItem(HANDOFF, JSON.stringify({ pairs: mine, foes: rest, boss, rank: res.rank, seed: st.seed })); } catch {}
   location.href = 'run.html';
 }
+/* 금가루 — 1등이면 위에서 흩날린다 */
+function Confetti() {
+  return html`<div class="df-confetti" aria-hidden="true">${Array.from({ length: 36 }, (_, i) => html`<i key=${i}
+    style=${'--x:' + ((i * 37) % 100) + '%;--d:' + ((i * 53) % 900) + 'ms;--r:' + ((i * 71) % 360) + 'deg;--h:' + [42, 48, 36, 54][i % 4]}></i>`)}</div>`;
+}
+function useCount(to, ms) {
+  const [v, setV] = useState(() => calm() ? to : 0);
+  useEffect(() => { if (calm()) { setV(to); return; } let raf, t0 = performance.now();
+    const step = now => { const k = Math.min(1, (now - t0) / ms); setV(Math.round(to * (1 - Math.pow(1 - k, 3)))); if (k < 1) raf = requestAnimationFrame(step); };
+    raf = requestAnimationFrame(step); return () => cancelAnimationFrame(raf); }, [to]);
+  return v;
+}
+function Score({ to, delay }) { const [go, setGo] = useState(false); useEffect(() => { const h = setTimeout(() => setGo(true), calm() ? 0 : delay); return () => clearTimeout(h); }, []);
+  const v = useCount(go ? to : 0, 900); return html`<small>${v}</small>`; }
 function Result({ st, data, group, img, onAgain }) {
   const res = D.result(st, data);
   const best = res.evs[0].ev.units.filter(u => u.w && u.o)[0];
+  /* 3등부터 차례로 열린다 — 화면 차례(1·2·3등)는 그대로, 나타나는 때만 뒤에서부터 */
+  const order = i => (res.sorted.length - 1 - i) * 650;
   return html`<div>
-    <div class="rn-end"><h2>${W('draft.result.rank', { rank: res.rank + 1 })}</h2>
+    ${res.rank === 0 && !calm() ? html`<${Confetti} />` : ''}
+    <div class="rn-end df-reveal" style=${'--d:' + (res.sorted.length * 650) + 'ms'}><h2>${W('draft.result.rank', { rank: res.rank + 1 })}</h2>
       <p>${W('draft.result.gap', { n: res.gap })}${best ? ' · ' + W('draft.result.mvp') + ': ' + best.w + ' × ' + best.o + ' ' + Math.round(best.s) : ''}</p>
       <div class="rn-bar" style="justify-content:center"><button type="button" class="rn-btn primary" data-sortie="1" onClick=${() => handoff(st, data, res)}>${W('draft.sortie')}</button>
         <button type="button" class="rn-btn" data-again="1" onClick=${onAgain}>${W('draft.again')}</button></div>
       <p class="note help">${W('draft.sortie.note')}</p></div>
-    <div class="df-result">${res.sorted.map(x => html`<div key=${x.ti} class=${'df-panel' + (x.ti === 0 ? ' me' : '')}>
-      <h4>${W('draft.seat.' + x.ti)}<small>${x.ev.total}</small></h4>
+    <div class="df-result">${res.sorted.map((x, i) => html`<div key=${x.ti} class=${'df-panel df-reveal' + (x.ti === 0 ? ' me' : '')} style=${'--d:' + order(i) + 'ms'}>
+      <h4>${W('draft.seat.' + x.ti)}<${Score} to=${x.ev.total} delay=${order(i)} /></h4>
       <${TeamPanel} st=${st} data=${data} group=${group} img=${img} ti=${x.ti} title=${W('draft.seat.' + x.ti)} open=${true} /></div>`)}</div>
   </div>`;
 }
