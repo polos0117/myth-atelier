@@ -25,6 +25,62 @@ body {color:var(--text);font-size:15px}
 .collection-scroll {display:block}
 .dex-page .collection-scroll {padding-bottom:calc(44px + env(safe-area-inset-bottom))}
 .du-screen {display:block;min-height:120px}
+.du-btn {min-height:44px;padding:8px 14px;background:var(--card2);color:var(--text);border:1px solid var(--line);border-radius:8px;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.du-btn.primary {background:var(--accent);color:var(--on-accent);border-color:var(--accent);min-height:46px;font-size:14px}
+:is([data-theme="daylight"],[data-theme="blossom"],[data-theme="sand"]) .du-btn.primary {color:#fff}
+.du-btn:disabled {opacity:.45;cursor:default}
+.sec {margin:16px 0 8px;font:700 11px/1.6 ui-monospace,monospace;letter-spacing:.1em;color:var(--accent);display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.sec span {color:var(--muted);font-weight:400;letter-spacing:0}
+.note {margin:6px 0 10px;color:var(--muted);font-size:12px;line-height:1.6;word-break:keep-all}
+/* 첫 고르기 — 열한 권 */
+.du-myths {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0 14px}
+@media (min-width:600px) {.du-myths {grid-template-columns:repeat(4,minmax(0,1fr))}}
+.du-myth {min-height:56px;display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--line);border-left:5px solid var(--mc);border-radius:10px;background:var(--card);color:var(--text);font:inherit;font-weight:700;font-size:13px;text-align:left;cursor:pointer}
+.du-myth.on {outline:3px solid var(--accent);outline-offset:1px}
+.du-myth small {display:block;color:var(--muted);font-weight:400;font-size:11px;margin-top:2px}
+/* 로비 머리 */
+.du-head {display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;padding:10px 0 4px;font:700 12px ui-monospace,monospace;letter-spacing:.04em;color:var(--muted)}
+.du-head b {color:var(--text);font-size:14px}
+.du-deck[data-ok="false"] b {color:var(--signal)}
+.du-tools {display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.du-lv {display:flex;gap:4px;border:1px solid var(--line);border-radius:8px;padding:4px;margin:6px 0}
+.du-lv button {flex:1;min-height:44px;background:var(--card);border:0;border-radius:6px;color:var(--muted);font:inherit;font-weight:700;font-size:12px;cursor:pointer}
+.du-lv button.on {background:var(--accent-soft);color:var(--text);box-shadow:inset 0 -2px var(--accent)}
+.du-conquered {margin:8px 0;padding:10px 12px;border:1px solid var(--gold);border-radius:8px;color:var(--gold);font-weight:700;text-align:center;font-size:13px}
+.du-bosses {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media (min-width:600px) {.du-bosses {grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (min-width:1000px) {.du-bosses {grid-template-columns:repeat(4,minmax(0,1fr))}}
+.du-boss {display:grid;grid-template-columns:52px minmax(0,1fr);gap:8px;align-items:center;min-height:92px;padding:8px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--text);font:inherit;text-align:left;cursor:pointer}
+.du-boss .face {width:52px;aspect-ratio:2/3;border-radius:8px;overflow:hidden;background:var(--card2)}
+.du-boss b {display:block;font-size:14px;overflow-wrap:anywhere}
+.du-boss small {display:block;color:var(--muted);font-size:11px;margin-top:3px}
+.du-boss:disabled {opacity:.45;cursor:default}
+/* 덱 짜기 */
+.du-main-pick {display:flex;flex-wrap:wrap;gap:4px;margin:6px 0}
+.du-main-pick button {min-height:44px;padding:0 10px;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--mc);border-radius:8px;color:var(--muted);font:inherit;font-weight:700;font-size:12px;cursor:pointer}
+.du-main-pick button.on {color:var(--text);background:var(--accent-soft);border-color:var(--accent)}
+.du-rule {display:flex;flex-wrap:wrap;gap:6px 14px;margin:10px 0 2px;font:700 12px ui-monospace,monospace;color:var(--muted)}
+.du-rule span.bad {color:var(--signal)}
+.du-why {margin:2px 0 8px;color:var(--signal);font-size:12px;line-height:1.5}
+.du-why:empty {display:none}
+.grid {display:grid;gap:8px;grid-template-columns:repeat(2,minmax(0,1fr));margin-top:8px}
+@media (min-width:600px) {.grid {grid-template-columns:repeat(auto-fill,minmax(132px,1fr))}}
+.cell {display:flex;flex-direction:column;justify-content:flex-start;width:100%;min-height:44px;padding:0;text-align:left;color:inherit;font:inherit;background:var(--card);border:1px solid var(--line);border-radius:11px;overflow:hidden;cursor:pointer}
+.cell.in {outline:3px solid var(--accent);outline-offset:-3px}
+.face {display:block;flex:none;position:relative;width:100%;aspect-ratio:2/3;background:var(--card2);overflow:hidden}
+.face img {display:block;width:100%;height:100%;object-fit:cover;object-position:center top}
+.ph {display:block;height:100%;background:linear-gradient(160deg,var(--card2),var(--card))}
+.cap {display:block;flex:1;padding:6px 8px 8px;font-weight:700;font-size:12px;overflow-wrap:anywhere}
+.cap .cnm {display:block;min-height:2.8em;max-height:2.8em;overflow:hidden;word-break:keep-all;line-height:1.4}
+.cap i {display:block;margin-top:3px;font:400 11px ui-monospace,monospace;font-style:normal;color:var(--muted)}
+.du-var {position:absolute;top:6px;right:6px;padding:2px 7px;border-radius:999px;font:700 10px ui-monospace,monospace;letter-spacing:.04em;background:var(--card2);color:var(--text);box-shadow:0 1px 4px #0006}
+.du-var[data-variant="awaken"] {background:var(--gold);color:#221a06}
+.du-var[data-variant="cursed"] {background:var(--signal);color:#fff}
+.du-var[data-variant="weather"] {background:#3d7bd6;color:#fff}
+.du-pw {position:absolute;left:6px;bottom:6px;min-width:26px;padding:2px 6px;border-radius:7px;text-align:center;font:800 13px ui-monospace,monospace;background:#000a;color:#fff}
+.du-pw.hero {background:var(--gold);color:#221a06}
+.du-pw.wx {background:#3d7bd6}
+.du-tag {display:inline-block;margin-left:6px;padding:1px 6px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font:700 10px ui-monospace,monospace}
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
 <script src="lib/words.js?v=myth40"></script>
@@ -71,6 +127,92 @@ function save(profile, match) { try { localStorage.setItem(STORE, JSON.stringify
 function seed() { return (Date.now() ^ Math.floor(Math.random() * 1e9)) | 0; }
 const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+/* 그림 — 썸네일을 먼저, 없으면 원본. 파일이 없으면 빈 자리 */
+function Thumb({ file, cls }) {
+  if (!file) return html`<span class=${'ph ' + (cls || '')}></span>`;
+  return html`<img src=${IMG.thumbURL(file)} alt="" loading="lazy" class=${cls}
+    onError=${e => { const t = e.currentTarget; if (t.dataset.f) return; t.dataset.f = '1'; t.src = IMG.imgURL(file); }} />`;
+}
+const mythName = (group, m) => group.myth.name[m] || m;
+const mythColor = (group, m) => (group.myth.color && group.myth.color[m]) || 'var(--accent)';
+/* 카드 한 칸 — 도감 칸 꼴. art 는 보여 줄 그림 파일(변형판은 자리에 따라 기본 그림을 쓴다) */
+function Card({ card, art, group, onClick, cls, attrs, children }) {
+  const w = card.variant === 'weather';
+  return html`<button type="button" class=${'cell ' + (cls || '')} data-id=${card.id} onClick=${onClick} ...${attrs || {}}>
+    <span class="face"><${Thumb} file=${art === undefined ? card.file : art} />
+      ${card.variant !== 'base' && html`<span class="du-var" data-variant=${card.variant}>${W('duel.variant.' + card.variant)}</span>`}
+      <span class=${'du-pw' + (card.hero ? ' hero' : '') + (w ? ' wx' : '')}>${w ? W('duel.weather.' + card.row) : card.power}</span>
+      ${children}</span>
+    <span class="cap"><span class="cnm">${card.name}</span>
+      <i>${mythName(group, card.myth)} · ${W('range.short.' + card.row)}${card.hero ? html`<span class="du-tag">${W('duel.hero')}</span>` : ''}</i></span>
+  </button>`;
+}
+/* 가진 카드를 권 차례 → 이름 → 변형 차례로 */
+function sortIds(data, ids) {
+  const D = A.cardsOf(data), order = data.duel.bosses.map(b => b.myth);
+  return ids.slice().sort((a, b) => { const x = D.cards[a], y = D.cards[b];
+    return (order.indexOf(x.myth) - order.indexOf(y.myth)) || x.name.localeCompare(y.name, 'ko') || (A.VARIANTS.indexOf(x.variant) - A.VARIANTS.indexOf(y.variant)); });
+}
+
+/* ── 첫 고르기 — 주 신화권 ── */
+function Pick({ data, group, onPick }) {
+  const [myth, setMyth] = useState(null);
+  return html`<section class="du-screen du-pick" data-screen="pick">
+    <p class="sec">${W('duel.pick.title')}</p>
+    <p class="note">${W('duel.pick.note')}</p>
+    <div class="du-myths" role="group" aria-label=${W('duel.pick.title')}>${data.duel.bosses.map(b => html`<button key=${b.myth} type="button"
+      class=${'du-myth' + (myth === b.myth ? ' on' : '')} data-myth=${b.myth} style=${'--mc:' + mythColor(group, b.myth)} aria-pressed=${myth === b.myth} onClick=${() => setMyth(b.myth)}>
+      <span>${mythName(group, b.myth)}<small>${data.duel.factions[b.myth].name} · ${b.wielder}</small></span></button>`)}</div>
+    <button type="button" class="du-btn primary" id="du-pick-go" disabled=${!myth} onClick=${() => onPick(myth)}>${W('duel.pick.go')}</button>
+  </section>`;
+}
+
+/* ── 로비 — 덱 상태 · 컬렉션 · 난이도 · 주인 열하나 ── */
+function Lobby({ data, group, profile, act, setScreen, onChallenge }) {
+  const D = A.cardsOf(data), v = A.validateDeck(data, profile), max = A.collectionMax(data);
+  const conquered = A.conquered(data, profile);
+  return html`<section class="du-screen du-lobby" data-screen="lobby">
+    <div class="du-head">
+      <span>${W('duel.lobby.main')} <b class="du-main">${mythName(group, profile.main)}</b></span>
+      <span class="du-deck" data-ok=${v.ok ? 'true' : 'false'}><b>${W('duel.lobby.deck', { n: v.n, max: A.DECK })}</b> ${W(v.ok ? 'duel.lobby.deck.ok' : 'duel.lobby.deck.bad')}</span>
+      <span class="du-coll">${W('duel.lobby.collection', { n: profile.owned.length, max })}</span>
+    </div>
+    <div class="du-tools">
+      <button type="button" class="du-btn" id="du-build" onClick=${() => setScreen('build')}>${W('duel.lobby.build')}</button>
+      <button type="button" class="du-btn" id="du-stats" onClick=${() => setScreen('stats')}>${W('duel.lobby.stats')}</button>
+    </div>
+    <p class="sec">${W('duel.lobby.level')}<span class="help">${W('duel.lv.note')}</span></p>
+    <div class="du-lv" role="group" aria-label=${W('duel.lobby.level')}>${A.LEVELS.map(l => html`<button key=${l} type="button" data-lv=${l}
+      class=${profile.level === l ? 'on' : ''} aria-pressed=${profile.level === l} onClick=${() => act(p => { p.level = l; })}>${W('duel.lv.' + l)}</button>`)}</div>
+    ${conquered && html`<div class="du-conquered">${W('duel.lobby.conquered')}</div>`}
+    <p class="sec">${W('duel.lobby.bosses')}<span class="help">${W('duel.lobby.bosses.note')}</span></p>
+    <div class="du-bosses">${data.duel.bosses.map(b => { const c = D.cards[b.portrait]; return html`<button key=${b.myth} type="button" class="du-boss" data-myth=${b.myth}
+      disabled=${!v.ok} onClick=${() => onChallenge(b.myth)}>
+      <span class="face"><${Thumb} file=${c && c.file} /></span>
+      <span><b>${b.wielder}</b><small>${mythName(group, b.myth)} · ${data.duel.factions[b.myth].name}</small>
+        <small>${W('duel.boss.wins', { n: A.winsOf(profile, b.myth) })} · ${W('duel.boss.go')}</small></span></button>`; })}</div>
+  </section>`;
+}
+
+/* ── 덱 짜기 — 주 권 · 규칙 줄 · 컬렉션 그리드 ── */
+function Build({ data, group, profile, act, setScreen }) {
+  const D = A.cardsOf(data), v = A.validateDeck(data, profile), ids = useMemo(() => sortIds(data, profile.owned), [profile.owned]);
+  const rule = (key, text) => html`<span data-rule=${key} class=${v.problems.includes(key) ? 'bad' : ''}>${text}</span>`;
+  return html`<section class="du-screen du-build" data-screen="build">
+    <p class="sec">${W('duel.build')}<span class="help">${W('duel.build.note')}</span></p>
+    <div class="du-main-pick" role="group" aria-label=${W('duel.lobby.main')}>${data.duel.bosses.map(b => html`<button key=${b.myth} type="button" data-myth=${b.myth}
+      style=${'--mc:' + mythColor(group, b.myth)} class=${profile.main === b.myth ? 'on' : ''} aria-pressed=${profile.main === b.myth} onClick=${() => act(p => A.setMain(p, b.myth))}>${mythName(group, b.myth)}</button>`)}</div>
+    <div class="du-rule" data-ok=${v.ok ? 'true' : 'false'}>
+      ${rule('count', W('duel.build.rule.count', { n: v.n }))}${rule('main', W('duel.build.rule.main', { n: v.main }))}
+      ${rule('hero', W('duel.build.rule.hero', { n: v.hero }))}${rule('weather', W('duel.build.rule.weather', { n: v.weather }))}
+    </div>
+    <p class="du-why">${v.problems.map(k => W('duel.why.' + k)).join(' · ')}</p>
+    <button type="button" class="du-btn primary" id="du-build-done" onClick=${() => setScreen('lobby')}>${W('duel.build.done')}</button>
+    <div class="grid">${ids.map(id => html`<${Card} key=${id} card=${D.cards[id]} group=${group} cls=${profile.deck.includes(id) ? 'in' : ''}
+      attrs=${{ 'aria-pressed': profile.deck.includes(id) }} onClick=${() => act(p => A.toggleDeck(data, p, id))} />`)}</div>
+  </section>`;
+}
+
 function App() {
   const loaded = useData();
   const [saved] = useState(load);
@@ -78,8 +220,18 @@ function App() {
   const [screen, setScreen] = useState('lobby');   /* 'lobby' | 'build' | 'stats' — 판이 있으면 판이 앞선다 */
   if (!loaded) return html`<${Shell}><p class="empty">${W('ui.loading')}</p><//>`;
   if (loaded.error) return html`<${Shell}><p class="empty">${W('ui.error', { message: loaded.error })}</p><//>`;
+  const { data, group } = loaded;
+  /* 프로필을 고치는 손 — 사본을 고치고 저장 */
+  const act = fn => { const next = JSON.parse(JSON.stringify(profile)); fn(next); save(next, match); setProfile(next); };
+  const onPick = myth => { const p = A.newProfile(data, myth, seed()); save(p, null); setProfile(p); };
+  const onChallenge = myth => { const m = A.newMatch(data, profile, myth, profile.level, seed()); save(profile, m); setMatch(m); };
   const which = !profile ? 'pick' : match && match.phase !== 'done' ? 'match' : match ? 'result' : screen;
-  return html`<${Shell}><section class="du-screen" data-screen=${which}></section><//>`;
+  return html`<${Shell}>
+    ${which === 'pick' ? html`<${Pick} data=${data} group=${group} onPick=${onPick} />`
+    : which === 'build' ? html`<${Build} data=${data} group=${group} profile=${profile} act=${act} setScreen=${setScreen} />`
+    : which === 'lobby' || which === 'stats' ? html`<${Lobby} data=${data} group=${group} profile=${profile} act=${act} setScreen=${setScreen} onChallenge=${onChallenge} />`
+    : html`<section class="du-screen" data-screen=${which}></section>`}
+  <//>`;
 }
 render(html`<${App} />`, document.getElementById('app'));
 window.AtelierFresh.watch();
