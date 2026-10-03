@@ -1,7 +1,7 @@
 {
  "version": 1,
  "note": "tools/register-images.py 가 그림 저장소(myth-atelier-img/img)를 읽어 채운다. 손으로 고치지 않는다.",
- "count": 155,
+ "count": 156,
  "img": {
   "가다": {"byStyle": {"game_keyart": {"f": "가다_game_keyart_f.webp", "awaken": {"f": "가다_game_keyart_f_awaken.webp"}, "cursed": {"f": "가다_game_keyart_f_cursed.webp"}, "casual": {"f": ["가다_game_keyart_f_casual1.webp"]}}}},
   "간디바": {"byStyle": {"game_keyart": {"f": "간디바_game_keyart_f.webp", "awaken": {"f": "간디바_game_keyart_f_awaken.webp"}, "cursed": {"f": "간디바_game_keyart_f_cursed.webp"}, "casual": {"f": ["간디바_game_keyart_f_casual1.webp"]}}}},
@@ -122,6 +122,7 @@
   "쿠루찌": {"byStyle": {"game_keyart": {"f": "쿠루찌_game_keyart_f.webp", "awaken": {"f": "쿠루찌_game_keyart_f_awaken.webp"}, "cursed": {"f": "쿠루찌_game_keyart_f_cursed.webp"}, "casual": {"f": ["쿠루찌_game_keyart_f_casual1.webp", "쿠루찌_game_keyart_f_casual2.webp", "쿠루찌_game_keyart_f_casual3.webp"]}}}},
   "크로노스의 낫": {"byStyle": {"game_keyart": {"f": "크로노스의_낫_game_keyart_f.webp", "awaken": {"f": "크로노스의_낫_game_keyart_f_awaken.webp"}, "cursed": {"f": "크로노스의_낫_game_keyart_f_cursed.webp"}, "casual": {"f": ["크로노스의_낫_game_keyart_f_casual1.webp"]}, "extra": {"f": ["크로노스의_낫_game_keyart_f_extra1.webp", "크로노스의_낫_game_keyart_f_extra2.webp"]}}}},
   "클라우 솔라스": {"byStyle": {"game_keyart": {"f": "클라우_솔라스_game_keyart_f.webp", "awaken": {"f": "클라우_솔라스_game_keyart_f_awaken.webp"}, "cursed": {"f": "클라우_솔라스_game_keyart_f_cursed.webp"}, "casual": {"f": ["클라우_솔라스_game_keyart_f_casual1.webp"]}, "skin": {"f": {"prim": {"base": "클라우_솔라스_game_keyart_f_skin_prim.webp", "awaken": "클라우_솔라스_game_keyart_f_skin_prim_awaken.webp", "cursed": "클라우_솔라스_game_keyart_f_skin_prim_cursed.webp"}}}}}},
+  "타른카페": {"byStyle": {"game_keyart": {"f": "타른카페_game_keyart_f.webp", "awaken": {"f": "타른카페_game_keyart_f_awaken.webp"}, "cursed": {"f": "타른카페_game_keyart_f_cursed.webp"}, "casual": {"f": ["타른카페_game_keyart_f_casual1.webp", "타른카페_game_keyart_f_casual2.webp", "타른카페_game_keyart_f_casual3.webp"]}, "extra": {"f": ["타른카페_game_keyart_f_extra1.webp"]}}}},
   "타슬럼": {"byStyle": {"game_keyart": {"f": "타슬럼_game_keyart_f.webp", "awaken": {"f": "타슬럼_game_keyart_f_awaken.webp"}, "cursed": {"f": "타슬럼_game_keyart_f_cursed.webp"}, "casual": {"f": ["타슬럼_game_keyart_f_casual1.webp"]}}}},
   "타신편": {"byStyle": {"game_keyart": {"f": "타신편_game_keyart_f.webp", "awaken": {"f": "타신편_game_keyart_f_awaken.webp"}, "cursed": {"f": "타신편_game_keyart_f_cursed.webp"}, "casual": {"f": ["타신편_game_keyart_f_casual1.webp"]}, "extra": {"f": ["타신편_game_keyart_f_extra1.webp"]}}}},
   "탈라리아": {"byStyle": {"game_keyart": {"f": "탈라리아_game_keyart_f.webp", "awaken": {"f": "탈라리아_game_keyart_f_awaken.webp"}, "cursed": {"f": "탈라리아_game_keyart_f_cursed.webp"}, "casual": {"f": ["탈라리아_game_keyart_f_casual1.webp"]}}}},
