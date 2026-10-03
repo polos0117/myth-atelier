@@ -34,6 +34,8 @@ assert.equal(S.PARAMS[0].key, 'ethnicity', '첫 칸은 얼굴 계통 — 자동 
     assert(helm.includes(S.ARMOR_WEAR.helm) && !helm.includes(S.HOLD_LINE) && !/strapped|forearm/.test(helm), design + ' 투구는 머리에 — 방패 말이 없다');
     const shield = P.build({ card: '아이기스', style: 'game_keyart', output: 'portrait', design, params: {} }, data);
     assert(shield.includes(S.ARMOR_WEAR.shield) && !shield.includes(S.ARMOR_WEAR.helm), design + ' 방패는 팔에');
+    assert(shield.includes('never floating') && shield.includes(S.ARMOR_HANDS.shield) && !shield.includes(S.HANDS_LINE), design + ' 방패는 팔에 붙고, 두 손이 비었다는 줄이 없다(띄우지 않게)');
+    assert(sword.includes(S.HANDS_LINE) && helm.includes(S.HANDS_LINE), design + ' 다른 카드는 손 줄 그대로');
     assert(sword.includes(S.HOLD_LINE) && !sword.includes(S.ARMOR_WORN), design + ' 검은 그대로 들지 않는다');
   }
   /* 눈색도 같은 규칙 — 머리색과 거의 안 겹치고, 권마다 여러 색 */
@@ -90,7 +92,8 @@ for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for 
     assert(!text.includes('CATEGORY:') && !text.includes('SCENE DETAILS'), '갈래를 안 고르면 갈래 줄이 없다');
   } else if (output === 'portrait') {
     assert(text.includes('WEAPON LOOK') && text.includes(card.look), '무기의 시각 언어가 실린다');
-    const core = card.kind === 'armor' ? S.CORE.mecha.replace(S.HOLD_LINE, S.ARMOR_WEAR[card.wear]) : S.CORE.mecha;
+    let core = card.kind === 'armor' ? S.CORE.mecha.replace(S.HOLD_LINE, S.ARMOR_WEAR[card.wear]) : S.CORE.mecha;
+    if (card.kind === 'armor' && S.ARMOR_HANDS[card.wear]) core = core.replace(S.HANDS_LINE, S.ARMOR_HANDS[card.wear]);
     assert(text.includes('SUBJECT: ' + core.replace('{weapon}', card.en)), '뼈대는 메카 의인화 한 문단(방어구는 입는 줄로)');
     assert(text.includes(card.kind === 'armor' ? S.ARMOR_WEAR[card.wear] : 'does NOT hold') && text.includes('Both hands are ordinary human hands'), '무기를 들지 않고(방어구는 입고) 손은 손이다');
     assert(!text.includes('EMBODIMENT') && !text.includes('SILHOUETTE:') && !text.includes(S.MYTH_FLAVOR[card.myth]), '선택 문단은 기본에서 꺼져 있다');
