@@ -1,7 +1,7 @@
 {
  "version": 1,
  "note": "tools/register-images.py 가 그림 저장소(myth-atelier-img/img)를 읽어 채운다. 손으로 고치지 않는다.",
- "count": 159,
+ "count": 160,
  "img": {
   "가다": {"byStyle": {"game_keyart": {"f": "가다_game_keyart_f.webp", "awaken": {"f": "가다_game_keyart_f_awaken.webp"}, "cursed": {"f": "가다_game_keyart_f_cursed.webp"}, "casual": {"f": ["가다_game_keyart_f_casual1.webp"]}}}},
   "간디바": {"byStyle": {"game_keyart": {"f": "간디바_game_keyart_f.webp", "awaken": {"f": "간디바_game_keyart_f_awaken.webp"}, "cursed": {"f": "간디바_game_keyart_f_cursed.webp"}, "casual": {"f": ["간디바_game_keyart_f_casual1.webp"]}}}},
@@ -57,6 +57,7 @@
   "비격진천뢰": {"byStyle": {"game_keyart": {"f": "비격진천뢰_game_keyart_f.webp", "awaken": {"f": "비격진천뢰_game_keyart_f_awaken.webp"}, "cursed": {"f": "비격진천뢰_game_keyart_f_cursed.webp"}, "casual": {"f": ["비격진천뢰_game_keyart_f_casual1.webp"]}, "extra": {"f": ["비격진천뢰_game_keyart_f_extra1.webp", "비격진천뢰_game_keyart_f_extra2.webp"]}}}},
   "비라코차의 지팡이": {"byStyle": {"game_keyart": {"f": "비라코차의_지팡이_game_keyart_f.webp", "awaken": {"f": "비라코차의_지팡이_game_keyart_f_awaken.webp"}, "cursed": {"f": "비라코차의_지팡이_game_keyart_f_cursed.webp"}, "casual": {"f": ["비라코차의_지팡이_game_keyart_f_casual1.webp", "비라코차의_지팡이_game_keyart_f_casual2.webp"]}, "extra": {"f": ["비라코차의_지팡이_game_keyart_f_extra1.webp", "비라코차의_지팡이_game_keyart_f_extra2.webp"]}}}},
   "비자야": {"byStyle": {"game_keyart": {"f": "비자야_game_keyart_f.webp", "awaken": {"f": "비자야_game_keyart_f_awaken.webp"}, "cursed": {"f": "비자야_game_keyart_f_cursed.webp"}, "casual": {"f": ["비자야_game_keyart_f_casual1.webp"]}}}},
+  "빌헬름 텔의 석궁": {"byStyle": {"game_keyart": {"f": "빌헬름_텔의_석궁_game_keyart_f.webp", "awaken": {"f": "빌헬름_텔의_석궁_game_keyart_f_awaken.webp"}, "cursed": {"f": "빌헬름_텔의_석궁_game_keyart_f_cursed.webp"}, "casual": {"f": ["빌헬름_텔의_석궁_game_keyart_f_casual1.webp"]}, "extra": {"f": ["빌헬름_텔의_석궁_game_keyart_f_extra1.webp", "빌헬름_텔의_석궁_game_keyart_f_extra2.webp"]}}}},
   "사인검": {"byStyle": {"game_keyart": {"f": "사인검_game_keyart_f.webp", "awaken": {"f": "사인검_game_keyart_f_awaken.webp"}, "cursed": {"f": "사인검_game_keyart_f_cursed.webp"}, "casual": {"f": ["사인검_game_keyart_f_casual1.webp", "사인검_game_keyart_f_casual2.webp"]}}}},
   "샤루르": {"byStyle": {"game_keyart": {"f": "샤루르_game_keyart_f.webp", "awaken": {"f": "샤루르_game_keyart_f_awaken.webp"}, "cursed": {"f": "샤루르_game_keyart_f_cursed.webp"}, "casual": {"f": ["샤루르_game_keyart_f_casual1.webp", "샤루르_game_keyart_f_casual2.webp"]}, "extra": {"f": ["샤루르_game_keyart_f_extra1.webp"]}}}},
   "세크메트의 화살": {"byStyle": {"game_keyart": {"f": "세크메트의_화살_game_keyart_f.webp", "awaken": {"f": "세크메트의_화살_game_keyart_f_awaken.webp"}, "cursed": {"f": "세크메트의_화살_game_keyart_f_cursed.webp"}, "casual": {"f": ["세크메트의_화살_game_keyart_f_casual1.webp", "세크메트의_화살_game_keyart_f_casual2.webp"]}}}},
