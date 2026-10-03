@@ -86,12 +86,12 @@ const IMG = { img: {
     /* 큰 그림 넘기기 — 덮개를 안 열어도 화살표·방향키·밀기로 같은 줄(액션 → 각성 → 저주 → 특별 → 일상)을 넘긴다.
        끝에선 화살표가 잠기고, 민 손가락은 크게 보기를 열지 않는다 */
     const bigIs = f => p.waitForFunction(s => document.querySelector('.big img').getAttribute('src') === s, window_src(f));
-    const swipe = async (sel, dx) => { const b = await p.locator(sel).boundingBox(), x = b.x + b.width / 2, y = b.y + b.height / 2;
+    const swipe = async (sel, dx) => { await p.locator(sel).scrollIntoViewIfNeeded(); const b = await p.locator(sel).boundingBox(), x = b.x + b.width / 2, y = b.y + b.height / 2;
       await p.mouse.move(x - dx / 2, y); await p.mouse.down(); await p.mouse.move(x + dx / 2, y + 6, { steps: 6 }); await p.mouse.up(); };
     assert.equal(await p.locator('.big-count').innerText(), '3 / 5', '큰 그림에도 몇 번째인지');
     await p.locator('.big-next').click(); await bigIs('묠니르_glossy_promo_f_extra1.webp');
     await p.keyboard.press('ArrowRight'); await bigIs('묠니르_glossy_promo_f_casual1.webp');
-    assert(await p.locator('.big-next').isDisabled(), '끝에선 다음이 잠긴다');
+    assert.equal(await p.locator('.big-next.to-card').count(), 1, '마지막 컷에선 다음 화살표가 다음 무기로 넘는다고 표시');
     await swipe('.big', 160); await bigIs('묠니르_glossy_promo_f_extra1.webp');
     assert.equal(await p.locator('.zoom-layer').count(), 0, '밀기는 크게 보기를 열지 않는다');
     await swipe('.big', -160); await bigIs('묠니르_glossy_promo_f_casual1.webp');
@@ -121,6 +121,47 @@ const IMG = { img: {
     await p.click('.gal .cell[data-cut="extra"]');
     assert.equal(await p.locator('.big img').getAttribute('src'), window_src('묠니르_glossy_promo_f_extra1.webp'));
     assert((await p.locator('.sec').filter({ hasText: '특별컷 1' }).count()) >= 1, '특별컷 이름표');
+    /* 다른 무기로 — 목록 차례(신화권 → 값 높은 것 → 이름)에서 그림 있는 무기만 잇는다. 시험 그림으로는 묠니르(북유럽 5) → 티르핑(북유럽 3, 스킨만) → 아이기스(그리스 5).
+       마지막 컷에서 다음은 다음 무기의 첫 컷, 첫 컷에서 앞은 앞 무기의 마지막 컷. 크게 보기는 열린 채 넘어간다 */
+    const titleIs = n => p.waitForFunction(n => document.querySelector('.bar h2')?.textContent.startsWith(n), n);
+    assert.equal(await p.locator('.card-nav .card-count').innerText(), '무기 1 / 3', '무기 몇 번째인지');
+    assert(await p.locator('#dex-card-prev').isDisabled(), '첫 무기라 앞 무기는 잠긴다');
+    assert((await p.locator('#dex-card-next').getAttribute('aria-label')).includes('티르핑') && (await p.locator('#dex-card-next').getAttribute('title')) === '티르핑', '다음 무기 이름을 알려 준다');
+    await p.keyboard.press('ArrowRight'); await bigIs('묠니르_glossy_promo_f_casual1.webp');
+    assert(!(await p.locator('.big-next').isDisabled()) && (await p.locator('.big-next.to-card').count()) === 1, '마지막 컷이어도 다음 무기가 있으면 열리고, 무기를 넘는다고 표시');
+    await p.keyboard.press('ArrowRight'); await titleIs('티르핑');
+    await p.waitForFunction(s => document.querySelector('.big img')?.getAttribute('src') === s, window_src('티르핑_ink_wash_f_skin_frost.webp'));
+    assert.equal(await p.locator('.big-count').count(), 0, '컷이 하나면 몇 번째 표시는 없다');
+    assert.equal(await p.locator('.card-nav .card-count').innerText(), '무기 2 / 3');
+    assert(!(await p.locator('.big-prev').isDisabled()), '첫 컷이어도 앞 무기가 있으면 열린다');
+    await swipe('.big', 160); await titleIs('묠니르'); await bigIs('묠니르_glossy_promo_f_casual1.webp');
+    assert.equal(await p.locator('.big-count').innerText(), '5 / 5', '앞 무기는 마지막 컷으로');
+    await p.locator('#dex-card-next').click(); await titleIs('티르핑');
+    await p.locator('#dex-card-next').click(); await titleIs('아이기스');
+    assert(await p.locator('#dex-card-next').isDisabled() && await p.locator('.big-next').isDisabled(), '마지막 무기의 마지막 컷에선 다음이 잠긴다');
+    await p.locator('#dex-card-prev').click(); await titleIs('티르핑');
+    await p.locator('#dex-card-prev').click(); await titleIs('묠니르'); await bigIs('묠니르_glossy_promo_f.webp');
+    assert.equal(await p.locator('.big-count').innerText(), '1 / 5', '무기 단추는 첫 컷으로');
+    /* 크게 보기 안에서 무기를 넘어도 덮개는 열린 채 */
+    await p.locator('.big-next').click(); await p.locator('.big-next').click(); await p.locator('.big-next').click(); await p.locator('.big-next').click();
+    await bigIs('묠니르_glossy_promo_f_casual1.webp');
+    await p.click('.big .zoom'); await p.waitForSelector('.zoom-layer');
+    await p.locator('.zoom-next').click(); await titleIs('티르핑');
+    await p.waitForFunction(() => document.querySelector('.zoom-bar b')?.textContent.startsWith('티르핑'));
+    await swipe('.zoom-body', -160);
+    await p.waitForFunction(() => document.querySelector('.zoom-bar b')?.textContent.startsWith('아이기스'));
+    assert(await p.locator('.zoom-next').isDisabled(), '덮개에서도 마지막 무기 끝에선 잠긴다');
+    await p.keyboard.press('ArrowLeft'); await p.waitForFunction(() => document.querySelector('.zoom-bar b')?.textContent.startsWith('티르핑'));
+    await p.keyboard.press('Escape'); await p.waitForFunction(() => !document.querySelector('.zoom-layer'));
+    await titleIs('티르핑');
+    /* 거르기를 따른다 — 그리스만 보이면 아이기스 하나뿐이라 넘길 무기가 없다 */
+    await p.click('.back'); await p.waitForSelector('.grid .cell');
+    await p.selectOption('#dex-myth', 'greek'); await p.click('.grid .cell[data-card="아이기스"]'); await titleIs('아이기스');
+    assert.equal(await p.locator('.card-nav .card-count').innerText(), '무기 1 / 1', '거른 목록 안에서만');
+    assert(await p.locator('#dex-card-prev').isDisabled() && await p.locator('#dex-card-next').isDisabled());
+    await p.click('.back'); await p.waitForSelector('.grid .cell'); await p.click('#dex-reset');
+    await p.click('.grid .cell[data-card="묠니르"]'); await titleIs('묠니르');
+    await p.click('.gal .cell[data-cut="extra"]'); await bigIs('묠니르_glossy_promo_f_extra1.webp');
     await p.click('.back'); await p.waitForSelector('.grid .cell');
 
     /* 화풍이 여럿이면 셀렉트와 썸네일 줄로 고른다 */
@@ -155,10 +196,13 @@ const IMG = { img: {
     await p.click('.grid .cell[data-card="묠니르"]'); await p.waitForSelector('.big-next');
     for (const sel of ['.big-prev', '.big-next']) { const b = await p.locator(sel).boundingBox(); assert(b.width >= 44 && b.height >= 44, sel + ' 44px'); }
     assert.equal(await p.locator('.big').evaluate(e => getComputedStyle(e).touchAction), 'pan-y', '세로 굴림은 그대로');
+    for (const sel of ['#dex-card-prev', '#dex-card-next']) { const b = await p.locator(sel).boundingBox(); assert(b.width >= 44 && b.height >= 44, sel + ' 44px'); }
+    const barH = await p.locator('.bar').evaluate(e => e.getBoundingClientRect().height);
+    assert(barH <= 64, '무기 넘기기는 굴러가지 않는 머리를 늘리지 않는다: ' + barH);
     /* 진짜 손가락으로 밀기 — 터치 화면(hasTouch)을 따로 연다. 터치로 민 뒤엔 click 이 오지 않으므로, 그 직후의 탭을 삼키지 않고 크게 보기를 연다 */
     { const t = await harness.open('dex.html?card=' + encodeURIComponent('묠니르'), { viewport: FOLD.cover, mobile: true }), q = t.page;
       await q.route('**/data/img.json', r => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(IMG) }));
-      await q.reload(); await q.waitForSelector('.big-count');
+      await q.reload(); await q.waitForSelector('.big-count'); await q.locator('.big').scrollIntoViewIfNeeded();
       const cdp = await q.context().newCDPSession(q), bb = await q.locator('.big').boundingBox(), ty = bb.y + bb.height / 2;
       const touch = (type, x) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y: ty }] });
       await touch('touchStart', bb.x + bb.width * .8); for (let i = 1; i <= 8; i++) await touch('touchMove', bb.x + bb.width * (.8 - i * .07)); await touch('touchEnd');
@@ -166,6 +210,16 @@ const IMG = { img: {
       assert.equal(await q.locator('.zoom-layer').count(), 0, '손가락 밀기는 크게 보기를 열지 않는다');
       /* 사람 손의 간격(0.3초) 뒤에 탭한다 — 민 직후 몇 ms 안의 탭은 크롬이 click 을 만들지 않는다. 삼키기 창(0.5초)보다는 짧다 */
       await q.waitForTimeout(300); await q.tap('.big .zoom'); await q.waitForSelector('.zoom-layer', { timeout: 3000 });
+      /* 무기를 넘겨도 굴린 자리가 남는다 — 맨 위로 튀면 휴대폰에서 무기 줄이 화면 밖으로 밀려난다 */
+      await q.tap('.zoom-close'); await q.waitForFunction(() => !document.querySelector('.zoom-layer'));
+      await q.locator('.card-nav').scrollIntoViewIfNeeded();
+      const navY = () => q.evaluate(() => Math.round(document.querySelector('.card-nav').getBoundingClientRect().top));
+      const before = await navY();
+      assert(await q.evaluate(() => document.querySelector('.collection-scroll').scrollTop) > 0, '무기 줄까지 굴렸다');
+      await q.locator('#dex-card-next').click(); await q.waitForFunction(() => !document.querySelector('.bar h2').textContent.startsWith('묠니르'));
+      await q.waitForTimeout(100);
+      const after = await navY();
+      assert(Math.abs(after - before) <= 2, '무기 줄이 화면의 같은 높이에 남는다: ' + before + ' → ' + after);
       assert.deepEqual(t.errors, []); await t.close(); }
     assert(await p.evaluate(() => document.body.scrollWidth <= innerWidth), '상세도 가로로 넘치지 않는다');
     await p.click('.back'); await p.waitForSelector('.grid .cell');
@@ -177,7 +231,7 @@ const IMG = { img: {
     assert.deepEqual(a.errors, []);
     assert.deepEqual(await p.evaluate(() => window.AtelierWords.missing()), [], '낱말 표에 없는 열쇠');
     await a.close();
-    console.log('PASS 도감: 카드 ' + N + ' · 거르기 여섯 · 상세 · 각성 · 일상컷 · 넘기기 · 휴대폰');
+    console.log('PASS 도감: 카드 ' + N + ' · 거르기 여섯 · 상세 · 각성 · 일상컷 · 넘기기 · 무기 넘기기 · 휴대폰');
   } finally { await harness.stop(); }
 })().catch(e => { console.error(e); process.exit(1); });
 function window_src(f) { return 'https://polos0117.github.io/myth-atelier-img/img/' + encodeURIComponent(f); }

@@ -137,10 +137,19 @@ body {color:var(--text);font-size:15px}
 .big-nav {position:absolute;inset:0;display:flex;justify-content:space-between;align-items:center;padding:0 4px;pointer-events:none}
 .big-nav button {pointer-events:auto;display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;padding:0;border:1px solid #ffffff40;border-radius:999px;background:#0009;color:#fff;font:400 22px/1 var(--display);cursor:pointer}
 .big-nav button:disabled {opacity:.2;cursor:default}
+.big-nav button.to-card {border-color:var(--gold);color:var(--gold)}
+/* 무기 넘기기 — 큰 그림 바로 아래 한 줄: ‹ 앞 무기 이름 · 무기 몇 / 전체 · 다음 무기 이름 ›.
+   머리는 굴러가지 않는 자리라 거기 두면 휴대폰에서 그림 자리가 줄어든다(긴 이름은 두 배로 높아졌다) */
+.card-nav {display:flex;align-items:center;gap:8px;margin-top:8px}
+.card-nav button {flex:1 1 0;min-width:0;min-height:44px;display:flex;align-items:center;gap:6px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:var(--card2);color:var(--text);font:700 12px var(--display);cursor:pointer}
+.card-nav button span {min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis} .card-nav button b {flex:none;font:400 18px/1 var(--display)}
+.card-nav #dex-card-next {justify-content:flex-end}
+.card-nav button:disabled {opacity:.35;cursor:default}
+.card-nav .card-count {flex:none;font:700 11px ui-monospace,monospace;color:var(--muted);white-space:nowrap}
 .big-count {position:absolute;right:8px;bottom:8px;padding:2px 8px;border-radius:999px;background:#000a;color:#fff;font:700 11px ui-monospace,monospace;pointer-events:none}
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
-<script src="lib/words.js?v=myth41"></script>
+<script src="lib/words.js?v=myth42"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth6"></script>
 </head>
@@ -150,7 +159,7 @@ body {color:var(--text);font-size:15px}
 /* Fragment 는 h 에 안 붙어 있다. h.Fragment 로 부르면 preact 가 진짜 태그를 만들어
    격자(.facts) 칸을 하나 잡아먹는다. 따로 들여온다 */
 import { h, render, Fragment } from 'https://esm.sh/preact@10.24.3';
-import { useState, useEffect, useMemo, useRef } from 'https://esm.sh/preact@10.24.3/hooks';
+import { useState, useEffect, useLayoutEffect, useMemo, useRef } from 'https://esm.sh/preact@10.24.3/hooks';
 import htm from 'https://esm.sh/htm@3.1.1';
 import { WorkspaceHeader } from './lib/workspace-ui.js?v=myth13';
 const html = htm.bind(h);
@@ -259,10 +268,9 @@ function Facts({ card, group, skill }) {
     </div>`;
 }
 
-function Detail({ card, entry, styleName, group, skill, selection, onClose }) {
+function Detail({ card, entry, styleName, group, skill, selection, nav, onGo, onClose }) {
   const keys = IMG.styleKeys(entry || {});
   const [wantStyle, setStyle] = useState(selection?.style || '');
-  const [focus, setFocus] = useState(selection?.file && selection.cut !== 'portrait' ? selection : null);
   /* 처음 열 때는 상태 그림(각성·저주·일상)이 가장 많은 화풍을 고른다. 같으면 앞의 것 */
   const richest = keys.slice().sort((a, b) => IMG.shotsOf(IMG.styleMap(entry)[b], V).length - IMG.shotsOf(IMG.styleMap(entry)[a], V).length || keys.indexOf(a) - keys.indexOf(b))[0];
   const style = keys.indexOf(wantStyle) >= 0 ? wantStyle : (richest || '');
@@ -278,13 +286,27 @@ function Detail({ card, entry, styleName, group, skill, selection, onClose }) {
   const inHall = hall.includes(card.name), hallFull = !inHall && hall.length >= IMG.HALL_MAX, temple = W('theme.' + IMG.hallTheme());
   const enshrine = () => { IMG.toggleHall(card.name); setHall(IMG.hallPicks()); };
   const wear = key => { IMG.setSkinPick(card.name, key); setWorn(key); };
-  const shown = focus || (portrait ? { file: portrait, cut: 'portrait' } : null);
-  /* 크게 보기 — 같은 화풍의 컷 전부를 한 줄로: 액션 → 각성 → 저주 → 특별 → 일상 */
-  const [zoom, setZoom] = useState(false);
+  /* 크게 보기 — 같은 화풍의 컷 전부를 한 줄로: 액션 → 각성 → 저주 → 특별 → 일상 → 스킨 */
   const shots = [].concat(portrait ? [{ file: portrait, cut: 'portrait' }] : [], awaken ? [{ file: awaken, cut: 'awaken' }] : [],
     cursed ? [{ file: cursed, cut: 'cursed' }] : [], extra.map((f, i) => ({ file: f, cut: 'extra', index: i + 1 })), casual.map((f, i) => ({ file: f, cut: 'casual', index: i + 1 })), skinShots);
+  /* 무기를 넘어 왔으면 그 끝(first/last)의 컷에서 시작한다 — 앞 무기로 가면 마지막 컷, 다음 무기로 가면 첫 컷(액션이 없으면 첫 스킨) */
+  const [focus, setFocus] = useState(() => {
+    const edge = selection?.at === 'last' ? shots[shots.length - 1] : selection?.at === 'first' ? shots[0] : null;
+    if (edge) return edge.cut === 'portrait' ? null : edge;
+    return selection?.file && selection.cut !== 'portrait' ? selection : null;
+  });
+  const shown = focus || (portrait ? { file: portrait, cut: 'portrait' } : null);
+  const [zoom, setZoom] = useState(!!selection?.zoom);
+  /* 무기를 넘어 왔으면 누른 자리(큰 그림 또는 무기 줄)를 화면의 같은 높이에 둔다 — 새로 그려지며 맨 위로 튀면
+     휴대폰에서 무기 줄이 화면 밖으로 밀려난다. 굴린 값을 그대로 옮기지 않는 건 무기마다 그림 위의 줄(화풍 비교)과 머리 높이(화풍 셀렉트)가 달라서 */
+  useLayoutEffect(() => { const k = selection?.keep, sc = document.querySelector('.collection-scroll'), el = k && document.querySelector(k.sel);
+    if (sc && el) sc.scrollTop += el.getBoundingClientRect().top - k.y; }, []);
   const zoomAt = shown ? Math.max(0, shots.findIndex(x => x.file === shown.file)) : 0;
-  const move = d => { const n = shots[zoomAt + d]; if (n) setFocus(n.cut === 'portrait' ? null : n); };
+  /* 한 칸 — 컷 줄 안이면 컷, 줄 끝을 넘으면 앞·다음 무기로(크게 보기는 열린 채) */
+  const prevCard = nav && nav.prev, nextCard = nav && nav.next;
+  const canPrev = zoomAt > 0 || !!prevCard, canNext = (shown && zoomAt < shots.length - 1) || !!nextCard;
+  const move = d => { const n = shown && shots[zoomAt + d]; if (n) return setFocus(n.cut === 'portrait' ? null : n);
+    if (d < 0 && prevCard) onGo(prevCard, 'last', zoom, '.big'); if (d > 0 && nextCard) onGo(nextCard, 'first', zoom, '.big'); };
   useEffect(() => { document.body.classList.toggle('zoomed', zoom); return () => document.body.classList.remove('zoomed'); }, [zoom]);
   /* 큰 그림도 방향키로 넘긴다. 덮개가 열려 있으면 덮개 몫이고, 셀렉트 같은 입력칸에 있을 땐 그 칸 몫 */
   const liveMove = useRef(); liveMove.current = { move, zoom };
@@ -327,17 +349,24 @@ function Detail({ card, entry, styleName, group, skill, selection, onClose }) {
     ${shown ? html`
       <p class="sec">${shotLabel(shown)}<span class=${['awaken', 'cursed', 'skin'].includes(shown.cut) ? 'help' : ''}>${shown.cut === 'awaken' ? W('dex.awaken.note') : shown.cut === 'cursed' ? W('dex.cursed.note') : shown.cut === 'skin' ? W('dex.skin.note') : (styleName[style] || '')}</span></p>
       <div class="big" ...${swipe}><button type="button" class="zoom" aria-label=${W('dex.zoom')} onClick=${() => setZoom(true)}><${Pic} full file=${shown.file} alt=${card.name} /></button>
-        ${shots.length > 1 && html`<div class="big-nav">
-          <button type="button" class="big-prev" disabled=${zoomAt <= 0} onClick=${() => move(-1)} aria-label=${W('dex.zoom.prev')}>‹</button>
-          <button type="button" class="big-next" disabled=${zoomAt >= shots.length - 1} onClick=${() => move(1)} aria-label=${W('dex.zoom.next')}>›</button>
-        </div><span class="big-count" aria-live="polite">${zoomAt + 1} / ${shots.length}</span>`}</div>
+        ${(shots.length > 1 || prevCard || nextCard) && html`<div class="big-nav">
+          <button type="button" class=${'big-prev' + (zoomAt <= 0 && prevCard ? ' to-card' : '')} disabled=${!canPrev} onClick=${() => move(-1)} aria-label=${zoomAt <= 0 && prevCard ? W('dex.card.prev') + ' · ' + prevCard.name : W('dex.zoom.prev')}>‹</button>
+          <button type="button" class=${'big-next' + (zoomAt >= shots.length - 1 && nextCard ? ' to-card' : '')} disabled=${!canNext} onClick=${() => move(1)} aria-label=${zoomAt >= shots.length - 1 && nextCard ? W('dex.card.next') + ' · ' + nextCard.name : W('dex.zoom.next')}>›</button>
+        </div>`}${shots.length > 1 && html`<span class="big-count" aria-live="polite">${zoomAt + 1} / ${shots.length}</span>`}</div>
       ${shown.cut === 'skin' && html`<div class="sw skin-state" role="group" aria-label=${W('dex.skin')}>${['base', 'awaken', 'cursed'].map(x => html`<button key=${x} type="button"
         class=${shown.state === x ? 'on' : ''} data-skin-state=${x} disabled=${!skinSet[shown.key][x]}
         onClick=${() => setFocus({ ...shown, file: skinSet[shown.key][x], state: x })}>${W(x === 'base' ? 'dex.cut.portrait' : 'dex.cut.' + x)}</button>`)}</div>
       <div class="sw skin-wear"><button type="button" class=${worn === shown.key ? 'on' : ''} data-wear=${shown.key}
         onClick=${() => wear(worn === shown.key ? null : shown.key)}>${worn === shown.key ? W('dex.skin.using') : W('dex.skin.use')}</button></div>`}
     ` : html`<div class="big"><span class="ph">${W('art.none')}</span></div>`}
-    ${zoom && shown && html`<${Zoom} card=${card} shots=${shots} at=${zoomAt} onMove=${move} onClose=${() => setZoom(false)} />`}
+    ${nav && html`<div class="card-nav" role="group" aria-label=${W('dex.card.count', { n: nav.index + 1, total: nav.total })}>
+      <button type="button" id="dex-card-prev" disabled=${!prevCard} title=${prevCard ? prevCard.name : ''} aria-label=${W('dex.card.prev') + (prevCard ? ' · ' + prevCard.name : '')}
+        onClick=${() => onGo(prevCard, 'first', false, '.card-nav')}><b>‹</b><span>${prevCard ? prevCard.name : W('dex.card.prev')}</span></button>
+      <span class="card-count">${W('dex.card.count', { n: nav.index + 1, total: nav.total })}</span>
+      <button type="button" id="dex-card-next" disabled=${!nextCard} title=${nextCard ? nextCard.name : ''} aria-label=${W('dex.card.next') + (nextCard ? ' · ' + nextCard.name : '')}
+        onClick=${() => onGo(nextCard, 'first', false, '.card-nav')}><span>${nextCard ? nextCard.name : W('dex.card.next')}</span><b>›</b></button>
+    </div>`}
+    ${zoom && shown && html`<${Zoom} card=${card} shots=${shots} at=${zoomAt} canPrev=${canPrev} canNext=${canNext} onMove=${move} onClose=${() => setZoom(false)} />`}
 
     <div class="sw hall-toggle" role="group" aria-label=${W('dex.hall')}>
       <button type="button" class=${inHall ? 'on' : ''} data-hall=${inHall ? 'on' : 'off'} aria-pressed=${inHall} disabled=${hallFull} title=${W('dex.hall.note')}
@@ -386,7 +415,7 @@ function useSwipe(onMove) {
 }
 
 /* 크게 보기. shots 는 같은 화풍의 컷 전부 [{file, cut, index}], at 은 지금 것 */
-function Zoom({ card, shots, at, onMove, onClose }) {
+function Zoom({ card, shots, at, canPrev, canNext, onMove, onClose }) {
   /* 키 핸들러는 한 번만 걸고 최신 함수를 참조로 읽는다. 그려질 때마다 갈아 끼우면 효과가 다음 프레임에 돌아
      그 사이 눌린 키가 옛 위치를 잡는다 — 검사가 빠르게 누르면 실제로 그랬다 */
   const live = useRef(); live.current = { onMove, onClose };
@@ -404,8 +433,8 @@ function Zoom({ card, shots, at, onMove, onClose }) {
     <div class="zoom-body" ...${swipe} onClick=${e => { if (e.target === e.currentTarget) onClose(); }}>
       <img src=${IMG.imgURL(shot.file)} alt=${card.name} onClick=${onClose} />
       <div class="zoom-nav">
-        <button type="button" class="zoom-prev" disabled=${at <= 0} onClick=${() => onMove(-1)} aria-label=${W('dex.zoom.prev')}>‹</button>
-        <button type="button" class="zoom-next" disabled=${at >= shots.length - 1} onClick=${() => onMove(1)} aria-label=${W('dex.zoom.next')}>›</button>
+        <button type="button" class="zoom-prev" disabled=${!canPrev} onClick=${() => onMove(-1)} aria-label=${W('dex.zoom.prev')}>‹</button>
+        <button type="button" class="zoom-next" disabled=${!canNext} onClick=${() => onMove(1)} aria-label=${W('dex.zoom.next')}>›</button>
       </div>
     </div>
   </div>`;
@@ -500,9 +529,22 @@ function App() {
   if (!st.cards) return html`<${Shell} head=${null}><p class="empty">${W('ui.loading')}</p><//>`;
 
   const card = st.cards.find(c => c.name === open?.card?.name);
-  if (card) return html`<${Detail} key=${card.name + ':' + theme} card=${card} entry=${st.img[card.name] || null}
-    selection=${open} styleName=${st.styleName} group=${st.group} skill=${st.skill}
-    onClose=${() => setOpen(null)} />`;
+  if (card) {
+    /* 무기 넘기기의 차례 — 지금 거르기의 목록 차례에서 그림(기본 또는 스킨)이 있는 무기만. 거른 목록에 없는 무기(박물관에서 바로 연 것)면 전체 목록 */
+    const f = normalize(filters);
+    const hasArt = c => { const e = st.img[c.name]; if (!e) return false; const sk = IMG.skinSets(e, V);
+      return !!IMG.portraitOf(e, V, f.style || undefined) || (c.skins || []).some(k => sk[k.key]); };
+    let ring = select(st, f).filter(hasArt);
+    if (!ring.some(c => c.name === card.name)) ring = sorted(st.cards, st.group).filter(c => c.name === card.name || hasArt(c));
+    const index = ring.findIndex(c => c.name === card.name);
+    const nav = index < 0 ? null : { index, total: ring.length, prev: ring[index - 1] || null, next: ring[index + 1] || null };
+    const go = (c, at, zoom, sel) => { const sc = document.querySelector('.collection-scroll'), el = sel && document.querySelector(sel);
+      const keep = sc && el ? { sel, y: el.getBoundingClientRect().top } : null;
+      setOpen({ card: c, style: f.style, cut: 'portrait', at, zoom, keep }); };
+    return html`<${Detail} key=${card.name + ':' + theme} card=${card} entry=${st.img[card.name] || null}
+      selection=${open} nav=${nav} onGo=${go} styleName=${st.styleName} group=${st.group} skill=${st.skill}
+      onClose=${() => setOpen(null)} />`;
+  }
   return html`<${List} key=${theme} st=${st} filters=${filters} onFilter=${setFilters} onOpen=${setOpen}
     compact=${compact} onCompact=${() => setCompact(v => !v)} />`;
 }
