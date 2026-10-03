@@ -83,6 +83,31 @@ const IMG = { img: {
     await p.keyboard.press('Escape');
     await p.waitForFunction(() => !document.querySelector('.zoom-layer'));
     assert.equal(await p.locator('.big img').getAttribute('src'), window_src('묠니르_glossy_promo_f_cursed.webp'), '덮개에서 옮긴 컷이 남는다');
+    /* 큰 그림 넘기기 — 덮개를 안 열어도 화살표·방향키·밀기로 같은 줄(액션 → 각성 → 저주 → 특별 → 일상)을 넘긴다.
+       끝에선 화살표가 잠기고, 민 손가락은 크게 보기를 열지 않는다 */
+    const bigIs = f => p.waitForFunction(s => document.querySelector('.big img').getAttribute('src') === s, window_src(f));
+    const swipe = async (sel, dx) => { const b = await p.locator(sel).boundingBox(), x = b.x + b.width / 2, y = b.y + b.height / 2;
+      await p.mouse.move(x - dx / 2, y); await p.mouse.down(); await p.mouse.move(x + dx / 2, y + 6, { steps: 6 }); await p.mouse.up(); };
+    assert.equal(await p.locator('.big-count').innerText(), '3 / 5', '큰 그림에도 몇 번째인지');
+    await p.locator('.big-next').click(); await bigIs('묠니르_glossy_promo_f_extra1.webp');
+    await p.keyboard.press('ArrowRight'); await bigIs('묠니르_glossy_promo_f_casual1.webp');
+    assert(await p.locator('.big-next').isDisabled(), '끝에선 다음이 잠긴다');
+    await swipe('.big', 160); await bigIs('묠니르_glossy_promo_f_extra1.webp');
+    assert.equal(await p.locator('.zoom-layer').count(), 0, '밀기는 크게 보기를 열지 않는다');
+    await swipe('.big', -160); await bigIs('묠니르_glossy_promo_f_casual1.webp');
+    await p.locator('.big-prev').click(); await bigIs('묠니르_glossy_promo_f_extra1.webp');
+    await p.keyboard.press('ArrowLeft'); await bigIs('묠니르_glossy_promo_f_cursed.webp');
+    await swipe('.big', 12); await p.waitForTimeout(150);
+    assert.equal(await p.locator('.zoom-layer').count(), 0, '살짝 끈 것은 넘기기도 열기도 아니다');
+    assert.equal(await p.locator('.big img').getAttribute('src'), window_src('묠니르_glossy_promo_f_cursed.webp'), '살짝 끌면 그대로');
+    /* 크게 보기 안에서도 밀어 넘긴다 */
+    await p.click('.big .zoom'); await p.waitForSelector('.zoom-layer');
+    await swipe('.zoom-body', -160);
+    await p.waitForFunction(s => document.querySelector('.zoom-layer img')?.getAttribute('src') === s, window_src('묠니르_glossy_promo_f_extra1.webp'));
+    assert.equal(await p.locator('.zoom-layer').count(), 1, '밀기는 덮개를 닫지 않는다');
+    await swipe('.zoom-body', 160);
+    await p.waitForFunction(s => document.querySelector('.zoom-layer img')?.getAttribute('src') === s, window_src('묠니르_glossy_promo_f_cursed.webp'));
+    await p.keyboard.press('Escape'); await p.waitForFunction(() => !document.querySelector('.zoom-layer'));
     await p.click('button[data-cut="portrait"]');
     await p.click('button[data-cut="cursed"]');
     assert.equal(await p.locator('.big img').getAttribute('src'), window_src('묠니르_glossy_promo_f_cursed.webp'), '저주로 바뀐다');
@@ -126,6 +151,24 @@ const IMG = { img: {
     await p.setViewportSize(FOLD.cover);
     await p.waitForSelector('.grid .cell');
     assert(await p.evaluate(() => document.body.scrollWidth <= innerWidth), '가로로 넘친다');
+    /* 휴대폰 큰 그림 — 화살표는 손가락 자리 44px, 세로 굴림은 막지 않는다(pan-y) */
+    await p.click('.grid .cell[data-card="묠니르"]'); await p.waitForSelector('.big-next');
+    for (const sel of ['.big-prev', '.big-next']) { const b = await p.locator(sel).boundingBox(); assert(b.width >= 44 && b.height >= 44, sel + ' 44px'); }
+    assert.equal(await p.locator('.big').evaluate(e => getComputedStyle(e).touchAction), 'pan-y', '세로 굴림은 그대로');
+    /* 진짜 손가락으로 밀기 — 터치 화면(hasTouch)을 따로 연다. 터치로 민 뒤엔 click 이 오지 않으므로, 그 직후의 탭을 삼키지 않고 크게 보기를 연다 */
+    { const t = await harness.open('dex.html?card=' + encodeURIComponent('묠니르'), { viewport: FOLD.cover, mobile: true }), q = t.page;
+      await q.route('**/data/img.json', r => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(IMG) }));
+      await q.reload(); await q.waitForSelector('.big-count');
+      const cdp = await q.context().newCDPSession(q), bb = await q.locator('.big').boundingBox(), ty = bb.y + bb.height / 2;
+      const touch = (type, x) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y: ty }] });
+      await touch('touchStart', bb.x + bb.width * .8); for (let i = 1; i <= 8; i++) await touch('touchMove', bb.x + bb.width * (.8 - i * .07)); await touch('touchEnd');
+      await q.waitForFunction(() => document.querySelector('.big-count').textContent.startsWith('2 /'));
+      assert.equal(await q.locator('.zoom-layer').count(), 0, '손가락 밀기는 크게 보기를 열지 않는다');
+      /* 사람 손의 간격(0.3초) 뒤에 탭한다 — 민 직후 몇 ms 안의 탭은 크롬이 click 을 만들지 않는다. 삼키기 창(0.5초)보다는 짧다 */
+      await q.waitForTimeout(300); await q.tap('.big .zoom'); await q.waitForSelector('.zoom-layer', { timeout: 3000 });
+      assert.deepEqual(t.errors, []); await t.close(); }
+    assert(await p.evaluate(() => document.body.scrollWidth <= innerWidth), '상세도 가로로 넘치지 않는다');
+    await p.click('.back'); await p.waitForSelector('.grid .cell');
     await p.click('#dex-size');
     await p.waitForFunction(() => document.body.classList.contains('dex-compact'));
     await p.reload(); await p.waitForSelector('.grid .cell');
@@ -134,7 +177,7 @@ const IMG = { img: {
     assert.deepEqual(a.errors, []);
     assert.deepEqual(await p.evaluate(() => window.AtelierWords.missing()), [], '낱말 표에 없는 열쇠');
     await a.close();
-    console.log('PASS 도감: 카드 ' + N + ' · 거르기 여섯 · 상세 · 각성 · 일상컷 · 휴대폰');
+    console.log('PASS 도감: 카드 ' + N + ' · 거르기 여섯 · 상세 · 각성 · 일상컷 · 넘기기 · 휴대폰');
   } finally { await harness.stop(); }
 })().catch(e => { console.error(e); process.exit(1); });
 function window_src(f) { return 'https://polos0117.github.io/myth-atelier-img/img/' + encodeURIComponent(f); }

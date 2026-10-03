@@ -131,6 +131,13 @@ body {color:var(--text);font-size:15px}
 .zoom-layer .zoom-nav {position:absolute;inset:0;display:flex;justify-content:space-between;align-items:center;padding:0 6px;pointer-events:none}
 .zoom-layer .zoom-nav button {pointer-events:auto;opacity:.85}
 .zoom-layer .zoom-nav button:disabled {opacity:.2}
+/* 큰 그림 넘기기 — 덮개를 안 열어도 좌우 화살표·방향키·밀기로 같은 줄의 컷을 넘긴다. 세로 굴림은 그대로(pan-y) */
+.big,.zoom-layer .zoom-body {touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.big img,.zoom-layer .zoom-body img {-webkit-user-drag:none}
+.big-nav {position:absolute;inset:0;display:flex;justify-content:space-between;align-items:center;padding:0 4px;pointer-events:none}
+.big-nav button {pointer-events:auto;display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;padding:0;border:1px solid #ffffff40;border-radius:999px;background:#0009;color:#fff;font:400 22px/1 var(--display);cursor:pointer}
+.big-nav button:disabled {opacity:.2;cursor:default}
+.big-count {position:absolute;right:8px;bottom:8px;padding:2px 8px;border-radius:999px;background:#000a;color:#fff;font:700 11px ui-monospace,monospace;pointer-events:none}
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
 <script src="lib/words.js?v=myth41"></script>
@@ -279,6 +286,15 @@ function Detail({ card, entry, styleName, group, skill, selection, onClose }) {
   const zoomAt = shown ? Math.max(0, shots.findIndex(x => x.file === shown.file)) : 0;
   const move = d => { const n = shots[zoomAt + d]; if (n) setFocus(n.cut === 'portrait' ? null : n); };
   useEffect(() => { document.body.classList.toggle('zoomed', zoom); return () => document.body.classList.remove('zoomed'); }, [zoom]);
+  /* 큰 그림도 방향키로 넘긴다. 덮개가 열려 있으면 덮개 몫이고, 셀렉트 같은 입력칸에 있을 땐 그 칸 몫 */
+  const liveMove = useRef(); liveMove.current = { move, zoom };
+  useEffect(() => {
+    const key = e => { const f = liveMove.current; if (f.zoom || e.altKey || e.ctrlKey || e.metaKey || (e.target.closest && e.target.closest('input, select, textarea'))) return;
+      if (e.key === 'ArrowLeft') f.move(-1); if (e.key === 'ArrowRight') f.move(1); };
+    addEventListener('keydown', key);
+    return () => removeEventListener('keydown', key);
+  }, []);
+  const swipe = useSwipe(d => liveMove.current.move(d));
 
   const head = html`
     <div class="bar">
@@ -310,7 +326,11 @@ function Detail({ card, entry, styleName, group, skill, selection, onClose }) {
     </div>
     ${shown ? html`
       <p class="sec">${shotLabel(shown)}<span class=${['awaken', 'cursed', 'skin'].includes(shown.cut) ? 'help' : ''}>${shown.cut === 'awaken' ? W('dex.awaken.note') : shown.cut === 'cursed' ? W('dex.cursed.note') : shown.cut === 'skin' ? W('dex.skin.note') : (styleName[style] || '')}</span></p>
-      <div class="big"><button type="button" class="zoom" aria-label=${W('dex.zoom')} onClick=${() => setZoom(true)}><${Pic} full file=${shown.file} alt=${card.name} /></button></div>
+      <div class="big" ...${swipe}><button type="button" class="zoom" aria-label=${W('dex.zoom')} onClick=${() => setZoom(true)}><${Pic} full file=${shown.file} alt=${card.name} /></button>
+        ${shots.length > 1 && html`<div class="big-nav">
+          <button type="button" class="big-prev" disabled=${zoomAt <= 0} onClick=${() => move(-1)} aria-label=${W('dex.zoom.prev')}>‹</button>
+          <button type="button" class="big-next" disabled=${zoomAt >= shots.length - 1} onClick=${() => move(1)} aria-label=${W('dex.zoom.next')}>›</button>
+        </div><span class="big-count" aria-live="polite">${zoomAt + 1} / ${shots.length}</span>`}</div>
       ${shown.cut === 'skin' && html`<div class="sw skin-state" role="group" aria-label=${W('dex.skin')}>${['base', 'awaken', 'cursed'].map(x => html`<button key=${x} type="button"
         class=${shown.state === x ? 'on' : ''} data-skin-state=${x} disabled=${!skinSet[shown.key][x]}
         onClick=${() => setFocus({ ...shown, file: skinSet[shown.key][x], state: x })}>${W(x === 'base' ? 'dex.cut.portrait' : 'dex.cut.' + x)}</button>`)}</div>
@@ -343,6 +363,28 @@ function Detail({ card, entry, styleName, group, skill, selection, onClose }) {
   <//>`;
 }
 
+/* 밀어 넘기기 — 가로로 40px 넘게, 세로보다 확실히 많이 끌면 한 칸(손가락이 왼쪽으로 가면 다음).
+   10px 넘게 끈 손가락 뒤에 따라오는 click 은 삼킨다 — 크게 보기를 열거나 닫지 않게. 화살표 단추에서 시작한 건 단추 몫 */
+function useSwipe(onMove) {
+  const live = useRef(); live.current = onMove;
+  const ate = useRef(0);
+  return {
+    onPointerDown: e => {
+      ate.current = 0; /* 새 손가락 — 터치로 민 뒤엔 click 이 안 오므로 삼키기 표시가 다음 탭까지 남지 않게 */
+      if ((e.pointerType === 'mouse' && e.button !== 0) || e.target.closest('.big-nav button, .zoom-nav button')) return;
+      const x = e.clientX, y = e.clientY, id = e.pointerId;
+      const up = u => { if (u.pointerId !== id) return; removeEventListener('pointerup', up); removeEventListener('pointercancel', up);
+        if (u.type !== 'pointerup') return;
+        const dx = u.clientX - x, dy = u.clientY - y;
+        if (Math.hypot(dx, dy) > 10) ate.current = Date.now();
+        if (Math.abs(dx) >= 40 && Math.abs(dx) > Math.abs(dy) * 1.5) live.current(dx < 0 ? 1 : -1); };
+      addEventListener('pointerup', up); addEventListener('pointercancel', up);
+    },
+    onClickCapture: e => { if (Date.now() - ate.current < 500) { ate.current = 0; e.preventDefault(); e.stopPropagation(); } },
+    onDragStart: e => e.preventDefault(),
+  };
+}
+
 /* 크게 보기. shots 는 같은 화풍의 컷 전부 [{file, cut, index}], at 은 지금 것 */
 function Zoom({ card, shots, at, onMove, onClose }) {
   /* 키 핸들러는 한 번만 걸고 최신 함수를 참조로 읽는다. 그려질 때마다 갈아 끼우면 효과가 다음 프레임에 돌아
@@ -353,12 +395,13 @@ function Zoom({ card, shots, at, onMove, onClose }) {
     addEventListener('keydown', key);
     return () => removeEventListener('keydown', key);
   }, []);
+  const swipe = useSwipe(d => live.current.onMove(d));
   const shot = shots[at];
   return html`<div class="zoom-layer" role="dialog" aria-modal="true" aria-label=${W('dex.zoom')}>
     <div class="zoom-bar"><b>${card.name} · ${shotLabel(shot)}</b><span>${at + 1} / ${shots.length}</span>
       <a href=${IMG.imgURL(shot.file)} target="_blank" rel="noopener" class="zoom-open">${W('dex.zoom.original')}</a>
       <button type="button" class="zoom-close" onClick=${onClose} aria-label=${W('dex.zoom.close')}>✕</button></div>
-    <div class="zoom-body" onClick=${e => { if (e.target === e.currentTarget) onClose(); }}>
+    <div class="zoom-body" ...${swipe} onClick=${e => { if (e.target === e.currentTarget) onClose(); }}>
       <img src=${IMG.imgURL(shot.file)} alt=${card.name} onClick=${onClose} />
       <div class="zoom-nav">
         <button type="button" class="zoom-prev" disabled=${at <= 0} onClick=${() => onMove(-1)} aria-label=${W('dex.zoom.prev')}>‹</button>
