@@ -1,7 +1,7 @@
 {
  "version": 1,
  "note": "tools/register-images.py 가 그림 저장소(myth-atelier-img/img)를 읽어 채운다. 손으로 고치지 않는다.",
- "count": 170,
+ "count": 171,
  "img": {
   "가다": {"byStyle": {"game_keyart": {"f": "가다_game_keyart_f.webp", "awaken": {"f": "가다_game_keyart_f_awaken.webp"}, "cursed": {"f": "가다_game_keyart_f_cursed.webp"}, "casual": {"f": ["가다_game_keyart_f_casual1.webp"]}}}},
   "간디바": {"byStyle": {"game_keyart": {"f": "간디바_game_keyart_f.webp", "awaken": {"f": "간디바_game_keyart_f_awaken.webp"}, "cursed": {"f": "간디바_game_keyart_f_cursed.webp"}, "casual": {"f": ["간디바_game_keyart_f_casual1.webp"]}}}},
@@ -98,6 +98,7 @@
   "오색석": {"byStyle": {"game_keyart": {"f": "오색석_game_keyart_f.webp", "awaken": {"f": "오색석_game_keyart_f_awaken.webp"}, "cursed": {"f": "오색석_game_keyart_f_cursed.webp"}, "casual": {"f": ["오색석_game_keyart_f_casual1.webp", "오색석_game_keyart_f_casual2.webp", "오색석_game_keyart_f_casual3.webp"]}}}},
   "오트클레르": {"byStyle": {"game_keyart": {"f": "오트클레르_game_keyart_f.webp", "awaken": {"f": "오트클레르_game_keyart_f_awaken.webp"}, "cursed": {"f": "오트클레르_game_keyart_f_cursed.webp"}, "casual": {"f": ["오트클레르_game_keyart_f_casual1.webp", "오트클레르_game_keyart_f_casual2.webp"]}, "extra": {"f": ["오트클레르_game_keyart_f_extra1.webp"]}}}},
   "오포치틀리의 아틀라틀": {"byStyle": {"game_keyart": {"f": "오포치틀리의_아틀라틀_game_keyart_f.webp", "awaken": {"f": "오포치틀리의_아틀라틀_game_keyart_f_awaken.webp"}, "cursed": {"f": "오포치틀리의_아틀라틀_game_keyart_f_cursed.webp"}, "casual": {"f": ["오포치틀리의_아틀라틀_game_keyart_f_casual1.webp"]}, "extra": {"f": ["오포치틀리의_아틀라틀_game_keyart_f_extra1.webp", "오포치틀리의_아틀라틀_game_keyart_f_extra2.webp"]}}}},
+  "옥편": {"byStyle": {"game_keyart": {"f": "옥편_game_keyart_f.webp", "awaken": {"f": "옥편_game_keyart_f_awaken.webp"}, "cursed": {"f": "옥편_game_keyart_f_cursed.webp"}, "casual": {"f": ["옥편_game_keyart_f_casual1.webp"]}, "extra": {"f": ["옥편_game_keyart_f_extra1.webp", "옥편_game_keyart_f_extra2.webp"]}}}},
   "올리펀트": {"byStyle": {"game_keyart": {"f": "올리펀트_game_keyart_f.webp", "awaken": {"f": "올리펀트_game_keyart_f_awaken.webp"}, "cursed": {"f": "올리펀트_game_keyart_f_cursed.webp"}, "casual": {"f": ["올리펀트_game_keyart_f_casual1.webp", "올리펀트_game_keyart_f_casual2.webp"]}, "extra": {"f": ["올리펀트_game_keyart_f_extra1.webp", "올리펀트_game_keyart_f_extra2.webp", "올리펀트_game_keyart_f_extra3.webp", "올리펀트_game_keyart_f_extra4.webp", "올리펀트_game_keyart_f_extra5.webp"]}}}},
   "와스 지팡이": {"byStyle": {"game_keyart": {"f": "와스_지팡이_game_keyart_f.webp", "awaken": {"f": "와스_지팡이_game_keyart_f_awaken.webp"}, "cursed": {"f": "와스_지팡이_game_keyart_f_cursed.webp"}, "casual": {"f": ["와스_지팡이_game_keyart_f_casual1.webp", "와스_지팡이_game_keyart_f_casual2.webp"]}, "extra": {"f": ["와스_지팡이_game_keyart_f_extra1.webp"]}}}},
   "요이치의 활": {"byStyle": {"game_keyart": {"f": "요이치의_활_game_keyart_f.webp", "awaken": {"f": "요이치의_활_game_keyart_f_awaken.webp"}, "cursed": {"f": "요이치의_활_game_keyart_f_cursed.webp"}, "casual": {"f": ["요이치의_활_game_keyart_f_casual1.webp"]}}}},
