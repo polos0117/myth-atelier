@@ -63,15 +63,18 @@ function same(actual,expected,label){
     const open=await geometry(p);
     await settings(p);await p.locator('.header-fold').click();
     await p.waitForSelector('.workspace-header.folded');
-    assert.equal(await p.locator('.workspace-heading').evaluate(e=>getComputedStyle(e).display),'none','접으면 제목이 숨는다');
+    /* 넓은 화면은 제목이 숨는다. 덮개는 공방 탭이 없어 제목이 공방 링크다 — 문양 + 제목 한 줄(40px)만 남기고 항해는 여섯 한 줄 그대로 */
+    assert.equal(await p.locator('.workspace-heading').evaluate(e=>getComputedStyle(e).display),narrow?'flex':'none','접으면 제목이 숨는다(덮개는 한 줄로 준다)');
+    if(narrow){
+     assert((await p.locator('.workspace-heading').boundingBox()).height<=48,viewport.width+' 접은 제목은 한 줄');
+     assert(await p.locator('a.workspace-title[href="index.html"]').isVisible(),viewport.width+' 접어도 공방 링크가 있다');
+     assert((await p.locator('.workspace-nav').boundingBox()).height<=56,viewport.width+' 접어도 항해는 한 줄');
+    }
     assert(await p.locator('.appearance-toggle').isVisible(),'접어도 설정 단추는 남는다');
-    /* 접으면 제목(공방 링크)이 숨는다 — 덮개에서는 공방 탭이 되살아나 두 줄이 된다. 집으로 가는 길이 늘 하나는 있다 */
-    assert(await p.locator('.workspace-nav a[href="index.html"]').isVisible(),viewport.width+' 접어도 공방 탭이 있다');
-    assert(await p.evaluate(()=>document.body.scrollWidth<=innerWidth),viewport.width+' 접은 항해가 가로로 넘치지 않는다');
     assert((await p.locator('.workspace-nav').boundingBox()).y<=open['.workspace-nav'].y,'접으면 항해가 위로 온다 (낮은 화면에서는 이미 제목이 숨어 같다)');
     /* 도감은 자료를 읽은 뒤 다시 그린다 — 다 그려진 다음에 본다. 안 그러면 떨어져 나간 옛 머리를 잡는다 */
     await p.locator('.workspace-nav a[href="dex.html"]').click();await p.waitForSelector('.grid .cell');await p.waitForSelector('.workspace-header.folded');
-    assert.equal(await p.locator('.workspace-heading').evaluate(e=>getComputedStyle(e).display),'none','다음 화면에서도 접힌 채');
+    assert.equal(await p.locator('.workspace-heading').evaluate(e=>getComputedStyle(e).display),narrow?'flex':'none','다음 화면에서도 접힌 채');
     await settings(p);await p.locator('.header-fold').click();await p.waitForFunction(()=>!document.querySelector('.workspace-header.folded'));
     /* 낮은 화면(max-height:550)에서는 제목이 원래 숨어 있다 — 접기 전 상태로 돌아오면 된다 */
     assert.equal(await p.locator('.workspace-heading').evaluate(e=>getComputedStyle(e).display!=='none'),open['.workspace-heading'].visible,'펼치면 접기 전으로 돌아온다');
