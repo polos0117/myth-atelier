@@ -65,6 +65,9 @@ function same(actual,expected,label){
     await p.waitForSelector('.workspace-header.folded');
     assert.equal(await p.locator('.workspace-heading').evaluate(e=>getComputedStyle(e).display),'none','접으면 제목이 숨는다');
     assert(await p.locator('.appearance-toggle').isVisible(),'접어도 설정 단추는 남는다');
+    /* 접으면 제목(공방 링크)이 숨는다 — 덮개에서는 공방 탭이 되살아나 두 줄이 된다. 집으로 가는 길이 늘 하나는 있다 */
+    assert(await p.locator('.workspace-nav a[href="index.html"]').isVisible(),viewport.width+' 접어도 공방 탭이 있다');
+    assert(await p.evaluate(()=>document.body.scrollWidth<=innerWidth),viewport.width+' 접은 항해가 가로로 넘치지 않는다');
     assert((await p.locator('.workspace-nav').boundingBox()).y<=open['.workspace-nav'].y,'접으면 항해가 위로 온다 (낮은 화면에서는 이미 제목이 숨어 같다)');
     /* 도감은 자료를 읽은 뒤 다시 그린다 — 다 그려진 다음에 본다. 안 그러면 떨어져 나간 옛 머리를 잡는다 */
     await p.locator('.workspace-nav a[href="dex.html"]').click();await p.waitForSelector('.grid .cell');await p.waitForSelector('.workspace-header.folded');

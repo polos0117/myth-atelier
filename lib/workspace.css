@@ -802,6 +802,8 @@ html:has(.dex-page) {height:100%;overflow:hidden;overscroll-behavior:none}
 @media (max-width:599px) { .workspace-nav a {font-size:10px;letter-spacing:-.03em;padding:0 1px} .workspace-nav a[href="index.html"] {display:none} .workspace-nav a[href="prompt.html"] {flex-grow:1} }
 /* 좁고 낮은 화면은 제목도 숨으므로 공방 탭을 되살린다 — 집으로 가는 길이 하나는 있어야 한다 */
 @media (max-width:599px) and (max-height:550px) { .workspace-nav a[href="index.html"] {display:flex} }
+/* 접으면 제목도 숨는다 — 그때는 공방 탭을 되살리고 일곱을 두 줄(4 + 3)로 */
+@media (max-width:599px) { .workspace-header.folded .workspace-nav {flex-wrap:wrap} .workspace-header.folded .workspace-nav a {flex-basis:22%} .workspace-header.folded .workspace-nav a[href="index.html"] {display:flex} }
 /* 드래프트 — 팩 아홉 장이 가운데, 내 편성이 옆, 적은 접힌다 */
 .df-setup .rn-choice {grid-template-columns:repeat(2,minmax(0,1fr))}
 .df-opt {padding:12px 14px;border:1px solid var(--line);border-top:2px solid var(--gold);border-radius:8px;background:var(--card)}
