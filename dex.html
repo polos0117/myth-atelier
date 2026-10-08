@@ -446,8 +446,20 @@ function shotLabel(shot) {
   return shot.index ? W('dex.cut.number', { cut, n: shot.index }) : cut;
 }
 
-function List({ st, filters, onFilter, onOpen, compact, onCompact }) {
+function List({ st, filters, onFilter, onOpen, compact, onCompact, restore }) {
   const f = normalize(filters);
+  /* 상세에서 돌아오면 열기 전에 굴려 둔 자리로. 상세에서 다른 무기로 넘어갔으면 그 무기 칸이 보이게 한 번 더 민다 */
+  useLayoutEffect(() => {
+    const r = restore && restore.current, sc = document.querySelector('.collection-scroll');
+    if (!r || !sc) return;
+    restore.current = null;
+    sc.scrollTop = r.top;
+    if (!r.card || r.card === r.from) return;
+    const el = [...sc.querySelectorAll('.grid > .cell')].find(x => x.dataset.card === r.card);
+    if (!el) return;
+    const a = el.getBoundingClientRect(), b = sc.getBoundingClientRect();
+    if (a.top < b.top || a.bottom > b.bottom) sc.scrollTop += a.top - b.top - Math.max(0, (b.height - a.height) / 2);
+  }, []);
   const shown = useMemo(() => select(st, f), [st, filters]);
   const update = (key, value) => onFilter(normalize({ ...f, [key]: value }));
   const all = ['', W('dex.filter.all')];
@@ -511,7 +523,7 @@ function App() {
   const [open, setOpen] = useState(null);
   /* dex.html?card=<이름> — 박물관의 "도감에서 보기"가 그 무기의 상세로 바로 연다 */
   const [asked] = useState(() => { try { return new URLSearchParams(location.search).get('card'); } catch { return null; } });
-  useEffect(() => { if (asked && st.cards) { const c = st.cards.find(x => x.name === asked); if (c) setOpen({ card: c, cut: 'portrait' }); } }, [st.cards]);
+  useEffect(() => { if (asked && st.cards) { const c = st.cards.find(x => x.name === asked); if (c) openShot({ card: c, cut: 'portrait' }); } }, [st.cards]);
   const [compact, setCompact] = useState(() => {
     try { return localStorage.getItem(COMPACT_STORE) === 'true'; } catch { return false; }
   });
@@ -524,6 +536,30 @@ function App() {
     try { return normalize(JSON.parse(localStorage.getItem(FILTER_STORE))); } catch { return normalize(); }
   });
   useEffect(() => { try { localStorage.setItem(FILTER_STORE, JSON.stringify(filters)); } catch {} }, [filters]);
+  /* 목록 자리 — 열 때 굴린 값과 연 무기를 적어 두고, 닫을 때 List 가 그 자리로 돌아간다 */
+  const listTop = useRef(0), from = useRef(null), restore = useRef(null), openNow = useRef(null);
+  openNow.current = open;
+  /* 휴대폰 뒤로 가기 — 상세를 열 때 기록을 한 칸 쌓아 두고, 뒤로 가기(popstate)면 그 칸을 내리며 목록으로.
+     "목록으로" 단추도 같은 칸을 내린다(history.back). 그 popstate 는 이미 닫았으니 한 번 건너뛴다.
+     무기를 넘겨도 칸은 하나 그대로 — 뒤로 가기 한 번이면 목록이다. 박물관에서 ?card= 로 바로 열었어도 같다 */
+  const pushed = useRef(false), skipPop = useRef(false);
+  const shut = () => { restore.current = { top: listTop.current, card: openNow.current?.card?.name, from: from.current }; setOpen(null); };
+  function openShot(shot) {
+    const sc = document.querySelector('.collection-scroll');
+    listTop.current = sc ? sc.scrollTop : 0; from.current = shot.card.name;
+    setOpen(shot);
+    if (!pushed.current) { try { history.pushState({ dex: 'card' }, ''); pushed.current = true; skipPop.current = false; } catch {} }
+  }
+  const close = () => {
+    shut();
+    if (pushed.current) { pushed.current = false; skipPop.current = true; try { history.back(); } catch { skipPop.current = false; } }
+  };
+  const liveShut = useRef(); liveShut.current = shut;
+  useEffect(() => {
+    const pop = () => { if (skipPop.current) { skipPop.current = false; return; } if (pushed.current) { pushed.current = false; liveShut.current(); } };
+    addEventListener('popstate', pop);
+    return () => removeEventListener('popstate', pop);
+  }, []);
 
   if (st.error) return html`<${Shell} head=${null}><p class="empty">${W('ui.error', { message: st.error })}</p><//>`;
   if (!st.cards) return html`<${Shell} head=${null}><p class="empty">${W('ui.loading')}</p><//>`;
@@ -543,9 +579,9 @@ function App() {
       setOpen({ card: c, style: f.style, cut: 'portrait', at, zoom, keep }); };
     return html`<${Detail} key=${card.name + ':' + theme} card=${card} entry=${st.img[card.name] || null}
       selection=${open} nav=${nav} onGo=${go} styleName=${st.styleName} group=${st.group} skill=${st.skill}
-      onClose=${() => setOpen(null)} />`;
+      onClose=${close} />`;
   }
-  return html`<${List} key=${theme} st=${st} filters=${filters} onFilter=${setFilters} onOpen=${setOpen}
+  return html`<${List} key=${theme} st=${st} filters=${filters} onFilter=${setFilters} onOpen=${openShot} restore=${restore}
     compact=${compact} onCompact=${() => setCompact(v => !v)} />`;
 }
 

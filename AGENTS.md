@@ -99,6 +99,7 @@ preact·htm·babylonjs 가 든 `node_modules` 경로를, 브라우저는 `CHROMI
 
 ```bash
 ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/dex-screen.cjs      # 도감 — 거르기·상세·각성
+ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/dex-nav.cjs         # 도감 돌아가기 — 목록 자리·휴대폰 뒤로 가기
 ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/museum-screen.cjs   # 박물관 — 3D 전시실 걷기(babylonjs 도 node_modules 에)
 ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/museum-grow.cjs     # 박물관 — 권·카드가 늘어도 안 겹치나, 관 그림 바꿔 끼우기
 ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/auto-screen.cjs     # 오토 배틀 — 상점·판·라운드
