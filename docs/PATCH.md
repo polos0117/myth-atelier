@@ -8,6 +8,11 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-10-20 · claude · 화면 다듬기 스킬 둘
+
+- .claude/skills/frontend-design/ — 화면을 새로 만들거나 손볼 때 흔한 기본값을 피하고 주제에 맞는 색·서체·배치를 정하게 하는 지침. anthropics/skills 의 것을 그대로(Apache 2.0, LICENSE.txt 같이)
+- .claude/skills/web-design-guidelines/ — "UI 검토해 줘" 에 화면 코드를 Vercel Web Interface Guidelines(접근성·포커스·터치 자리·대비)로 검사. 쓸 때마다 지침 원문을 GitHub 에서 받는다. vercel-labs/agent-skills 의 것을 그대로
+
 ## 2026-10-20 · claude · find-skills 스킬
 
 - .claude/skills/find-skills/SKILL.md — "이런 일 하는 스킬 있나" 를 물으면 공개 스킬 모음(skills.sh, `npx skills find`)에서 찾아 설치까지 돕는 스킬. vercel-labs/skills v1.7.4 의 것을 그대로(MIT)
