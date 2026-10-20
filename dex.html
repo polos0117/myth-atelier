@@ -449,9 +449,13 @@ function Zoom({ card, shots, at, canPrev, canNext, onMove, onClose, defs }) {
  useLayoutEffect(()=>modalFocus(layer.current,()=>live.current.onClose(),'.big .zoom'),[]);
  useLayoutEffect(()=>{const key=e=>{if(e.altKey||e.ctrlKey||e.metaKey)return;if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();live.current.onMove(e.key==='ArrowLeft'?-1:1);}};addEventListener('keydown',key);return()=>removeEventListener('keydown',key);},[]);
  const swipe=useSwipe(d=>live.current.onMove(d)),shot=shots[at];
+ /* 원본 크기 — 그림을 제 픽셀 크기로 펼쳐 손가락·휠로 구석구석 본다. 예전엔 그림 파일을 새 창으로 열었는데,
+    홈 화면 앱(허브 범위 /)에서는 같은 앱 창에 그림만 떠서 돌아올 길이 없었다(2026-10-20). 넘기면 다시 화면에 맞춘다 */
+ const [actual,setActual]=useState(false);
+ useEffect(()=>setActual(false),[shot&&shot.file]);
  return html`<div ref=${layer} class="zoom-layer" role="dialog" aria-modal="true" aria-label=${W('gallery.zoom')}>
-  <div class="zoom-bar"><b>${card.name} · ${shotLabel(shot,defs)}</b><span aria-live="polite">${at+1} / ${shots.length}</span><a class="zoom-open" href=${IMG.imgURL(shot.file)} target="_blank" rel="noopener">${W('gallery.original')} ↗</a><button class="zoom-close" data-dialog-close onClick=${onClose} aria-label=${W('gallery.close')}>✕</button></div>
-  <div class="zoom-body" ...${swipe}><${Pic} full file=${shot.file} alt=${card.name+' · '+shotLabel(shot,defs)} /><div class="zoom-nav"><button class="zoom-prev" disabled=${!canPrev} onClick=${()=>onMove(-1)} aria-label=${W('gallery.previous')}>‹</button><button class="zoom-next" disabled=${!canNext} onClick=${()=>onMove(1)} aria-label=${W('gallery.next')}>›</button></div></div>
+  <div class="zoom-bar"><b>${card.name} · ${shotLabel(shot,defs)}</b><span aria-live="polite">${at+1} / ${shots.length}</span><button type="button" class="zoom-open" aria-pressed=${actual} onClick=${()=>setActual(v=>!v)}>${W(actual?'gallery.fit':'gallery.original')}</button><button class="zoom-close" data-dialog-close onClick=${onClose} aria-label=${W('gallery.close')}>✕</button></div>
+  <div class=${'zoom-body'+(actual?' actual':'')} ...${actual?{}:swipe}><${Pic} full file=${shot.file} alt=${card.name+' · '+shotLabel(shot,defs)} /><div class="zoom-nav"><button class="zoom-prev" disabled=${!canPrev} onClick=${()=>onMove(-1)} aria-label=${W('gallery.previous')}>‹</button><button class="zoom-next" disabled=${!canNext} onClick=${()=>onMove(1)} aria-label=${W('gallery.next')}>›</button></div></div>
   <div class="zoom-footer"><span class="viewer-keyboard">${W('gallery.viewer.hint')}</span><span class="viewer-touch">${W('gallery.viewer.touch')}</span></div>
  </div>`;
 }

@@ -59,3 +59,7 @@ body.dex-page{background-image:none}
 @media(prefers-reduced-motion:reduce){.dex-page *{scroll-behavior:auto!important;transition:none!important}}
 
 .dex-filters summary{display:flex}.dex-page .grid .cap i{font-style:normal}
+/* 원본 크기 — 제 픽셀 크기로 펼치고 이 칸 안에서 가로·세로로 민다(넘기기 손짓은 끈다) */
+.zoom-layer .zoom-body.actual{display:block;overflow:auto;overscroll-behavior:contain;touch-action:pan-x pan-y pinch-zoom;padding:0;-webkit-overflow-scrolling:touch}
+.zoom-layer .zoom-body.actual>img{width:auto;height:auto;max-width:none;max-height:none;object-fit:none;margin:0 auto;cursor:auto}
+.zoom-layer .zoom-body.actual .zoom-nav{display:none}
