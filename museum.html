@@ -39,7 +39,9 @@ body {color:var(--text);font-size:15px}
 .mu-rooms .mu-btn {scroll-snap-align:start}
 /* 무대 — 남은 높이를 다 쓴다 */
 .mu-stage {position:relative;flex:1 1 auto;min-height:320px;border:1px solid var(--line);border-top:2px solid var(--gold);border-radius:10px;overflow:hidden;background:#000;touch-action:none;user-select:none;-webkit-user-select:none}
-.mu-stage canvas {position:absolute;inset:0;z-index:0;display:block;width:100%;height:100%;outline:none}
+.mu-stage canvas {position:absolute;inset:0;z-index:0;display:block;width:100%;height:100%}
+/* 전시실은 키보드로도 걷는다(tabIndex 0) — 포커스가 오면 무대 안쪽에 금 테를 두른다. 바깥 테는 무대의 overflow 에 잘리므로 안쪽으로 */
+.mu-stage canvas:focus-visible {outline:3px solid var(--gold);outline-offset:-5px}
 .mu-stage > :not(canvas) {z-index:2}
 .mu-stage[data-mode="awaken"] {border-top-color:#f3dc9a;box-shadow:0 0 30px #f3dc9a33}
 .mu-stage[data-mode="cursed"] {border-top-color:#ff4d6d;box-shadow:0 0 30px #c0143c44}
@@ -56,9 +58,9 @@ body {color:var(--text);font-size:15px}
 .mu-stick i {position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:#ffffff55;box-shadow:0 0 12px #0008}
 .mu-stage.has-caption .mu-stick {bottom:calc(18px + var(--cap-h, 0px))}
 /* 자세히 */
-.mu-detail {position:absolute;inset:0;display:grid;place-items:center;padding:14px;background:#000b;z-index:3}
+.mu-detail {position:absolute;inset:0;display:grid;place-items:center;padding:14px;background:#000b;z-index:3;overscroll-behavior:contain}
 .mu-detail > div {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:14px;width:min(860px,100%);max-height:100%;overflow:auto;padding:14px;border:1px solid var(--line);border-top:3px solid var(--cc, var(--gold));border-radius:12px;background:var(--card);color:var(--text)}
-.mu-detail img {display:block;width:100%;max-height:70vh;object-fit:contain;border-radius:8px;background:var(--card2)}
+.mu-detail img {display:block;width:100%;height:auto;max-height:70vh;object-fit:contain;border-radius:8px;background:var(--card2)}
 .mu-detail h3 {margin:0 0 4px;font-size:22px}
 .mu-detail small {display:block;color:var(--muted);font-size:12px}
 .mu-detail p {margin:8px 0 0;font-size:13px;line-height:1.7}
@@ -83,9 +85,10 @@ body {color:var(--text);font-size:15px}
 <div id="app"></div>
 <script type="module">
 import { h, render } from 'https://esm.sh/preact@10.24.3';
-import { useState, useEffect, useRef } from 'https://esm.sh/preact@10.24.3/hooks';
+import { useState, useEffect, useLayoutEffect, useRef } from 'https://esm.sh/preact@10.24.3/hooks';
 import htm from 'https://esm.sh/htm@3.1.1';
 import { WorkspaceHeader } from './lib/workspace-ui.js?v=myth14';
+import { modalFocus } from './lib/gallery.js?v=1';
 const html = htm.bind(h);
 const W = window.W, IMG = window.AtelierImg, V = 'f';
 
@@ -881,15 +884,17 @@ function Stick({ onMove }) {
     <i style=${'transform:translate(' + knob[0] + 'px,' + knob[1] + 'px)'}></i></div>`;
 }
 
+/* 자세히 — 창(modal). 열면 포커스가 닫기로 가고 Tab 은 창 안을 돌며, Esc·바깥 누르기로 닫으면 연 자리(전시실 또는 '자세히')로 돌아간다 */
 function Detail({ data, name, mode, api, onClose }) {
-  useEffect(() => { const k = e => { if (e.key === 'Escape') onClose(); }; addEventListener('keydown', k); return () => removeEventListener('keydown', k); }, []);
+  const ref = useRef(null), live = useRef(); live.current = onClose;
+  useLayoutEffect(() => ref.current ? modalFocus(ref.current, () => live.current(), '.mu-stage canvas') : undefined, []);
   const c = data.cards.find(x => x.name === name); if (!c) return null;
   const pic = api && api.fileOf(name), sk = data.skills[c.skill] || {};
-  return html`<div class="mu-detail" role="dialog" aria-label=${c.name} data-detail=${c.name} onClick=${e => { if (e.target === e.currentTarget) onClose(); }}>
+  return html`<div class="mu-detail" ref=${ref} role="dialog" aria-modal="true" aria-labelledby="mu-detail-title" data-detail=${c.name} onClick=${e => { if (e.target === e.currentTarget) onClose(); }}>
     <div style=${'--cc:' + data.group.myth.color[c.myth]}>
-      ${pic ? html`<img src=${IMG.imgURL(pic.file)} alt=${c.name} />` : html`<div class="mu-empty">${W('museum.pending')}</div>`}
+      ${pic ? html`<img src=${IMG.imgURL(pic.file)} alt=${c.name} width="800" height="1200" decoding="async" />` : html`<div class="mu-empty">${W('museum.pending')}</div>`}
       <div>
-        <h3>${c.name}</h3>
+        <h3 id="mu-detail-title">${c.name}</h3>
         <small>${c.en} · ${data.group.myth.name[c.myth]} · ${data.group.kind.name[c.kind]} · ${W('card.cost.n', { n: c.cost })}</small>
         <small>${W('card.wielder')} — ${c.wielder}</small>
         <p>${c.text}</p>
@@ -897,7 +902,7 @@ function Detail({ data, name, mode, api, onClose }) {
         ${mode === 'cursed' && c.curse && html`<p class="curse">${c.curse.text}</p>`}
         ${pic && !pic.own && html`<small>${W('museum.tinted.' + mode)}</small>`}
         <div class="row"><a href=${'dex.html?card=' + encodeURIComponent(c.name)} id="mu-to-dex">${W('museum.dex')}</a>
-          <button type="button" id="mu-close" onClick=${onClose}>${W('museum.close')}</button></div>
+          <button type="button" id="mu-close" data-dialog-close onClick=${onClose}>${W('museum.close')}</button></div>
       </div>
     </div>
   </div>`;

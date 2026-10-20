@@ -136,6 +136,22 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
     assert.equal(await p.locator('.du-guide').getAttribute('data-step'), '1', '첫 판엔 길잡이 1단계');
     assert.equal(await p.locator('.du-hand .du-card .du-row-tag, .du-hand .du-card .du-pw.wx').count(), 10, '손패 카드마다 줄(또는 날씨) 표시');
     await p.locator('#du-help').click(); await p.waitForSelector('.du-rules'); await p.locator('#du-rules-close').click(); await p.waitForFunction(() => !document.querySelector('.du-rules'));
+    /* 판 위의 창 셋 — aria-modal, 열면 포커스가 닫기로, Tab 은 창 안에서 돌고, Esc 로 닫히면 연 단추로 돌아간다 */
+    const focusId = () => p.evaluate(() => { const a = document.activeElement; return a && (a.id || a.className); });
+    const dialogCheck = async (opener, sel, closeId) => {
+      await p.focus(opener); await p.keyboard.press('Enter'); await p.waitForSelector(sel);
+      assert.equal(await p.locator(sel + '[aria-modal="true"]').count(), 1, sel + ' 는 aria-modal');
+      assert.equal(await focusId(), closeId, sel + ' 를 열면 포커스가 닫기로');
+      for (let i = 0; i < 6; i++) { await p.keyboard.press('Tab'); assert(await p.evaluate(s => !!document.activeElement.closest(s), sel), sel + ' Tab 이 창 밖으로 샌다'); }
+      await p.keyboard.press('Escape'); await p.waitForFunction(s => !document.querySelector(s), sel);
+      assert.equal(await p.evaluate(o => document.activeElement === document.querySelector(o), opener), true, sel + ' 를 닫으면 연 단추로');
+    };
+    await dialogCheck('#du-help', '.du-rules', 'du-rules-close');
+    await dialogCheck('#du-faction', '.du-faction-sheet', 'du-faction-close');
+    await dialogCheck('.du-hand .du-card', '.du-detail', 'du-close');
+    /* 바깥(어두운 막)을 누르면 닫힌다 */
+    await p.locator('.du-hand .du-card').first().click(); await p.waitForSelector('.du-detail');
+    await p.mouse.click(5, 5); await p.waitForFunction(() => !document.querySelector('.du-detail'));
     /* 진영 능력 — 단추는 바로 쓰지 않고 확인 창(이름·설명·쓰기)을 연다. 상대 띠의 이름을 누르면 상대 능력 설명 */
     await p.locator('#du-faction').click(); await p.waitForSelector('.du-faction-sheet[data-who="me"]');
     assert((await p.locator('.du-faction-sheet').innerText()).includes(data.duel.factions.norse.text) && await p.locator('#du-faction-use').count() === 1, '내 진영 능력 설명과 쓰기');

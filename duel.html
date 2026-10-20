@@ -133,7 +133,8 @@ body {color:var(--text);font-size:15px}
 .du-hand .du-card {flex:none;width:72px;scroll-snap-align:start}
 .du-hand .cap {padding:3px 4px 4px;font-size:10px} .du-hand .cnm {min-height:2.6em;max-height:2.6em;line-height:1.3} .du-hand .cap i {display:none}
 .du-hand .du-var {top:3px;right:3px;padding:1px 4px;font-size:9px}
-.du-detail {position:fixed;left:0;right:0;bottom:0;z-index:50;max-height:88dvh;overflow:auto;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:var(--card);border-top:2px solid var(--accent);border-radius:14px 14px 0 0;box-shadow:0 -10px 30px #000a}
+.du-scrim {position:fixed;inset:0;z-index:55;background:#0008}
+.du-detail {position:fixed;left:0;right:0;bottom:0;z-index:50;max-height:88dvh;overflow:auto;overscroll-behavior:contain;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:var(--card);border-top:2px solid var(--accent);border-radius:14px 14px 0 0;box-shadow:0 -10px 30px #000a}
 .du-detail-body {display:grid;grid-template-columns:120px minmax(0,1fr);gap:12px;align-items:start}
 .du-detail .face {border-radius:10px}
 .du-detail h4 {margin:0 0 6px;font:700 17px var(--display)}
@@ -206,7 +207,7 @@ body {color:var(--text);font-size:15px}
 .du-rule-card {padding:10px 12px;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;background:var(--card2)}
 .du-rule-card b {display:block;margin-bottom:4px;font:700 14px var(--display)} .du-rule-card p {margin:0;font-size:12px;line-height:1.6;color:var(--muted);word-break:keep-all}
 .du-rules-act {display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.du-board .du-rules {position:fixed;left:12px;right:12px;top:10%;z-index:70;max-height:80dvh;overflow:auto;box-shadow:0 14px 40px #000b}
+.du-scrim .du-rules {position:fixed;left:12px;right:12px;top:10%;z-index:70;max-height:80dvh;overflow:auto;overscroll-behavior:contain;box-shadow:0 14px 40px #000b}
 .du-guide {display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 10px;margin:6px 0 0;padding:4px 10px 8px;border:1px solid var(--gold);border-radius:10px;background:var(--accent-soft);font-size:12px;line-height:1.5;color:var(--text);word-break:keep-all}
 .du-guide small {grid-column:1;grid-row:1;justify-self:start;padding:2px 6px;border-radius:999px;background:var(--gold);color:#221a06;font:700 10px ui-monospace,monospace}
 .du-guide p {grid-column:1/-1;grid-row:2;margin:0}
@@ -272,7 +273,7 @@ body {color:var(--text);font-size:15px}
 .du-factions li {padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card2)} .du-factions b {color:var(--text)} .du-factions i {font-style:normal;color:var(--accent);margin-right:6px}
 .du-foe-faction {min-height:44px;padding:0 8px;margin:-8px 0;border:0;border-radius:8px;background:transparent;color:var(--gold);font:inherit;font-weight:700;cursor:pointer;text-decoration:underline dotted}
 .du-foe-faction[data-used="true"] {text-decoration:line-through;opacity:.6}
-.du-faction-sheet {position:fixed;left:0;right:0;bottom:0;z-index:50;padding:14px 16px calc(12px + env(safe-area-inset-bottom));background:var(--card);border-top:2px solid var(--gold);border-radius:14px 14px 0 0;box-shadow:0 -10px 30px #000a}
+.du-faction-sheet {position:fixed;left:0;right:0;bottom:0;z-index:50;max-height:88dvh;overflow:auto;overscroll-behavior:contain;padding:14px 16px calc(12px + env(safe-area-inset-bottom));background:var(--card);border-top:2px solid var(--gold);border-radius:14px 14px 0 0;box-shadow:0 -10px 30px #000a}
 .du-faction-sheet small {display:block;font:700 11px ui-monospace,monospace;letter-spacing:.1em;color:var(--accent)} .du-faction-sheet h4 {margin:4px 0 6px;font:700 18px var(--display)}
 .du-faction-sheet p {margin:0;font-size:13px;line-height:1.6;color:var(--text);word-break:keep-all} .du-faction-sheet p.note {color:var(--muted);font-size:12px}
 .du-faction-sheet .du-detail-act {margin-top:12px}
@@ -344,9 +345,10 @@ body {color:var(--text);font-size:15px}
 <div id="app"></div>
 <script type="module">
 import { h, render } from 'https://esm.sh/preact@10.24.3';
-import { useState, useEffect, useMemo, useRef } from 'https://esm.sh/preact@10.24.3/hooks';
+import { useState, useEffect, useLayoutEffect, useMemo, useRef } from 'https://esm.sh/preact@10.24.3/hooks';
 import htm from 'https://esm.sh/htm@3.1.1';
 import { WorkspaceHeader } from './lib/workspace-ui.js?v=myth14';
+import { modalFocus } from './lib/gallery.js?v=1';
 const html = htm.bind(h);
 const W = window.W, IMG = window.AtelierImg, A = window.AtelierDuel;
 const STORE = 'myth_duel_v1';
@@ -500,15 +502,23 @@ function Count({ to, win }) {
   return html`<b class=${win ? 'win' : ''}>${n}</b>`;
 }
 
-/* ── 규칙 한눈에 — 로비의 "배우기" 와 대결의 ? 가 연다 ── */
-function Rules({ data, group, onClose, onGuideAgain }) {
-  return html`<section class="du-rules" role="dialog" aria-label=${W('duel.rules.title')}>
-    <div class="du-rules-head"><h3>${W('duel.rules.title')}</h3><button type="button" class="du-btn" id="du-rules-close" onClick=${onClose}>${W('duel.close')}</button></div>
+/* 창 — 판 위에 뜨는 상세·진영 능력·규칙. 바깥(어두운 막)을 누르거나 Esc 면 닫힌다.
+   열리면 포커스가 창 안(닫기)으로 가고 Tab 은 창 안을 돌며, 닫히면 연 단추로 돌아간다(없어졌으면 fallback) */
+function Modal({ onClose, fallback, children }) {
+  const ref = useRef(null), live = useRef(); live.current = onClose;
+  useLayoutEffect(() => modalFocus(ref.current, () => live.current(), fallback), []);
+  return html`<div class="du-scrim" ref=${ref} onClick=${e => { if (e.target === e.currentTarget) onClose(); }}>${children}</div>`;
+}
+/* ── 규칙 한눈에 — 로비의 "배우기" 는 그 자리에 펼치고, 대결의 ? 는 창(modal)으로 연다 ── */
+function Rules({ data, group, onClose, onGuideAgain, modal }) {
+  const body = html`<section class="du-rules" ...${modal ? { role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'du-rules-title' } : { 'aria-labelledby': 'du-rules-title' }}>
+    <div class="du-rules-head"><h3 id="du-rules-title">${W('duel.rules.title')}</h3><button type="button" class="du-btn" id="du-rules-close" data-dialog-close onClick=${onClose}>${W('duel.close')}</button></div>
     <div class="du-rules-grid">${[1, 2, 3, 4].map(i => html`<div key=${i} class="du-rule-card"><b>${W('duel.rules.' + i + '.title')}</b><p>${W('duel.rules.' + i + '.text')}</p></div>`)}</div>
     <p class="sec">${W('duel.rules.factions')}</p>
     <ul class="du-factions">${data.duel.bosses.map(b => html`<li key=${b.myth} data-myth=${b.myth}><i>${mythName(group, b.myth)}</i><b>${data.duel.factions[b.myth].name}</b> — ${data.duel.factions[b.myth].text}</li>`)}</ul>
     ${onGuideAgain && html`<div class="du-rules-act"><button type="button" class="du-btn" id="du-guide-again" onClick=${onGuideAgain}>${W('duel.guide.again')}</button></div>`}
   </section>`;
+  return modal ? html`<${Modal} onClose=${onClose} fallback="#du-help">${body}<//>` : body;
 }
 /* 첫 판 길잡이 — 판의 상태에서 단계를 읽는다. 1 내기 → 2 상대 수 → 3 합과 패스 → 4 라운드 결과 → 5 진영 능력 → 6 변형판·날씨 */
 const GUIDE_STEPS = 6;
@@ -576,7 +586,7 @@ function Row({ data, st, side, row, sum, onDetail }) {
 function Detail({ data, group, st, id, unit, fromHand, canPlay, onPlay, onClose, action }) {
   const D = A.cardsOf(data), c = D.cards[id], base = D.cards[c.name], w = c.variant === 'weather';
   const sk = data.skills[data.cards.find(x => x.name === c.name).skill];
-  return html`<div class="du-detail" data-id=${id} role="dialog" aria-label=${c.name}>
+  return html`<${Modal} onClose=${onClose} fallback=".du-hand .du-card, #du-pass, .du-build .du-toggle"><div class="du-detail" data-id=${id} role="dialog" aria-modal="true" aria-label=${c.name}>
     <div class="du-detail-body">
       <span class="face"><${Thumb} file=${base.file} />${c.variant !== 'base' && html`<span class="du-var" data-variant=${c.variant}>${W('duel.variant.' + c.variant)}</span>`}</span>
       <div><h4>${c.name}${c.hero ? html`<span class="du-tag">${W('duel.hero')}</span>` : ''}</h4>
@@ -593,9 +603,9 @@ function Detail({ data, group, st, id, unit, fromHand, canPlay, onPlay, onClose,
     <div class="du-detail-act">
       ${fromHand && html`<button type="button" class="du-btn primary" id="du-play" disabled=${!canPlay} onClick=${onPlay}>${w ? W('duel.weather.call', { w: W('duel.weather.' + c.row) }) : W('duel.play')}</button>`}
       ${action && html`<button type="button" class=${'du-btn ' + (action.cls || 'primary')} id="du-detail-act" onClick=${action.onClick}>${action.label}</button>`}
-      <button type="button" class="du-btn" id="du-close" onClick=${onClose}>${W('duel.close')}</button>
+      <button type="button" class="du-btn" id="du-close" data-dialog-close onClick=${onClose}>${W('duel.close')}</button>
     </div>
-  </div>`;
+  </div><//>`;
 }
 /* ── 대결 — 판 ── */
 function Match({ data, group, profile, st, actMatch, act }) {
@@ -665,11 +675,11 @@ function Match({ data, group, profile, st, actMatch, act }) {
     <div class="du-hand">${st.me.hand.map((id, i) => html`<${Card} key=${id + i} card=${D.cards[id]} art=${D.cards[D.cards[id].name].file} group=${group} cls="du-card" onClick=${() => open(id, true)} />`)}</div></div>
     ${detail && html`<${Detail} data=${data} group=${group} st=${st} id=${detail.id} unit=${detail.unit} fromHand=${detail.fromHand} canPlay=${mine && L.cards.includes(detail.id)}
       onPlay=${() => { const el = document.querySelector(`.du-hand .du-card[data-id="${detail.id}"]`); flyRef.current = el ? { id: detail.id, from: el.getBoundingClientRect() } : null; setDetail(null); actMatch(m => A.play(data, m, detail.id)); }} onClose=${() => setDetail(null)} />`}
-    ${help && html`<${Rules} data=${data} group=${group} onClose=${() => setHelp(false)} />`}
-    ${fsheet && (() => { const f = data.duel.factions[fsheet === 'me' ? profile.main : st.boss], used = st[fsheet].faction.used; return html`<div class="du-faction-sheet" data-who=${fsheet} role="dialog" aria-label=${f.name}>
+    ${help && html`<${Rules} modal data=${data} group=${group} onClose=${() => setHelp(false)} />`}
+    ${fsheet && (() => { const f = data.duel.factions[fsheet === 'me' ? profile.main : st.boss], used = st[fsheet].faction.used; return html`<${Modal} key=${fsheet} onClose=${() => setFsheet(null)} fallback=${fsheet === 'me' ? '#du-faction, #du-pass' : '.du-foe-faction'}><div class="du-faction-sheet" data-who=${fsheet} role="dialog" aria-modal="true" aria-label=${f.name}>
       <small>${W(fsheet === 'me' ? 'duel.faction.mine' : 'duel.faction.foe')}${used ? ' · ' + W('duel.faction.used') : ''}</small><h4>${f.name}</h4><p>${f.text}</p><p class="note">${W('duel.faction.once')}</p>
       <div class="du-detail-act">${fsheet === 'me' && html`<button type="button" class="du-btn primary" id="du-faction-use" disabled=${!L.faction} onClick=${() => { setFsheet(null); actMatch(m => A.useFaction(data, m)); }}>${W('duel.faction.sheet.use')}</button>`}
-        <button type="button" class="du-btn" id="du-faction-close" onClick=${() => setFsheet(null)}>${W('duel.close')}</button></div></div>`; })()}
+        <button type="button" class="du-btn" id="du-faction-close" data-dialog-close onClick=${() => setFsheet(null)}>${W('duel.close')}</button></div></div><//>`; })()}
     ${banner && lastRound && html`<div class="du-banner">${W('duel.round.' + (lastRound.winner === 'me' ? 'win' : lastRound.winner === 'foe' ? 'lose' : 'draw') + '.short', { n: st.roundLog.length })}<span class="du-count"><${Count} to=${lastRound.me} win=${lastRound.winner === 'me'} /> : <${Count} to=${lastRound.foe} win=${lastRound.winner === 'foe'} /></span></div>`}
     ${shout && html`<div key=${shout.key} class="du-shout" data-who=${shout.who}><small>${W('duel.faction')}</small>${shout.name}</div>`}
   </section>`;

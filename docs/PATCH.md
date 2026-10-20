@@ -8,6 +8,12 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-10-20 · claude · 결투·박물관 창을 진짜 창으로
+
+- duel.html — 카드 상세·진영 능력·규칙(판 위의 ?) 셋을 창(Modal)으로. aria-modal, 열면 포커스가 닫기로 가고 Tab 은 창 안을 돌며, Esc·어두운 막 누르기로 닫히면 연 단추로 돌아간다(lib/gallery.js 의 modalFocus). 시트에 overscroll-behavior:contain. 로비의 「배우기」 규칙은 그 자리에 펼친 그대로
+- museum.html — 자세히도 같은 창. 따로 걸던 Esc 듣기는 modalFocus 가 맡는다. 전시실 canvas 의 outline:none 을 걷고 :focus-visible 에 안쪽 금 테. 자세히 그림에 width/height
+- tests/duel-screen.cjs · tests/museum-screen.cjs — aria-modal, 열면 닫기에 포커스, Tab 이 창 밖으로 안 새나, Esc 로 닫으면 연 단추로, 바깥 누르기, 전시실 포커스 테
+
 ## 2026-10-20 · claude · 신전 홀 — 제목을 장면 아래로
 
 - index.html — 홀을 장면(.hall-stage)과 글(.hall-copy) 두 칸으로 나눴다. PC 에서 큰 제목과 소개가 도는 카드 그림 위에 얹혀, 어떤 카드가 뒤로 지나가느냐에 따라 글자 대비가 계속 바뀌었다

@@ -30,13 +30,24 @@ const group = JSON.parse(fs.readFileSync('data/group.json', 'utf8'));
     const name = await p.locator('.mu-caption').getAttribute('data-focus');
     assert(cards.find(c => c.name === name).myth === group.myth.order[2], '그 방의 무기: ' + name);
     /* 자세히 — 도감으로 가는 길이 있고, Esc 로 닫는다. 자세히 동안은 안 걷는다 */
-    await p.locator('#mu-more').click();
+    await p.locator('#mu-more').focus(); await p.keyboard.press('Enter');
     await p.waitForSelector('.mu-detail[data-detail]');
     assert((await p.locator('#mu-to-dex').getAttribute('href')).startsWith('dex.html?card='), '도감으로 가는 길');
+    /* 자세히는 창 — aria-modal, 열면 포커스가 닫기로, Tab 은 창 안에서 돈다 */
+    assert.equal(await p.locator('.mu-detail[aria-modal="true"]').count(), 1, '자세히는 aria-modal');
+    assert.equal(await p.evaluate(() => document.activeElement && document.activeElement.id), 'mu-close', '열면 포커스가 닫기로');
+    for (let i = 0; i < 4; i++) { await p.keyboard.press('Tab'); assert(await p.evaluate(() => !!document.activeElement.closest('.mu-detail')), 'Tab 이 창 밖으로 샌다'); }
     const before = await st(); await p.keyboard.down('w'); await p.waitForTimeout(800); await p.keyboard.up('w');
     assert.equal((await st()).z, before.z, '자세히 동안은 안 걷는다');
     await p.keyboard.press('Escape');
     await p.waitForFunction(() => !document.querySelector('.mu-detail'));
+    assert.equal(await p.evaluate(() => document.activeElement && document.activeElement.id), 'mu-more', 'Esc 로 닫으면 연 단추로');
+    /* 전시실(canvas)은 키보드로 오면 포커스 테가 보인다 */
+    await p.locator('.mu-stage canvas').evaluate(e => e.blur());
+    await p.locator('.mu-rooms .mu-btn').first().focus();
+    for (let i = 0; i < 30 && !(await p.evaluate(() => document.activeElement && document.activeElement.tagName === 'CANVAS')); i++) await p.keyboard.press('Tab');
+    assert(await p.evaluate(() => document.activeElement.tagName === 'CANVAS'), 'Tab 으로 전시실에 닿는다');
+    assert.notEqual(await p.locator('.mu-stage canvas').evaluate(e => getComputedStyle(e).outlineStyle), 'none', '전시실에 포커스 테');
     /* 상태 — 각성·저주를 고르면 무대와 공기가 바뀐다 */
     for (const m of ['awaken', 'cursed', 'base']) {
       await p.locator('.mu-btn[data-mode="' + m + '"]').click();
