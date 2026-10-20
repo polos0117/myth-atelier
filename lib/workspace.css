@@ -456,9 +456,11 @@ html:has(.dex-page) {height:100%;overflow:hidden;overscroll-behavior:none}
 /* 신전 홀 — 집 화면 첫 칸. CSS 3D 하나로 돈다: 기둥 여섯이 뒤로 물러나고, 바닥 격자가
    앞으로 흐르고, 금 고리 셋이 제단 위를 돌고, 올라온 카드가 고리 위를 천천히 돈다.
    그림은 그림 저장소 썸네일이라 없으면 이름표로 바꿔 세운다. 손이 닿으면 홀이 살짝 기운다 */
-.hall {position:relative;height:clamp(380px,60vh,640px);margin:0 0 20px;border:1px solid var(--line);border-top:2px solid var(--gold);border-radius:8px;overflow:hidden;
-  background:linear-gradient(180deg,var(--deck) 0%,var(--bg) 55%,var(--card2) 100%);box-shadow:var(--shadow);perspective:1100px;perspective-origin:50% 42%;
-  --tx:0deg;--ty:0deg;contain:layout paint}
+.hall {position:relative;margin:0 0 20px;border:1px solid var(--line);border-top:2px solid var(--gold);border-radius:8px;overflow:hidden;
+  background:var(--bg);box-shadow:var(--shadow);--tx:0deg;--ty:0deg;contain:layout paint}
+/* 장면은 위 칸 하나 — 글은 그 아래 제단 받침(.hall-copy)에 선다 */
+.hall-stage {position:relative;height:clamp(320px,46vh,520px);overflow:hidden;perspective:1100px;perspective-origin:50% 42%;
+  background:linear-gradient(180deg,var(--deck) 0%,var(--bg) 60%,var(--card2) 100%)}
 .hall-scene {position:absolute;inset:0;transform-style:preserve-3d;transform:rotateX(var(--tx)) rotateY(var(--ty));transition:transform .35s ease-out;will-change:transform}
 .hall-halo {position:absolute;left:50%;top:-14%;width:120%;height:70%;transform:translateX(-50%);background:radial-gradient(ellipse at 50% 40%,var(--halo),transparent 62%);pointer-events:none}
 .hall-fog {position:absolute;left:0;right:0;bottom:0;height:45%;background:linear-gradient(transparent,var(--halo));pointer-events:none;mix-blend-mode:screen}
@@ -494,20 +496,18 @@ html:has(.dex-page) {height:100%;overflow:hidden;overscroll-behavior:none}
 .hall-mote {position:absolute;bottom:-4%;width:4px;height:4px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold);opacity:0;
   animation:hall-rise linear infinite;animation-duration:var(--d,9s);animation-delay:var(--w,0s);left:var(--x,50%)}
 @keyframes hall-rise {0% {transform:translateY(0) scale(.6);opacity:0} 12% {opacity:.9} 100% {transform:translateY(-110vh) translateY(60px) scale(1.1);opacity:0}}
-.hall-copy {position:absolute;left:0;right:0;bottom:0;padding:22px 24px 20px;background:linear-gradient(transparent,var(--bg) 62%);pointer-events:none}
-.hall-copy > * {pointer-events:auto}
+.hall-copy {position:relative;padding:22px 24px 22px;border-top:1px solid var(--line);background:var(--bg)}
 .hall-copy .eyebrow {margin-bottom:6px}
 .hall-copy h2 {margin:0 0 10px;font:700 clamp(28px,5vw,52px)/1.15 var(--display);letter-spacing:-.01em;color:var(--text);background:linear-gradient(180deg,var(--text) 30%,var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 2px 12px var(--bg))}
 .hall-copy p {margin:0;max-width:640px;color:var(--muted);font-size:15px;line-height:1.8}
 .hall-copy .lab-tag {margin-top:12px}
 @media (max-width:599px) {
-  .hall {height:clamp(380px,68vh,540px);perspective:800px}
+  .hall-stage {perspective:800px}
   .hall-carousel {top:36%}
   .hall-rings {top:46%}
   .hall-col {bottom:30%;height:56%}
   .hall-col:nth-child(3) {left:16%} .hall-col:nth-child(4) {right:16%}
   .hall-card {--r:190px;width:76px;height:114px;left:-38px;top:-57px}
-  .hall-copy {background:linear-gradient(transparent,var(--bg) 55%)}
   .hall-ring:nth-child(1) {width:300px;height:300px;margin:-150px 0 0 -150px}
   .hall-ring:nth-child(2) {width:210px;height:210px;margin:-105px 0 0 -105px}
   .hall-ring:nth-child(3) {width:120px;height:120px;margin:-60px 0 0 -60px}
@@ -902,22 +902,17 @@ html:has(.dex-page) {height:100%;overflow:hidden;overscroll-behavior:none}
 .appearance-extra button {flex:none;width:100%;min-height:42px;padding:6px 10px;font-size:12px;font-weight:700;border-radius:8px}
 .appearance-extra .header-help[aria-pressed="true"] {color:var(--gold);border-color:var(--gold);background:var(--accent-soft)}
 
-/* 세로 화면(덮개·펼친 폴드) — 글을 무대에 겹치면 무대가 위 40% 남짓으로 줄어 카드가 위로 몰리고 이름이 제목에 가렸다.
-   무대를 먼저 세우고 글은 그 아래로 내린다. 기둥·카드·고리는 무대 안에서 가운데에 선다. 넓은 화면은 겹친 그대로 */
+/* 세로 화면(덮개·펼친 폴드) — 무대 높이를 픽셀로 잡는다. 기둥·카드·고리는 무대 안에서 가운데에 선다.
+   넓은 화면도 같은 짜임(무대 위, 글 아래)이고 무대 높이만 화면 높이를 따른다 */
 @media (max-width:899px) {
-  .hall {height:auto;padding-top:420px;perspective-origin:50% 200px}
-  .hall-scene {bottom:auto;height:420px}
-  .hall-fog {top:240px;bottom:auto;height:180px}
-  .hall-copy {position:relative;background:linear-gradient(transparent,var(--bg) 36px)}
+  .hall-stage {height:420px;perspective-origin:50% 200px}
   :is(html) .hall .hall-col {bottom:9%;height:78%}
   .hall-carousel {top:48%}
   .hall-rings {top:66%}
   [data-theme="lapis"] .hall-back {height:72%;bottom:16%}
 }
 @media (max-width:599px) {
-  .hall {padding-top:360px;perspective-origin:50% 175px}
-  .hall-scene {height:360px}
-  .hall-fog {top:200px;height:160px}
+  .hall-stage {height:360px;perspective-origin:50% 175px}
   .hall-carousel {top:51%}
   .hall-rings {top:67%}
 }

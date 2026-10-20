@@ -93,7 +93,9 @@ function Hall(){
   /* 썸네일이 아직 없으면(막 올린 그림) 원본으로 한 번 더, 그래도 안 되면 이름표 */
   const pic=(c,slot,file)=>h('img',{key:slot,class:(slot===(c[mode]&&!broken[c.name+mode]?mode:'file')?'on':''),src:IMG.thumbURL(file),alt:'',loading:'lazy',decoding:'async',
     onError:e=>{const t=e.currentTarget;if(!t.dataset.full){t.dataset.full='1';t.src=IMG.imgURL(file);return;}setBroken(b=>({...b,[c.name+slot]:true}));}});
+  /* 장면(.hall-stage)과 글(.hall-copy)은 위아래로 나뉜다 — 글을 장면 위에 얹으면 도는 카드가 큰 제목 뒤를 지나며 글자 대비가 계속 바뀐다 */
   return h('section',{class:'hall',ref:box,'data-mode':mode,'aria-label':W('home.hall'),onPointerMove:tilt,onPointerLeave:rest},
+    h('div',{class:'hall-stage'},
     h('div',{class:'hall-halo','aria-hidden':'true'}),
     h('div',{class:'hall-fog','aria-hidden':'true'}),
     h('div',{class:'hall-scene','aria-hidden':'true'},
@@ -109,7 +111,7 @@ function Hall(){
         return h('div',{class:'hall-card',key:c.name,style:a,'data-name':c.name,'data-file':c.file},
           pic(c,'file',c.file),c.awaken&&pic(c,'awaken',c.awaken),c.cursed&&pic(c,'cursed',c.cursed),h('b',null,c.name));
       })),
-      MOTES.map(([x,d,w],i)=>h('span',{class:'hall-mote',key:i,style:'--x:'+x+'%;--d:'+d+'s;--w:-'+w+'s'}))),
+      MOTES.map(([x,d,w],i)=>h('span',{class:'hall-mote',key:i,style:'--x:'+x+'%;--d:'+d+'s;--w:-'+w+'s'})))),
     h('div',{class:'hall-copy'},
       h('div',{class:'eyebrow'},W('home.hall'),h('span',null,' / '+W(mode==='base'?'home.hall.note':'home.hall.note.'+mode))),
       h('h2',null,W('home.title')),h('p',null,W('home.intro')),

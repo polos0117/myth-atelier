@@ -13,6 +13,16 @@ const drawn = new Set(Object.keys(img).filter(n => Object.values(img[n].byStyle 
     const first = await names();
     assert.equal(first.length, 12, '열둘');
     assert(first.every(n => drawn.has(n)), '그림 있는 무기만');
+    /* 글은 장면 아래 — 큰 제목·소개가 도는 카드 위에 겹치지 않는다(PC 두 크기, 휴대폰) */
+    for (const size of [{ width: 1280, height: 900 }, { width: 1920, height: 1080 }, { width: 390, height: 844 }]) {
+      await p.setViewportSize(size); await p.waitForTimeout(150);
+      const g = await p.evaluate(() => { const r = s => document.querySelector(s).getBoundingClientRect();
+        const stage = r('.hall-stage'), cards = [...document.querySelectorAll('.hall-card')].map(e => e.getBoundingClientRect());
+        return { stageBottom: stage.bottom, h2: r('.hall-copy h2').top, p: r('.hall-copy p').top, cardBottom: Math.max(...cards.map(c => c.bottom)) }; });
+      assert(g.h2 >= g.stageBottom && g.p >= g.stageBottom, size.width + ': 제목·소개가 장면 아래 ' + JSON.stringify(g));
+      assert(g.cardBottom <= g.stageBottom, size.width + ': 카드는 장면 안 ' + JSON.stringify(g));
+    }
+    await p.setViewportSize({ width: 1280, height: 900 });
     /* 신전을 바꾸면 그 신화권에서 — 발할라의 밤은 북유럽 */
     await p.evaluate(() => window.AtelierAppearance.set('theme', 'midnight'));
     await p.waitForFunction(() => document.querySelector('.hall-pick').textContent.includes('발할라'));
@@ -91,6 +101,6 @@ const drawn = new Set(Object.keys(img).filter(n => Object.values(img[n].byStyle 
     assert.deepEqual(a.errors, []);
     assert.deepEqual(await p.evaluate(() => window.AtelierWords.missing()), []);
     await a.close();
-    console.log('PASS 신전: 무작위 열둘·신전별 신화권·도감에서 모시기·신전마다 따로·메인 차례·이름표·스킨·열둘 상한·비우기와 되돌리기·옛 저장');
+    console.log('PASS 신전: 글은 장면 아래·무작위 열둘·신전별 신화권·도감에서 모시기·신전마다 따로·메인 차례·이름표·스킨·열둘 상한·비우기와 되돌리기·옛 저장');
   } finally { await harness.stop(); }
 })().catch(e => { console.error(e); process.exitCode = 1; });
