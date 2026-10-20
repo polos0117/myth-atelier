@@ -8,6 +8,14 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-10-20 · claude · 도감 상세·거르기를 주소에, 상점·프롬프트 칸에 무기 이름
+
+- dex.html — 상세를 열면 ?card=<이름> 으로 기록 한 칸(pushState), 무기를 넘기면 그 칸의 주소만 고쳐 쓴다(replaceState), 닫거나 뒤로 가면 card 가 빠진다. 앞으로 가기면 다시 연다. 거르기(검색·신화권·종류·값·화풍·그림·스킨)도 기본값이 아닌 것만 주소에 — 나눈 주소나 새로 고침이 같은 화면이고, 주소의 거르기가 이 브라우저에 남은 거르기보다 앞선다. 박물관에서 ?card= 로 바로 연 상세도 뒤로 가면 card 없는 목록 주소. 검색 칸에 name·autocomplete="off"·spellcheck
+- auto.html — 상점 그림 단추는 "{무기} 정보", 사기 단추는 "{무기} 사기 · {값}금" 을 접근 가능한 이름으로. 다섯 칸이 모두 "정보 열기"·"사기"로 들려 구별이 안 됐다
+- prompt.html — 결과 칸(textarea)에 "{무기} 프롬프트" 라는 이름. placeholder 만 있었다
+- lib/words.js — auto.info.open.n · auto.buy.n · prompt.result.n
+- tests/dex-nav.cjs · tests/auto-screen.cjs · tests/prompt-screen.cjs — 주소의 card(열기·넘기기·닫기·앞으로 가기·바로 열기), 거르기 주소를 새 창으로 열면 같은 거르기, 상점·결과 칸 이름에 무기 이름
+
 ## 2026-10-20 · claude · 영문 대문자 장식·번호 라벨·한글 자간·모노 라벨 걷기
 
 - lib/words.js — app.brand(MYTHIC ARMS × ATELIER)·app.code(MYTH / 001)·workspace.signature(ARMORY OF LEGENDS)·gallery.kicker·home.*.code(01 / CODEX … 06 / STUDIO)를 지웠다. 한국어 화면에 정보가 없는 장식이었고, 공방 바로가기는 차례가 아닌데 번호가 붙어 있었다

@@ -43,6 +43,7 @@ const S = ctx.window.AtelierSpec;
 
     await p.selectOption('#pm-card', '묠니르');
     await p.waitForFunction(() => document.querySelector('#prompt-output').value.startsWith('WEAPON: Mjolnir'));
+    assert((await p.locator('#prompt-output').getAttribute('aria-label')).includes('묠니르'), '결과 칸의 이름에 무기 이름');
     let t = await p.locator('#prompt-output').inputValue();
     assert(t.includes(S.STYLES.find(s => s[0] === S.DEFAULT_STYLE)[2]), '기본 화풍');
     assert(!t.includes('POSTURE:') && t.includes('WEAPON LOOK') && t.includes('mecha personification'), '기본은 자세 없이 메카 의인화');

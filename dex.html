@@ -149,7 +149,7 @@ body {color:var(--text);font-size:15px}
 .big-count {position:absolute;right:8px;bottom:8px;padding:2px 8px;border-radius:999px;background:#000a;color:#fff;font:700 11px ui-monospace,monospace;pointer-events:none}
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
-<script src="lib/words.js?v=myth44"></script>
+<script src="lib/words.js?v=myth45"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth6"></script>
 <link rel="stylesheet" href="lib/gallery.css?v=2">
@@ -219,6 +219,22 @@ function normalize(f) {
   const out = { ...DEFAULTS };
   for (const k of Object.keys(DEFAULTS)) if (f && typeof f[k] === 'string') out[k] = f[k];
   return out;
+}
+/* 주소 — 거르기(기본값이 아닌 것만)와 보고 있는 무기(?card=)가 주소에 실린다. 주소를 나누거나 새로 고쳐도 같은 화면이다.
+   주소에 거르기가 있으면 그것이 이 브라우저에 남은 거르기보다 앞선다 */
+const URL_KEYS = Object.keys(DEFAULTS);
+function readURL() {
+  try {
+    const q = new URLSearchParams(location.search), has = URL_KEYS.filter(k => q.has(k));
+    return { card: q.get('card'), filters: has.length ? normalize(Object.fromEntries(has.map(k => [k, q.get(k)]))) : null };
+  } catch { return { card: null, filters: null }; }
+}
+function urlOf(filters, card) {
+  const q = new URLSearchParams(), f = normalize(filters);
+  for (const k of URL_KEYS) if (f[k] !== DEFAULTS[k]) q.set(k, f[k]);
+  if (card) q.set('card', card);
+  const s = q.toString();
+  return location.pathname + (s ? '?' + s : '') + location.hash;
 }
 /* 목록 차례: 신화권 차례 → 값 높은 것 → 이름. 시너지 축이 눈에 먼저 들어오게 */
 function sorted(cards, group) {
@@ -471,7 +487,7 @@ function List({ st, filters, onFilter, onOpen, compact, onCompact, restore }) {
       ${options.map(([v, label]) => html`<option key=${v} value=${v}>${label}</option>`)}
     </select></label>`;
   const head = html`<div class="search-row">
-    <input type="search" value=${f.q} placeholder=${W('dex.filter.search')} aria-label=${W('dex.filter.search')}
+    <input type="search" name="q" autocomplete="off" spellcheck=${false} value=${f.q} placeholder=${W('dex.filter.search')} aria-label=${W('dex.filter.search')}
       onInput=${e => update('q', e.currentTarget.value)} />
     <button class="dex-reset" id="dex-reset" onClick=${() => onFilter(normalize())}>${W('dex.filter.reset')}</button>
     <a class="dex-reset dex-museum" id="dex-museum" href="museum.html" title=${W('museum.open.note')}>${W('museum.open')}</a>
@@ -532,9 +548,11 @@ function App() {
   const [theme, setTheme] = useState(() => IMG.hallTheme());
   useEffect(() => { const on = () => setTheme(IMG.hallTheme()); addEventListener('atelier-appearance', on); return () => removeEventListener('atelier-appearance', on); }, []);
   const [open, setOpen] = useState(null);
-  /* dex.html?card=<이름> — 박물관의 "도감에서 보기"가 그 무기의 상세로 바로 연다 */
-  const [asked] = useState(() => { try { return new URLSearchParams(location.search).get('card'); } catch { return null; } });
-  useEffect(() => { if (asked && st.cards) { const c = st.cards.find(x => x.name === asked); if (c) openShot({ card: c, cut: 'portrait' }); } }, [st.cards]);
+  /* dex.html?card=<이름> — 박물관의 "도감에서 보기"나 나눈 주소가 그 무기의 상세로 바로 연다.
+     목록 칸의 주소에서 card 를 먼저 지우고 상세 칸을 쌓는다 — 뒤로 가기면 card 없는 목록 주소 */
+  const [asked] = useState(() => readURL().card);
+  useEffect(() => { if (asked && st.cards) { const c = st.cards.find(x => x.name === asked);
+    if (c) { try { history.replaceState(null, '', urlOf(filtersNow.current, null)); } catch {} openShot({ card: c, cut: 'portrait' }); } } }, [st.cards]);
   const [compact, setCompact] = useState(() => {
     try { return localStorage.getItem(COMPACT_STORE) === 'true'; } catch { return false; }
   });
@@ -544,9 +562,16 @@ function App() {
     return () => document.body.classList.remove('dex-compact');
   }, [compact]);
   const [filters, setFilters] = useState(() => {
+    const fromURL = readURL().filters;
+    if (fromURL) return fromURL;
     try { return normalize(JSON.parse(localStorage.getItem(FILTER_STORE))); } catch { return normalize(); }
   });
   useEffect(() => { try { localStorage.setItem(FILTER_STORE, JSON.stringify(filters)); } catch {} }, [filters]);
+  const filtersNow = useRef(filters); filtersNow.current = filters;
+  /* 거르기·무기를 바꾸면 지금 칸의 주소를 고쳐 쓴다(기록은 안 쌓는다). 상세를 닫으면 card 가 빠진다 */
+  const openName = open && open.card && open.card.name;
+  /* 자료가 오기 전에는 손대지 않는다 — 그새 고쳐 쓰면 바로 연 ?card= 가 열리기 전에 지워진다 */
+  useEffect(() => { if (!st.cards) return; try { history.replaceState(history.state, '', urlOf(filters, openName)); } catch {} }, [filters, openName, !!st.cards]);
   /* 목록 자리 — 열 때 굴린 값과 연 무기를 적어 두고, 닫을 때 List 가 그 자리로 돌아간다 */
   const listTop = useRef(0), from = useRef(null), restore = useRef(null), openNow = useRef(null);
   openNow.current = open;
@@ -559,15 +584,20 @@ function App() {
     const sc = document.querySelector('.collection-scroll');
     listTop.current = sc ? sc.scrollTop : 0; from.current = shot.card.name;
     setOpen(shot);
-    if (!pushed.current) { try { history.pushState({ dex: 'card' }, ''); pushed.current = true; skipPop.current = false; } catch {} }
+    if (!pushed.current) { try { history.pushState({ dex: 'card' }, '', urlOf(filtersNow.current, shot.card.name)); pushed.current = true; skipPop.current = false; } catch {} }
   }
   const close = () => {
     shut();
     if (pushed.current) { pushed.current = false; skipPop.current = true; try { history.back(); } catch { skipPop.current = false; } }
   };
   const liveShut = useRef(); liveShut.current = shut;
+  const liveOpen = useRef(); liveOpen.current = shot => setOpen(shot);
+  const cardsNow = useRef(null); cardsNow.current = st.cards;
   useEffect(() => {
-    const pop = () => { if (skipPop.current) { skipPop.current = false; return; } if (pushed.current) { pushed.current = false; liveShut.current(); } };
+    const pop = () => { if (skipPop.current) { skipPop.current = false; return; } if (pushed.current) { pushed.current = false; liveShut.current(); return; }
+      /* 앞으로 가기로 상세 칸에 다시 오면 그 무기를 연다 */
+      const want = readURL().card, c = want && cardsNow.current && cardsNow.current.find(x => x.name === want);
+      if (c && history.state && history.state.dex === 'card') { pushed.current = true; liveOpen.current({ card: c, cut: 'portrait' }); } };
     addEventListener('popstate', pop);
     return () => removeEventListener('popstate', pop);
   }, []);

@@ -30,8 +30,10 @@ const tap = (p, card) => p.evaluate(n => [...document.querySelectorAll('.grid > 
     await p.waitForSelector('.bar h2');
     assert.equal(await name(p), first, '누른 무기가 열린다');
     assert.equal(await p.evaluate(() => history.length), len0 + 1, '상세를 열면 기록이 한 칸 쌓인다');
+    assert.equal(new URL(p.url()).searchParams.get('card'), first, '상세를 열면 주소에 ?card=');
     await p.click('.back');
     await p.waitForSelector('.grid > .cell');
+    await p.waitForFunction(() => !new URL(location.href).searchParams.has('card'));
     assert(Math.abs(await top(p) - was) <= 2, '목록으로 단추 — 굴린 자리로 돌아온다: ' + await top(p) + ' / ' + was);
 
     /* 2. 휴대폰 뒤로 가기 — 앞 화면이 아니라 목록으로, 자리도 그대로 */
@@ -41,6 +43,11 @@ const tap = (p, card) => p.evaluate(n => [...document.querySelectorAll('.grid > 
     await p.waitForSelector('.grid > .cell');
     assert(/dex\.html/.test(p.url()), '뒤로 가기는 도감 목록에 머문다: ' + p.url());
     assert.equal(await p.$('.bar h2'), null, '상세가 닫힌다');
+    assert.equal(new URL(p.url()).searchParams.get('card'), null, '뒤로 가기면 주소에서 card 가 빠진다');
+    /* 앞으로 가기면 그 무기가 다시 열린다 */
+    await p.goForward(); await p.waitForSelector('.bar h2');
+    assert.equal(await name(p), first, '앞으로 가기로 상세가 다시 열린다');
+    await p.goBack(); await p.waitForSelector('.grid > .cell');
     assert(Math.abs(await top(p) - was) <= 2, '뒤로 가기 — 굴린 자리로 돌아온다');
 
     /* 3. 무기 줄로 넘겨도 기록은 한 칸 — 뒤로 한 번이면 목록, 마지막에 본 무기 칸이 보인다 */
@@ -49,6 +56,7 @@ const tap = (p, card) => p.evaluate(n => [...document.querySelectorAll('.grid > 
     for (let i = 0; i < 4; i++) { const n = await name(p); await p.click('#dex-card-next'); await p.waitForFunction(o => document.querySelector('.bar h2').firstChild.textContent.trim() !== o, n); }
     const last = await name(p);
     assert.notEqual(last, first, '무기를 넘겼다');
+    assert.equal(new URL(p.url()).searchParams.get('card'), last, '무기를 넘기면 주소의 card 도 바뀐다');
     assert.equal(await p.evaluate(() => history.length), len0 + 1, '무기를 넘겨도 기록은 한 칸');
     await p.goBack();
     await p.waitForSelector('.grid > .cell');
@@ -68,8 +76,27 @@ const tap = (p, card) => p.evaluate(n => [...document.querySelectorAll('.grid > 
     await q.goBack();
     await q.waitForSelector('.grid > .cell');
     assert.equal(await q.$('.bar h2'), null, '바로 연 상세도 뒤로 가기면 목록');
+    assert.equal(new URL(q.url()).searchParams.get('card'), null, '바로 연 상세도 닫으면 주소에서 card 가 빠진다');
     assert.deepEqual(b.errors, [], '바로 열기 오류 없음');
     await b.close();
-    console.log('PASS 도감 돌아가기: 목록 자리 되돌리기 · 휴대폰 뒤로 가기 · 넘겨도 기록 한 칸 · 바로 연 상세');
+
+    /* 5. 거르기도 주소에 — 고르면 주소가 바뀌고, 그 주소를 새 창(빈 저장)으로 열면 같은 거르기다. 기록은 안 쌓인다 */
+    const c5 = await h.open('dex.html', { viewport: { width: 1280, height: 900 } }), r = c5.page;
+    await r.waitForSelector('.grid > .cell');
+    const len5 = await r.evaluate(() => history.length);
+    await r.locator('.genre-strip button', { hasText: '그리스' }).click();
+    await r.fill('.search-row input', '아');
+    await r.waitForFunction(() => new URL(location.href).searchParams.get('myth') === 'greek' && new URL(location.href).searchParams.get('q') === '아');
+    assert.equal(await r.evaluate(() => history.length), len5, '거르기는 기록을 안 쌓는다');
+    const shared = r.url(), count = await r.locator('.grid > .cell').count();
+    await c5.close();
+    const c6 = await h.open(shared.replace(h.base + '/', ''), { viewport: { width: 1280, height: 900 } }), t = c6.page;
+    await t.waitForSelector('.grid > .cell');
+    assert.equal(await t.locator('.grid > .cell').count(), count, '나눈 주소는 같은 거르기: ' + shared);
+    assert.equal(await t.locator('.search-row input').inputValue(), '아', '검색어도 주소에서');
+    assert.equal(await t.locator('.genre-strip button[aria-pressed="true"]').innerText(), '그리스', '신화권도 주소에서');
+    assert.deepEqual(c6.errors, [], '거르기 주소 오류 없음');
+    await c6.close();
+    console.log('PASS 도감 돌아가기: 목록 자리 되돌리기 · 휴대폰 뒤로·앞으로 가기 · 넘겨도 기록 한 칸 · 바로 연 상세 · 주소의 card·거르기');
   } finally { await h.stop(); }
 })().catch(e => { console.error(e); process.exitCode = 1; });

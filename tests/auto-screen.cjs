@@ -10,6 +10,9 @@ const A = require('../lib/auto.js');
     assert.equal(await p.locator('.map-stage[data-has-map]').count(), 1, '두 판 뒤에 맵 — 이번 판 첫 권');
     const gold = async () => +(await p.locator('.at-gold b').innerText());
     assert.equal(await p.locator('.at-shop .at-card').count(), A.SHOP, '상점 다섯');
+    /* 상점 단추의 이름에 무기 이름 — 스크린리더로 들어도 어느 칸인지 안다 */
+    for (const c of await p.locator('.at-shop .at-card[data-name]').evaluateAll(els => els.map(e => ({ n: e.dataset.name, face: e.querySelector('.face').getAttribute('aria-label'), buy: e.querySelector('.buy').getAttribute('aria-label') }))))
+      assert(c.face && c.face.includes(c.n) && c.buy && c.buy.includes(c.n), '상점 단추 이름에 무기 이름: ' + JSON.stringify(c));
     assert.equal(await p.locator('.at-board[data-side="me"] .at-cell').count(), A.CELLS, '내 판 열두 칸');
     assert.equal(await p.locator('.at-board[data-side="them"] .at-cell:not(.empty)').count(), 1, '1라운드 상대는 수호자 하나');
     assert.equal(await p.locator('.at-lobby .at-who').count(), A.PLAYERS, '로비에 여섯');

@@ -115,7 +115,7 @@ html,body {margin:0;padding:0}
 @media(min-width:1000px){.pm-grid {grid-template-columns:360px minmax(0,1fr);align-items:start}}
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
-<script src="lib/words.js?v=myth44"></script>
+<script src="lib/words.js?v=myth45"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth6"></script>
 <script src="lib/prompt-spec.js?v=11"></script>
@@ -351,7 +351,7 @@ function App() {
 
       <div class="pm-panel pm-out">
         <h2>${W('prompt.result')}</h2>
-        <textarea id="prompt-output" readonly value=${text} placeholder=${W('prompt.card.pick')}></textarea>
+        <textarea id="prompt-output" name="prompt-output" readonly value=${text} placeholder=${W('prompt.card.pick')} aria-label=${c ? W('prompt.result.n', { name: c.name }) : W('prompt.result')}></textarea>
         <div class="pm-bar">
           <button class="pm-btn" id="pm-copy" type="button" disabled=${!text} onClick=${copy}>${copied ? W('prompt.copied') : W('prompt.copy')}</button>
           <span>${W('prompt.words', { n: P.words(text) })}</span>
