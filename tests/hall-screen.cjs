@@ -73,6 +73,17 @@ const drawn = new Set(Object.keys(img).filter(n => Object.values(img[n].byStyle 
     await p.click('#dex-hall-clear');
     assert.deepEqual(JSON.parse(await p.evaluate(() => localStorage.getItem('myth_hall_v1'))).pantheon, [], '비웠다');
     await p.waitForFunction(() => document.querySelector('#dex-hall-clear').disabled);
+    /* 비우면 되돌리기 띠 — 누른 단추가 막혀 포커스를 잃으니 띠의 되돌리기가 포커스를 받는다. 되돌리면 열둘이 그대로 */
+    assert((await p.locator('.undo-toast').innerText()).includes('12자루'), '내린 수를 알린다');
+    assert.equal(await p.evaluate(() => document.activeElement && document.activeElement.className), 'undo-toast-act', '되돌리기가 포커스를 받는다');
+    await p.keyboard.press('Enter');
+    await p.waitForFunction(() => !document.querySelector('.undo-toast'));
+    assert.equal(JSON.parse(await p.evaluate(() => localStorage.getItem('myth_hall_v1'))).pantheon.length, 12, '되돌리면 열둘이 돌아온다');
+    assert.equal(await p.locator('#dex-hall-clear').isDisabled(), false, '다시 비울 수 있다');
+    await p.click('#dex-hall-clear');
+    await p.locator('.undo-toast-close').click();
+    await p.waitForFunction(() => !document.querySelector('.undo-toast'));
+    assert.deepEqual(JSON.parse(await p.evaluate(() => localStorage.getItem('myth_hall_v1'))).pantheon, [], '띠를 닫으면 비운 채로');
     /* 처음 판(배열 하나)은 만신전 몫으로 읽는다 */
     await p.evaluate(() => localStorage.setItem('myth_hall_v1', JSON.stringify(['그람'])));
     await p.reload(); await p.waitForSelector('.grid .cell');
@@ -80,6 +91,6 @@ const drawn = new Set(Object.keys(img).filter(n => Object.values(img[n].byStyle 
     assert.deepEqual(a.errors, []);
     assert.deepEqual(await p.evaluate(() => window.AtelierWords.missing()), []);
     await a.close();
-    console.log('PASS 신전: 무작위 열둘·신전별 신화권·도감에서 모시기·신전마다 따로·메인 차례·이름표·스킨·열둘 상한·비우기·옛 저장');
+    console.log('PASS 신전: 무작위 열둘·신전별 신화권·도감에서 모시기·신전마다 따로·메인 차례·이름표·스킨·열둘 상한·비우기와 되돌리기·옛 저장');
   } finally { await harness.stop(); }
 })().catch(e => { console.error(e); process.exitCode = 1; });

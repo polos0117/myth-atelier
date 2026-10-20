@@ -127,9 +127,24 @@ const A = require('../lib/auto.js');
     const saved = await p.evaluate(() => JSON.parse(localStorage.getItem('myth_auto_v2')));
     assert.equal(saved.round, 2);
 
-    /* 새 판 */
+    /* 새 판 — 대신 두기와 같은 줄에 붙어 있지 않고(자주 누르는 단추 곁에서 판을 버리지 않게), 누르면 되돌리기 띠가 뜬다 */
+    assert.equal(await p.locator('.at-tools #at-new').count(), 0, '새 판은 대신 두기 곁에 없다');
+    { const [x, y] = await Promise.all(['#at-new', '#at-auto'].map(s => p.locator(s).boundingBox()));
+      assert(Math.abs(x.y - y.y) > 200, '새 판과 대신 두기는 멀리 떨어져 있다: ' + Math.round(x.y) + ' / ' + Math.round(y.y)); }
     await p.locator('#at-new').click();
     await p.waitForFunction(() => document.querySelector('.at-round') && document.querySelector('.at-round').innerText.startsWith('1라운드'));
+    assert((await p.locator('.undo-toast').innerText()).includes('라운드 2'), '버린 판의 라운드를 알린다');
+    await p.locator('.undo-toast-act').click();
+    await p.waitForFunction(() => document.querySelector('.at-round') && document.querySelector('.at-round').innerText.startsWith('2라운드'));
+    assert.equal(await p.locator('.undo-toast').count(), 0, '되돌리면 띠가 닫힌다');
+    assert.equal((await p.evaluate(() => JSON.parse(localStorage.getItem('myth_auto_v2')))).round, 2, '되돌린 판이 저장된다');
+    /* 다시 새 판 — 이번엔 되돌리지 않는다. 다른 수를 두면 띠가 사라지고 새 판이 남는다 */
+    await p.locator('#at-new').click();
+    await p.waitForFunction(() => document.querySelector('.at-round') && document.querySelector('.at-round').innerText.startsWith('1라운드'));
+    await p.waitForSelector('.undo-toast');
+    await p.locator('#at-reroll').click();
+    await p.waitForFunction(() => !document.querySelector('.undo-toast'));
+    assert.equal((await p.evaluate(() => JSON.parse(localStorage.getItem('myth_auto_v2')))).round, 1, '새 판이 남는다');
 
     /* 휴대폰 — 가로로 안 넘친다 */
     await p.setViewportSize(FOLD.cover);
@@ -140,6 +155,6 @@ const A = require('../lib/auto.js');
     assert.deepEqual(a.errors, []);
     assert.deepEqual(await p.evaluate(() => window.AtelierWords.missing()), [], '낱말 표에 없는 열쇠');
     await a.close();
-    console.log('PASS 오토 배틀 화면: 상점·사기·놓기·팔기·다시 돌리기·대신 두기·싸움·다음·저장·새 판·휴대폰');
+    console.log('PASS 오토 배틀 화면: 상점·사기·놓기·팔기·다시 돌리기·대신 두기·싸움·다음·저장·새 판과 되돌리기·휴대폰');
   } finally { await harness.stop(); }
 })().catch(e => { console.error(e); process.exit(1); });

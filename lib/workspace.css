@@ -414,6 +414,13 @@ html:has(.dex-page) {height:100%;overflow:hidden;overscroll-behavior:none}
 .patch-entry strong {display:block;margin:7px 0 6px;font-size:14px;letter-spacing:-.02em;font-weight:650}
 .patch-entry ul {margin:0;padding-left:17px;color:var(--muted);font-size:12.5px;line-height:1.75}
 @media (max-width:599px) { .patch-panel {padding:15px} .patch-list {max-height:60vh} }
+/* 되돌리기 띠 — 버린 것을 잠깐 되살릴 수 있다. 바닥 바(오토 배틀)와 겹치지 않게 위에 뜬다 */
+.undo-toast {position:fixed;left:50%;top:calc(12px + env(safe-area-inset-top));z-index:80;transform:translateX(-50%);display:flex;align-items:center;gap:10px;width:max-content;max-width:calc(100vw - 32px);padding:6px 6px 6px 16px;background:var(--card);color:var(--text);border:1px solid var(--gold);border-radius:8px;box-shadow:0 12px 32px #000a;font-size:13px;line-height:1.4}
+.undo-toast span {min-width:0;overflow-wrap:anywhere;word-break:keep-all}
+.undo-toast button {flex:none;min-height:44px;padding:0 14px;border:1px solid var(--line);border-radius:6px;background:var(--card2);color:var(--text);font:inherit;font-weight:700}
+.undo-toast .undo-toast-act {border-color:var(--gold);color:var(--gold)}
+.undo-toast .undo-toast-close {min-width:44px;padding:0;color:var(--muted);font-size:18px}
+.undo-toast button:hover {border-color:var(--accent)}
 .lab-links {display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px 0 36px}
 .lab-link {position:relative;padding:28px;background:linear-gradient(180deg,var(--card),var(--deck));border:1px solid var(--line);border-top:2px solid var(--gold);border-radius:8px;color:var(--text);text-decoration:none;box-shadow:var(--shadow)}
 .lab-link::before,.lab-link::after,.theme-card::before,.theme-card::after {content:'';position:absolute;width:14px;height:14px;border:1px solid var(--gold);pointer-events:none;opacity:.8}

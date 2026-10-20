@@ -8,6 +8,15 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-10-20 · claude · 판 버리기·신전 비우기에 되돌리기
+
+- auto.html — 「새 판」을 「대신 두기」 곁(머리띠)에서 상점 아래 맨 끝 줄로 옮겼다. 누르면 판을 버리되 위에 되돌리기 띠가 열 초 뜬다. 다른 수를 두면 띠가 사라진다
+- dex.html — 「{신전} 비우기」도 같은 되돌리기 띠. 내린 자루 수를 알리고, 단추가 막혀 포커스를 잃으면 띠의 되돌리기가 받는다
+- lib/workspace-ui.js · lib/workspace.css — 되돌리기 띠(UndoToast). 손이 올라가 있거나 포커스가 안에 있으면 시간이 멈춘다
+- lib/words.js — ui.undo · ui.undo.dismiss · auto.new.done · dex.hall.cleared
+- index·draft·duel·museum·prompt·run.html — 공용 파일 셋의 캐시 번호만 올렸다(?v=myth14 · myth35 · myth43)
+- tests/auto-screen.cjs · tests/hall-screen.cjs — 새 판이 대신 두기와 떨어져 있나, 되돌리면 판·모신 무기가 돌아오나, 닫으면 그대로인가
+
 ## 2026-10-20 · claude · 화면 다듬기 스킬 둘
 
 - .claude/skills/frontend-design/ — 화면을 새로 만들거나 손볼 때 흔한 기본값을 피하고 주제에 맞는 색·서체·배치를 정하게 하는 지침. anthropics/skills 의 것을 그대로(Apache 2.0, LICENSE.txt 같이)

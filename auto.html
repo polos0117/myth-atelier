@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap">
-<link rel="stylesheet" href="lib/workspace.css?v=myth34">
+<link rel="stylesheet" href="lib/workspace.css?v=myth35">
 <style>
 :root {--cc:var(--line)}
 * {box-sizing:border-box}
@@ -89,6 +89,7 @@ body {color:var(--text);font-size:15px}
 .at-myth:disabled {opacity:1;cursor:default}
 .at-myth:disabled:not(.on) {opacity:.4}
 .at-myth-n {font:700 11px ui-monospace,monospace;color:var(--muted)}
+.at-restart {display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:8px 12px;margin:20px 0 0;padding-top:12px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
 .at-pick {display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 0;padding:8px 10px;background:var(--accent-soft);border-radius:9px;font-size:12px}
 .at-pick .at-btn {margin-left:auto}
 /* 카드 정보 — 판·벤치·상대·상점의 무기를 누르면. 별만큼 오른 체력·공격, 기술, 저주, 켜는 시너지 */
@@ -190,7 +191,7 @@ body {color:var(--text);font-size:15px}
 }
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
-<script src="lib/words.js?v=myth42"></script>
+<script src="lib/words.js?v=myth43"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth6"></script>
 <script src="lib/auto.js?v=13"></script>
@@ -201,15 +202,16 @@ body {color:var(--text);font-size:15px}
 import { h, render } from 'https://esm.sh/preact@10.24.3';
 import { useState, useEffect, useMemo } from 'https://esm.sh/preact@10.24.3/hooks';
 import htm from 'https://esm.sh/htm@3.1.1';
-import { WorkspaceHeader } from './lib/workspace-ui.js?v=myth13';
+import { WorkspaceHeader, UndoToast } from './lib/workspace-ui.js?v=myth14';
 const html = htm.bind(h);
 const W = window.W, IMG = window.AtelierImg, A = window.AtelierAuto;
 const STORE = 'myth_auto_v2', V = 'f';
 
-function Shell({ children }) {
+function Shell({ children, toast }) {
   return html`<main>
     <${WorkspaceHeader} page="auto" />
     <div class="collection-scroll" tabindex="0">${children}</div>
+    ${toast}
   </main>`;
 }
 function useData() {
@@ -368,7 +370,7 @@ function Lobby({ st, data, group, img, oppId, scout, setScout, onInfo }) {
     </div>`}`;
 }
 
-function Plan({ st, data, group, img, act }) {
+function Plan({ st, data, group, img, act, onRestart }) {
   const [pick, setPick] = useState(null);   /* 고른 유닛 id */
   const [why, setWhy] = useState('');
   const [scout, setScout] = useState(null);
@@ -387,6 +389,7 @@ function Plan({ st, data, group, img, act }) {
     if (u) { setPick(u.id); setInfo(null); }
   };
   const showInfo = x => { setPick(null); setInfo(x); };
+  /* 새 판(onRestart)은 판을 통째로 버린다 — 자주 누르는 대신 두기·싸운다와 떨어진 맨 아래에 두고, 누른 뒤에는 되돌리기 띠가 뜬다 */
   /* 정보가 볼 판 — 내 무기면 내 판, 남의 무기면 그 사람의 판으로 시너지를 센다 */
   const infoUnits = x => x && x.who != null && x.who !== 0 ? (x.who === 'enemy' ? e.units : A.boardUnits(A.playerOf(st, x.who))) : A.boardUnits(st);
   const e = st.enemy, opp = e && e.who != null ? A.playerOf(st, e.who) : null;
@@ -397,7 +400,6 @@ function Plan({ st, data, group, img, act }) {
       <span>${W('auto.income', { n: A.income(st.gold, st.streak) })}${streak ? ' · ' + streak : ''}</span>
       <span class="at-tools">
         <button class="at-btn" id="at-auto" title=${W('auto.autoplan.note')} onClick=${() => { act('autoplan'); setPick(null); }}>${W('auto.autoplan')}</button>
-        <button class="at-btn" id="at-new" title=${W('auto.new.note')} onClick=${() => act('new')}>${W('auto.new')}</button>
       </span>
     </div>
 
@@ -442,7 +444,9 @@ function Plan({ st, data, group, img, act }) {
 
     ${info && info.who === 'shop' && html`<${CardInfo} data=${data} group=${group} name=${info.name} star=1 units=${A.boardUnits(st)} onClose=${() => setInfo(null)} />`}
 
-    <p class="note help">${W('auto.fight.note')} ${W('auto.saved')}</p>
+    <p class="note help">${W('auto.fight.note')}</p>
+    <p class="at-restart"><span>${W('auto.saved')}</span>
+      <button class="at-btn" id="at-new" onClick=${onRestart}>${W('auto.new')}</button></p>
     <div class="at-dock">
       <div class="at-strip">
       <span class="at-round">${W('auto.round', { n: st.round })}<b>${st.pve ? W('auto.round.pve') : W('auto.round.pvp')}</b></span>
@@ -546,6 +550,7 @@ function Result({ st, data, group, img, act }) {
 function App() {
   const loaded = useData();
   const [st, setSt] = useState(load);
+  const [undo, setUndo] = useState(null);   /* 새 판 바로 뒤 — 버린 판 {prev, key} */
   useEffect(() => { if (loaded && loaded.data && !st) setSt(A.newGame(loaded.data, seed())); }, [loaded]);
   if (!loaded) return html`<${Shell}><p class="empty">${W('ui.loading')}</p><//>`;
   if (loaded.error) return html`<${Shell}><p class="empty">${W('ui.error', { message: loaded.error })}</p><//>`;
@@ -563,12 +568,16 @@ function App() {
     if (what === 'next') r = A.next(next, data);
     if (what === 'autoplan') A.autoPlan(next, data);
     if (what === 'myths') r = A.setMyths(next, data, args[0]);
-    if (r.ok) { save(next); setSt(next); }
+    if (r.ok) { save(next); setSt(next); if (undo) setUndo(null); }
     return r;
   };
-  return html`<${Shell}>
+  /* 진행 중인 판을 버린다 — 바로 버리되 열 초 동안 되돌릴 수 있다. 다른 수를 두면 되돌리기는 사라진다 */
+  const restart = () => { const prev = st; act('new'); setUndo({ prev, key: Date.now() }); };
+  const toast = undo && html`<${UndoToast} key=${undo.key} text=${W('auto.new.done', { n: undo.prev.round })}
+    onUndo=${() => { save(undo.prev); setSt(undo.prev); setUndo(null); }} onDone=${() => setUndo(null)} />`;
+  return html`<${Shell} toast=${toast}>
     ${st.phase === 'plan'
-      ? html`<${Plan} key=${'p' + st.round} st=${st} data=${data} group=${group} img=${img} act=${act} />`
+      ? html`<${Plan} key=${'p' + st.round} st=${st} data=${data} group=${group} img=${img} act=${act} onRestart=${restart} />`
       : html`<${Result} st=${st} data=${data} group=${group} img=${img} act=${act} />`}
   <//>`;
 }
