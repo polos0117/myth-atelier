@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap">
-<link rel="stylesheet" href="lib/workspace.css?v=myth35">
+<link rel="stylesheet" href="lib/workspace.css?v=myth36">
 <style>
 :root {--cc:var(--line)}
 * {box-sizing:border-box}
@@ -29,7 +29,7 @@ body {color:var(--text);font-size:15px}
 .du-btn.primary {background:var(--accent);color:var(--on-accent);border-color:var(--accent);min-height:46px;font-size:14px}
 :is([data-theme="daylight"],[data-theme="blossom"],[data-theme="sand"]) .du-btn.primary {color:#fff}
 .du-btn:disabled {opacity:.45;cursor:default}
-.sec {margin:16px 0 8px;font:700 11px/1.6 ui-monospace,monospace;letter-spacing:.1em;color:var(--accent);display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.sec {margin:16px 0 8px;font:700 12px/1.6 var(--display);font-variant-numeric:tabular-nums;color:var(--accent);display:flex;align-items:center;flex-wrap:wrap;gap:8px}
 .sec span {color:var(--muted);font-weight:400;letter-spacing:0}
 .note {margin:6px 0 10px;color:var(--muted);font-size:12px;line-height:1.6;word-break:keep-all}
 /* 첫 고르기 — 열한 권 */
@@ -336,7 +336,7 @@ body {color:var(--text);font-size:15px}
 .du-head .du-gold {color:var(--gold)}
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
-<script src="lib/words.js?v=myth43"></script>
+<script src="lib/words.js?v=myth44"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth6"></script>
 <script src="lib/duel.js?v=1"></script>
@@ -347,7 +347,7 @@ body {color:var(--text);font-size:15px}
 import { h, render } from 'https://esm.sh/preact@10.24.3';
 import { useState, useEffect, useLayoutEffect, useMemo, useRef } from 'https://esm.sh/preact@10.24.3/hooks';
 import htm from 'https://esm.sh/htm@3.1.1';
-import { WorkspaceHeader } from './lib/workspace-ui.js?v=myth14';
+import { WorkspaceHeader } from './lib/workspace-ui.js?v=myth15';
 import { modalFocus } from './lib/gallery.js?v=1';
 const html = htm.bind(h);
 const W = window.W, IMG = window.AtelierImg, A = window.AtelierDuel;

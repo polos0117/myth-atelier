@@ -38,6 +38,7 @@ assert.equal(new Set(shapes).size,themes.length,'distinct motifs for every templ
 assert(!/#[0-9a-f]{3,6}/i.test(marks),'motifs inherit palette colors');
 assert(!/지구연방|네오지온|소레스탈|철화단|모노아이|CREATIVE DECK/.test(ui));
 assert(!css.includes("content:'DAYLIGHT"),'theme labels are not CSS content');
-assert(ui.includes("W('workspace.signature')"));
+assert(ui.includes("W('theme.' + theme)"),'crest name comes from the word table');
+assert(!/class:'eyebrow'/.test(ui),'no eyebrow label above the page title');
 assert(viewportEvents.has('resize'));assert(events.has('storage'));
 console.log('PASS: '+themes.length+' armory themes, persistent keys, palette previews, browser chrome and viewport sizing');

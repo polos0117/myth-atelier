@@ -97,6 +97,10 @@ for (const p of TABLES) {
   }
 }
 
+/* 한국어 화면의 장식 표 — 영문 대문자 라벨(MYTHIC ARMS × ATELIER)과 차례가 아닌데 붙인 번호(01 / CODEX)는 두지 않는다 */
+const chrome = Object.entries(AW.table).filter(([, v]) => typeof v === 'string' && ((/[A-Z]{3,}/.test(v) && !/[가-힣]/.test(v)) || /^\d{2} \//.test(v)));
+assert.deepEqual(chrome, [], '영문 대문자·번호 장식 라벨: ' + chrome.map(([k, v]) => k + '=' + v).join(', '));
+
 /* 정적 <title> 은 낱말 표와 갈리면 안 된다 */
 for (const p of targets.filter(x => x.endsWith('.html'))) {
   const m = fs.readFileSync(p, 'utf8').match(/<title>([^<]*)<\/title>/);

@@ -8,6 +8,14 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-10-20 · claude · 영문 대문자 장식·번호 라벨·한글 자간·모노 라벨 걷기
+
+- lib/words.js — app.brand(MYTHIC ARMS × ATELIER)·app.code(MYTH / 001)·workspace.signature(ARMORY OF LEGENDS)·gallery.kicker·home.*.code(01 / CODEX … 06 / STUDIO)를 지웠다. 한국어 화면에 정보가 없는 장식이었고, 공방 바로가기는 차례가 아닌데 번호가 붙어 있었다
+- lib/workspace-ui.js · index.html · dex.html — 제목 위 영문 줄, 문장 옆 영문 서명, 바로가기 번호, 도감 머리의 영문 kicker 를 뺐다
+- lib/workspace.css · lib/gallery.css — 한글 라벨(신전 이름·신화권·항해·홀·던전·드래프트 머리)에 주던 .08~.28em 자간과 대문자 변환을 걷었다. 모노스페이스 라벨 23곳은 본문 글꼴(--face)에 같은 폭 숫자로, 홀 카드 이름은 명조에 낱말 단위 줄바꿈
+- auto.html · dex.html · duel.html — 구역 머리(.sec)도 모노·자간 대신 명조. 체력·금 같은 화면 안 숫자 칸의 모노는 그대로 두었다
+- tests/words.cjs · tests/workspace-theme.cjs — 낱말 표에 영문 대문자·번호 장식 라벨이 다시 생기면, 제목 위 eyebrow 가 돌아오면 실패
+
 ## 2026-10-20 · claude · 결투·박물관 창을 진짜 창으로
 
 - duel.html — 카드 상세·진영 능력·규칙(판 위의 ?) 셋을 창(Modal)으로. aria-modal, 열면 포커스가 닫기로 가고 Tab 은 창 안을 돌며, Esc·어두운 막 누르기로 닫히면 연 단추로 돌아간다(lib/gallery.js 의 modalFocus). 시트에 overscroll-behavior:contain. 로비의 「배우기」 규칙은 그 자리에 펼친 그대로

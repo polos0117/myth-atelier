@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap">
-<link rel="stylesheet" href="lib/workspace.css?v=myth35">
+<link rel="stylesheet" href="lib/workspace.css?v=myth36">
 <style>
 :root {--cc:var(--line)}
 * {box-sizing:border-box}
@@ -43,7 +43,7 @@ body {color:var(--text);font-size:15px}
 .at-btn.primary {background:var(--accent);color:var(--on-accent);border-color:var(--accent);min-height:46px;font-size:14px}
 :is([data-theme="daylight"],[data-theme="blossom"],[data-theme="sand"]) .at-btn.primary {color:#fff}
 .at-btn:disabled {opacity:.45}
-.sec {margin:16px 0 8px;font:700 11px/1.6 ui-monospace,monospace;letter-spacing:.1em;color:var(--accent);display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.sec {margin:16px 0 8px;font:700 12px/1.6 var(--display);font-variant-numeric:tabular-nums;color:var(--accent);display:flex;align-items:center;flex-wrap:wrap;gap:8px}
 .sec span {color:var(--muted);font-weight:400;letter-spacing:0}
 .note {margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.6;word-break:keep-all}
 /* 판 — 두 줄 세 칸. 상대 판은 뒷줄이 위, 내 판은 앞줄이 위라 마주 본다 */
@@ -191,7 +191,7 @@ body {color:var(--text);font-size:15px}
 }
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
-<script src="lib/words.js?v=myth43"></script>
+<script src="lib/words.js?v=myth44"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth6"></script>
 <script src="lib/auto.js?v=13"></script>
@@ -202,7 +202,7 @@ body {color:var(--text);font-size:15px}
 import { h, render } from 'https://esm.sh/preact@10.24.3';
 import { useState, useEffect, useMemo } from 'https://esm.sh/preact@10.24.3/hooks';
 import htm from 'https://esm.sh/htm@3.1.1';
-import { WorkspaceHeader, UndoToast } from './lib/workspace-ui.js?v=myth14';
+import { WorkspaceHeader, UndoToast } from './lib/workspace-ui.js?v=myth15';
 const html = htm.bind(h);
 const W = window.W, IMG = window.AtelierImg, A = window.AtelierAuto;
 const STORE = 'myth_auto_v2', V = 'f';
