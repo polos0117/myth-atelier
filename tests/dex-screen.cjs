@@ -21,14 +21,18 @@ const IMG = { img: {
     assert((await p.locator('.dex-view-row .sec span').innerText()).includes(N + '자루'));
 
     /* 거르기 — 신화권·종류·값·그림 유무·검색 */
+    if (!(await p.locator('.dex-filters').evaluate(e => e.open))) await p.locator('.dex-filters summary').click();
     await p.selectOption('#dex-myth', 'norse');
     assert.equal(await p.locator('.grid .cell').count(), card.cards.filter(c => c.myth === 'norse').length);
+    if (!(await p.locator('.dex-filters').evaluate(e => e.open))) await p.locator('.dex-filters summary').click();
     await p.selectOption('#dex-kind', 'sword');
     assert.equal(await p.locator('.grid .cell').count(), card.cards.filter(c => c.myth === 'norse' && c.kind === 'sword').length);
     await p.click('#dex-reset');
     assert.equal(await p.locator('.grid .cell').count(), N, '초기화');
+    if (!(await p.locator('.dex-filters').evaluate(e => e.open))) await p.locator('.dex-filters summary').click();
     await p.selectOption('#dex-art', 'yes');
     assert.deepEqual((await p.locator('.grid .cell').evaluateAll(es => es.map(e => e.dataset.card))).sort(), ['묠니르', '아이기스']);
+    if (!(await p.locator('.dex-filters').evaluate(e => e.open))) await p.locator('.dex-filters summary').click();
     await p.selectOption('#dex-style', 'cel_anime');
     assert.deepEqual(await p.locator('.grid .cell').evaluateAll(es => es.map(e => e.dataset.card)), ['아이기스'], '화풍으로 거르면 그 화풍 그림만');
     await p.click('#dex-reset');
@@ -38,8 +42,10 @@ const IMG = { img: {
     /* 스킨 — 자료에 스킨이 있는 것, 그중 스킨 그림까지 있는 것. 스킨 이름으로도 찾는다 */
     await p.click('#dex-reset');
     const skinned = card.cards.filter(c => (c.skins || []).length).map(c => c.name).sort();
+    if (!(await p.locator('.dex-filters').evaluate(e => e.open))) await p.locator('.dex-filters summary').click();
     await p.selectOption('#dex-skin', 'yes');
     assert.deepEqual((await p.locator('.grid .cell').evaluateAll(es => es.map(e => e.dataset.card))).sort(), skinned, '스킨 있는 것');
+    if (!(await p.locator('.dex-filters').evaluate(e => e.open))) await p.locator('.dex-filters summary').click();
     await p.selectOption('#dex-skin', 'art');
     assert.deepEqual(await p.locator('.grid .cell').evaluateAll(es => es.map(e => e.dataset.card)), ['티르핑'], '스킨 그림까지 있는 것');
     await p.click('#dex-reset');
@@ -50,6 +56,7 @@ const IMG = { img: {
     await p.click('#dex-reset');
 
     /* 거른 조건은 브라우저에 남는다 */
+    if (!(await p.locator('.dex-filters').evaluate(e => e.open))) await p.locator('.dex-filters summary').click();
     await p.selectOption('#dex-cost', '5');
     /* 저장은 그린 뒤(useEffect)에 되므로 다시 그려진 것을 보고 나서 새로고침한다 */
     await p.waitForFunction(n => document.querySelectorAll('.grid .cell').length === n, card.cards.filter(c => c.cost === 5).length);
@@ -156,6 +163,7 @@ const IMG = { img: {
     await titleIs('티르핑');
     /* 거르기를 따른다 — 그리스만 보이면 아이기스 하나뿐이라 넘길 무기가 없다 */
     await p.click('.back'); await p.waitForSelector('.grid .cell');
+    if (!(await p.locator('.dex-filters').evaluate(e => e.open))) await p.locator('.dex-filters summary').click();
     await p.selectOption('#dex-myth', 'greek'); await p.click('.grid .cell[data-card="아이기스"]'); await titleIs('아이기스');
     assert.equal(await p.locator('.card-nav .card-count').innerText(), '무기 1 / 1', '거른 목록 안에서만');
     assert(await p.locator('#dex-card-prev').isDisabled() && await p.locator('#dex-card-next').isDisabled());
@@ -212,7 +220,8 @@ const IMG = { img: {
       await q.waitForTimeout(300); await q.tap('.big .zoom'); await q.waitForSelector('.zoom-layer', { timeout: 3000 });
       /* 무기를 넘겨도 굴린 자리가 남는다 — 맨 위로 튀면 휴대폰에서 무기 줄이 화면 밖으로 밀려난다 */
       await q.tap('.zoom-close'); await q.waitForFunction(() => !document.querySelector('.zoom-layer'));
-      await q.locator('.card-nav').scrollIntoViewIfNeeded();
+      await q.locator('.card-nav').evaluate(e => e.scrollIntoView({ block: 'center' }));
+      await q.waitForTimeout(150);
       const navY = () => q.evaluate(() => Math.round(document.querySelector('.card-nav').getBoundingClientRect().top));
       const before = await navY();
       assert(await q.evaluate(() => document.querySelector('.collection-scroll').scrollTop) > 0, '무기 줄까지 굴렸다');

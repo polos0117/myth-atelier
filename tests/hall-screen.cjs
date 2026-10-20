@@ -28,7 +28,12 @@ const drawn = new Set(Object.keys(img).filter(n => Object.values(img[n].byStyle 
 
     /* 도감에서 모신다 */
     await p.goto(harness.base + '/dex.html'); await p.waitForSelector('.grid .cell');
-    const bare = cards.find(c => !drawn.has(c.name)).name;   /* 아직 그림이 없는 무기 — 이름표로 선다 */
+    const bare = (cards.find(c => !drawn.has(c.name)) || cards[cards.length - 1]).name;
+    if (drawn.has(bare)) {
+      const fixture = JSON.parse(JSON.stringify({ img })); delete fixture.img[bare];
+      await p.route('**/data/img.json', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify(fixture) }));
+      await p.reload(); await p.waitForSelector('.grid .cell');
+    }   /* 아직 그림이 없는 무기 — 이름표로 선다 */
     const pick = ['묠니르', '티르핑', bare];
     for (const n of pick) {
       await p.click('.grid .cell[data-card="' + n + '"]'); await p.waitForSelector('[data-hall]');
@@ -38,7 +43,7 @@ const drawn = new Set(Object.keys(img).filter(n => Object.values(img[n].byStyle 
       await p.click('.back'); await p.waitForSelector('.grid .cell');
     }
     assert.equal(await p.locator('.grid .cell.hall-on').count(), 3, '목록에 표시');
-    assert((await p.locator('.dex-hall').innerText()).includes('만신전 3 / 12'), '만신전 3 / 12');
+    assert((await p.locator('.dex-hall').textContent()).includes('만신전 3 / 12'), '만신전 3 / 12');
     /* 다른 신전은 따로 — 발할라의 밤에는 아직 아무것도 없다 */
     await p.evaluate(() => window.AtelierAppearance.set('theme', 'midnight'));
     await p.waitForFunction(() => document.querySelector('.dex-hall').textContent.includes('발할라'));
@@ -64,6 +69,7 @@ const drawn = new Set(Object.keys(img).filter(n => Object.values(img[n].byStyle 
     assert(await p.locator('[data-hall]').isDisabled(), '열둘이 차면 못 모신다');
     await p.click('.back'); await p.waitForSelector('.grid .cell');
     /* 비우기 */
+    await p.locator('.dex-filters summary').click();
     await p.click('#dex-hall-clear');
     assert.deepEqual(JSON.parse(await p.evaluate(() => localStorage.getItem('myth_hall_v1'))).pantheon, [], '비웠다');
     await p.waitForFunction(() => document.querySelector('#dex-hall-clear').disabled);
