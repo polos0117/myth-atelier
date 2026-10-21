@@ -345,6 +345,7 @@ body {color:var(--text);font-size:15px}
 <script src="lib/words.js?v=myth45"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/today.js?v=1"></script>
+<script src="lib/speech.js?v=1"></script>
 <script src="lib/img.js?v=myth6"></script>
 <script src="lib/duel.js?v=1"></script>
 </head>
@@ -360,6 +361,7 @@ const html = htm.bind(h);
 const W = window.W, IMG = window.AtelierImg, A = window.AtelierDuel;
 const STORE = 'myth_duel_v1';
 const T = window.AtelierToday, ROOM = 'myth';   /* 오늘 기록 — 공방 지도의 방 열쇠(lib/today.js) */
+const SP = window.AtelierSpeech;
 /* 오늘의 주인 — 날짜 씨앗으로 열한 주인 가운데 하나 */
 function dailyBoss(data) { const bs = data.duel.bosses; return bs[T.seed(ROOM) % bs.length]; }
 
@@ -875,6 +877,13 @@ function App() {
     /* 오늘 기록 한 칸 — 공방 지도가 읽어 대장간에 불을 켠다 */
     T.bump(ROOM, { won: !!(m.outcome && m.outcome.result === 'win'), daily: !!m.daily });
   }, [match, data]);
+  /* 말풍선 — 판에 들어온 무기가 제 글(card.json 의 text)을 한마디. 내 것도 상대 것도. 그린 뒤에 자리를 찾는다 */
+  useEffect(() => {
+    const l = match && match.last; if (!SP || !data || !l || l.kind !== 'play' || !l.id) return;
+    const c = A.cardsOf(data).cards[l.id]; if (!c || !c.text) return;
+    const t = setTimeout(() => { const el = document.querySelector(`.du-unit[data-id="${l.id}"]`) || document.querySelector(`.du-row[data-side="${l.who}"]`); if (el) SP.say(el, c.text, { who: l.who }); }, 60);
+    return () => clearTimeout(t);
+  }, [((match && match.played) || []).length]);   /* 옛 저장엔 played 가 없을 수 있다 */
   /* 다녀간 자국. 지도에서 ?daily 로 왔고 덱이 갖춰졌으면 바로 오늘의 판 */
   useEffect(() => { if (!data) return; T.visit(ROOM); if (T.isDaily() && profile && !match && A.validateDeck(data, profile).ok) onDaily(); }, [data]);
   if (!loaded) return html`<${Shell}><p class="empty">${W('ui.loading')}</p><//>`;

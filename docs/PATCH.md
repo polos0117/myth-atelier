@@ -8,6 +8,12 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-10-21 · claude · 말풍선 — 판에 들어온 무기가 제 글을 한마디
+
+- lib/speech.js — 새 파일(원본은 지도 저장소 speech.js, 다섯 저장소에 같은 파일). 요소 위에 꼬리 달린 풍선 — 둘까지, 글 길이만큼, 움직임 줄이기면 애니메이션 없이. 화면 말 없음
+- duel.html — 카드를 내면(내 것도 상대 것도) card.json 의 text 가 그 카드 위 풍선으로. 옛 저장엔 played 가 없을 수 있어 비어도 돈다
+- tests/duel-screen.cjs — 타격 카드를 내면 그 글이 풍선으로
+
 ## 2026-10-21 · claude · 결투 「오늘의 판」과 오늘 기록 — 공방 지도가 읽는 칸
 
 - lib/today.js — 새 파일. 다섯 공방이 한 출처(polos0117.github.io)라 localStorage 를 같이 쓴다: 판이 끝나면 atelier_today_v1:myth 에 {d, n, w, daily, at, seen} 한 칸(bump), 다녀가면 seen(visit), 날짜 씨앗(seed), ?daily(isDaily). 모양의 약속은 지도 저장소 README 「오늘 기록」절, 다섯 저장소에 같은 파일

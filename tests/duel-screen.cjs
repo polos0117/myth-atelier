@@ -184,6 +184,8 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
     assert.equal(await p.locator('.du-hand .du-card').count(), hand, '같은 손패');
     /* 타격 카드 — 날아가 선 뒤 상대 가장 센 비영웅에 베는 선이 그어진다. 그 다음부터는 움직임을 끈다 */
     await p.locator('.du-hand .du-card[data-id="' + hit + '"]').first().click(); await p.waitForSelector('#du-play:not(:disabled)'); await p.locator('#du-play').click();
+    await p.waitForSelector('.atelier-speech[data-who="me"]');
+    assert.equal(await p.locator('.atelier-speech[data-who="me"]').textContent(), D.cards[hit].text, '판에 들어온 무기가 제 글을 한다(말풍선)');
     await p.waitForSelector('.du-row[data-side="me"] .du-unit[data-id="' + hit + '"]');
     await p.waitForSelector('.du-slash', { timeout: 2500 });
     await p.emulateMedia({ reducedMotion: 'reduce' });
