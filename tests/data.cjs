@@ -80,6 +80,18 @@ for (const [name, e] of Object.entries(img.img || {})) {
     for (const slot of Object.keys(b)) assert(['m', 'f', 'awaken', 'cursed', 'casual', 'extra', 'skin'].includes(slot), name + '/' + k + ' 의 칸 ' + slot);
   }
 }
+/* 들어온 날(added) — {파일 이름: "YYYY-MM-DD"}. img.json 이 가리키는 파일 몫만, 진짜 날짜만(도감의 최근 추가·새 표시가 읽는다) */
+{
+  const listed = new Set();
+  const walk = v => { if (typeof v === 'string') listed.add(v); else if (v && typeof v === 'object') Object.values(v).forEach(walk); };
+  walk(img.img || {});
+  const added = img.added || {};
+  assert(added && typeof added === 'object' && !Array.isArray(added), 'img.json 의 added 는 {파일: 날짜}');
+  for (const [f, d] of Object.entries(added)) {
+    assert(listed.has(f), 'added 의 ' + f + ' 는 img.json 이 가리키는 파일이 아니다');
+    assert(/^\d{4}-\d{2}-\d{2}$/.test(d) && !isNaN(Date.parse(d + 'T00:00:00Z')), 'added 의 ' + f + ' 날짜 ' + d);
+  }
+}
 /* 스킨 — 열쇠는 영문 소문자·숫자, 카드 안에서 겹치지 않고, 이름·묘사가 있다. img.json 의 스킨은 적힌 열쇠만 */
 let skinN = 0;
 for (const c of cards) {

@@ -19,10 +19,19 @@
     python3 tools/register-images.py            # data/img.json 에 없는 것을 더한다
     python3 tools/register-images.py --check    # 쓰지 않고 무엇이 달라지는지만 본다
     python3 tools/register-images.py --prune    # 파일이 사라진 항목도 지운다
+    python3 tools/register-images.py --backfill ../myth-atelier-img --ref origin/main
+                                                # 날짜 없는 파일에 그림 저장소 git 기록의 추가 날짜를 채운다
+
+들어온 날 — data/img.json 의 added 는 {파일 이름: "YYYY-MM-DD"} 다. 도감의 "최근 추가"와 "새" 표시가 읽는다.
+이번에 새로 등록한 파일만 오늘 날짜를 받고, 이미 적힌 날짜는 그대로 둔다. 날짜를 지어내지 않는다 —
+이미 등록돼 있던 파일에 날짜가 없으면 --backfill 로 그림 저장소의 git 기록에서만 채운다.
+얕게 받은 저장소(shallow)는 경계 커밋이 파일 전부를 "추가"한 것처럼 보이므로 그 커밋의 날짜는 버린다.
 """
 import argparse
+import datetime
 import os
 import re
+import subprocess
 
 import roster
 
@@ -113,11 +122,47 @@ def listed_files(img):
     return out
 
 
+DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+
+def git_added(repo, ref="HEAD"):
+    """{파일 이름: 그 이름이 img/ 에 들어온 커밋 날짜(%cs)}. 같은 이름이 여러 번 들어왔으면 가장 나중 것.
+    파일마다 `git log --diff-filter=A --format=%cs -- img/<파일>` 을 돌린 것과 같다 — 이름 바꾸기도
+    새로 들어온 것으로 본다(--no-renames). 얕은 저장소의 경계 커밋은 버린다."""
+    git = ["git", "-C", repo]
+    shallow = set()
+    sp = subprocess.run(git + ["rev-parse", "--git-path", "shallow"], capture_output=True, text=True, check=True).stdout.strip()
+    sp = sp if os.path.isabs(sp) else os.path.join(repo, sp)
+    if os.path.isfile(sp):
+        shallow = {x.strip() for x in open(sp, encoding="utf-8") if x.strip()}
+    out = subprocess.run(git + ["-c", "core.quotepath=off", "log", ref, "--no-renames", "--diff-filter=A",
+                                "--format=%x01%H %cs", "--name-only", "--", IMG_DIR + "/"],
+                         capture_output=True, text=True, check=True, encoding="utf-8").stdout
+    dates = {}
+    for chunk in out.split("\x01")[1:]:
+        lines = chunk.strip("\n").split("\n")
+        sha, day = lines[0].split()
+        if sha in shallow:
+            continue
+        for path in lines[1:]:
+            path = path.strip()
+            if not path.startswith(IMG_DIR + "/") or "/" in path[len(IMG_DIR) + 1:]:
+                continue
+            dates.setdefault(path[len(IMG_DIR) + 1:], day)   # log 는 새것부터 — 처음 본 것이 가장 나중
+    return dates
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--prune", action="store_true", help="파일이 없어진 항목을 지운다")
+    ap.add_argument("--backfill", metavar="REPO", help="날짜 없는 파일을 이 그림 저장소의 git 기록으로 채운다")
+    ap.add_argument("--ref", default="HEAD", help="--backfill 이 읽을 갈래 (기본 HEAD)")
+    ap.add_argument("--today", help=argparse.SUPPRESS)   # 검사용 — 오늘 날짜를 못박는다
     a = ap.parse_args()
+    today = a.today or datetime.date.today().isoformat()
+    if not DATE.match(today):
+        raise SystemExit("--today 는 YYYY-MM-DD 꼴이어야 한다")
 
     doc = roster.read("img")
     img = doc["img"]
@@ -239,6 +284,21 @@ def main():
     tidy(img, styles)
     doc["img"] = dict(sorted(img.items()))
     doc["count"] = len(img)
+
+    # 들어온 날 — 지금 적힌 파일 몫만 남긴다(--prune 으로 지운 것은 날짜도 지운다).
+    # 이번에 등록한 것은 오늘, 이미 있던 날짜는 그대로, 날짜 없는 옛 파일은 --backfill 로만 채운다
+    now = listed_files(img)
+    dates = {f: d for f, d in (doc.get("added") or {}).items() if f in now and DATE.match(str(d))}
+    for _, f in added:
+        dates.setdefault(f, today)
+    filled = 0
+    if a.backfill:
+        for f, d in git_added(a.backfill, a.ref).items():
+            if f in now and f not in dates:
+                dates[f] = d
+                filled += 1
+    doc.pop("added", None)
+    doc["added"] = dict(sorted(dates.items()))
     if not a.check and not unknown:
         roster.write("img", doc)
 
@@ -246,6 +306,7 @@ def main():
           % ("검증 실패·저장 안 함" if unknown else ("대조" if a.check else "완료"),
              len(img), len(listed_files(img))))
     print("  등록 후보 %d%s" % (len(added), " — 오류로 저장 안 함" if unknown else ""))
+    print("  들어온 날 %d / %d%s" % (len(dates), len(now), (" · git 기록에서 %d" % filled) if a.backfill else ""))
     for card, f in added[:20]:
         print("     %-24s %s" % (card, f))
     if ghosts:

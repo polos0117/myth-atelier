@@ -84,6 +84,7 @@ node tests/patch.cjs             # 패치 기록의 모양
 node tests/auto-sim.cjs --quick  # 싸움 규칙 (빼면 균형 표)
 node tests/duel-sim.cjs --quick  # 결투 규칙 (빼면 297판 균형 보고)
 node tests/prompt-engine.cjs     # 프롬프트가 화면 없이 나오나
+node tests/register-images.cjs   # 그림 등록기의 들어온 날(added) — 새 파일만 오늘, git 기록 채우기, 얕은 저장소
 ```
 
 브라우저 검사에는 준비물이 하나 더 있다. 생성기의 체형·헤어 견본 그림은 앞 저장소(atelier)가 Pages 에 올린
@@ -100,6 +101,7 @@ preact·htm·babylonjs 가 든 `node_modules` 경로를, 브라우저는 `CHROMI
 ```bash
 ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/dex-screen.cjs      # 도감 — 거르기·상세·각성
 ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/dex-nav.cjs         # 도감 돌아가기 — 목록 자리·휴대폰 뒤로 가기
+ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/dex-recent.cjs      # 도감 최근 추가 줄·새 표시·새 그림만
 ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/museum-screen.cjs   # 박물관 — 3D 전시실 걷기(babylonjs 도 node_modules 에)
 ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/museum-grow.cjs     # 박물관 — 권·카드가 늘어도 안 겹치나, 관 그림 바꿔 끼우기
 ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/auto-screen.cjs     # 오토 배틀 — 상점·판·라운드

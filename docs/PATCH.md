@@ -8,6 +8,19 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-10-21 · claude · 도감 「최근 추가」 줄과 「새」 표시 — img.json 에 들어온 날
+
+- tools/register-images.py — data/img.json 에 added {파일 이름: "YYYY-MM-DD"}. 이번 실행에 새로 등록한 파일만 오늘 날짜, 이미 적힌 날짜는 그대로, --prune 으로 지운 파일은 날짜도 지운다. 날짜를 지어내지 않는다 — 옛 파일은 --backfill <그림 저장소> --ref <갈래> 로 그 저장소 git 기록의 추가 날짜(--diff-filter=A, %cs)만 채우고, 얕은 저장소의 경계 커밋 날짜는 버린다. 등록·실패 동작은 예전 그대로
+- data/img.json — 한 번 채웠다. 그림 저장소를 --depth=3000 으로 더 받아 보니 얕지 않은 전체 기록(450 커밋)이라 1039장 모두 git 기록의 날짜(2026-09-21~10-06). 머리말 note 에 모양
+- .github/workflows/register-images.yml — 고치지 않았다. 그림 저장소 체크아웃이 얕아(기본 depth 1) CI 에서는 --backfill 없이 새 파일만 오늘(UTC) 날짜를 받는다
+- dex.html — 목록 맨 위(소개 아래)에 「최근 추가」 줄: 오늘까지 7일 안에 든 그림, 새것부터 24장, 누르면 그 무기 상세가 그 컷(각성·일상·스킨…)에서 열린다. 든 것이 없으면 줄이 없다. 거르기와 무관하게 도감 전체의 새것. 줄은 제 안에서만 가로로 구른다
+- dex.html — 「새」 표시: 지난번 다녀간 때 본 자료의 가장 늦은 날짜와 그날 이미 있던 파일을 이 브라우저(myth_dex_seen_v1)에 적어 두고 그 뒤에 든 그림의 목록 칸·줄 칸·상세 컷 단추·특별/일상/스킨 칸에 붙인다. 시계가 아니라 자료 날짜끼리 견주어 시간대가 달라도 안 어긋난다. 처음 오면 없고, 떠날 때(pagehide·숨김) 적으므로 머무는 동안은 그대로. 새 표시가 있으면 「새 그림만」 단추(이 방문 동안만, 조건 초기화로 풀림, 무기 넘기기 차례도 따른다)
+- lib/words.js — dex.recent · dex.recent.count · dex.recent.when · dex.new · dex.new.only. 모든 화면의 words.js 캐시 번호를 myth46 으로
+- tests/register-images.cjs — 새 검사. 임시 자리에서 새 파일만 오늘·옛 날짜 유지·지어내지 않음·git 기록 채우기·얕은 사본 경계 커밋 버림·실패하면 안 씀·--prune
+- tests/dex-recent.cjs — 새 검사. 줄 차례·창 밖 날짜·날짜 없는 그림 빠짐, 누르면 그 컷, 첫 방문 표시 없음, 다음 방문엔 그 뒤에 든 것만(같은 날 이미 있던 것 제외), 새 그림만, 다섯 크기에서 가로 넘침 없음·44px·포커스 테
+- tests/data.cjs — added 는 img.json 이 가리키는 파일 몫, YYYY-MM-DD 꼴만
+- AGENTS.md — 검사 목록에 둘
+
 ## 2026-10-21 · claude · 결투 「오늘의 판」과 오늘 기록 — 공방 지도가 읽는 칸
 
 - lib/today.js — 새 파일. 다섯 공방이 한 출처(polos0117.github.io)라 localStorage 를 같이 쓴다: 판이 끝나면 atelier_today_v1:myth 에 {d, n, w, daily, at, seen} 한 칸(bump), 다녀가면 seen(visit), 날짜 씨앗(seed), ?daily(isDaily). 모양의 약속은 지도 저장소 README 「오늘 기록」절, 다섯 저장소에 같은 파일
