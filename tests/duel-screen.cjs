@@ -318,6 +318,37 @@ const store = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE);
     assert.equal(await r.locator('.du-stats-cards .cell').count(), 0, '모르는 카드는 전적 그리드에서 건너뛴다');
     assert.deepEqual(c.errors, []); assert.deepEqual(await r.evaluate(() => window.AtelierWords.missing()), []);
     await c.close();
-    console.log('PASS 결투 화면: 첫 고르기 · 로비 · 덱 짜기 · 멀리건 · 대결 · 날씨 · 결과·보상 · 전적 · 새로고침 · 옛 저장');
+    /* 오늘의 판 — 주인도 덱 순서도 날짜가 정한다(엔진에 같은 씨앗을 주면 같은 판). 끝내면 오늘 기록(공방 지도가 읽는 칸)에 daily 가 선다.
+       하네스의 store 는 새로고침마다 되돌아가므로 단추로 여는 판과 끝까지 두는 판은 따로 연다 */
+    const T = require('../lib/today.js'), TODAY = 'atelier_today_v1:myth', dailyBoss = data.duel.bosses[T.seed('myth') % data.duel.bosses.length];
+    const ev = await harness.open('duel.html', { viewport: FOLD.cover, mobile: true, store: [STORE, JSON.stringify({ v: A.VERSION, profile: old, match: null })] }), pg = ev.page;
+    await pg.waitForSelector('.du-lobby'); await tap(pg, '#du-daily');
+    assert((await pg.locator('#du-daily').innerText()).includes(dailyBoss.wielder), '단추에 오늘의 주인');
+    assert((await pg.evaluate(k => JSON.parse(localStorage.getItem(k)), TODAY) || {}).seen > 0, '다녀간 자국');
+    await pg.locator('#du-daily').click(); await pg.waitForSelector('.du-mull');
+    const dm = (await pg.evaluate(k => JSON.parse(localStorage.getItem(k)), STORE)).match, expect = A.newMatch(data, old, dailyBoss.myth, old.level, T.seed('myth'));
+    assert(dm.daily === true && dm.boss === dailyBoss.myth, '오늘의 주인과 싸운다');
+    assert.deepEqual([dm.me.hand, dm.me.deck, dm.foe.deck], [expect.me.hand, expect.me.deck, expect.foe.deck], '오늘의 판 — 날짜 씨앗으로 짠 판과 같다');
+    assert.deepEqual(ev.errors, []); await ev.close();
+    /* 끝까지 — 같은 판을 짧게(상대 빈손·목숨 하나) 심어 두고 둔다 */
+    const short = JSON.parse(JSON.stringify(expect)); short.daily = true; short.foe.hand = []; short.foe.deck = []; short.lives.foe = 1;
+    const ev2 = await harness.open('duel.html', { viewport: FOLD.cover, mobile: true, store: [STORE, JSON.stringify({ v: A.VERSION, profile: old, match: short })] }), pg2 = ev2.page;
+    await pg2.waitForSelector('.du-mull'); await pg2.locator('#du-mull-go').click(); await pg2.waitForSelector('.du-board');
+    for (let i = 0; i < 120 && !(await pg2.locator('.du-result').count()); i++) {
+      if (await pg2.locator('#du-pass:not(:disabled)').count()) {
+        if (await pg2.locator('.du-hand .du-card').count()) { await pg2.locator('.du-hand .du-card').first().click(); await pg2.waitForSelector('#du-play'); await pg2.locator('#du-play').click(); }
+        else await pg2.locator('#du-pass').click();
+      }
+      await pg2.waitForTimeout(80);
+    }
+    await pg2.waitForSelector('.du-result'); await pg2.waitForFunction(k => JSON.parse(localStorage.getItem(k)).match.rewarded, STORE);
+    assert.equal(await pg2.locator('.du-result h2 .du-daily-tag').count(), 1, '결과에 오늘의 판 표');
+    const today = await pg2.evaluate(k => JSON.parse(localStorage.getItem(k)), TODAY);
+    assert(today.d === T.today() && today.n === 1 && today.daily === true && today.w === (await pg2.locator('.du-result').getAttribute('data-result') === 'win' ? 1 : 0), '오늘 기록: ' + JSON.stringify(today));
+    await pg2.locator('#du-result-lobby').click(); await pg2.waitForSelector('.du-daily[data-done="true"]');
+    assert((await pg2.locator('.du-daily .help').innerText()).includes('1판'), '로비에 오늘 1판');
+    assert.deepEqual(ev2.errors, []); assert.deepEqual(await pg2.evaluate(() => window.AtelierWords.missing()), []);
+    await ev2.close();
+    console.log('PASS 결투 화면: 첫 고르기 · 로비 · 덱 짜기 · 멀리건 · 대결 · 날씨 · 결과·보상 · 전적 · 새로고침 · 옛 저장 · 오늘의 판(날짜 씨앗·오늘 기록)');
   } finally { await harness.stop(); }
 })().catch(e => { console.error(e); process.exitCode = 1; });

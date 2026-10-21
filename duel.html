@@ -47,6 +47,12 @@ body {color:var(--text);font-size:15px}
 .du-lv button {flex:1;min-height:44px;background:var(--card);border:0;border-radius:6px;color:var(--muted);font:inherit;font-weight:700;font-size:12px;cursor:pointer}
 .du-lv button.on {background:var(--accent-soft);color:var(--text);box-shadow:inset 0 -2px var(--accent)}
 .du-conquered {margin:8px 0;padding:10px 12px;border:1px solid var(--gold);border-radius:8px;color:var(--gold);font-weight:700;text-align:center;font-size:13px}
+.du-daily {display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0 4px}
+.du-daily #du-daily {display:flex;flex-direction:column;align-items:flex-start;gap:2px;line-height:1.2}
+.du-daily #du-daily small {font-weight:600;font-size:11px;opacity:.85}
+.du-daily .help {flex:1 1 200px;font-size:12px;color:var(--muted)}
+.du-daily[data-done="true"] #du-daily {opacity:.75}
+.du-daily-tag {display:inline-block;margin-left:8px;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;background:var(--accent, #d9b45a);color:#111;vertical-align:middle}
 .du-bosses {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 @media (min-width:600px) {.du-bosses {grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (min-width:1000px) {.du-bosses {grid-template-columns:repeat(4,minmax(0,1fr))}}
@@ -338,6 +344,7 @@ body {color:var(--text);font-size:15px}
 <script src="lib/workspace-theme.js?v=myth8"></script>
 <script src="lib/words.js?v=myth45"></script>
 <script src="lib/fresh.js?v=4"></script>
+<script src="lib/today.js?v=1"></script>
 <script src="lib/img.js?v=myth6"></script>
 <script src="lib/duel.js?v=1"></script>
 </head>
@@ -352,6 +359,9 @@ import { modalFocus } from './lib/gallery.js?v=1';
 const html = htm.bind(h);
 const W = window.W, IMG = window.AtelierImg, A = window.AtelierDuel;
 const STORE = 'myth_duel_v1';
+const T = window.AtelierToday, ROOM = 'myth';   /* 오늘 기록 — 공방 지도의 방 열쇠(lib/today.js) */
+/* 오늘의 주인 — 날짜 씨앗으로 열한 주인 가운데 하나 */
+function dailyBoss(data) { const bs = data.duel.bosses; return bs[T.seed(ROOM) % bs.length]; }
 
 function Shell({ children }) {
   return html`<main>
@@ -689,7 +699,7 @@ function Result({ data, group, st, onLobby, onAgain, onFlip }) {
   const D = A.cardsOf(data), o = st.outcome;
   const pool = (o && o.pool) || [], taken = (o && o.taken) || [], picks = o ? o.picks : 0, left = Math.max(0, picks - taken.length), done = o && left === 0;
   return html`<section class="du-screen du-result" data-screen="result" data-result=${o ? o.result : undefined}>
-    ${o && html`<h2>${W('duel.result.' + o.result)}${o.gold ? html`<span class="du-gold-earned">${W('duel.gold.earned', { n: o.gold })}</span>` : ''}</h2>`}
+    ${o && html`<h2>${W('duel.result.' + o.result)}${st.daily ? html`<span class="du-daily-tag">${W('duel.result.daily')}</span>` : ''}${o.gold ? html`<span class="du-gold-earned">${W('duel.gold.earned', { n: o.gold })}</span>` : ''}</h2>`}
     <p class="sec">${W('duel.result.rounds')}</p>
     <ul class="du-rounds">${st.roundLog.map((r, i) => html`<li key=${i} data-winner=${r.winner}>${W('duel.round', { n: i + 1 })} <b>${r.me}</b> : <b>${r.foe}</b></li>`)}</ul>
     ${o && html`<p class="sec">${W('duel.result.reward')}<span class="help">${W('duel.result.pool.note')}</span></p>`}
@@ -763,9 +773,9 @@ function Pick({ data, group, onPick }) {
 }
 
 /* ── 로비 — 덱 상태 · 컬렉션 · 난이도 · 주인 열하나 ── */
-function Lobby({ data, group, profile, act, setScreen, onChallenge, stats, learn, shop }) {
+function Lobby({ data, group, profile, act, setScreen, onChallenge, onDaily, stats, learn, shop }) {
   const D = A.cardsOf(data), v = A.validateDeck(data, profile), max = A.collectionMax(data);
-  const conquered = A.conquered(data, profile);
+  const conquered = A.conquered(data, profile), today = T.read(ROOM), db = dailyBoss(data);
   return html`<section class="du-screen du-lobby" data-screen="lobby">
     <div class="du-head">
       <span>${W('duel.lobby.main')} <b class="du-main">${mythName(group, profile.main)}</b></span>
@@ -787,6 +797,10 @@ function Lobby({ data, group, profile, act, setScreen, onChallenge, stats, learn
     <div class="du-lv" role="group" aria-label=${W('duel.lobby.level')}>${A.LEVELS.map(l => html`<button key=${l} type="button" data-lv=${l}
       class=${profile.level === l ? 'on' : ''} aria-pressed=${profile.level === l} onClick=${() => act(p => { p.level = l; })}>${W('duel.lv.' + l)}</button>`)}</div>
     ${conquered && html`<div class="du-conquered">${W('duel.lobby.conquered')}</div>`}
+    <div class="du-daily" data-done=${today.daily}>
+      <button type="button" class="du-btn primary" id="du-daily" disabled=${!v.ok} onClick=${onDaily}>${W('duel.daily')}<small>${db.wielder}</small></button>
+      <span class="help">${today.daily ? W('duel.daily.done') : W('duel.daily.note', { boss: db.wielder })}${today.n > 0 ? ' · ' + W('duel.today', { n: today.n, w: today.w }) : ''}</span>
+    </div>
     <p class="sec">${W('duel.lobby.bosses')}<span class="help">${W('duel.lobby.bosses.note')}</span></p>
     <div class="du-bosses">${data.duel.bosses.map(b => { const c = D.cards[b.portrait]; return html`<button key=${b.myth} type="button" class="du-boss" data-myth=${b.myth}
       disabled=${!v.ok} onClick=${() => onChallenge(b.myth)}>
@@ -858,13 +872,19 @@ function App() {
     if (!data || !match || match.phase !== 'done' || match.rewarded) return;
     const p = JSON.parse(JSON.stringify(profile)), m = JSON.parse(JSON.stringify(match));
     A.settle(data, p, m); p.tutorial = true; save(p, m); setProfile(p); setMatch(m);
+    /* 오늘 기록 한 칸 — 공방 지도가 읽어 대장간에 불을 켠다 */
+    T.bump(ROOM, { won: !!(m.outcome && m.outcome.result === 'win'), daily: !!m.daily });
   }, [match, data]);
+  /* 다녀간 자국. 지도에서 ?daily 로 왔고 덱이 갖춰졌으면 바로 오늘의 판 */
+  useEffect(() => { if (!data) return; T.visit(ROOM); if (T.isDaily() && profile && !match && A.validateDeck(data, profile).ok) onDaily(); }, [data]);
   if (!loaded) return html`<${Shell}><p class="empty">${W('ui.loading')}</p><//>`;
   if (loaded.error) return html`<${Shell}><p class="empty">${W('ui.error', { message: loaded.error })}</p><//>`;
   /* 프로필을 고치는 손 — 사본을 고치고 저장 */
   const act = fn => { const next = JSON.parse(JSON.stringify(profile)); fn(next); save(next, match); setProfile(next); };
   const onPick = myth => { const p = A.newProfile(data, myth, seed()); save(p, null); setProfile(p); };
   const onChallenge = myth => { const m = A.newMatch(data, profile, myth, profile.level, seed()); save(profile, m); setMatch(m); };
+  /* 오늘의 판 — 주인도 씨앗도 날짜가 정한다. 하루 동안 같은 상대, 같은 덱 순서 */
+  const onDaily = () => { const m = A.newMatch(data, profile, dailyBoss(data).myth, profile.level, T.seed(ROOM)); m.daily = true; save(profile, m); setMatch(m); };
   /* 보상 — 뒷장 한 장을 뒤집는다(프로필과 판을 함께 저장). 떠날 때 안 뒤집은 몫은 자동으로 */
   const onFlip = i => { const p = JSON.parse(JSON.stringify(profile)), m = JSON.parse(JSON.stringify(match)); if (!A.pickReward(data, p, m, i).ok) return; save(p, m); setProfile(p); setMatch(m); };
   const finish = () => { const p = JSON.parse(JSON.stringify(profile)), m = JSON.parse(JSON.stringify(match)); A.finishRewards(data, p, m); return p; };
@@ -877,7 +897,7 @@ function App() {
     : which === 'match' ? html`<${Match} data=${data} group=${group} profile=${profile} st=${match} actMatch=${actMatch} act=${act} />`
     : which === 'result' ? html`<${Result} data=${data} group=${group} st=${match} onLobby=${onLobby} onAgain=${onAgain} onFlip=${onFlip} />`
     : which === 'build' ? html`<${Build} data=${data} group=${group} profile=${profile} act=${act} setScreen=${setScreen} />`
-    : html`<${Lobby} data=${data} group=${group} profile=${profile} act=${act} setScreen=${setScreen} onChallenge=${onChallenge} stats=${which === 'stats'} learn=${which === 'learn'} shop=${which === 'shop'} />`}
+    : html`<${Lobby} data=${data} group=${group} profile=${profile} act=${act} setScreen=${setScreen} onChallenge=${onChallenge} onDaily=${onDaily} stats=${which === 'stats'} learn=${which === 'learn'} shop=${which === 'shop'} />`}
   <//>`;
 }
 render(html`<${App} />`, document.getElementById('app'));
