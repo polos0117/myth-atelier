@@ -138,6 +138,9 @@ const IMG = { img: {
     assert(!(await p.locator('.big-next').isDisabled()) && (await p.locator('.big-next.to-card').count()) === 1, '마지막 컷이어도 다음 무기가 있으면 열리고, 무기를 넘는다고 표시');
     await p.keyboard.press('ArrowRight'); await titleIs('티르핑');
     await p.waitForFunction(s => document.querySelector('.big img')?.getAttribute('src') === s, window_src('티르핑_ink_wash_f_skin_frost.webp'));
+    /* 스킨 해금 — 결투에서 이긴 적이 없으면 잠겨 있고 입을 수 없다 */
+    assert.equal(await p.locator('.gal .cell.skin[data-skin="frost"].locked').count(), 1, '결투 승이 없으면 스킨은 잠긴다');
+    assert(await p.locator('[data-wear="frost"]').isDisabled() && /이기면/.test(await p.locator('[data-wear="frost"]').innerText()), '잠긴 스킨은 입는 단추가 잠기고 푸는 법을 적는다');
     assert.equal(await p.locator('.big-count').count(), 0, '컷이 하나면 몇 번째 표시는 없다');
     assert.equal(await p.locator('.card-nav .card-count').innerText(), '무기 2 / 3');
     assert(!(await p.locator('.big-prev').isDisabled()), '첫 컷이어도 앞 무기가 있으면 열린다');

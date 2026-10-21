@@ -111,6 +111,8 @@ body {color:var(--text);font-size:15px}
 .gal .cell.skin .cap {font-size:11px;font-weight:700;color:var(--muted)}
 .gal .cell.skin.worn img {border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 0 14px var(--halo)}
 .gal .cell.skin.worn .cap {color:var(--gold)}
+.gal .cell.skin.locked img {filter:grayscale(.85) brightness(.7)}
+.gal .cell.skin.locked .cap {color:var(--muted)}
 .skin-state {margin-top:8px}
 .hall-toggle {margin-top:8px;align-items:center}
 .hall-toggle .hall-n {padding:0 10px;font:700 11px ui-monospace,monospace;color:var(--muted)}
@@ -284,6 +286,11 @@ function useDex() {
 }
 
 const DEFAULTS = { q: '', myth: '', kind: '', cost: '', style: '', art: 'any', skin: 'any' };
+/* 신기 결투에서 이 무기로 이긴 적이 있나 — 결투의 stats.cards 열쇠는 카드 id(이름 또는 이름@판) */
+function wonInDuel(name) {
+  try { const j = JSON.parse(localStorage.getItem('myth_duel_v1')), cards = (j && j.profile && j.profile.stats && j.profile.stats.cards) || {};
+    return Object.keys(cards).some(k => (k === name || k.indexOf(name + '@') === 0) && cards[k].won > 0); } catch (e) { return false; }
+}
 function normalize(f) {
   const out = { ...DEFAULTS };
   for (const k of Object.keys(DEFAULTS)) if (f && typeof f[k] === 'string') out[k] = f[k];
@@ -374,10 +381,12 @@ function Detail({ card, entry, styleName, group, skill, selection, nav, onGo, on
   const skins = (card.skins || []).filter(k => skinSet[k.key]).map(k => ({ file: skinSet[k.key].base, cut: 'skin', key: k.key, name: k.name, state: 'base' }));
   const skinShots = skins.flatMap(k => [k].concat(['awaken', 'cursed'].filter(x => skinSet[k.key][x]).map(x => ({ ...k, file: skinSet[k.key][x], state: x }))));
   const [worn, setWorn] = useState(() => IMG.skinPick(card.name));
+  /* 스킨 해금 — 신기 결투에서 이 무기(기본·각성·저주판 어느 것이든)로 이긴 적이 있어야 입는다. 결투의 저장(myth_duel_v1)을 읽을 뿐 여기서 고치진 않는다 */
+  const unlocked = wonInDuel(card.name);
   const [hall, setHall] = useState(() => IMG.hallPicks());
   const inHall = hall.includes(card.name), hallFull = !inHall && hall.length >= IMG.HALL_MAX, temple = W('theme.' + IMG.hallTheme());
   const enshrine = () => { IMG.toggleHall(card.name); setHall(IMG.hallPicks()); };
-  const wear = key => { IMG.setSkinPick(card.name, key); setWorn(key); };
+  const wear = key => { if (!unlocked && key) return; IMG.setSkinPick(card.name, key); setWorn(key); };
   /* 크게 보기 — 같은 화풍의 컷 전부를 한 줄로: 액션 → 각성 → 저주 → 특별 → 일상 → 스킨 */
   const shots = [].concat(portrait ? [{ file: portrait, cut: 'portrait' }] : [], awaken ? [{ file: awaken, cut: 'awaken' }] : [],
     cursed ? [{ file: cursed, cut: 'cursed' }] : [], extra.map((f, i) => ({ file: f, cut: 'extra', index: i + 1 })), casual.map((f, i) => ({ file: f, cut: 'casual', index: i + 1 })), skinShots);
@@ -431,8 +440,8 @@ function Detail({ card, entry, styleName, group, skill, selection, nav, onGo, on
       ${shown.cut === 'skin' && html`<div class="sw skin-state" role="group" aria-label=${W('dex.skin')}>${['base', 'awaken', 'cursed'].map(x => html`<button key=${x} type="button"
         class=${shown.state === x ? 'on' : ''} data-skin-state=${x} disabled=${!skinSet[shown.key][x]}
         onClick=${() => setFocus({ ...shown, file: skinSet[shown.key][x], state: x })}>${W(x === 'base' ? 'dex.cut.portrait' : 'dex.cut.' + x)}${isNew(skinSet[shown.key][x]) && html`<${NewMark} />`}</button>`)}</div>
-      <div class="sw skin-wear"><button type="button" class=${worn === shown.key ? 'on' : ''} data-wear=${shown.key}
-        onClick=${() => wear(worn === shown.key ? null : shown.key)}>${worn === shown.key ? W('dex.skin.using') : W('dex.skin.use')}</button></div>`}
+      <div class="sw skin-wear"><button type="button" class=${worn === shown.key ? 'on' : ''} data-wear=${shown.key} disabled=${!unlocked && worn !== shown.key}
+        onClick=${() => wear(worn === shown.key ? null : shown.key)}>${worn === shown.key ? W('dex.skin.using') : unlocked ? W('dex.skin.use') : W('dex.skin.locked.how')}</button></div>`}
     ` : html`<div class="big"><span class="ph">${W('art.none')}</span></div>`}
     ${nav && html`<div class="card-nav" role="group" aria-label=${W('dex.card.count', { n: nav.index + 1, total: nav.total })}>
       <button type="button" id="dex-card-prev" disabled=${!prevCard} title=${prevCard ? prevCard.name : ''} aria-label=${W('dex.card.prev') + (prevCard ? ' · ' + prevCard.name : '')}
@@ -477,8 +486,8 @@ function Detail({ card, entry, styleName, group, skill, selection, nav, onGo, on
         onClick=${() => setFocus({ file: f, cut: 'extra', index: i + 1 })}><${Pic} file=${f} alt=${W('dex.cut.extra')} />${isNew(f) && html`<${NewMark} />`}</button>`)}</div>`}
     ${skins.length > 0 && html`
       <p class="sec">${W('dex.skin')}<span>${W('art.count', { n: skins.length })}</span></p>
-      <div class="gal">${skins.map(k => html`<button key=${k.key} class=${'cell skin' + (worn === k.key ? ' worn' : '')} data-cut="skin" data-skin=${k.key}
-        onClick=${() => setFocus(k)}><${Pic} file=${k.file} alt=${k.name} />${isNew(k.file) && html`<${NewMark} />`}<span class="cap">${k.name}${worn === k.key ? ' · ' + W('dex.skin.on') : ''}</span></button>`)}</div>`}
+      <div class="gal">${skins.map(k => html`<button key=${k.key} class=${'cell skin' + (worn === k.key ? ' worn' : '') + (unlocked ? '' : ' locked')} data-cut="skin" data-skin=${k.key}
+        onClick=${() => setFocus(k)}><${Pic} file=${k.file} alt=${k.name} />${isNew(k.file) && html`<${NewMark} />`}<span class="cap">${k.name}${worn === k.key ? ' · ' + W('dex.skin.on') : unlocked ? '' : ' · ' + W('dex.skin.locked')}</span></button>`)}</div>`}
     ${casual.length > 0 && html`
       <p class="sec">${W('dex.casual')}<span>${W('art.count', { n: casual.length })}</span></p>
       <div class="gal">${casual.map((f, i) => html`<button key=${f} class="cell" data-cut="casual"

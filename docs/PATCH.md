@@ -8,6 +8,14 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-10-21 · claude · 스킨 해금 — 신기 결투에서 그 무기로 이겨야 입는다
+
+- dex.html — 스킨 칸·입는 단추가 결투 저장(myth_duel_v1 의 stats.cards — 기본·각성·저주판 어느 것이든 won > 0)을 읽어 잠금. 잠긴 스킨은 흐리게 '잠김', 단추엔 푸는 법. 벗기는 늘 된다
+- lib/today.js — v2(다섯 저장소 공통): bump 가 atelier_record_v1:myth 에 통산 {n, w, streak, best, days, dstreak, dbest} 도 같이 쌓는다. 공방 지도가 문 패널에 보인다
+- lib/words.js — dex.skin.locked · dex.skin.locked.how
+- tests/dex-screen.cjs — 결투 승이 없으면 티르핑 스킨은 잠기고 단추도 잠긴다 · tests/skin-screen.cjs — 결투 1승을 심고 입힌다. (두 검사는 그림 파일이 있어야 돈다 — 이 세션엔 그림 저장소가 없어 잠금만 따로 확인했다)
+- docs/GAME_CONCEPT.md — 스킨 해금을 한 것으로, 던전 기록 조건은 아직
+
 ## 2026-10-21 · claude · 말풍선 — 판에 들어온 무기가 제 글을 한마디
 
 - lib/speech.js — 새 파일(원본은 지도 저장소 speech.js, 다섯 저장소에 같은 파일). 요소 위에 꼬리 달린 풍선 — 둘까지, 글 길이만큼, 움직임 줄이기면 애니메이션 없이. 화면 말 없음

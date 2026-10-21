@@ -10,7 +10,8 @@ bucket.skin = { f: { [KEY]: { base: FAKE, awaken: FAKE_AW } } };
 (async () => {
   const harness = await start();
   try {
-    const a = await harness.open('dex.html', { viewport: { width: 1280, height: 900 } }), p = a.page;
+    /* 스킨은 신기 결투에서 그 무기로 이겨야 입는다 — 결투 저장에 티르핑 1승을 심는다 */
+    const a = await harness.open('dex.html', { viewport: { width: 1280, height: 900 }, store: ['myth_duel_v1', JSON.stringify({ profile: { stats: { cards: { [CARD]: { played: 1, won: 1 } } } } })] }), p = a.page;
     /* 페이지에 건 길은 옮겨 가도 남는다 */
     await p.route('**/data/img.json', r => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(img) }));
     await p.reload(); await p.waitForSelector('.grid .cell');
