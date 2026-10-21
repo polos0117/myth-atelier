@@ -164,12 +164,17 @@ body {color:var(--text);font-size:15px}
 .sw .new-mark {position:static;display:inline-block;margin-left:6px;vertical-align:1px}
 .gal .cell {position:relative}
 .dex-view-tools {display:flex;flex-wrap:wrap;gap:8px;margin-left:auto}
+/* 움직임(lib/scene-motion.js) — 각성 그림 위에 옅게 떠도는 입자 칸. 넘기기 화살표 아래에 깔린다 */
+.big-motion {position:absolute;inset:0;pointer-events:none}
+.motion-toggle {margin-top:8px}
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
-<script src="lib/words.js?v=myth46"></script>
+<script src="lib/words.js?v=myth47"></script>
 <script src="lib/fresh.js?v=4"></script>
-<script src="lib/img.js?v=myth6"></script>
+<script src="lib/img.js?v=myth7"></script>
 <link rel="stylesheet" href="lib/gallery.css?v=2">
+<link rel="stylesheet" href="lib/scene-motion.css?v=1">
+<script src="lib/scene-motion.js?v=1"></script>
 </head>
 <body class="dex-page">
 <div id="app"></div>
@@ -182,7 +187,7 @@ import htm from 'https://esm.sh/htm@3.1.1';
 import { WorkspaceHeader, UndoToast } from './lib/workspace-ui.js?v=myth15';
 import { modalFocus } from './lib/gallery.js?v=1';
 const html = htm.bind(h);
-const W = window.W, IMG = window.AtelierImg;
+const W = window.W, IMG = window.AtelierImg, MOTION = window.AtelierMotion;
 const FILTER_STORE = 'myth_dex_filters_v1', COMPACT_STORE = 'myth_dex_compact_v1';
 /* 지금 만드는 것은 여성체뿐이다. 파일 이름에는 _f 를 적어 두므로 나중에 m 을 더해도 옛 파일의 뜻이 안 바뀐다 */
 const V = 'f';
@@ -275,11 +280,12 @@ function useDex() {
   const [state, set] = useState({ loading: true });
   useEffect(() => {
     const get = f => fetch(f, { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(f + ' ' + r.status); return r.json(); });
-    Promise.all([get('data/card.json'), get('data/style.json'), get(IMG.DATA), get('data/group.json'), get('data/skill.json')])
-      .then(([card, style, imgDoc, group, skill]) => {
+    /* 움직임 입자 표는 없어도 도감이 선다 — 그때는 입자 없이 켄 번스·넘기기만 */
+    Promise.all([get('data/card.json'), get('data/style.json'), get(IMG.DATA), get('data/group.json'), get('data/skill.json'), get('data/motion.json').catch(() => null)])
+      .then(([card, style, imgDoc, group, skill, motion]) => {
         const styleName = {};
         for (const r of style.styles || []) styleName[r.key] = r.name;
-        set({ cards: card.cards || [], styleName, img: (imgDoc && imgDoc.img) || {}, added: (imgDoc && imgDoc.added) || {}, group, skill: skill.skills || {} });
+        set({ cards: card.cards || [], styleName, img: (imgDoc && imgDoc.img) || {}, added: (imgDoc && imgDoc.added) || {}, group, skill: skill.skills || {}, motion: motion || {} });
       }).catch(e => set({ error: String((e && e.message) || e) }));
   }, []);
   return state;
@@ -367,7 +373,7 @@ function Facts({ card, group, skill }) {
     </div>`;
 }
 
-function Detail({ card, entry, styleName, group, skill, selection, nav, onGo, onClose, isNew }) {
+function Detail({ card, entry, styleName, group, skill, motion: motionTable, selection, nav, onGo, onClose, isNew }) {
   const keys = IMG.styleKeys(entry || {});
   const [wantStyle, setStyle] = useState(selection?.style || '');
   /* 처음 열 때는 상태 그림(각성·저주·일상)이 가장 많은 화풍을 고른다. 같으면 앞의 것 */
@@ -420,6 +426,47 @@ function Detail({ card, entry, styleName, group, skill, selection, nav, onGo, on
   const swipe = useSwipe(d => liveMove.current.move(d), () => setZoom(true));
 
   useLayoutEffect(() => { if (!selection?.zoom) document.getElementById("detail-title")?.focus({ preventScroll: true }); }, []);
+  /* 움직임(lib/scene-motion.js, docs/SCENE_MOTION.md) — 큰 그림에 켄 번스. 기본 ↔ 각성(스킨이면 그 스킨의 기본 ↔ 각성)은 열리기,
+     각성으로 갈 때만 이 무기의 입자(data/motion.json → IMG.particlesOf)가 터지고, 각성 그림 위에는 그 입자가 옅게 떠돈다.
+     다른 컷으로는 넘기기. 크게 보기에는 아무것도 안 붙이고, 열려 있는 동안 큰 그림의 움직임도 쉰다 */
+  const kind = IMG.particlesOf(card, motionTable);
+  const bigRef = useRef(null), layerRef = useRef(null), lastShown = useRef(null), ambient = useRef(null);
+  const [motion, setMotion] = useState(() => !!MOTION && MOTION.enabled());
+  useEffect(() => MOTION ? MOTION.subscribe(setMotion) : undefined, []);
+  const motionLocked = !MOTION || MOTION.reduced();
+  const awake = s => !!s && (s.cut === 'awaken' || (s.cut === 'skin' && s.state === 'awaken'));
+  const pairOf = s => !s ? null : s.cut === 'skin' ? (s.state === 'cursed' ? null : 'skin:' + s.key) : s.cut === 'portrait' || s.cut === 'awaken' ? 'base' : null;
+  const bigImg = () => bigRef.current && bigRef.current.querySelector('.zoom img');
+  useLayoutEffect(() => {
+    const prev = lastShown.current, now = shown && { file: shown.file, pair: pairOf(shown), awake: awake(shown), at: zoomAt };
+    lastShown.current = now;
+    const img = bigImg();
+    if (!MOTION || !img || !now || zoom) return;
+    const kb = { el: img, seed: now.file };
+    if (!prev || prev.file === now.file) { MOTION.kenBurns(img, { seed: now.file }); return; }
+    const from = MOTION.ghost(img, IMG.imgURL(prev.file), { fit: 'contain', transform: getComputedStyle(img).transform });
+    MOTION.stop(img);
+    if (now.pair && now.pair === prev.pair && now.awake !== prev.awake)
+      MOTION.reveal(from, img, { kind: now.awake ? kind : null, removeFrom: true, key: 'dex-big', seed: now.file, kenBurns: kb });
+    else MOTION.turn(from, img, { direction: now.at < prev.at ? 'previous' : 'next', removeFrom: true, key: 'dex-big', kenBurns: kb });
+  }, [shown && shown.file]);
+  /* 크게 보기를 열면 큰 그림은 쉬고, 닫으면 지금 그림에서 다시 */
+  const zoomed = useRef(zoom);
+  useEffect(() => {
+    if (zoomed.current === zoom) return; zoomed.current = zoom;
+    const img = bigImg();
+    if (!MOTION || !img) return;
+    if (zoom) { MOTION.cancel('dex-big'); MOTION.stop(img); } else MOTION.kenBurns(img, { seed: shown && shown.file });
+    if (ambient.current) ambient.current[zoom ? 'pause' : 'resume']();
+  }, [zoom]);
+  useEffect(() => {
+    if (!MOTION || !kind || !awake(shown) || !layerRef.current) return;
+    const c = MOTION.particles(layerRef.current, kind, { density: 0.5, alpha: 0.6, max: 36, seed: shown.file });
+    if (zoomed.current) c.pause();
+    ambient.current = c;
+    return () => { c.destroy(); if (ambient.current === c) ambient.current = null; };
+  }, [shown && shown.file, kind]);
+  useEffect(() => () => { if (MOTION) { MOTION.cancel('dex-big'); const img = bigImg(); if (img) MOTION.stop(img); } }, []);
   const head = html`
     <div class="bar">
       <button class="back" onClick=${onClose}>${W('ui.back')}</button>
@@ -432,7 +479,8 @@ function Detail({ card, entry, styleName, group, skill, selection, nav, onGo, on
     <div class="detail-spread"><section class="artwork-panel">
     ${shown ? html`
       <p class="sec">${shotLabel(shown)}<span class=${['awaken', 'cursed', 'skin'].includes(shown.cut) ? 'help' : ''}>${shown.cut === 'awaken' ? W('dex.awaken.note') : shown.cut === 'cursed' ? W('dex.cursed.note') : shown.cut === 'skin' ? W('dex.skin.note') : (styleName[style] || '')}</span></p>
-      <div class="big" ...${swipe}><button type="button" class="zoom" aria-label=${W('dex.zoom')} onClick=${() => setZoom(true)}><${Pic} full file=${shown.file} alt=${card.name} /></button>
+      <div class="big" ref=${bigRef} data-particles=${kind || undefined} ...${swipe}><button type="button" class="zoom" aria-label=${W('dex.zoom')} onClick=${() => setZoom(true)}><${Pic} full file=${shown.file} alt=${card.name} /></button>
+        <div class="big-motion" ref=${layerRef} aria-hidden="true"></div>
         ${(shots.length > 1 || prevCard || nextCard) && html`<div class="big-nav">
           <button type="button" class=${'big-prev' + (zoomAt <= 0 && prevCard ? ' to-card' : '')} disabled=${!canPrev} onClick=${() => move(-1)} aria-label=${zoomAt <= 0 && prevCard ? W('dex.card.prev') + ' · ' + prevCard.name : W('dex.zoom.prev')}>‹</button>
           <button type="button" class=${'big-next' + (zoomAt >= shots.length - 1 && nextCard ? ' to-card' : '')} disabled=${!canNext} onClick=${() => move(1)} aria-label=${zoomAt >= shots.length - 1 && nextCard ? W('dex.card.next') + ' · ' + nextCard.name : W('dex.zoom.next')}>›</button>
@@ -478,6 +526,8 @@ function Detail({ card, entry, styleName, group, skill, selection, nav, onGo, on
         onClick=${enshrine}>${inHall ? W('dex.hall.remove', { temple }) : hallFull ? W('dex.hall.full', { temple, max: IMG.HALL_MAX }) : W('dex.hall.add', { temple })}</button>
       <span class="hall-n">${W('dex.hall.count', { temple, n: hall.length, max: IMG.HALL_MAX })}</span>
     </div>
+    <div class="sw motion-toggle"><button type="button" id="dex-motion" aria-pressed=${motion} disabled=${motionLocked} title=${W(motionLocked ? 'motion.reduced' : 'motion.note')}
+      onClick=${() => MOTION.setEnabled(!motion)}>${W(motion ? 'motion.off' : 'motion.on')}</button></div>
 
 </section></div><section class="other-art">
     ${extra.length > 0 && html`
@@ -713,7 +763,7 @@ function App() {
       const keep = sc && el ? { sel, y: el.getBoundingClientRect().top } : null;
       setOpen({ card: c, style: f.style, cut: 'portrait', at, zoom, keep }); };
     return html`<${Detail} key=${card.name + ':' + theme} card=${card} entry=${st.img[card.name] || null}
-      selection=${open} nav=${nav} onGo=${go} styleName=${st.styleName} group=${st.group} skill=${st.skill}
+      selection=${open} nav=${nav} onGo=${go} styleName=${st.styleName} group=${st.group} skill=${st.skill} motion=${st.motion}
       onClose=${close} isNew=${fresh.isNew} />`;
   }
   return html`<${List} key=${theme} st=${st} filters=${filters} onFilter=${setFilters} onOpen=${openShot} restore=${restore}

@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "note": "움직임 입자 표 — 도감 상세에서 기본 → 각성이 열릴 때 터지고 각성 그림 위에 옅게 떠도는 입자(lib/scene-motion.js 의 KINDS 이름 하나). 무기마다 고르는 차례: cards[이름] 이 있으면 그것, 없으면 rules 를 위에서부터 카드의 look · skill(밑줄은 띄어쓰기) · en 을 이은 글에 대어 처음 맞는 것(match 는 대소문자를 안 가리는 정규식), 그래도 없으면 myth[신화권]. hall 은 집 신전의 각성·저주 보기 단추를 누를 때 장면에 한 번 터지는 입자. 모든 값은 KINDS 안의 이름이어야 한다(tests/scene-motion.cjs). 고르는 법은 docs/SCENE_MOTION.md.",
+  "rules": [
+    {
+      "kind": "sparks",
+      "match": "\\b(lightning|thunder\\w*|storm\\w*|electric|vajra|spark\\w*)"
+    },
+    {
+      "kind": "embers",
+      "match": "\\b(fire|flam\\w*|ember\\w*|blaz\\w*|burn(s|t|ed|ing)?\\b|molten|lava|forge\\w*|smith\\w*|furnace|sun(?!-bleached)\\w*|solar|scorch\\w*|sear\\w*)"
+    },
+    {
+      "kind": "snow",
+      "match": "\\b(ice|icy|frost\\w*|snow\\w*|winter|frozen|glacier\\w*|rime)"
+    },
+    {
+      "kind": "bubbles",
+      "match": "\\b(sea|seas|ocean\\w*|(?<!sound )wave\\w*|tide\\w*|water\\w*|river\\w*|lake\\w*|foam|pearl\\w*|coral|conch|abyss\\w*)\\b"
+    },
+    {
+      "kind": "mist",
+      "match": "\\b(mists?|misty|fog\\w*|cloud\\w*|wind\\w*|gale\\w*|veil\\w*|smok\\w*|vanish\\w*|unseen|ghost\\w*|shadow\\w*)"
+    },
+    {
+      "kind": "ash",
+      "match": "\\b(death|dead|underworld|grave\\w*|soul\\w*|plague|curse\\w*|bone\\w*|skull\\w*|soot|ashes|reap\\w*|doom\\w*|venom\\w*|poison\\w*)"
+    },
+    {
+      "kind": "stars",
+      "match": "\\b(star\\w*|moon\\w*|crescent|night\\w*|cosmic|constellation\\w*|comet\\w*)"
+    },
+    {
+      "kind": "snow",
+      "myth": [
+        "norse"
+      ]
+    },
+    {
+      "kind": "petals",
+      "match": "\\b(flower\\w*|blossom\\w*|petal\\w*|lotus|cherry|plum|peach|roses?\\b|love)"
+    },
+    {
+      "kind": "leaves",
+      "match": "\\b((?<!gold )lea(f|ves)(?![- ](blade|shaped|head))|forest\\w*|tree\\w*|vine\\w*|mistletoe|oak|laurel\\w*|herb\\w*|cedar|tamarisk|bamboo|reed\\w*|wild\\w*)"
+    },
+    {
+      "kind": "gold",
+      "match": "\\b(divine|holy|heaven\\w*|celestial|radian\\w*|halo|sacred|light|glow\\w*|sky|blessed)"
+    },
+    {
+      "kind": "dust",
+      "match": "\\b(war|earth\\w*|stone|sands?\\b|desert|mountain\\w*|hill\\w*|rock\\w*|bronze|battle\\w*)"
+    }
+  ],
+  "myth": {
+    "norse": "snow",
+    "greek": "gold",
+    "korea": "leaves",
+    "china": "mist",
+    "japan": "petals",
+    "india": "gold",
+    "egypt": "dust",
+    "westasia": "dust",
+    "celtic": "mist",
+    "america": "leaves",
+    "knight": "dust"
+  },
+  "cards": {
+    "롱기누스의 창": "gold"
+  },
+  "hall": {
+    "awaken": "gold",
+    "cursed": "ash"
+  }
+}

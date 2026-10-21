@@ -13,6 +13,7 @@
 | `IMAGE_RULES.md` | 그림 한 장 규칙 — 이름·크기·두 저장소 순서 |
 | `PROMPT_IMAGE_WORKFLOW.md` | 생성기로 문장을 뽑아 기준컷·각성·저주·일상컷을 만들고 올리는 절차 — A/B 최소 보정, 기준컷 검수 관문 |
 | `docs/PATCH.md` | 무엇을 고쳤나 — 고친 쪽이 직접 적는다 (아래 규칙 5) |
+| `docs/SCENE_MOTION.md` | 움직임 — 공용 모듈(켄 번스·입자·열리기·넘기기)의 계약과 무기마다 입자를 고르는 표(`data/motion.json`) |
 
 ## 지켜야 할 것 다섯
 
@@ -110,6 +111,7 @@ ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/header-layout.cjs   # �
 ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/theme-screen.cjs    # 결이 화면을 따라다니나
 ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/patch-screen.cjs    # 패치 기록 단추
 ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/duel-screen.cjs     # 결투 — 고르기·덱 짜기·대결·결과·전적·오늘의 판(날짜 씨앗, 오늘 기록)
+ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/scene-motion.cjs    # 움직임 — 공용 모듈·입자 표·도감 상세 열리기·신전 홀 터짐·다섯 크기
 ```
 
 **검사를 고칠 때는 일부러 어겨 실패하는 것을 먼저 본다.** 통과하는데 아무것도 안 보는 검사가 제일 나쁘다.

@@ -8,6 +8,18 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-10-21 · claude · 움직임 — 도감 각성이 그 무기의 입자와 함께 열린다
+
+- lib/scene-motion.js · lib/scene-motion.css — book-atelier 의 공용 모듈(판 1)을 글자 그대로 옮겼다. 켄 번스·입자·열리기·넘기기, 스위치 열쇠 atelier_motion_v1(네 공방 공용), 동작 줄이기가 이긴다
+- data/motion.json — 무기마다 입자 종류를 고르는 표. 원소 칸이 없어 look·skill·en 글에 정규식 줄을 위에서부터 대고(번개 sparks · 불·태양·대장간 embers · 얼음 snow · 바다 bubbles · 바람·안개 mist · 죽음·저주 ash · 달·별 stars · 원소 없는 북유럽 snow · 꽃 petals · 숲 leaves · 신성 gold · 전쟁·땅 dust), 없으면 신화권 기본. 신전 홀 각성 gold · 저주 ash
+- lib/img.js — particlesOf(card, table): 표를 대는 손잡이 하나. 판 myth7 (모든 화면의 img.js·words.js 판을 올렸다)
+- dex.html — 상세 큰 그림에 켄 번스, 기본 ↔ 각성(같은 스킨의 기본 ↔ 각성도)은 reveal + 각성으로 갈 때 그 무기의 입자 터짐, 각성 그림 위엔 옅게 떠도는 입자, 다른 컷·화풍은 turn. 크게 보기에는 없고 그동안 큰 그림도 쉰다. 신전 단추 아래 "움직임 켜기·끄기"(#dex-motion)
+- index.html — 신전 홀의 각성·저주 보기를 켤 때 장면 가운데서 입자가 한 번 터진다(그림은 원래 CSS 겹침 그대로)
+- lib/words.js — motion.on · motion.off · motion.note · motion.reduced
+- docs/SCENE_MOTION.md — 모듈 계약(book 과 같은 1~4절)과 이 저장소의 고르는 표·붙인 자리
+- tests/scene-motion.cjs — 모듈(입자·켄 번스·열리기·끊기·넘기기·스위치·동작 줄이기), 입자 표, 도감 상세·크게 보기·신전 홀, 다섯 크기 넘침·오류. 그림은 검사가 만드는 단색 PNG
+- AGENTS.md — 검사 목록에 움직임 검사, 읽을 문서에 SCENE_MOTION
+
 ## 2026-10-21 · claude · 테마를 공방마다 따로
 
 - lib/workspace-theme.js — 다섯 공방이 한 주소(polos0117.github.io) 아래라 localStorage 를 같이 쓰는데, 건담·pkm·신화가 테마를 같은 열쇠 `atelier_theme_v1` 에 적어 한 공방에서 고르면 다른 공방 테마가 바뀌었다(건담은 이름이 달라 기본으로 되돌아갔다). 이 공방 열쇠 `myth_theme_v1` 로. 처음 한 번만 옛 열쇠의 값이 이 공방 테마이면 옮겨 오고, 옛 열쇠는 지우지 않는다. 화면 밀도는 그대로 함께 쓴다
