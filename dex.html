@@ -167,11 +167,22 @@ body {color:var(--text);font-size:15px}
 /* 움직임(lib/scene-motion.js) — 각성 그림 위에 옅게 떠도는 입자 칸. 넘기기 화살표 아래에 깔린다 */
 .big-motion {position:absolute;inset:0;pointer-events:none}
 .motion-toggle {margin-top:8px}
+/* 즐겨찾기 — 신전 단추 위의 하트(지금 보이는 그림 한 장), 담은 수는 공방 모음으로 가는 작은 링크 */
+.fav-toggle {margin-top:8px;align-items:center}
+.dex-page .fav-toggle button {min-height:44px}
+.fav-toggle button span {font-size:15px;line-height:1;margin-right:5px}
+.fav-toggle .fav-count {display:inline-flex;align-items:center;min-height:44px;padding:0 10px;color:var(--muted);font:700 11px ui-monospace,monospace;text-decoration:none}
+.fav-toggle .fav-count:hover {color:var(--text)}
+.fav-toggle button:focus-visible,.fav-toggle .fav-count:focus-visible {outline:2px solid var(--gold);outline-offset:2px}
+.fav-toast {position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:90;max-width:calc(100vw - 32px);padding:9px 16px;border-radius:999px;background:var(--text);color:var(--bg);font:700 13px/1.35 var(--display);text-align:center;pointer-events:none}
+.fav-toast:empty {display:none}
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
 <script src="lib/words.js?v=myth47"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth7"></script>
+<!-- 즐겨찾기 — lib/favorites.js(공방 넷과 공방 모음이 글자 하나 다르지 않게 나눠 쓴다) -->
+<script src="lib/favorites.js?v=1"></script>
 <link rel="stylesheet" href="lib/gallery.css?v=2">
 <link rel="stylesheet" href="lib/scene-motion.css?v=1">
 <script src="lib/scene-motion.js?v=1"></script>
@@ -344,6 +355,19 @@ function select(st, f, only) {
   });
 }
 
+/* 즐겨찾기 — 목록은 다른 탭(공방 모음)에서 빼도 따라온다. 알림 자리는 늘 깔아 둔다(화면 읽기 프로그램이 새로 생긴 칸의 말을 놓치기 쉽다) */
+const FAV = window.AtelierFavorites, FAV_HUB = '/favorites.html';
+function useFavorites() {
+  const [list, setList] = useState(() => (FAV ? FAV.list() : []));
+  useEffect(() => (FAV ? FAV.onChange(setList) : undefined), []);
+  return list;
+}
+function useNote() {
+  const [msg, setMsg] = useState(''), t = useRef(0);
+  useEffect(() => () => clearTimeout(t.current), []);
+  return [msg, s => { setMsg(s); clearTimeout(t.current); t.current = setTimeout(() => setMsg(''), 2000); }];
+}
+
 function Facts({ card, group, skill }) {
   const sk = skill[card.skill] || { name: card.skill, text: '' };
   const rows = [
@@ -467,6 +491,16 @@ function Detail({ card, entry, styleName, group, skill, motion: motionTable, sel
     return () => { c.destroy(); if (ambient.current === c) ambient.current = null; };
   }, [shown && shown.file, kind]);
   useEffect(() => () => { if (MOTION) { MOTION.cancel('dex-big'); const img = bigImg(); if (img) MOTION.stop(img); } }, []);
+  /* 즐겨찾기 — 큰 그림에 떠 있는 바로 그 그림(기본·각성·저주·일상·스킨 무엇이든). link 에 ?card=&pic= 를 적어 공방 모음에서 누르면 이 그림으로 다시 연다 */
+  const favs = useFavorites(), [favMsg, sayFav] = useNote();
+  const faved = !!shown && favs.some(x => x.a === 'myth' && x.file === shown.file);
+  const toggleFav = () => {
+    if (!FAV || !shown) return;
+    const q = new URLSearchParams(); q.set('card', card.name); q.set('pic', shown.file);
+    const on = FAV.toggle({ a: 'myth', key: card.name, file: shown.file, title: card.name, sub: shotLabel(shown),
+      thumb: IMG.thumbURL(shown.file), full: IMG.imgURL(shown.file), link: new URL('dex.html', location.href).pathname + '?' + q.toString() });
+    sayFav(W(on ? 'dex.fav.added' : faved ? 'dex.fav.removed' : 'dex.fav.blocked'));
+  };
   const head = html`
     <div class="bar">
       <button class="back" onClick=${onClose}>${W('ui.back')}</button>
@@ -521,6 +555,12 @@ function Detail({ card, entry, styleName, group, skill, motion: motionTable, sel
       <button class=${shown && shown.cut === 'cursed' ? 'on' : ''} disabled=${!cursed} data-cut="cursed"
         onClick=${() => setFocus({ file: cursed, cut: 'cursed' })}>${W('dex.cut.cursed')}${isNew(cursed) && html`<${NewMark} />`}</button>
     </div>
+    ${shown && html`<div class="sw fav-toggle" role="group" aria-label=${W('dex.fav')}>
+      <button type="button" class=${faved ? 'on' : ''} id="dex-fav" aria-pressed=${faved} disabled=${!FAV} title=${W('dex.fav.note')}
+        onClick=${toggleFav}><span aria-hidden="true">${faved ? '\u2665' : '\u2661'}</span>${W('dex.fav')}</button>
+      ${favs.length > 0 && html`<a class="fav-count" id="dex-fav-count" href=${FAV_HUB}>${W('dex.fav.count', { n: favs.length })}</a>`}
+    </div>`}
+    <div class="fav-toast" role="status" aria-live="polite">${favMsg}</div>
     <div class="sw hall-toggle" role="group" aria-label=${W('dex.hall')}>
       <button type="button" class=${inHall ? 'on' : ''} data-hall=${inHall ? 'on' : 'off'} aria-pressed=${inHall} disabled=${hallFull} title=${W('dex.hall.note')}
         onClick=${enshrine}>${inHall ? W('dex.hall.remove', { temple }) : hallFull ? W('dex.hall.full', { temple, max: IMG.HALL_MAX }) : W('dex.hall.add', { temple })}</button>
@@ -696,7 +736,9 @@ function App() {
      목록 칸의 주소에서 card 를 먼저 지우고 상세 칸을 쌓는다 — 뒤로 가기면 card 없는 목록 주소 */
   const [asked] = useState(() => readURL().card);
   useEffect(() => { if (asked && st.cards) { const c = st.cards.find(x => x.name === asked);
-    if (c) { try { history.replaceState(null, '', urlOf(filtersNow.current, null)); } catch {} openShot({ card: c, cut: 'portrait' }); } } }, [st.cards]);
+    /* ?pic= — 즐겨찾기(공방 모음)에서 온 주소. 그 그림의 화풍·컷으로 연다 */
+    const pic = new URLSearchParams(location.search).get('pic'), shot = c && pic && cardShots(c, st.img[c.name]).find(s => s.file === pic);
+    if (c) { try { history.replaceState(null, '', urlOf(filtersNow.current, null)); } catch {} openShot(shot ? { ...shot, card: c } : { card: c, cut: 'portrait' }); } } }, [st.cards]);
   const [compact, setCompact] = useState(() => {
     try { return localStorage.getItem(COMPACT_STORE) === 'true'; } catch { return false; }
   });

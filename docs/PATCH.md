@@ -8,6 +8,12 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+## 2026-10-21 · claude · 도감 즐겨찾기 — 지금 보이는 그림을 하트로 담고, 공방 모음에서 모아 본다
+- lib/favorites.js — 공방 넷과 공방 모음(polos0117.github.io)이 같이 쓰는 즐겨찾기 모듈(판 v1). 원본은 공방 모음의 favorites.js, 글자 하나 다르지 않게 복사했다. 열쇠 atelier_favorites_v1(한 출처라 공방끼리 같은 목록), 약속은 그쪽 README 「즐겨찾기」절
+- dex.html — 상세의 신전 줄 위에 하트 「즐겨찾기」(aria-pressed) — 무기가 아니라 큰 그림에 떠 있는 그 그림(기본·각성·저주·일상·스킨)을 담는다. 담은 수 「즐겨찾기 n」 은 /favorites.html 로, 담았다·뺐다·저장이 막혔다는 알림(aria-live). ?card=&pic= 로 오면 그 그림의 화풍·컷으로 연다
+- lib/words.js — dex.fav.* 낱말 여섯
+- tests/dex-favorites.cjs — 새 검사: 하트·저장된 칸의 모양·그림마다 따로·새로고침·link 로 열기·저장 막힘·다섯 크기 44px·넘침·초점, 공방 모음 원본과 같은 파일인가 · AGENTS.md — 공용 모듈 한 줄과 검사 목록
+
 ## 2026-10-21 · claude · 움직임 — 도감 각성이 그 무기의 입자와 함께 열린다
 
 - lib/scene-motion.js · lib/scene-motion.css — book-atelier 의 공용 모듈(판 1)을 글자 그대로 옮겼다. 켄 번스·입자·열리기·넘기기, 스위치 열쇠 atelier_motion_v1(네 공방 공용), 동작 줄이기가 이긴다
