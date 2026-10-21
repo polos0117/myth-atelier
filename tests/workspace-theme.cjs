@@ -16,7 +16,7 @@ assert.deepEqual(Array.from(window.AtelierAppearance.themes),themes,'saved theme
 for(const key of themes){
  window.AtelierAppearance.set('theme',key);
  assert.equal(root.dataset.theme,key);
- assert.equal(stored.get('atelier_theme_v1'),key);
+ assert.equal(stored.get('myth_theme_v1'),key);
  const block=css.match(new RegExp(':root\\[data-theme="'+key+'"\\][^{]*\\{([^}]+)\\}'));
  assert(block,key+' palette');
  assert.equal(meta.content,block[1].match(/--deck:(#[0-9a-f]{6})/)[1],key+' browser chrome');
@@ -29,7 +29,7 @@ window.AtelierAppearance.set('density','relaxed');
 assert.equal(root.dataset.density,'relaxed');
 window.AtelierAppearance.set('density','unknown');
 assert.equal(root.dataset.density,'compact');
-stored.set('atelier_theme_v1','plum');events.get('storage')({key:'atelier_theme_v1'});
+stored.set('myth_theme_v1','plum');events.get('storage')({key:'myth_theme_v1'});
 assert.equal(root.dataset.theme,'plum','cross-tab preference survives');
 const marks=ui.slice(ui.indexOf('const CREST_MARK'),ui.indexOf('const MARK_STYLE'));
 const shapes=[...marks.matchAll(/  (\w+): \[([\s\S]*?)\n  \]/g)].map(m=>m[2]);
@@ -42,3 +42,14 @@ assert(ui.includes("W('theme.' + theme)"),'crest name comes from the word table'
 assert(!/class:'eyebrow'/.test(ui),'no eyebrow label above the page title');
 assert(viewportEvents.has('resize'));assert(events.has('storage'));
 console.log('PASS: '+themes.length+' armory themes, persistent keys, palette previews, browser chrome and viewport sizing');
+/* 공방마다 따로 — 옛 공용 열쇠(atelier_theme_v1)는 처음 한 번만, 이 공방 테마일 때만 옮겨 온다. 이 공방에서 바꿔도 옛 열쇠는 안 건드린다 */
+for (const [legacy, want] of [['plum', 'plum'], ['archangel', null]]) {
+  const st = new Map([['atelier_theme_v1', legacy]]), rt = { dataset: {}, style: { setProperty() {} } }, w = { innerHeight: 800, addEventListener() {}, dispatchEvent() {} };
+  vm.runInNewContext(source, { window: w, document: { documentElement: rt, querySelector: () => ({ content: '' }) },
+    localStorage: { getItem: k => st.has(k) ? st.get(k) : null, setItem: (k, v) => st.set(k, v) },
+    requestAnimationFrame: () => 0, cancelAnimationFrame() {}, Event: function () {} });
+  if (want) { assert.equal(rt.dataset.theme, want, '옛 열쇠의 이 공방 테마를 옮겨 온다'); assert.equal(st.get('myth_theme_v1'), want); }
+  else assert.equal(st.has('myth_theme_v1'), false, '다른 공방 테마 이름은 옮기지 않는다');
+  w.AtelierAppearance.set('theme', w.AtelierAppearance.themes[1]);
+  assert.equal(st.get('atelier_theme_v1'), legacy, '이 공방에서 바꿔도 다른 공방(옛 열쇠)은 그대로');
+}
