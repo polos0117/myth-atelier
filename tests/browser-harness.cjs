@@ -49,7 +49,7 @@ async function start() {
   async function open(page, opt) {
     opt = opt || {};
     const ctx = await browser.newContext({ viewport: opt.viewport || FOLD.cover,
-      isMobile: !!opt.mobile, hasTouch: !!opt.mobile, ...(opt.dpr ? { deviceScaleFactor: opt.dpr } : {}) });
+      isMobile: !!opt.mobile, hasTouch: !!opt.mobile, ...(opt.dpr ? { deviceScaleFactor: opt.dpr } : {}), ...(opt.reducedMotion ? { reducedMotion: opt.reducedMotion } : {}) });
     await ctx.route('**/*', async route => {
       const url = route.request().url(), origin = new URL(url).origin;
       if (origin === new URL(base).origin) return route.continue();
@@ -71,6 +71,13 @@ async function start() {
          디스크에서 바로 읽는다 */
       const figure = origin === 'https://polos0117.github.io' &&
         new URL(url).pathname.match(/^\/atelier\/assets\/figures\/([^/]+\.png)$/);
+      /* 도트 그림(그림 저장소의 sprites/) — opt.imgRoot(검사가 만든 임시 자리)의 sprites/ 에서 */
+      const sprite = !figure && origin === 'https://polos0117.github.io' && new URL(url).pathname.match(/^\/myth-atelier-img\/(sprites\/.+)$/);
+      if (sprite) {
+        const file = opt.imgRoot ? path.resolve(opt.imgRoot, decodeURIComponent(sprite[1])) : null;
+        if (!file || !file.startsWith(opt.imgRoot + path.sep) || !fs.existsSync(file)) return route.fulfill({ status: 404, body: 'no sprite' });
+        return route.fulfill({ status: 200, contentType: 'image/png', body: fs.readFileSync(file) });
+      }
       const local = figure ? [null, 'img/figure-previews/' + figure[1]] :
         origin === 'https://polos0117.github.io' && new URL(url).pathname.match(/\/(img\/.+)$/);
       if (local) {
@@ -84,6 +91,11 @@ async function start() {
       }
       return route.abort();
     });
+    /* opt.files — 체크아웃의 파일 대신 줄 내용 {'data/sprites.json': 문자열|객체}. 나중에 건 길이 먼저 잡는다 */
+    for (const [rel, body] of Object.entries(opt.files || {}))
+      await ctx.route(u => new URL(u).origin === new URL(base).origin && new URL(u).pathname === '/' + rel,
+        r => r.fulfill({ status: 200, contentType: MIME[path.extname(rel)] || 'application/octet-stream',
+                         body: typeof body === 'string' ? body : JSON.stringify(body) }));
     if (opt.store) await ctx.addInitScript(([k, v]) => { try { localStorage.setItem(k, v); } catch (e) {} }, opt.store);
     /* init 은 함수 하나, 또는 [함수, 넘길 값] 이다. 넘길 값은 브라우저 쪽으로
        직렬화돼 건너가므로 바깥 변수를 붙잡지 않는다 */

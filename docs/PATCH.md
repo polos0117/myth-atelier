@@ -10,6 +10,14 @@
 
 
 
+
+## 2026-10-22 · claude · 도트 무기 — 대장간 무대 바닥·도감 상세
+- index.html — 대장간 무대(.hall-stage) 아래쪽 띠(.hall-dots)에 도트가 있는 무기가 서서 거닌다(좁으면 둘·넓으면 셋, 날마다 차례가 돈다). 띠는 누름을 지나 보내고, 인물을 누르면 그 무기의 도감(?card=). 도트가 없으면 띠째 없다
+- dex.html — 상세의 도트 줄(작은 무대, 누르면 반응)·목록 칸의 「도트」 표(오른쪽 아래)
+- data/sprites.json — 새 자료(인물은 아직 없다 — 도트 공방의 「인물 칸 복사」를 actors 에 넣는다, 그림은 myth-atelier-img/sprites/)
+- lib/words.js — dex.dot.* · home.dot.*, 여덟 화면 words.js ?v=myth48, lib/sprite-actor.js — 공방 모음 원본
+- tests/dot-screen.cjs — 새 검사(시험 자료 둘, tests/fixtures/make-sprites.py) · tests/browser-harness.cjs — files·imgRoot(sprites/)·reducedMotion · AGENTS.md
+
 ## 2026-10-22 · claude · 도트 재생기 v2 를 받아 둔다
 - lib/sprite-actor.js · lib/sprite-actor.css — 공방 모음 원본 v2(floor·popOut·actorFor/forCard 더함) 그대로 복사. 아직 부르는 화면은 없다
 - tests/sprite-actor-copy.cjs — v2 의 내보내기 일곱

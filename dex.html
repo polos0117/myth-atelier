@@ -176,9 +176,14 @@ body {color:var(--text);font-size:15px}
 .fav-toggle button:focus-visible,.fav-toggle .fav-count:focus-visible {outline:2px solid var(--gold);outline-offset:2px}
 .fav-toast {position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:90;max-width:calc(100vw - 32px);padding:9px 16px;border-radius:999px;background:var(--text);color:var(--bg);font:700 13px/1.35 var(--display);text-align:center;pointer-events:none}
 .fav-toast:empty {display:none}
+/* 도트 — 상세의 작은 무대(바닥 위를 거닌다, 누르면 반응), 목록 칸의 「도트」 표(「새」·「모심」은 왼쪽이라 오른쪽 아래) */
+.dex-dot {margin:14px 0 6px}.dex-dot[hidden] {display:none}
+.dex-dot-stage {position:relative;height:150px;overflow:hidden;border:1px solid var(--line);border-radius:12px;
+  background:linear-gradient(180deg,var(--card) 0,var(--card) 74%,color-mix(in srgb,var(--gold) 22%,var(--card)) 74%,var(--card) 100%)}
+.dot-badge {position:absolute;right:5px;bottom:5px;z-index:2;padding:2px 7px;border-radius:999px;background:#120f16d9;color:var(--gold);font:800 10px/1.4 var(--display);letter-spacing:.04em;pointer-events:none}
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
-<script src="lib/words.js?v=myth47"></script>
+<script src="lib/words.js?v=myth48"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth7"></script>
 <!-- 즐겨찾기 — lib/favorites.js(공방 넷과 공방 모음이 글자 하나 다르지 않게 나눠 쓴다) -->
@@ -186,6 +191,9 @@ body {color:var(--text);font-size:15px}
 <link rel="stylesheet" href="lib/gallery.css?v=2">
 <link rel="stylesheet" href="lib/scene-motion.css?v=1">
 <script src="lib/scene-motion.js?v=1"></script>
+<!-- 도트 — lib/sprite-actor.js(공방 모음의 공용 재생기) · data/sprites.json. 도트가 있는 무기는 목록 칸에 「도트」 표, 상세에 작은 무대 한 줄 -->
+<script src="lib/sprite-actor.js?v=1"></script>
+<link rel="stylesheet" href="lib/sprite-actor.css?v=1">
 </head>
 <body class="dex-page">
 <div id="app"></div>
@@ -361,6 +369,26 @@ function useFavorites() {
   const [list, setList] = useState(() => (FAV ? FAV.list() : []));
   useEffect(() => (FAV ? FAV.onChange(setList) : undefined), []);
   return list;
+}
+/* 도트 자료 — 한 번만 받는다(목록 표). 상세의 무대는 AtelierSprite.mount 가 같은 자료로 */
+const SP = window.AtelierSprite;
+function useSprites() {
+  const [sp, setSp] = useState(null);
+  useEffect(() => { let live = true; SP && SP.load('data/sprites.json').then(d => { if (live && d && d.actors) setSp(d); }, () => {}); return () => { live = false; }; }, []);
+  return sp;
+}
+/* 도트 — 이 무기의 도트가 있으면 작은 무대 한 줄(거닐고, 누르면 반응). 없거나 그림을 못 받으면 아무것도 없다 */
+function DotRow({ card }) {
+  const box = useRef(null), [on, setOn] = useState(false);
+  useEffect(() => {
+    if (!SP || !box.current) return;
+    let live = true, a = null;
+    SP.mount(box.current, card.name, { label: W('dex.dot.actor', { name: card.name }) }).then(x => { if (!live) { if (x) x.destroy(); return; } a = x; setOn(!!x); });
+    return () => { live = false; if (a) a.destroy(); setOn(false); };
+  }, [card.name]);
+  return html`<section class="dex-dot" hidden=${!on} data-card=${card.name} aria-labelledby="dex-dot-title">
+    <p class="sec" id="dex-dot-title">${W('dex.dot.title')}<span>${W('dex.dot.note')}</span></p>
+    <div class="dex-dot-stage" ref=${box}></div></section>`;
 }
 function useNote() {
   const [msg, setMsg] = useState(''), t = useRef(0);
@@ -569,6 +597,7 @@ function Detail({ card, entry, styleName, group, skill, motion: motionTable, sel
     <div class="sw motion-toggle"><button type="button" id="dex-motion" aria-pressed=${motion} disabled=${motionLocked} title=${W(motionLocked ? 'motion.reduced' : 'motion.note')}
       onClick=${() => MOTION.setEnabled(!motion)}>${W(motion ? 'motion.off' : 'motion.on')}</button></div>
 
+<${DotRow} key=${card.name} card=${card} />
 </section></div><section class="other-art">
     ${extra.length > 0 && html`
       <p class="sec">${W('dex.extra')}<span>${W('art.count', { n: extra.length })}</span></p>
@@ -637,6 +666,7 @@ function shotLabel(shot) {
 }
 
 function List({ st, filters, onFilter, onOpen, compact, onCompact, restore, fresh, newOnly, onNewOnly }) {
+  const sprites = useSprites();
   const f = normalize(filters);
   const [filtersOpen, setFiltersOpen] = useState(false);
   /* 상세에서 돌아오면 열기 전에 굴려 둔 자리로. 상세에서 다른 무기로 넘어갔으면 그 무기 칸이 보이게 한 번 더 민다 */
@@ -714,7 +744,7 @@ function List({ st, filters, onFilter, onOpen, compact, onCompact, restore, fres
             onClick=${() => onOpen({ card: c, style: f.style, file, cut: 'portrait' })}>
             <span class="face">${file
               ? html`<${Pic} file=${file} alt=${c.name} />`
-              : html`<span class="ph">${W('art.none')}</span>`}${enshrined ? html`<span class="hall-mark">${W('dex.hall.on')}</span>` : ''}${fresh.cards.has(c.name) ? html`<${NewMark} />` : ''}</span>
+              : html`<span class="ph">${W('art.none')}</span>`}${enshrined ? html`<span class="hall-mark">${W('dex.hall.on')}</span>` : ''}${fresh.cards.has(c.name) ? html`<${NewMark} />` : ''}${SP && sprites && SP.actorFor(sprites, c.name) ? html`<span class="dot-badge" title=${W('dex.dot.label')}>${W('dex.dot.badge')}</span>` : ''}</span>
             <span class="cap"><span class="cnm"><span class="cost">${W('card.cost.n', { n: c.cost })}</span>${c.name}</span>
               <i>${st.group.myth.name[c.myth]} · ${st.group.kind.name[c.kind]}</i>
               <i>${states}</i>

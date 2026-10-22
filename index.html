@@ -11,12 +11,20 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap">
 <link rel="stylesheet" href="lib/workspace.css?v=myth36">
 <script src="lib/workspace-theme.js?v=myth8"></script>
-<script src="lib/words.js?v=myth47"></script>
+<script src="lib/words.js?v=myth48"></script>
 <script src="lib/img.js?v=myth7"></script>
 <script src="lib/patch.js?v=1"></script>
 <script src="lib/fresh.js?v=4"></script>
 <link rel="stylesheet" href="lib/scene-motion.css?v=1">
 <script src="lib/scene-motion.js?v=1"></script>
+<script src="lib/sprite-actor.js?v=1"></script>
+<link rel="stylesheet" href="lib/sprite-actor.css?v=1">
+<style>
+/* 대장간 바닥의 도트 — 무대(.hall-stage) 아래쪽 띠, 도는 카드 앞을 거닌다. 띠는 누름을 지나 보내고 인물만 받는다. 도트가 없으면 없다 */
+.hall-dots {position:absolute;left:0;right:0;bottom:0;height:150px;z-index:4;pointer-events:none}
+.hall-dots[hidden] {display:none}
+.hall-dots .sprite-actor {pointer-events:auto}
+</style>
 </head>
 <body class="prompt-page lab-page">
 <div class="wrap"><div id="app"></div></div>
@@ -24,7 +32,7 @@
 import {h,render} from 'https://esm.sh/preact@10.24.3';
 import {useState,useEffect,useRef} from 'https://esm.sh/preact@10.24.3/hooks';
 import {WorkspaceHeader,ThemeGallery} from './lib/workspace-ui.js?v=myth15';
-const W=window.W,IMG=window.AtelierImg,MOTION=window.AtelierMotion;
+const W=window.W,IMG=window.AtelierImg,MOTION=window.AtelierMotion,SP=window.AtelierSprite;
 /* 패치 기록 — docs/PATCH.md 를 그대로 읽는다. 열 때 한 번만 받아 온다.
    닫혀 있으면 단추만 그려 집 화면의 자리를 건드리지 않는다. */
 function Patch(){
@@ -56,6 +64,18 @@ function Patch(){
 const MOTES=[[8,11,0],[17,13,2],[26,9,5],[35,14,1],[44,10,7],[53,12,3],[62,9,6],[71,13,2],[80,11,8],[89,10,4],[95,12,1],[3,14,6]];
 function Hall(){
   const [cards,setCards]=useState(null),[picked,setPicked]=useState(false),[broken,setBroken]=useState({}),[mode,setMode]=useState('base'),box=useRef(null),stage=useRef(null),burst=useRef({});
+  /* 도트 — data/sprites.json 의 무기 도트가 무대 바닥을 거닌다(좁으면 둘·넓으면 셋, 날마다 차례가 돈다). 누르면 그 무기의 도감으로. 없으면 띠째 없다 */
+  const dots=useRef(null),[dotsOn,setDotsOn]=useState(false);
+  useEffect(()=>{
+    if(!SP||!dots.current)return;
+    let live=true,F=null;
+    SP.load('data/sprites.json').then(d=>{
+      if(!live||!d||!d.actors||!Object.keys(d.actors).length)return;
+      F=SP.floor(dots.current,d,{floor:14,labelOf:k=>W('home.dot.actor',{name:k}),onSelect:k=>{location.href='dex.html?card='+encodeURIComponent(k);}});
+      F.ready().then(()=>{if(live)setDotsOn(F.list().some(x=>!x.actor.failed));});
+    },()=>{});
+    return()=>{live=false;if(F)F.destroy();};
+  },[]);
   const [theme,setTheme]=useState(()=>IMG.hallTheme());
   useEffect(()=>{const on=()=>setTheme(IMG.hallTheme());addEventListener('atelier-appearance',on);return()=>removeEventListener('atelier-appearance',on);},[]);
   useEffect(()=>{
@@ -117,7 +137,8 @@ function Hall(){
         return h('div',{class:'hall-card',key:c.name,style:a,'data-name':c.name,'data-file':c.file},
           pic(c,'file',c.file),c.awaken&&pic(c,'awaken',c.awaken),c.cursed&&pic(c,'cursed',c.cursed),h('b',null,c.name));
       })),
-      MOTES.map(([x,d,w],i)=>h('span',{class:'hall-mote',key:i,style:'--x:'+x+'%;--d:'+d+'s;--w:-'+w+'s'})))),
+      MOTES.map(([x,d,w],i)=>h('span',{class:'hall-mote',key:i,style:'--x:'+x+'%;--d:'+d+'s;--w:-'+w+'s'}))),
+    h('div',{class:'hall-dots',ref:dots,hidden:!dotsOn,role:'group','aria-label':W('home.dot.floor')})),
     h('div',{class:'hall-copy'},
       h('div',{class:'eyebrow'},W('home.hall'),h('span',null,' / '+W(mode==='base'?'home.hall.note':'home.hall.note.'+mode))),
       h('h2',null,W('home.title')),h('p',null,W('home.intro')),
