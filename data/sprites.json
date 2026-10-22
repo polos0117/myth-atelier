@@ -1,5 +1,89 @@
 {
  "_": "도트 인물 — 약속은 공방 모음(polos0117.github.io) README 「도트 재생기」. 인물마다 card(무기 이름 = 도감 ?card=) · cell · foot · scale · flip · facing · states(still · idle · walk · react). 인물 칸은 공방 모음의 도트 공방(dot.html) 「인물 칸 복사」 그대로 넣는다. 그림은 그림 저장소 myth-atelier-img 의 sprites/<이름>/ (img/ 밖 — 등록기·썸네일이 읽지 않는다). 대장간 무대 바닥·도감 상세의 도트 줄이 이것을 읽는다.",
  "base": "https://polos0117.github.io/myth-atelier-img/sprites/",
- "actors": {}
+ "actors": {
+  "brionac": {
+   "card": "브류나크",
+   "id": "brionac",
+   "form": "base",
+   "cell": [
+    96,
+    128
+   ],
+   "foot": [
+    48,
+    126
+   ],
+   "scale": 1,
+   "flip": true,
+   "facing": "right",
+   "states": {
+    "still": {
+     "file": "brionac/brionac_base_still.png",
+     "frames": 1
+    },
+    "idle": {
+     "file": "brionac/brionac_base_idle.png",
+     "frames": 4,
+     "order": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "ms": [
+      700,
+      220,
+      140,
+      220
+     ]
+    },
+    "walk": {
+     "file": "brionac/brionac_base_walk.png",
+     "frames": 6,
+     "order": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "ms": [
+      200,
+      200,
+      200,
+      200,
+      200,
+      200
+     ],
+     "speed": 75,
+     "dy": [
+      -0.67,
+      -0.67,
+      -0.33,
+      0.67,
+      1.67,
+      -0.33
+     ]
+    },
+    "react": {
+     "file": "brionac/brionac_base_react.png",
+     "frames": 4,
+     "order": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "ms": [
+      120,
+      180,
+      320,
+      200
+     ]
+    }
+   }
+  }
+ }
 }
