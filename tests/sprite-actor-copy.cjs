@@ -14,5 +14,6 @@ for (const f of ['sprite-actor.js', 'sprite-actor.css']) {
 /* 화면 없이 실어 본다 — window.AtelierSprite 에 load · create */
 const box = { window: {} }; box.window.window = box.window; vm.createContext(box);
 vm.runInContext(fs.readFileSync(path.join(ROOT, 'lib/sprite-actor.js'), 'utf8'), box);
-assert.deepEqual(Object.keys(box.window.AtelierSprite).sort(), ['create', 'load']);
-console.log('PASS 도트 재생기 복사본: ' + said.join(' · ') + ' · 실으면 AtelierSprite(load · create)');
+const API = ['load', 'create', 'floor', 'popOut', 'actorFor', 'forCard', 'cardKey'];
+assert.deepEqual(Object.keys(box.window.AtelierSprite).sort(), API.slice().sort());
+console.log('PASS 도트 재생기 복사본: ' + said.join(' · ') + ' · 실으면 AtelierSprite(' + API.join(' · ') + ')');

@@ -9,6 +9,11 @@
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
 
+
+## 2026-10-22 · claude · 도트 재생기 v2 를 받아 둔다
+- lib/sprite-actor.js · lib/sprite-actor.css — 공방 모음 원본 v2(floor·popOut·actorFor/forCard 더함) 그대로 복사. 아직 부르는 화면은 없다
+- tests/sprite-actor-copy.cjs — v2 의 내보내기 일곱
+
 ## 2026-10-22 · claude · 도트 재생기 공용 모듈을 받아 둔다
 - lib/sprite-actor.js · lib/sprite-actor.css — 다섯 공방이 같이 쓰는 도트 인물 재생기(판 v1). 원본은 공방 모음(polos0117.github.io)의 sprite-actor.js·.css, 글자 하나 다르지 않게 복사했다. 아직 부르는 화면은 없다 — 도트 인물은 공방 모음의 도트 공방(dot.html)에서 만들고 data/sprites.json 을 두면 세운다
 - tests/sprite-actor-copy.cjs — 새 검사: 복사본이 원본과 같다 · AGENTS.md — 공용 모듈 한 줄과 검사 목록
