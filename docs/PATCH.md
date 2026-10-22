@@ -8,6 +8,11 @@
 날짜는 `2026-09-21` 꼴, 누가는 `claude` 또는 `gpt`, 새 칸이 위로 간다.
 이 안내글은 첫 `##` 앞이라 화면이 읽지 않는다. `node tests/patch.cjs` 가 모양을 본다.
 
+
+## 2026-10-22 · claude · 도트 재생기 공용 모듈을 받아 둔다
+- lib/sprite-actor.js · lib/sprite-actor.css — 다섯 공방이 같이 쓰는 도트 인물 재생기(판 v1). 원본은 공방 모음(polos0117.github.io)의 sprite-actor.js·.css, 글자 하나 다르지 않게 복사했다. 아직 부르는 화면은 없다 — 도트 인물은 공방 모음의 도트 공방(dot.html)에서 만들고 data/sprites.json 을 두면 세운다
+- tests/sprite-actor-copy.cjs — 새 검사: 복사본이 원본과 같다 · AGENTS.md — 공용 모듈 한 줄과 검사 목록
+
 ## 2026-10-21 · claude · 도감 즐겨찾기 — 지금 보이는 그림을 하트로 담고, 공방 모음에서 모아 본다
 - lib/favorites.js — 공방 넷과 공방 모음(polos0117.github.io)이 같이 쓰는 즐겨찾기 모듈(판 v1). 원본은 공방 모음의 favorites.js, 글자 하나 다르지 않게 복사했다. 열쇠 atelier_favorites_v1(한 출처라 공방끼리 같은 목록), 약속은 그쪽 README 「즐겨찾기」절
 - dex.html — 상세의 신전 줄 위에 하트 「즐겨찾기」(aria-pressed) — 무기가 아니라 큰 그림에 떠 있는 그 그림(기본·각성·저주·일상·스킨)을 담는다. 담은 수 「즐겨찾기 n」 은 /favorites.html 로, 담았다·뺐다·저장이 막혔다는 알림(aria-live). ?card=&pic= 로 오면 그 그림의 화풍·컷으로 연다

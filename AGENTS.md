@@ -81,6 +81,7 @@
 node tests/words.cjs             # 낱말이 코드에 박히지 않았나
 node tests/workspace-theme.cjs   # 결 여덟 · 밀도 · 문양
 node tests/data.cjs              # 카드·이름표·기술·화풍·그림 목록이 서로 맞나
+node tests/sprite-actor-copy.cjs # 도트 재생기 — lib/sprite-actor.js·.css 가 공방 모음 원본과 같다
 node tests/patch.cjs             # 패치 기록의 모양
 node tests/auto-sim.cjs --quick  # 싸움 규칙 (빼면 균형 표)
 node tests/duel-sim.cjs --quick  # 결투 규칙 (빼면 297판 균형 보고)
@@ -116,6 +117,8 @@ ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/dex-favorites.cjs   # �
 ```
 
 즐겨찾기 `lib/favorites.js` 는 공방 모음(polos0117.github.io)의 `favorites.js` 를 글자 하나 다르지 않게 복사한 공용 모듈이다(열쇠 `atelier_favorites_v1`, 약속은 그쪽 README 「즐겨찾기」절). 고치면 다섯 저장소를 같이 고치고, `tests/dex-favorites.cjs` 가 원본과 견준다.
+
+도트 재생기 `lib/sprite-actor.js`·`lib/sprite-actor.css` 도 공방 모음의 `sprite-actor.js`·`.css` 를 글자 하나 다르지 않게 복사한 공용 모듈이다(판 v1, 약속 — `data/sprites.json` 꼴·API — 은 그쪽 README 「도트 재생기」절, 인물의 그림은 공방 모음의 도트 공방 `dot.html` 에서 만든다). 고치면 원본과 다섯 저장소를 같이, `node tests/sprite-actor-copy.cjs` 가 원본과 견준다. 아직 이 공방에서 부르는 화면은 없다 — 도트 인물이 생기면 `data/sprites.json` 을 두고 화면이 `AtelierSprite.create` 로 세운다.
 
 **검사를 고칠 때는 일부러 어겨 실패하는 것을 먼저 본다.** 통과하는데 아무것도 안 보는 검사가 제일 나쁘다.
 
