@@ -183,4 +183,10 @@ for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for 
   assert(r2.cat === 'everyday_basic' && r2.ex && r2.ex !== 'bookstore' && S.CASUAL_EXAMPLES.everyday_basic.some(r => r[0] === r2.ex), '예시만 돌리면 갈래 안에서');
   assert(JSON.stringify(R.randomize(base, null, rng)) !== JSON.stringify(base) && JSON.stringify(base) === JSON.stringify({ cat: 'everyday_basic', ex: 'bookstore', pose: '', orient: '', expr: '', axes: {}, locks: { pose: true } }), '원본은 안 건드린다');
 }
+/* 뒤돌아보기 — 등이 카메라를 보는 각도·돌아보는 자세에만 LOOK-BACK 줄(pkm 2026-10-25 같은 문제) */
+{
+  const cas = x => P.build({ card: data.cards[0].name, style: S.STYLES[0][0], output: 'casual', params: {}, casual: { cat: S.CASUAL_CATS[1][0], ...x } }, data);
+  for (const x of [{ orient: 'rear_3q' }, { orient: 'three_quarter_back' }, { orient: 'over_shoulder' }, { orient: 'back' }, { pose: 'turning_back' }]) assert(cas(x).includes(S.CASUAL_RULES.lookBack), '뒤돌아보기 줄 ' + JSON.stringify(x));
+  for (const x of [{ orient: 'front_3q' }, { pose: 'walking' }, {}]) assert(!cas(x).includes('LOOK-BACK:'), '뒤돌아보기 줄 없음 ' + JSON.stringify(x));
+}
 console.log('PASS 프롬프트 ' + n + '개 — 가장 긴 것 ' + longest.w + '낱말 (' + longest.card + ' · ' + longest.output + ' · ' + longest.style + ')');
