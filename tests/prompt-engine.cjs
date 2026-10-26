@@ -158,6 +158,7 @@ for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for 
   for (const [cat, rows] of Object.entries(S.CASUAL_EXAMPLES)) for (const r of rows) {
     assert(r[0] === '' || r[0] === '__custom__' || (r[2] && /^[\u0020-\u007e\u00a0-\u024f\u2019\u2014]+$/.test(r[2])), cat + '/' + r[0] + ' 예시 문장은 영어');
     assert(!/포켓몬|Pok/i.test(r.join(' ')), cat + '/' + r[0] + ' 에 포켓몬이 남았다');
+    assert(r[0] === '' || r[0] === '__custom__' || S.CASUAL_EX_NOTE[r[0]], cat + '/' + r[0] + ' 의 한국어 설명(CASUAL_EX_NOTE)이 없다');
   }
   assert(!/포켓몬|Pokémon|Pokemon/.test(JSON.stringify([S.CASUAL_CATS, S.CASUAL_EXAMPLES, S.CASUAL_EX_NOTE, S.CASUAL_AXIS_GUIDES, S.CASUAL_RULES])), '일상컷 표에 포켓몬이 남았다');
   const st = { card: '궁니르', style: 'glossy_promo', output: 'casual', params: { frame: 'waist-up framing' },
