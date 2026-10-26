@@ -171,6 +171,15 @@ for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for 
   assert(P.words(t) <= 700, '일상컷 다 채워도 700 안: ' + P.words(t));
   const tm = P.build({ ...st, casual: { cat: 'motif_editorial', ex: 'runway' } }, data);
   assert(tm.includes('WEAPON LOOK for the fashion translation: ' + data.cards.find(c => c.name === '궁니르').look), '모티브 에디토리얼은 look 을 준다');
+  /* 무예 수련은 무기 종류의 연습 도구, 세시·제례는 신화 지역의 명절을 한 줄로 준다(2026-10-26) */
+  const gung = data.cards.find(c => c.name === '궁니르');
+  const tp = P.build({ ...st, casual: { cat: 'martial_practice', ex: 'dawn_form' } }, data);
+  assert(tp.includes('PRACTICE TOOL: ' + S.CASUAL_PRACTICE[gung.kind] + '.') && !tp.includes('RITES OF HER REGION'), '무예 수련 연습 도구');
+  const tr = P.build({ ...st, casual: { cat: 'seasonal_rite', ex: 'bonfire_night' } }, data);
+  assert(tr.includes('RITES OF HER REGION (pick the one that fits the example): ' + S.CASUAL_RITES[gung.myth] + '.') && !tr.includes('PRACTICE TOOL'), '세시·제례 지역 명절');
+  for (const k of data.group.kind.order) assert(S.CASUAL_PRACTICE[k], k + ' 연습 도구');
+  for (const m of data.group.myth.order) assert(S.CASUAL_RITES[m], m + ' 명절');
+  assert(!P.build({ ...st, casual: { cat: 'forge_workshop', ex: 'blade_polish' } }, data).match(/PRACTICE TOOL|RITES OF HER REGION/), '공방에는 둘 다 없다');
   const tc = P.build({ ...st, casual: { cat: '__custom__', catCustom: 'a sauna evening', ex: '__custom__', exCustom: 'towel wrapped, steam' } }, data);
   assert(tc.includes('CATEGORY: a sauna evening') && tc.includes('EXAMPLE SCENE: towel wrapped, steam'), '직접 입력');
   /* 랜덤 — 잠긴 칸은 안 바뀌고, 예시가 잠기면 갈래도 못 돌린다. 난수는 고정 */
