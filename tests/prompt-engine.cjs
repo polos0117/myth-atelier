@@ -52,8 +52,8 @@ for (const p of S.PARAMS) {
 }
 assert.equal(new Set(S.PARAMS.map(p => p.key)).size, S.PARAMS.length, '열쇠가 겹친다');
 
-/* 액션 한 장은 머리색·눈색 자동(2026-10-01)으로 여섯 낱말쯤 늘어 330 */
-const BUDGET = { portrait: 330, awaken: 260, cursed: 290, casual: 560, skin: 300 };
+/* 액션 한 장은 머리색·눈색 자동(2026-10-01)으로 여섯 낱말쯤 늘어 330. 몸 개수 줄 BODY(2026-10-27)로 40낱말쯤 더 — 일상컷은 HAND TASK 도 넣고 겹치는 금지 문장을 덜었다(560 그대로, 다 채우면 740) */
+const BUDGET = { portrait: 370, awaken: 270, cursed: 310, casual: 560, skin: 320 };
 let n = 0, longest = { w: 0 };
 for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for (const style of S.STYLES) {
   const st = { card: card.name, style: style[0], output, params: {} };
@@ -63,6 +63,8 @@ for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for 
   assert(text.startsWith((output === 'casual' ? 'CHARACTER: ' : 'WEAPON: ') + card.en + ' (' + card.name + ')'), card.name + ' 이름이 앞에');
   assert(text.includes(style[2]), card.name + ' ' + style[0] + ' 화풍 문장');
   assert(text.includes(S.OUTPUTS[output].text), '출력 문장');
+  /* 몸 개수 줄은 모든 출력에, 일상컷은 손 규칙까지. 손 줄에 다 보이라는 말·손가락 개수는 없다(2026-10-27) */
+  assert(text.includes(S.BODY_LINE) && (output !== 'casual' || text.includes(S.CASUAL_RULES.hands)) && !/fully visible|five fingers|four fingers/.test(text), card.name + ' ' + output + ' 몸·손 줄');
   assert(w <= BUDGET[output], card.name + ' ' + output + ' ' + style[0] + ' 낱말 ' + w + ' > ' + BUDGET[output]);
   if (w > longest.w) longest = { w, card: card.name, output, style: style[0] };
   assert(!/포켓몬|armor form|pokemon|overdrive/i.test(text), '앞 저장소의 말이 남았다');
@@ -74,7 +76,7 @@ for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for 
     for (const state of ['awaken', 'cursed']) {
       const s2 = { ...st, skinState: state }, t2 = P.build(s2, data);
       assert(t2.includes(S.OUTPUTS[state].text) && t2.includes('SKIN LOOK') && t2.includes('SKIN NOTE') && !t2.includes(S.OUTPUTS.skin.text), '스킨 ' + state + ' 은 그 상태 문장에 스킨 묘사');
-      assert(P.words(t2) <= 360, card.name + ' 스킨 ' + state + ' 낱말 ' + P.words(t2));
+      assert(P.words(t2) <= 400, card.name + ' 스킨 ' + state + ' 낱말 ' + P.words(t2));
       assert.equal(P.fileName(s2, card), card.name.replace(/ /g, '_') + '_' + style[0] + '_f_skin_' + sk.key + '_' + state + '.webp', '스킨 ' + state + ' 파일 이름');
     }
   }
@@ -169,7 +171,7 @@ for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for 
   assert(t.includes('framing: waist-up framing') && t.includes('outfit and props: grey wool coat') && t.includes('scene: rainy Oslo'), '프레임·의상·장소');
   assert(t.includes('skin exposure: low \u2014 ' + S.CASUAL_AXIS_GUIDES.skin_exposure.low[1]) && !t.includes('overall intensity'), '축은 AUTO 아닌 것만');
   assert(t.includes(S.CASUAL_RULES.priority), '자세를 고르면 우선 규칙');
-  assert(P.words(t) <= 700, '일상컷 다 채워도 700 안: ' + P.words(t));
+  assert(P.words(t) <= 740, '일상컷 다 채워도 740 안: ' + P.words(t));
   const tm = P.build({ ...st, casual: { cat: 'motif_editorial', ex: 'runway' } }, data);
   assert(tm.includes('WEAPON LOOK for the fashion translation: ' + data.cards.find(c => c.name === '궁니르').look), '모티브 에디토리얼은 look 을 준다');
   /* 무예 수련은 무기 종류의 연습 도구, 세시·제례는 신화 지역의 명절을 한 줄로 준다(2026-10-26) */
