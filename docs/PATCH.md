@@ -12,6 +12,9 @@
 
 
 
+## 2026-10-27 · claude · 가벼운 조깅 자세 — 옷차림은 그대로
+- lib/prompt-spec.js — 자세 「가벼운 조깅」 영어 문장 "Jog lightly with compact arm movement and a believable running step." 이 의상까지 조깅복으로 바꿨다(사용자). "Move at a light, quick jog … ; her outfit stays exactly as described." 로 — 금지어 대신 옷은 고른 그대로라고 적는다. 한국어 설명도 맞췄다. 걷기·스트레칭·댄스 스텝 문장에는 운동복을 부르는 말이 없어 그대로. prompt.html 판 올림.
+
 ## 2026-10-27 · claude · 그림 규칙 — 배경 속 사람은 괜찮다
 - IMAGE_RULES.md — "인물은 그녀 한 명" 을 "주인공은 그녀 한 명" 으로. 배경 속 사람(흐릿한 손님·행인·객석)은 나와도 괜찮다(사용자). 다시 만드는 것은 주인공을 다투는 사람·몸에 닿은 사람·같은 얼굴 하나 더. pkm·game 과 같은 기준.
 
