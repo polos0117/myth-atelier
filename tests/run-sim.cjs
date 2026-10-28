@@ -208,10 +208,101 @@ ok(!plain.fromDraft && plain.party.every(m => !m.wielder && m.mult === 1 && m.ga
     ok(rt.log.slice(f2).some(l => l.k === 'ehit' && l.a === e0.name && l.b !== tg.name), '겨눈 동료가 쓰러졌으면 다른 동료를'); }
 }
 
-console.log('PASS 던전 규칙 ' + n + '가지');
+/* ── 평면도 — lib/shelf-gen.wasm 이 run.json 의 map 표로 짠 두 층. 갈림길·계단·보스. 길 규칙만 다르고 싸움은 위와 같다 ── */
+const SH = require('../lib/shelf-gen.js');
+const planOf = s => { const k = SH.seedOf('myth:' + s); return SH.planSpec(k[0], k[1], data.run.map); };
+/* 맡긴 손 한 판 — pick(next, floor) 이 갈 방을 고른다. 끝나면 상태 */
+function autoRun(r, pick) {
+  let g = 0;
+  while (!['won', 'lost'].includes(r.phase) && g++ < 900) {
+    if (r.phase === 'result') { R.takeReward(r, data, 0); R.proceed(r, data); }
+    else if (r.phase === 'map') { const nx = R.nextRooms(r); R.proceed(r, data, r.plan ? pick(nx, R.floorOf(r)) : undefined); }
+    else if (r.phase === 'shop') { R.shopHeal(r, data); r.shop.cards.forEach((c, i) => R.buy(r, data, i)); R.leaveShop(r); }
+    else if (r.phase === 'shrine') R.chooseShrine(r, data, R.living(r)[0].name);
+    else if (r.phase === 'gate') R.chooseGate(r, data, null);
+    else if (r.phase === 'rest') R.rest(r, data);
+    else { const bb = r.battle; if (bb.ask) { R.answerCurse(r, data, true); continue; }
+      const i = bb.hand.findIndex(c => R.spec(data, c).cost <= bb.mana && r.party.find(p => p.name === c.owner).alive);
+      if (i >= 0) R.play(r, data, i, 0); else R.endTurn(r, data); }
+  }
+  return r;
+}
+SH.load(fs.readFileSync('lib/shelf-gen.wasm')).then(() => {
+  const M = data.run.map;
+  ok(M && M.floors === 2 && M.guard === 'fight' && M.last_exit === 'boss', 'map 표 — 두 층, 계단 앞은 싸움, 끝에 보스');
+  const plan = planOf(7);
+  ok(plan && plan.floors.length === 2 && plan.floors.every(f => f.cols === M.cols), '평면도 두 층, 층마다 ' + M.cols + '열');
+  ok(JSON.stringify(planOf(7)) === JSON.stringify(plan) && JSON.stringify(planOf(8)) !== JSON.stringify(plan), '같은 씨앗 같은 평면도');
+  for (const f of plan.floors) {
+    const col = c => f.rooms.filter(r => r.col === c);
+    ok(col(0).length === 1 && col(0)[0].kind === 'entry' && col(0)[0].id === 0, f.n + '층 첫 열은 들어온 자리 하나(0번 방)');
+    ok(col(f.cols - 1).length === 1 && col(f.cols - 1)[0].kind === (f.n === 2 ? 'boss' : 'stairs'), f.n + '층 마지막 열은 ' + (f.n === 2 ? '보스' : '계단'));
+    ok(col(f.cols - 2).every(r => r.kind === 'fight'), f.n + '층 계단 앞 열은 모두 싸움');
+    for (let c = 1; c < f.cols - 1; c++) ok(col(c).length >= M.middle[0] && col(c).length <= M.middle[1], f.n + '층 ' + c + '열 방 ' + col(c).length);
+    ok(f.edges.every(([a, b]) => f.rooms[b].col === f.rooms[a].col + 1), f.n + '층 길은 이웃 열로만');
+    ok(f.rooms.every(r => r.col === f.cols - 1 || f.edges.some(e => e[0] === r.id)) && f.rooms.every(r => r.col === 0 || f.edges.some(e => e[1] === r.id)), f.n + '층 모든 방이 길에 닿는다');
+    const kinds = new Set(f.rooms.map(r => r.kind));
+    ok(f.n === 1 ? kinds.has('shrine') && !kinds.has('shop') && !kinds.has('gate') : kinds.has('shop') && kinds.has('gate') && !kinds.has('shrine'), f.n + '층의 방 종류: ' + [...kinds].join(','));
+  }
+  const p1 = R.newRun(data, 7, party, { plan });
+  ok(p1.plan === plan && p1.floor === 0 && p1.room === 0 && p1.visited.length === 1 && p1.phase === 'map' && p1.node === -1, '평면도 길은 1층 들어온 자리에서');
+  ok(R.floorOf(p1).n === 1 && R.roomOf(p1).kind === 'entry', 'floorOf·roomOf');
+  const nx = R.nextRooms(p1);
+  ok(nx.length >= 1 && nx.length <= 3 && nx.every(id => R.roomOf(p1, id).col === 1), '첫 갈림길 — 1열의 방 ' + nx.length);
+  ok(R.proceed(p1, data).why === 'room' && R.proceed(p1, data, 99).why === 'room' && R.proceed(p1, data, 0).why === 'room', '길이 닿지 않는 방은 못 간다');
+  const k1 = R.roomOf(p1, nx[0]).kind, r1 = R.proceed(p1, data, nx[0]);
+  ok(r1.ok && r1.kind === k1 && p1.room === nx[0] && p1.visited.length === 2 && p1.node === 0, '방에 들어가면 그 종류, 첫째 칸');
+  ok(R.nextRooms(p1).length === 0, '길 화면이 아니면 갈 방이 없다');
+  /* 한 층을 끝까지 — 계단 앞은 싸움, 계단은 다음 층 */
+  const walk = r => { while (r.phase === 'map' && R.roomOf(r).col < R.floorOf(r).cols - 2) { const nn = R.nextRooms(r); R.proceed(r, data, nn[0]); if (r.phase !== 'map') return; } };
+  const p2 = R.newRun(data, 9, party, { plan: planOf(9) });
+  let guardNode = -1;
+  for (let g = 0; g < 20 && !(p2.phase === 'battle' && R.roomOf(p2).col === R.floorOf(p2).cols - 2); g++) {
+    if (p2.phase === 'map') walk(p2);
+    if (p2.phase === 'map') { const nn = R.nextRooms(p2); R.proceed(p2, data, nn[0]); }
+    if (p2.phase === 'battle') { if (R.roomOf(p2).col === R.floorOf(p2).cols - 2) break; p2.battle.enemies.forEach(e => { e.hp = 1; }); p2.battle.mana = 9;
+      while (p2.battle.over !== 'win') { const i = p2.battle.hand.findIndex(c => R.spec(data, c).mult); if (i < 0) { R.endTurn(p2, data); p2.battle.mana = 9; continue; } R.play(p2, data, i, 0); }
+      ok(p2.phase === 'result' && R.proceed(p2, data).kind === 'map' && p2.phase === 'map' && !p2.reward, '이긴 뒤엔 길 화면으로 돌아간다'); }
+    else if (p2.phase === 'shrine') R.chooseShrine(p2, data, R.living(p2)[0].name);
+    else if (p2.phase === 'rest') R.rest(p2, data);
+    else if (p2.phase === 'gate') R.chooseGate(p2, data, null);
+    else if (p2.phase === 'shop') R.leaveShop(p2);
+  }
+  ok(p2.phase === 'battle' && !p2.battle.boss && R.roomOf(p2).kind === 'fight', '계단 앞 싸움');
+  guardNode = p2.node;
+  ok(p2.node === M.cols - 3, '1층을 다 가면 ' + (M.cols - 3) + '째 칸(0부터) — 칸 수는 옛 길과 같은 걸음');
+  p2.battle.enemies.forEach(e => { e.hp = 1; }); p2.battle.mana = 9;
+  while (p2.battle.over !== 'win') { const i = p2.battle.hand.findIndex(c => R.spec(data, c).mult); if (i < 0) { R.endTurn(p2, data); p2.battle.mana = 9; continue; } R.play(p2, data, i, 0); }
+  ok(p2.phase === 'result' && p2.reward, '1층 마지막 싸움도 전리품 — 보스가 아니다');
+  R.proceed(p2, data);
+  const st2 = R.nextRooms(p2);
+  ok(st2.length === 1 && R.roomOf(p2, st2[0]).kind === 'stairs', '그 뒤엔 계단 하나');
+  const rs = R.proceed(p2, data, st2[0]);
+  ok(rs.ok && rs.kind === 'stairs' && rs.floor === 1 && p2.floor === 1 && p2.room === 0 && p2.visited.length === 1 && p2.phase === 'map' && p2.node === guardNode, '계단 — 2층 들어온 자리, 칸은 그대로');
+  ok(R.floorOf(p2).n === 2 && R.nextRooms(p2).every(id => R.roomOf(p2, id).col === 1), '2층 첫 갈림길');
+  /* 2층 끝 — 보스, 이기면 길의 끝 */
+  const p3 = R.newRun(data, 11, party, { plan: planOf(11) });
+  p3.floor = 1; const g3 = R.floorOf(p3).rooms.find(r => r.col === R.floorOf(p3).cols - 2); p3.room = g3.id; p3.visited = [0, g3.id]; p3.node = 7;
+  const bn = R.nextRooms(p3);
+  ok(bn.length === 1 && R.roomOf(p3, bn[0]).kind === 'boss', '2층 계단 자리는 보스');
+  ok(R.proceed(p3, data, bn[0]).kind === 'boss' && p3.phase === 'battle' && p3.battle.boss && p3.battle.enemies[0].boss && p3.node === 8, '보스 싸움 — 아홉째 칸');
+  p3.battle.enemies.forEach(e => { e.hp = 1; }); p3.battle.mana = 9;
+  while (p3.battle.over !== 'win') { const i = p3.battle.hand.findIndex(c => R.spec(data, c).mult); if (i < 0) { R.endTurn(p3, data); p3.battle.mana = 9; continue; } R.play(p3, data, i, 0); }
+  ok(p3.phase === 'won' && !p3.reward, '보스를 이기면 길의 끝');
+  /* 맡긴 손이 평면도 길을 끝까지 간다(첫 방만 고른다) */
+  const a1 = autoRun(R.newRun(data, 5, party, { plan: planOf(5) }), nx => nx[0]);
+  ok(['won', 'lost'].includes(a1.phase) && (a1.phase === 'lost' || a1.floor === 1), '맡긴 손이 끝까지 간다: ' + a1.phase + ' ' + (a1.floor + 1) + '층 ' + (a1.node + 1) + '칸');
+  assert.throws(() => R.newRun(data, 1, party, { plan: { floors: [] } }), '층 없는 평면도는 못 받는다');
+  /* 평면도 없는 옛 저장은 nodes 차례 그대로 */
+  const lin = R.newRun(data, 7, party);
+  ok(!lin.plan && R.nextRooms(lin).length === 0 && R.proceed(lin, data).kind === 'fight', '평면도가 없으면 nodes 차례');
+  console.log('PASS 던전 규칙 ' + n + '가지(평면도 포함)');
+  balance();
+}).catch(e => { console.error(e); process.exit(1); });
 
 /* ── 균형 표 — 실패가 아니라 보고. 맡긴 손: 마나 되는 카드 아무거나, 저주는 받는다, 제단은 첫 동료, 문은 지나친다 ── */
-if (process.argv.includes('--quick')) process.exit(0);
+function balance() {
+if (process.argv.includes('--quick')) return;
 const N = 300;
 for (const TAKE of [false, true]) {
 let won = 0, awk = 0, cur = 0, reach = 0, gold = 0, deck = 0;
@@ -232,5 +323,18 @@ for (let s = 1; s <= N; s++) {
   if (r.log.some(l => l.k === 'awaken') || r.party.some(m => m.awakened)) awk++; if (r.party.some(m => m.cursed)) cur++;
   gold += r.gold; deck += r.deck.length;
 }
-console.log((TAKE ? '' : '\n') + '맡긴 손 ' + N + '판 · ' + (TAKE ? '전리품 첫 장·상점 치유와 살 수 있는 것' : '전리품·상점 안 씀') + ' — 완주 ' + (won / N * 100).toFixed(0) + '% · 평균 ' + (reach / N).toFixed(1) + '칸 · 각성 본 판 ' + awk + ' · 저주 받은 판 ' + cur + ' · 남은 금화 ' + (gold / N).toFixed(0) + ' · 덱 ' + (deck / N).toFixed(1));
+console.log((TAKE ? '' : '\n') + '맡긴 손(옛 길) ' + N + '판 · ' + (TAKE ? '전리품 첫 장·상점 치유와 살 수 있는 것' : '전리품·상점 안 씀') + ' — 완주 ' + (won / N * 100).toFixed(0) + '% · 평균 ' + (reach / N).toFixed(1) + '칸 · 각성 본 판 ' + awk + ' · 저주 받은 판 ' + cur + ' · 남은 금화 ' + (gold / N).toFixed(0) + ' · 덱 ' + (deck / N).toFixed(1));
+}
+/* 평면도 길 — 방 고르기 셋: 첫 방 · 싸움 피하기(제단·상점·휴식 먼저) · 싸움 찾기 */
+const PICKS = { '첫 방': nx => nx[0],
+  '싸움 피함': (nx, f) => nx.slice().sort((a, b) => ['shrine', 'shop', 'rest', 'gate', 'fight'].indexOf(f.rooms[a].kind) - ['shrine', 'shop', 'rest', 'gate', 'fight'].indexOf(f.rooms[b].kind))[0],
+  '싸움 찾음': (nx, f) => nx.slice().sort((a, b) => ['fight', 'shrine', 'shop', 'rest', 'gate'].indexOf(f.rooms[a].kind) - ['fight', 'shrine', 'shop', 'rest', 'gate'].indexOf(f.rooms[b].kind))[0] };
+for (const name in PICKS) {
+  let won = 0, floor2 = 0, gold = 0, deck = 0;
+  for (let s = 1; s <= N; s++) {
+    const r = autoRun(R.newRun(data, s, party, { plan: planOf(s) }), PICKS[name]);
+    if (r.phase === 'won') won++; if (r.floor === 1) floor2++; gold += r.gold; deck += r.deck.length;
+  }
+  console.log('맡긴 손(평면도 · ' + name + ') ' + N + '판 — 완주 ' + (won / N * 100).toFixed(0) + '% · 2층 닿은 판 ' + floor2 + ' · 남은 금화 ' + (gold / N).toFixed(0) + ' · 덱 ' + (deck / N).toFixed(1));
+}
 }

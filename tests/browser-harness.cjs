@@ -10,7 +10,7 @@ const fs = require('node:fs'), path = require('node:path'), http = require('node
 const ROOT = path.resolve(__dirname, '..');
 const MIME = { '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8', '.html': 'text/html; charset=utf-8',
-  '.json': 'application/json', '.webp': 'image/webp', '.png': 'image/png', '.txt': 'text/plain; charset=utf-8' };
+  '.json': 'application/json', '.wasm': 'application/wasm', '.webp': 'image/webp', '.png': 'image/png', '.txt': 'text/plain; charset=utf-8' };
 const ESM = {
   'https://esm.sh/preact@10.24.3': 'preact/dist/preact.mjs',
   'https://esm.sh/preact@10.24.3/hooks': 'preact/hooks/dist/hooks.mjs',

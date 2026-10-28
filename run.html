@@ -6,8 +6,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#121016">
 <title>신화 무기 공방</title>
-<!-- 던전 — 로그라이크 덱빌딩. 무기 셋을 데려가 아홉 칸의 길을 간다. 이기면 금화와 전리품, 상점에서 덱을 다듬는다.
-     규칙은 lib/run.js 가 갖고, 여기는 그리기와 저장뿐이다. 길은 이 브라우저(localStorage)에 남는다. -->
+<!-- 던전 — 로그라이크 덱빌딩. 무기 셋을 데려가 두 층의 길을 간다. 이기면 금화와 전리품, 상점에서 덱을 다듬는다.
+     규칙은 lib/run.js 가 갖고, 여기는 그리기와 저장뿐이다. 길은 이 브라우저(localStorage)에 남는다.
+     평면도는 lib/shelf-gen.wasm(book-atelier 의 생성기 복사)이 data/run.json 의 map 표로 짠다 — 못 실으면 nodes 차례로 간다. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap">
@@ -52,14 +53,36 @@
   .rn-dock .rn-hand {display:flex;overflow-x:auto;gap:6px;padding-bottom:2px;scroll-snap-type:x mandatory}
   .rn-dock .rn-card {flex:0 0 128px;min-height:86px;scroll-snap-align:start}
 }
+/* 평면도 — 열마다 방, 길은 이웃 열 사이. 누를 수 있는 방은 길이 닿는 다음 방(금테), 다녀온 방은 흐리게 */
+.rn-plan {position:relative;margin:10px 0 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);overflow:hidden}
+.rn-plan svg {display:block;width:100%;height:auto}
+.rn-plan .edge {stroke:var(--line);stroke-width:3;fill:none}
+.rn-plan .edge.open {stroke:var(--gold);stroke-dasharray:6 6}
+.rn-plan .edge.walked {stroke:var(--text);stroke-opacity:.5}
+.rn-room rect {fill:var(--bg);stroke:var(--line);stroke-width:1.5;rx:8}
+.rn-room text {font:700 12px var(--sans, system-ui);fill:var(--text)}
+.rn-room .kind {font:600 9px var(--inscription);fill:var(--gold);letter-spacing:.08em}
+.rn-room[data-state="visited"] rect {fill:var(--card);stroke-opacity:.5} .rn-room[data-state="visited"] text {fill:var(--muted)}
+.rn-room[data-state="here"] rect {stroke:var(--gold);stroke-width:3;fill:color-mix(in srgb, var(--gold) 18%, var(--bg))}
+.rn-room[data-state="next"] rect {stroke:var(--gold);stroke-width:2;cursor:pointer}
+.rn-room[data-state="next"]:hover rect {fill:color-mix(in srgb, var(--gold) 12%, var(--bg))}
+.rn-room[data-state="far"] {opacity:.5}
+.rn-room[data-kind="boss"] rect {stroke:var(--signal)}
+.rn-room[data-kind="boss"][data-state="next"] rect, .rn-room[data-kind="fight"][data-state="next"] rect {fill:color-mix(in srgb, var(--signal) 10%, var(--bg))}
+.rn-next {display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.rn-next .rn-btn[data-kind="fight"], .rn-next .rn-btn[data-kind="boss"] {border-color:var(--signal)}
+.rn-next .rn-btn[data-kind="shop"], .rn-next .rn-btn[data-kind="shrine"] {border-color:var(--gold)}
+.rn-floor {font:600 11px var(--inscription);color:var(--gold);letter-spacing:.08em;margin-left:8px}
+@media (max-width:600px) { .rn-plan {overflow-x:auto} .rn-plan svg {min-width:560px} }
 .note {margin:8px 0 0;color:var(--muted);font-size:12px;line-height:1.6;word-break:keep-all}
 .empty {padding:36px 0;text-align:center;color:var(--muted);font-size:13px}
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
-<script src="lib/words.js?v=myth48"></script>
+<script src="lib/words.js?v=myth49"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth7"></script>
-<script src="lib/run.js?v=6"></script>
+<script src="lib/shelf-gen.js?v=1"></script>
+<script src="lib/run.js?v=7"></script>
 </head>
 <body class="dex-page rn-page">
 <div id="app"></div>
@@ -69,7 +92,7 @@ import { useState, useEffect } from 'https://esm.sh/preact@10.24.3/hooks';
 import htm from 'https://esm.sh/htm@3.1.1';
 import { WorkspaceHeader } from './lib/workspace-ui.js?v=myth15';
 const html = htm.bind(h);
-const W = window.W, IMG = window.AtelierImg, R = window.AtelierRun;
+const W = window.W, IMG = window.AtelierImg, R = window.AtelierRun, SH = window.AtelierShelf;
 const STORE = 'myth_run_v1', HANDOFF = 'myth_handoff_v1', V = 'f';
 
 function Shell({ children }) {
@@ -82,7 +105,8 @@ function useData() {
   const [state, set] = useState(null);
   useEffect(() => {
     const get = f => fetch(f, { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(f + ' ' + r.status); return r.json(); });
-    Promise.all([get('data/card.json'), get('data/skill.json'), get('data/run.json'), get('data/group.json'), get('data/wielder.json'), get('data/draft.json'), IMG.load()])
+    /* 평면도 생성기(wasm)는 못 실어도 길은 간다 — nodes 차례로 */
+    Promise.all([get('data/card.json'), get('data/skill.json'), get('data/run.json'), get('data/group.json'), get('data/wielder.json'), get('data/draft.json'), IMG.load(), SH.load('lib/shelf-gen.wasm?v=1').catch(() => null)])
       .then(([card, skill, run, group, wielder, draft, img]) => { const art = {}; card.cards.forEach(c => { if (IMG.portraitOf(img[c.name], V)) art[c.name] = 1; }); set({ data: { cards: card.cards, skills: skill.skills, run, art, wielders: wielder.wielders, draft }, group, img }); })
       .catch(e => set({ error: String((e && e.message) || e) }));
   }, []);
@@ -91,6 +115,13 @@ function useData() {
 function load() { try { const j = JSON.parse(localStorage.getItem(STORE)); return j && j.party ? j : null; } catch { return null; } }
 function save(st) { try { if (st) localStorage.setItem(STORE, JSON.stringify(st)); else localStorage.removeItem(STORE); } catch {} }
 function seed() { return (Date.now() ^ Math.floor(Math.random() * 1e9)) | 0; }
+/* 평면도 — 씨앗 하나와 run.json 의 map 표로. 생성기가 없으면 null(엔진이 nodes 차례로 간다) */
+function planOf(data, sd) {
+  if (!SH.loaded() || !R.mapSpec(data)) return null;
+  const k = SH.seedOf('myth:' + sd);
+  return SH.planSpec(k[0], k[1], R.mapSpec(data));
+}
+function start(data, sd, names, opt) { return R.newRun(data, sd, names, Object.assign({ plan: planOf(data, sd) }, opt || {})); }
 function loadHandoff() { try { const j = JSON.parse(localStorage.getItem(HANDOFF)); return j && j.pairs && j.pairs.length ? j : null; } catch { return null; } }
 function clearHandoff() { try { localStorage.removeItem(HANDOFF); } catch {} }
 /* 판 그림 — 고른 스킨이 있으면 스킨의 상태 그림, 그 상태 그림이 없으면 스킨 기본에 효과(.skin-fx)를 덮는다 */
@@ -162,13 +193,33 @@ function Sortie({ data, group, img, hand, onStart, onPlain }) {
   </div>`;
 }
 
+/* 평면도 한 층 — 열 왼쪽→오른쪽. 길이 닿는 방은 금테(누르면 간다), 다녀온 방은 흐리게. 아래 단추 줄이 같은 방들(손가락·화면 읽기의 길) */
+function FloorMap({ st, onGo }) {
+  const f = R.floorOf(st), next = R.nextRooms(st), CW = 124, H = 240, PAD = 14;
+  const rows = c => f.rooms.filter(r => r.col === c).length;
+  const pos = r => ({ x: PAD + r.col * CW + CW / 2, y: PAD + (r.row + 0.5) * ((H - PAD * 2) / rows(r.col)) });
+  const stateOf = r => r.id === st.room ? 'here' : next.includes(r.id) ? 'next' : st.visited.includes(r.id) ? 'visited' : 'far';
+  const walked = (a, b) => { const i = st.visited.indexOf(a); return i >= 0 && st.visited[i + 1] === b; };
+  const label = W('run.map.floor', { n: st.floor + 1, max: st.plan.floors.length });
+  return html`<div class="rn-plan" data-floor=${st.floor + 1}><svg viewBox=${'0 0 ' + (PAD * 2 + f.cols * CW) + ' ' + H} role="img" aria-label=${label}>
+      ${f.edges.map(([a, b], i) => { const p = pos(f.rooms[a]), q = pos(f.rooms[b]); return html`<path key=${i} class=${'edge' + (a === st.room && next.includes(b) ? ' open' : walked(a, b) ? ' walked' : '')} d=${`M${p.x + 46},${p.y} C${p.x + 80},${p.y} ${q.x - 80},${q.y} ${q.x - 46},${q.y}`} />`; })}
+      ${f.rooms.map(r => { const p = pos(r), s = stateOf(r); return html`<g key=${r.id} class="rn-room" data-id=${r.id} data-kind=${r.kind} data-state=${s} onClick=${() => s === 'next' && onGo(r.id)}>
+        <rect x=${p.x - 46} y=${p.y - 24} width="92" height="48" />
+        <text x=${p.x} y=${p.y - 6} text-anchor="middle" class="kind">${s === 'here' ? W('run.map.here') : s === 'next' ? W('run.map.next') : ''}</text>
+        <text x=${p.x} y=${p.y + 12} text-anchor="middle">${W('run.node.' + r.kind)}</text>
+      </g>`; })}
+    </svg></div>
+    <div class="rn-bar rn-next" aria-label=${W('run.map.next')}>${next.map(id => { const r = f.rooms[id]; return html`<button key=${id} type="button" class=${'rn-btn' + (r.kind === 'boss' || r.kind === 'stairs' ? ' primary' : '')} data-id=${id} data-kind=${r.kind} onClick=${() => onGo(id)}>${W('run.node.' + r.kind)}</button>`; })}</div>`;
+}
+
 function Map({ st, data, group, onGo }) {
   const list = R.nodes(data), first = st.party[0] && R.cardOf(data, st.party[0].name);
   return html`<div class="map-stage" ...${IMG.mapStage(group, first && first.myth)}>
-    <div class="rn-head"><h2>${W('run.map.title')}</h2><p class="help">${W('run.map.note')}</p></div>
+    <div class="rn-head"><h2>${W('run.map.title')}${st.plan ? html`<small class="rn-floor">${W('run.map.floor', { n: st.floor + 1, max: st.plan.floors.length })}</small>` : ''}</h2><p class="help">${st.plan ? W('run.map.note') : W('run.map.note.line')}</p></div>
     <${Purse} st=${st} />
+    ${st.plan ? html`<${FloorMap} st=${st} onGo=${onGo} />` : html`
     <div class="rn-map">${list.map((k, i) => html`<div key=${i} class=${'rn-node ' + k + (i < st.node ? ' done' : '') + (i === st.node ? ' here' : '')} data-index=${i}><b>${i + 1}</b>${W('run.node.' + k)}</div>`)}</div>
-    <div class="rn-bar"><button type="button" class="rn-btn primary" onClick=${onGo}>${W('run.map.go')}</button></div>
+    <div class="rn-bar"><button type="button" class="rn-btn primary" onClick=${() => onGo()}>${W('run.map.go')}</button></div>`}
   </div>`;
 }
 
@@ -257,7 +308,7 @@ function Result({ st, data, img, group, act }) {
         on=${taken === i} tag=${taken === i ? W('run.loot.taken') : ''} disabled=${taken !== null}
         onClick=${() => act(x => R.takeReward(x, data, i))} />`)}</div></section>` : ''}
     <div class="rn-bar"><button type="button" class=${'rn-btn' + (offer && taken === null ? ' quiet' : ' primary')} data-next="1" onClick=${() => act(x => R.proceed(x, data))}>
-      ${offer && taken === null ? W('run.loot.skip') : W('run.result.next')}</button></div>
+      ${offer && taken === null ? W('run.loot.skip') : st.plan ? W('run.result.map') : W('run.result.next')}</button></div>
     <${Party} st=${st} data=${data} img=${img} group=${group} />
     <${Log} log=${st.log} /></div>`;
 }
@@ -309,10 +360,10 @@ function App() {
   const again = () => { save(null); setSt(null); };
   let body;
   if (!st && hand) body = html`<${Sortie} data=${data} group=${group} img=${img} hand=${hand}
-    onStart=${(pairs, reserve) => { const s = R.newRun(data, seed(), null, { pairs, reserve, foes: hand.foes, boss: hand.boss, rank: hand.rank }); clearHandoff(); setHand(null); save(s); setSt(s); }}
+    onStart=${(pairs, reserve) => { const s = start(data, seed(), null, { pairs, reserve, foes: hand.foes, boss: hand.boss, rank: hand.rank }); clearHandoff(); setHand(null); save(s); setSt(s); }}
     onPlain=${() => { clearHandoff(); setHand(null); }} />`;
-  else if (!st) body = html`<${Pick} data=${data} group=${group} img=${img} onStart=${names => { const s = R.newRun(data, seed(), names); save(s); setSt(s); }} />`;
-  else if (st.phase === 'map') body = html`<${Map} st=${st} data=${data} group=${group} onGo=${() => act(x => R.proceed(x, data))} />`;
+  else if (!st) body = html`<${Pick} data=${data} group=${group} img=${img} onStart=${names => { const s = start(data, seed(), names); save(s); setSt(s); }} />`;
+  else if (st.phase === 'map') body = html`<${Map} st=${st} data=${data} group=${group} onGo=${id => act(x => R.proceed(x, data, id))} />`;
   else if (st.phase === 'battle') body = html`<${Battle} st=${st} data=${data} img=${img} group=${group} act=${act} />`;
   else if (st.phase === 'result') body = html`<${Result} st=${st} data=${data} img=${img} group=${group} act=${act} />`;
   else if (st.phase === 'shop' && st.shop) body = html`<${Shop} st=${st} data=${data} img=${img} group=${group} act=${act} />`;

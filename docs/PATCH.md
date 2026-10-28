@@ -12,6 +12,15 @@
 
 
 
+## 2026-10-28 · claude · 던전 길을 평면도로 — 갈림길·계단·둘째 층(책 공방 지도 생성기 공용)
+- lib/shelf-gen.wasm · lib/shelf-gen.js — 책 공방(book-atelier rust/shelf-gen)의 지도 생성기를 글자 그대로 복사. 규칙 표(JSON)를 받아 층 평면도를 짜는 꼴(planSpec)이라 책 규칙은 그 표의 한 예고, 신화 던전은 다른 표를 준다. 고치는 쪽은 책 저장소
+- data/run.json — map 규칙 표: 두 층, 층마다 여섯 열(들어온 자리 · 가운데 넷은 방 1~3개 · 계단/보스), 계단 앞 열은 모두 싸움, 첫 층 제단 · 둘째 층 상점과 저주의 문 · 휴식, 남는 방은 싸움·싸움·휴식. nodes 는 생성기를 못 실었을 때의 옛 길로 남긴다
+- lib/run.js — 평면도 모드(newRun 의 opt.plan → st.plan·floor·room·visited). proceed(st, data, roomId) 는 길이 닿는 방만 받고, 이긴 뒤엔 길 화면으로, 계단은 다음 층 들어온 자리로, 보스는 마지막 층에만. nextRooms·floorOf·roomOf·mapSpec. 평면도가 없으면 nodes 차례 그대로(옛 저장·검사). 걸음 수는 옛 길과 같아 상대 세기·금화 식 그대로(v7)
+- run.html — 길 화면이 SVG 평면도(FloorMap: 금테 = 갈 수 있는 방, 흐림 = 다녀온 방, 열린 길 점선) + 아래 방 단추 줄. 머리에 n / 2층. 휴대폰은 평면도만 옆으로 민다. 새 길에 lib/shelf-gen.wasm 을 실어 씨앗으로 평면도를 짠다(못 실으면 옛 길). 이긴 뒤 단추는 「길로 돌아간다」
+- lib/words.js — run.node.entry·stairs, run.map.note(평면도)·note.line(옛 길)·floor·here·next, run.result.map(myth49)
+- tests/run-sim.cjs — 평면도 42가지(표·두 층·열·길·종류·갈림길·계단·보스·맡긴 손·옛 길) + 평면도 300판 완주율 셋(첫 방 65% · 싸움 피함 76% · 싸움 찾음 70%) · tests/run-screen.cjs — 평면도 화면·계단·2층·보스·끝·옛 저장 · tests/skin-screen.cjs — 던전 들어가는 길을 평면도로 · tests/browser-harness.cjs — .wasm MIME
+- docs/GAME_CONCEPT.md · AGENTS.md — 던전 길 절, 「아직 없는 것」에서 갈림길·둘째 층을 뺐다, 검사 둘 추가
+
 ## 2026-10-27 · claude · 헤어스타일 — 여성 머리 여섯 더하기
 - lib/prompt-spec.js — 생성기 헤어스타일에 아프로 · 아프로 퍼프 · 박스 브레이드 · 콘로 · 피시테일 땋기 · 비치 웨이브를 더했다(라벨). pkm 과 같은 말이다 — 아프로·브레이드 계열이 표에 없었다(사용자). prompt.html 판 올림.
 

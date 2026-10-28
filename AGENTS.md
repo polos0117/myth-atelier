@@ -71,6 +71,9 @@
 균형은 `node tests/auto-sim.cjs` 로 잰다. `--quick` 은 규칙만 보고, 빼고 돌리면 수천 판을
 굴려 표를 찍는다 — 그건 실패가 아니라 보고다.
 
+던전 규칙은 `lib/run.js` 에만 있다. 길의 평면도는 `lib/shelf-gen.wasm`(책 공방 `book-atelier/rust/shelf-gen` 의 복사 — 싣개 `lib/shelf-gen.js` 와 함께, 고치는 쪽은 그 저장소)이
+`data/run.json` 의 `map` 규칙 표로 짠다. 규칙 표의 뜻은 그쪽 `rust/shelf-gen/src/lib.rs` 머리말. `node tests/run-sim.cjs --quick` 이 길·싸움 규칙을 보고, 빼면 맡긴 손 300판 완주율을 찍는다.
+
 결투 규칙은 `lib/duel.js` 에만 있다. 수치는 `card.json` 에서 파생하고 `data/duel.json` 의 `overrides` 로만 덮어쓴다 —
 규칙은 `docs/DUEL_GAME.md`. `node tests/duel-sim.cjs` 를 `--quick` 없이 돌리면 297판 균형 보고를 찍고, 선공 승률 40~60% ·
 권별 승률 25~75% 를 벗어나면 실패한다.
@@ -85,6 +88,7 @@ node tests/sprite-actor-copy.cjs # 도트 재생기 — lib/sprite-actor.js·.cs
 node tests/patch.cjs             # 패치 기록의 모양
 node tests/auto-sim.cjs --quick  # 싸움 규칙 (빼면 균형 표)
 node tests/duel-sim.cjs --quick  # 결투 규칙 (빼면 297판 균형 보고)
+node tests/run-sim.cjs --quick   # 던전 규칙 — 덱·각성·저주·상점·평면도(갈림길·계단·보스) (빼면 300판 완주율)
 node tests/prompt-engine.cjs     # 프롬프트가 화면 없이 나오나
 node tests/register-images.cjs   # 그림 등록기의 들어온 날(added) — 새 파일만 오늘, git 기록 채우기, 얕은 저장소
 ```
@@ -113,6 +117,7 @@ ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/header-layout.cjs   # �
 ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/theme-screen.cjs    # 결이 화면을 따라다니나
 ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/patch-screen.cjs    # 패치 기록 단추
 ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/duel-screen.cjs     # 결투 — 고르기·덱 짜기·대결·결과·전적·오늘의 판(날짜 씨앗, 오늘 기록)
+ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/run-screen.cjs      # 던전 — 고르기·평면도(갈림길·계단·2층)·싸움·전리품·상점·보스·휴대폰·출정·옛 저장
 ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/scene-motion.cjs    # 움직임 — 공용 모듈·입자 표·도감 상세 열리기·신전 홀 터짐·다섯 크기
 ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/dex-favorites.cjs   # 즐겨찾기 — 상세의 하트·저장된 칸·?pic= 로 열기·저장 막힘·다섯 크기
 ```

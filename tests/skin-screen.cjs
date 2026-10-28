@@ -32,7 +32,10 @@ bucket.skin = { f: { [KEY]: { base: FAKE, awaken: FAKE_AW } } };
     /* 던전 — 스킨 그림에 상태를 효과로 */
     await p.goto(harness.base + '/run.html'); await p.waitForSelector('.rn-pick .cell');
     for (const n of [CARD, '묠니르', '아이기스']) await p.locator('.rn-pick .cell[data-name="' + n + '"]').click();
-    await p.locator('.rn-btn.primary').click(); await p.waitForSelector('.rn-map'); await p.locator('.rn-btn.primary').click();
+    await p.locator('.rn-btn.primary').click(); await p.waitForSelector('.rn-plan');
+    /* 평면도 — 계단 앞 열(모두 싸움) 앞에 서서 싸움으로 */
+    await p.evaluate(() => { const j = JSON.parse(localStorage.getItem('myth_run_v1')), f = j.plan.floors[0]; const from = f.rooms.find(r => r.col === f.cols - 3); j.room = from.id; j.visited = [0, from.id]; localStorage.setItem('myth_run_v1', JSON.stringify(j)); });
+    await p.reload(); await p.waitForSelector('.rn-plan'); await p.locator('.rn-next .rn-btn[data-kind="fight"]').first().click();
     await p.waitForSelector('.rn-hand .rn-card');
     const fig = p.locator('.rn-party .rn-fig[data-name="' + CARD + '"]');
     assert.equal(await fig.getAttribute('data-skin'), KEY, '던전에서 스킨을 입고 나온다');

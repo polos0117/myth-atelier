@@ -1,6 +1,9 @@
 {
  "version": 1,
- "note": "던전(run.html) 자료. 공통 카드는 무기 종류마다 — basic 셋(첫 장이 1마나 기본)을 무기가 들고 오고, basic 이 아닌 것(rare 포함)은 싸움 뒤 전리품과 상점에서만 나온다. 무기는 자기 종류의 basic 셋에 skill.json 의 고유 기술 한 장을 더해 넉 장으로 시작한다. 덱은 길 내내 이어진다. 각성·저주는 카드가 아니라 규칙(배수·대가)이다. 길은 node 차례대로 간다.",
+ "note": "던전(run.html) 자료. 공통 카드는 무기 종류마다 — basic 셋(첫 장이 1마나 기본)을 무기가 들고 오고, basic 이 아닌 것(rare 포함)은 싸움 뒤 전리품과 상점에서만 나온다. 무기는 자기 종류의 basic 셋에 skill.json 의 고유 기술 한 장을 더해 넉 장으로 시작한다. 덱은 길 내내 이어진다. 각성·저주는 카드가 아니라 규칙(배수·대가)이다. 길은 map 표로 lib/shelf-gen.wasm(book-atelier rust/shelf-gen 의 복사)이 매 판 평면도를 짠다 — 층 둘, 층마다 여섯 열(들어온 자리 · 가운데 넷 · 계단/보스), 가운데 열은 방 1~3개에서 하나를 고른다, 계단 바로 앞 열은 모두 싸움(guard). slots 는 층마다 급한 차례(from/to 는 층 번호, 1부터), 남는 방은 fill 을 돌려 채운다. 규칙 표의 뜻은 book-atelier rust/shelf-gen/src/lib.rs 머리말. nodes 는 평면도가 없을 때(wasm 을 못 실었거나 옛 저장) 차례로 가는 길이다.",
+ "map": {"floors": 2, "stage_div": 1, "cols": 6, "middle": [1, 3], "entry": "entry", "exit": "stairs", "last_exit": "boss", "guard": "fight",
+  "slots": [{"kind": "shrine", "to": 1}, {"kind": "shop", "from": 2}, {"kind": "gate", "from": 2}, {"kind": "rest"}, {"kind": "fight"}, {"kind": "fight"}],
+  "fill": ["fight", "fight", "rest"], "items": 0, "kinds": {}},
  "nodes": ["fight", "fight", "shrine", "fight", "gate", "shop", "fight", "rest", "boss"],
  "cards": {
   "sword": [
