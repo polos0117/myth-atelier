@@ -84,6 +84,174 @@
      ]
     }
    }
+  },
+  "mjolnir": {
+   "card": "묠니르",
+   "id": "mjolnir",
+   "form": "base",
+   "cell": [
+    192,
+    256
+   ],
+   "foot": [
+    96,
+    254
+   ],
+   "scale": 1,
+   "dot": 0.5,
+   "flip": true,
+   "facing": "right",
+   "states": {
+    "still": {
+     "file": "mjolnir/mjolnir_base_still_4k.png",
+     "frames": 1
+    },
+    "idle": {
+     "file": "mjolnir/mjolnir_base_idle_4k.png",
+     "frames": 4,
+     "order": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "ms": [
+      700,
+      220,
+      140,
+      220
+     ]
+    },
+    "walk": {
+     "file": "mjolnir/mjolnir_base_walk_4k.png",
+     "frames": 6,
+     "order": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "ms": [
+      200,
+      200,
+      200,
+      200,
+      200,
+      200
+     ],
+     "speed": 81,
+     "dy": [
+      1.33,
+      2,
+      2,
+      -1.67,
+      -1,
+      -2
+     ]
+    },
+    "react": {
+     "file": "mjolnir/mjolnir_base_react_4k.png",
+     "frames": 4,
+     "order": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "ms": [
+      120,
+      180,
+      320,
+      200
+     ]
+    }
+   }
+  },
+  "laevateinn": {
+   "card": "레바테인",
+   "id": "laevateinn",
+   "form": "base",
+   "cell": [
+    192,
+    256
+   ],
+   "foot": [
+    96,
+    254
+   ],
+   "scale": 1,
+   "dot": 0.5,
+   "flip": true,
+   "facing": "right",
+   "states": {
+    "still": {
+     "file": "laevateinn/laevateinn_base_still_4k.png",
+     "frames": 1
+    },
+    "idle": {
+     "file": "laevateinn/laevateinn_base_idle_4k.png",
+     "frames": 4,
+     "order": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "ms": [
+      700,
+      220,
+      140,
+      220
+     ]
+    },
+    "walk": {
+     "file": "laevateinn/laevateinn_base_walk_4k.png",
+     "frames": 6,
+     "order": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "ms": [
+      200,
+      200,
+      200,
+      200,
+      200,
+      200
+     ],
+     "speed": 99,
+     "dy": [
+      2,
+      2,
+      0,
+      -2,
+      -0.33,
+      -2
+     ]
+    },
+    "react": {
+     "file": "laevateinn/laevateinn_base_react_4k.png",
+     "frames": 4,
+     "order": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "ms": [
+      120,
+      180,
+      320,
+      200
+     ]
+    }
+   }
   }
  }
 }

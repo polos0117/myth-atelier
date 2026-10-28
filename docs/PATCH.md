@@ -12,6 +12,9 @@
 
 
 
+## 2026-10-28 · claude · 도트 둘 더 — 묠니르·레바테인 4K
+- data/sprites.json — mjolnir(묠니르)·laevateinn(레바테인) 인물 칸. 사용자 「삼국지는 빼고 공방별로 둘씩 더」 — 신화 무기 그림 중 내가 고른 둘. book 공방의 4K 길(2160×3840 원본 격자 그대로 · 칸 192×256 · dot 0.5 · 발 96,254)로 뽑아 그림 저장소 myth-atelier-img 의 sprites/<id>/ 에 올렸다(원본 gen1, 기록 records/sprites/<id>/*_4k.json). 묠니르 대기 2·4칸의 떠 있던 둘째 망치는 정리 뒤 지웠다(기록 touched). 대장간 무대 바닥·도감 상세에 저절로 선다
+
 ## 2026-10-28 · claude · 도트 재생기 복사 — floor 가 카드마다 한 명
 - lib/sprite-actor.js — 공방 모음 원본 복사(같은 카드의 다른 도트가 있어도 바닥엔 하나만 — 여기 자료엔 아직 그런 쌍이 없다). index·dex.html 의 ?v=4
 
