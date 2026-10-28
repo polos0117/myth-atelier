@@ -12,6 +12,9 @@
 
 
 
+## 2026-10-28 · claude · 도트 재생기 복사 — floor 가 카드마다 한 명
+- lib/sprite-actor.js — 공방 모음 원본 복사(같은 카드의 다른 도트가 있어도 바닥엔 하나만 — 여기 자료엔 아직 그런 쌍이 없다). index·dex.html 의 ?v=4
+
 ## 2026-10-28 · claude · 도트 재생기 v3 복사
 - lib/sprite-actor.js — 공방 모음 원본 v3 그대로(인물 칸의 dot — 4K 인물을 같은 화면 크기로). index·dex.html 의 ?v=3
 
