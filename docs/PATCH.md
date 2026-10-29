@@ -12,6 +12,9 @@
 
 
 
+## 2026-10-29 · claude · 하는 일 「화장대 앞 치장」 문장을 동작 하나로
+- data/casual-tree.json — makeup 의 en 「putting on earrings and makeup」 → 「fastening one earring」(game 워크래프트 III 일상4 에서 팔이 가슴 사이로 튀어나왔다 — 두 동작이라 두 손이 다 얼굴로)
+
 ## 2026-10-29 · claude · 일상컷 트리 모듈 — game 원본 다시 복사, 잠근 칸을 지키는 랜덤
 - lib/casual-tree.js — game 원본 다시 복사: 허브 통합 생성기(polos0117.github.io/prompt.html)의 「해방」 몫 `why`(트리 밖 값의 까닭 code, 안이면 null — 안 쓰는 값은 `banned` 가 먼저)와 `unlocked`(장면의 `unlocked` 칸은 repair 가 고치지 않는다). prompt.html casual-tree v=3.
 - tests/casual-tree.cjs — 트리 안 값은 까닭이 없고, 다른 시대 장소·없는 값·계열 밖 자세엔 까닭이 붙고, 해방한 자세는 고치기에도 남는지.
