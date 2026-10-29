@@ -4,12 +4,14 @@ const fs = require('node:fs'), vm = require('node:vm'), assert = require('node:a
 const ctx = { window: {}, console };
 vm.createContext(ctx);
 vm.runInContext(fs.readFileSync('lib/prompt-spec.js', 'utf8'), ctx);
+vm.runInContext(fs.readFileSync('lib/casual-tree.js', 'utf8'), ctx);
 vm.runInContext(fs.readFileSync('lib/prompt-myth.js', 'utf8'), ctx);
 vm.runInContext(fs.readFileSync('lib/prompt-random.js', 'utf8'), ctx);
 const R = ctx.window.AtelierSceneRandom;
-const S = ctx.window.AtelierSpec, P = ctx.window.AtelierPrompt;
+const S = ctx.window.AtelierSpec, P = ctx.window.AtelierPrompt, CT = ctx.window.AtelierCasualTree;
 const d = f => JSON.parse(fs.readFileSync('data/' + f + '.json', 'utf8'));
-const data = { cards: d('card').cards, group: d('group'), skills: d('skill').skills };
+const data = { cards: d('card').cards, group: d('group'), skills: d('skill').skills, tree: d('casual-tree') };
+const tree = data.tree;
 const styleJson = d('style');
 
 /* 화풍 표와 data/style.json 은 같은 열쇠·이름 — 파일 이름에 들어간다 */
@@ -52,8 +54,9 @@ for (const p of S.PARAMS) {
 }
 assert.equal(new Set(S.PARAMS.map(p => p.key)).size, S.PARAMS.length, '열쇠가 겹친다');
 
-/* 액션 한 장은 머리색·눈색 자동(2026-10-01)으로 여섯 낱말쯤 늘어 330. 몸 개수 줄 BODY(2026-10-27)로 40낱말쯤 더 — 일상컷은 HAND TASK 도 넣고 겹치는 금지 문장을 덜었다(560 그대로, 다 채우면 740) */
-const BUDGET = { portrait: 370, awaken: 270, cursed: 310, casual: 560, skin: 320 };
+/* 액션 한 장은 머리색·눈색 자동(2026-10-01)으로 여섯 낱말쯤 늘어 330. 몸 개수 줄 BODY(2026-10-27)로 40낱말쯤 더 — 일상컷은 HAND TASK 도 넣고 겹치는 금지 문장을 덜었다(560, 다 채우면 740).
+   일상컷 트리(2026-10-29)로 WARDROBE(첨부 그림의 옷을 버린다) 줄과 장면 줄이 늘었다 — 640 */
+const BUDGET = { portrait: 370, awaken: 270, cursed: 310, casual: 640, skin: 320 };
 let n = 0, longest = { w: 0 };
 for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for (const style of S.STYLES) {
   const st = { card: card.name, style: style[0], output, params: {} };
@@ -91,7 +94,7 @@ for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for 
   if (output === 'casual') {
     assert(text.includes(S.CASUAL_RULES.input) && text.includes(S.CASUAL_RULES.project) && text.includes(S.CASUAL_RULES.material) && text.includes(S.CASUAL_RULES.final), '일상컷 규칙 넷');
     assert(!text.includes('SUBJECT:') && !text.includes('IDENTITY') && !text.includes('plates, joints'), '일상컷에는 뼈대·외형·메카 문장이 없다');
-    assert(!text.includes('CATEGORY:') && !text.includes('SCENE DETAILS'), '갈래를 안 고르면 갈래 줄이 없다');
+    assert(!text.includes('CATEGORY:') && !text.includes('EXAMPLE SCENE') && text.includes('SCENE (chosen):\nPlace: '), '갈래·예시 줄 대신 트리 장면');
   } else if (output === 'portrait') {
     assert(text.includes('WEAPON LOOK') && text.includes(card.look), '무기의 시각 언어가 실린다');
     let core = card.kind === 'armor' ? S.CORE.mecha.replace(S.HOLD_LINE, S.ARMOR_WEAR[card.wear]) : S.CORE.mecha;
@@ -149,55 +152,89 @@ for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for 
   /* 파일 이름은 등록기의 규칙과 맞물린다: <카드>_<화풍>_f[_awaken|_casualN].webp */
   assert(/^[^_]+_[a-z_]+_f(_awaken|_cursed|_casual\d+)?\.webp$/.test(P.fileName({ ...st, output: 'casual', casualIndex: 2 }, P.cardOf(data, '묠니르'))));
 }
-/* 일상컷 — 갈래·예시·자세·축·랜덤 */
+/* 일상컷 — 트리 길(시대 → 장소 → 하는 일 → 의상 → 구도, 2026-10-29 game-atelier 에서 옮김), 축, 랜덤 */
 {
-  assert(S.CASUAL_CATS.length >= 15 && S.CASUAL_CATS.every(r => r[0] === 'auto_random' || r[0] === '__custom__' || r[2].length > 60), '갈래마다 영어 지시');
-  for (const r of S.CASUAL_CATS) assert(S.CASUAL_EXAMPLES[r[0]], r[0] + ' 의 예시 목록');
   for (const ax of S.CASUAL_AXES) {
     assert(S.CASUAL_AXIS_OPTIONS[ax] && S.CASUAL_AXIS_LABELS[ax] && S.CASUAL_AXIS_GUIDES[ax], ax + ' 축의 선택지·이름·설명');
     for (const v of S.CASUAL_AXIS_OPTIONS[ax]) if (v !== 'AUTO') assert(S.CASUAL_AXIS_GUIDES[ax][v] && S.CASUAL_AXIS_GUIDES[ax][v][1], ax + '.' + v + ' 의 영어 문장');
   }
-  for (const [cat, rows] of Object.entries(S.CASUAL_EXAMPLES)) for (const r of rows) {
-    assert(r[0] === '' || r[0] === '__custom__' || (r[2] && /^[\u0020-\u007e\u00a0-\u024f\u2019\u2014]+$/.test(r[2])), cat + '/' + r[0] + ' 예시 문장은 영어');
-    assert(!/포켓몬|Pok/i.test(r.join(' ')), cat + '/' + r[0] + ' 에 포켓몬이 남았다');
-    assert(r[0] === '' || r[0] === '__custom__' || S.CASUAL_EX_NOTE[r[0]], cat + '/' + r[0] + ' 의 한국어 설명(CASUAL_EX_NOTE)이 없다');
+  assert(!/포켓몬|Pokémon|Pokemon/.test(JSON.stringify([S.CASUAL_AXIS_GUIDES, S.CASUAL_RULES, tree])), '일상컷 표에 포켓몬이 남았다');
+  /* 트리의 자세·방향·프레이밍·렌즈 열쇠가 다 생성기 표에 있다 */
+  const poses = new Set(S.CASUAL_POSES.map(r => r[0])), orients = new Set(S.CASUAL_ORIENTS.map(r => r[0]));
+  for (const [k, f] of Object.entries(tree.families)) {
+    for (const x of f.poses) assert(poses.has(x) && S.CASUAL_POSE_EN[x], k + ' 자세 ' + x);
+    for (const x of f.orients) assert(orients.has(x) && S.CASUAL_ORIENT_EN[x], k + ' 방향 ' + x);
   }
-  assert(!/포켓몬|Pokémon|Pokemon/.test(JSON.stringify([S.CASUAL_CATS, S.CASUAL_EXAMPLES, S.CASUAL_EX_NOTE, S.CASUAL_AXIS_GUIDES, S.CASUAL_RULES])), '일상컷 표에 포켓몬이 남았다');
-  const st = { card: '궁니르', style: 'glossy_promo', output: 'casual', params: { frame: 'waist-up framing' },
-    casual: { cat: 'heritage_visit', ex: 'museum_glass', pose: 'contrapposto', orient: 'front_3q', expr: 'soft_smile', outfit: 'grey wool coat', scene: 'rainy Oslo', axes: { skin_exposure: 'low', overall_intensity: 'AUTO' } } };
-  const t = P.build(st, data), ex = S.CASUAL_EXAMPLES.heritage_visit.find(r => r[0] === 'museum_glass');
-  assert(t.includes('CATEGORY: ' + S.CASUAL_CATS.find(r => r[0] === 'heritage_visit')[2]) && t.includes('EXAMPLE SCENE: ' + ex[2]), '갈래와 예시');
-  assert(t.includes('pose: ' + S.CASUAL_POSE_EN.contrapposto) && t.includes('orientation: ' + S.CASUAL_ORIENT_EN.front_3q) && t.includes('expression: ' + S.CASUAL_EXPRESSION_EN.soft_smile), '자세·방향·표정은 영어 문장으로');
-  assert(t.includes('framing: waist-up framing') && t.includes('outfit and props: grey wool coat') && t.includes('scene: rainy Oslo'), '프레임·의상·장소');
-  assert(t.includes('skin exposure: low \u2014 ' + S.CASUAL_AXIS_GUIDES.skin_exposure.low[1]) && !t.includes('overall intensity'), '축은 AUTO 아닌 것만');
-  assert(t.includes(S.CASUAL_RULES.priority), '자세를 고르면 우선 규칙');
-  assert(P.words(t) <= 740, '일상컷 다 채워도 740 안: ' + P.words(t));
-  const tm = P.build({ ...st, casual: { cat: 'motif_editorial', ex: 'runway' } }, data);
-  assert(tm.includes('WEAPON LOOK for the fashion translation: ' + data.cards.find(c => c.name === '궁니르').look), '모티브 에디토리얼은 look 을 준다');
-  /* 무예 수련은 무기 종류의 연습 도구, 세시·제례는 신화 지역의 명절을 한 줄로 준다(2026-10-26) */
+  for (const r of S.CASUAL_FRAMES) if (r[0]) assert(S.CASUAL_FRAME_EN[r[0]], '프레이밍 ' + r[0]);
+  for (const r of S.CASUAL_LENSES) if (r[0]) assert(S.CASUAL_LENS_EN[r[0]], '렌즈 ' + r[0]);
+  for (const k of Object.keys(tree.frame_rules)) if (k !== 'note') assert(S.CASUAL_FRAMES.some(r => r[0] === k), '트리 프레이밍 규칙 ' + k);
   const gung = data.cards.find(c => c.name === '궁니르');
-  const tp = P.build({ ...st, casual: { cat: 'martial_practice', ex: 'dawn_form' } }, data);
+  const cas = (x, extra = {}) => P.build({ card: '궁니르', style: 'glossy_promo', output: 'casual', params: {}, ...extra, casual: x }, data);
+  const sceneOf = t => t.split('SCENE (chosen):\n')[1].split('\n\n')[0];
+  const plain = cas({});
+  assert(sceneOf(plain).startsWith('Place: ' + CT.place(tree, 'street_cafe').en + '\nActivity: ' + CT.act(tree, 'coffee_takeout').en), '기본 길 — 카페·커피');
+  assert(plain.includes(S.CASUAL_RULES.wardrobe) && !plain.includes('WORLD:') && !plain.includes('ERA:') && !plain.includes('CROP:'), '지금 현실 기본');
+  /* 무기는 옷이 아니라 장신구·사물로(사용자 2026-10-29) */
+  assert(!/motif on the clothing|color echo|integrated into everyday clothing|palette and motifs in clothing/.test(JSON.stringify([S.OUTPUTS.casual, S.CASUAL_RULES, S.CASUAL_AXIS_GUIDES])), '옷에 무기 색·무늬를 넣으라는 말이 남았다');
+  for (const v of ['subtle', 'balanced', 'strong']) assert(cas({ axes: { weapon_influence: v } }).includes('never in the clothing'), '무기 반영 ' + v + ' 은 옷에 넣지 않는다');
+  /* 고른 장면 — 장소·하는 일·옷·자세·방향·표정·프레이밍·렌즈·장소 메모·축 */
+  const t = cas({ era: 'now', place: 'heritage_museum', act: 'vitrine_look', ofam: 'everyday', item: 'trench_coat', pose: 'contrapposto', orient: 'front_3q', frame: 'three_quarter', lens: 'portrait85', outfit: 'grey wool coat', scene: 'rainy Oslo', axes: { skin_exposure: 'low', overall_intensity: 'AUTO' } });
+  const sc = sceneOf(t);
+  assert(sc.includes('Place: ' + CT.place(tree, 'heritage_museum').en) && sc.includes('Activity: ' + CT.act(tree, 'vitrine_look').en) && sc.includes('Outfit: grey wool coat'), '장소·하는 일·직접 쓴 옷');
+  assert(sc.includes('Pose: ' + S.CASUAL_POSE_EN.contrapposto) && sc.includes('Orientation: ' + S.CASUAL_ORIENT_EN.front_3q) && sc.includes('Framing: ' + S.CASUAL_FRAME_EN.three_quarter) && sc.includes('Lens / perspective: ' + S.CASUAL_LENS_EN.portrait85), '자세·방향·프레이밍·렌즈');
+  assert(!sc.includes('Expression:'), '표정을 정하는 하는 일(유리장 앞 미소)엔 표정이 없다');
+  assert(sc.includes('Scene note: rainy Oslo') && sc.includes('skin exposure: low — ' + S.CASUAL_AXIS_GUIDES.skin_exposure.low[1]) && !sc.includes('overall intensity'), '장소 메모·축은 AUTO 아닌 것만');
+  assert(t.includes(S.CASUAL_RULES.priority) && !t.includes('CROP:') && t.includes(S.CASUAL_RULES.wardrobe), '3/4 컷 — CROP 없음');
+  /* 가까운 컷 — CROP(잘리는 선)·크롭 안 옷 줄, 다리 자세·광각은 고친다 */
+  const tc = cas({ era: 'now', place: 'heritage_museum', act: 'vitrine_look', ofam: 'everyday', pose: 'contrapposto', frame: 'waist_up', lens: 'wide24', axes: { skin_exposure: 'bold' } });
+  assert(tc.includes('CROP: ' + S.CROP_EDGE.waist_up) && tc.includes(S.CASUAL_RULES.wardrobeClose) && !tc.includes('Pose: ') && !tc.includes('Lens / perspective: '), '가까운 컷 — CROP, 다리 자세·광각 없음');
+  assert(!/skin exposure: [^\n]*(midriff|leg)/.test(tc) && tc.includes('inside the crop'), '가까운 컷 노출 풀이');
+  assert(P.words(t) <= 800, '일상컷 다 채워도 800 안(트리 장면·WARDROBE 줄로 늘었다): ' + P.words(t));
+  /* 예전 외형 칸의 프레이밍(영어 문장) — 장면 칸이 비면 그대로 */
+  assert(sceneOf(cas({}, { params: { frame: 'waist-up framing' } })).includes('Framing: waist-up framing'), '예전 외형 칸 프레이밍');
+  /* 시대 — 신화의 옛 땅은 ERA, 신화 세계 안은 WORLD, 무대·환상은 SETTING */
+  const norse = data.group.myth.en[gung.myth];
+  assert(cas({ era: 'heritage', place: 'forge_smithy', act: 'anvil_hammer', ofam: 'everyday' }).includes('ERA: set this scene in the ancient lands her myth comes from — the ' + norse + ' world'), '신화의 옛 땅');
+  const world = cas({ era: 'in_myth', place: 'myth_bath', act: 'soak', ofam: 'bath' });
+  assert(world.includes('WORLD: this scene happens inside the world of ' + norse + ' myth') && !world.includes('ERA:'), '신화 세계 안');
+  assert(sceneOf(cas({ era: 'in_myth', place: 'myth_place', act: 'stroll', ofam: 'everyday' })).startsWith('Place: the place named in WORLD'), '그 신화의 장소는 WORLD 를 가리킨다');
+  assert(cas({ era: 'fantasy', place: 'fx_studio', act: 'editorial_pose', ofam: 'editorial' }).includes(S.CASUAL_RULES.fantasy), '무대·환상');
+  assert(!CT.places(tree, 'heritage', gung).some(p => ['arcade_hall', 'spa_jjimjil', 'heritage_museum'].includes(p.key)), '옛 땅에 없는 곳');
+  /* 무예 수련은 무기 종류의 연습 도구, 세시·제례는 신화 지역의 명절을 한 줄로(2026-10-26) — 트리의 하는 일에 practice·rite */
+  const tp = cas({ era: 'now', place: 'street_park', act: 'practice_form', ofam: 'active' });
   assert(tp.includes('PRACTICE TOOL: ' + S.CASUAL_PRACTICE[gung.kind] + '.') && !tp.includes('RITES OF HER REGION'), '무예 수련 연습 도구');
-  const tr = P.build({ ...st, casual: { cat: 'seasonal_rite', ex: 'bonfire_night' } }, data);
-  assert(tr.includes('RITES OF HER REGION (pick the one that fits the example): ' + S.CASUAL_RITES[gung.myth] + '.') && !tr.includes('PRACTICE TOOL'), '세시·제례 지역 명절');
+  const tr = cas({ era: 'now', place: 'rite_hill', act: 'herb_bonfire', ofam: 'everyday' });
+  assert(tr.includes('RITES OF HER REGION (pick the one that fits the activity): ' + S.CASUAL_RITES[gung.myth] + '.') && !tr.includes('PRACTICE TOOL'), '세시·제례 지역 명절');
   for (const k of data.group.kind.order) assert(S.CASUAL_PRACTICE[k], k + ' 연습 도구');
   for (const m of data.group.myth.order) assert(S.CASUAL_RITES[m], m + ' 명절');
-  assert(!P.build({ ...st, casual: { cat: 'forge_workshop', ex: 'blade_polish' } }, data).match(/PRACTICE TOOL|RITES OF HER REGION/), '공방에는 둘 다 없다');
-  const tc = P.build({ ...st, casual: { cat: '__custom__', catCustom: 'a sauna evening', ex: '__custom__', exCustom: 'towel wrapped, steam' } }, data);
-  assert(tc.includes('CATEGORY: a sauna evening') && tc.includes('EXAMPLE SCENE: towel wrapped, steam'), '직접 입력');
-  /* 랜덤 — 잠긴 칸은 안 바뀌고, 예시가 잠기면 갈래도 못 돌린다. 난수는 고정 */
+  assert(!cas({ era: 'now', place: 'forge_polish', act: 'polish_blank', ofam: 'work' }).match(/PRACTICE TOOL|RITES OF HER REGION/), '공방에는 둘 다 없다');
+  /* 예전 기록(갈래·예시) — 변환표로 같은 길이 된다 */
+  assert.equal(cas({ cat: 'martial_practice', ex: 'dawn_form' }), cas({ era: 'now', place: 'street_park', act: 'practice_form', ofam: 'active', item: 'dogi_practice' }), '예전 무예 수련 → 같은 길');
+  assert(cas({ cat: 'seasonal_rite', ex: 'bonfire_night' }).includes('RITES OF HER REGION') && cas({ cat: 'heritage_visit', ex: 'museum_glass' }).includes(CT.place(tree, 'heritage_museum').en), '예전 세시·유적');
+  assert(cas({ cat: 'motif_editorial', ex: 'runway' }).includes(S.CASUAL_RULES.fantasy) && !cas({ cat: 'motif_editorial', ex: 'runway' }).includes('WEAPON LOOK'), '무기 모티브 에디토리얼은 화보로 — 무기 모양을 옷에 옮기지 않는다');
+  /* 추천 조합이 다 조립되고, 길이 한도 */
+  let longestCasual = 0;
+  for (const pr of tree.presets) {
+    const tt = cas(CT.applyPreset(tree, {}, pr.key));
+    assert(tt.includes('Place: ') && tt.includes('Activity: ') && tt.includes('Outfit: '), pr.key + ' 장면 줄');
+    longestCasual = Math.max(longestCasual, P.words(tt));
+  }
+  assert(longestCasual <= BUDGET.casual + 120, '가장 긴 추천 조합 일상컷 ' + longestCasual);
+  /* 랜덤 — 트리 차례로, 잠긴 칸은 안 바뀌고 뒤 칸은 그 안에서. 난수는 고정 */
   let i = 0; const rng = () => [0.1, 0.6, 0.3, 0.9, 0.5][i++ % 5];
-  const base = { cat: 'everyday_basic', ex: 'bookstore', pose: '', orient: '', expr: '', axes: {}, locks: { pose: true } };
-  const r1 = R.randomize(base, null, rng);
-  assert(r1.pose === '' && r1.cat !== 'everyday_basic' && r1.ex && S.CASUAL_EXAMPLES[r1.cat].some(r => r[0] === r1.ex) && r1.orient && r1.expr && Object.keys(r1.axes).length === S.CASUAL_AXES.length, '잠긴 자세만 그대로, 갈래가 바뀌면 예시는 새 갈래 안에서: ' + JSON.stringify(r1));
-  assert(!R.canRandomize({ ...base, locks: { ex: true } }, 'cat') && R.canRandomize(base, 'ex'), '예시가 잠기면 갈래도 못 돌린다');
-  const r2 = R.randomize(base, 'ex', rng);
-  assert(r2.cat === 'everyday_basic' && r2.ex && r2.ex !== 'bookstore' && S.CASUAL_EXAMPLES.everyday_basic.some(r => r[0] === r2.ex), '예시만 돌리면 갈래 안에서');
-  assert(JSON.stringify(R.randomize(base, null, rng)) !== JSON.stringify(base) && JSON.stringify(base) === JSON.stringify({ cat: 'everyday_basic', ex: 'bookstore', pose: '', orient: '', expr: '', axes: {}, locks: { pose: true } }), '원본은 안 건드린다');
+  const rc = { tree, card: gung };
+  const base = { era: 'in_myth', place: 'myth_bath', act: 'soak', ofam: 'bath', pose: '', orient: '', expr: '', axes: {}, locks: { era: true } };
+  const r1 = R.randomize(base, null, rng, rc);
+  assert(r1.era === 'in_myth' && r1.place.startsWith('myth_') && CT.acts(tree, r1.era, r1.place).some(a => a.key === r1.act) && Object.keys(r1.axes).length === S.CASUAL_AXES.length, '잠긴 시대는 그대로, 장소는 그 시대 안에서: ' + JSON.stringify(r1));
+  assert(!R.canRandomize(base, 'era', rc) && R.canRandomize(base, 'place', rc), '잠근 칸은 못 돌린다');
+  const r2 = R.randomize({ ...base, locks: { era: true, place: true } }, 'act', rng, rc);
+  assert(r2.place === 'myth_bath' && CT.acts(tree, 'in_myth', 'myth_bath').some(a => a.key === r2.act), '하는 일만 돌리면 그 장소 안에서');
+  assert(JSON.stringify(base) === JSON.stringify({ era: 'in_myth', place: 'myth_bath', act: 'soak', ofam: 'bath', pose: '', orient: '', expr: '', axes: {}, locks: { era: true } }), '원본은 안 건드린다');
+  assert.throws(() => P.build({ card: '궁니르', style: 'glossy_promo', output: 'casual', params: {}, casual: {} }, { ...data, tree: null }), /Casual tree is required/);
 }
 /* 뒤돌아보기 — 등이 카메라를 보는 각도·돌아보는 자세에만 LOOK-BACK 줄(pkm 2026-10-25 같은 문제) */
 {
-  const cas = x => P.build({ card: data.cards[0].name, style: S.STYLES[0][0], output: 'casual', params: {}, casual: { cat: S.CASUAL_CATS[1][0], ...x } }, data);
+  const cas = x => P.build({ card: data.cards[0].name, style: S.STYLES[0][0], output: 'casual', params: {}, casual: { era: 'now', place: 'street_alley', act: 'stroll', ofam: 'everyday', ...x } }, data);
   for (const x of [{ orient: 'rear_3q' }, { orient: 'three_quarter_back' }, { orient: 'over_shoulder' }, { orient: 'back' }, { pose: 'turning_back' }]) assert(cas(x).includes(S.CASUAL_RULES.lookBack), '뒤돌아보기 줄 ' + JSON.stringify(x));
   for (const x of [{ orient: 'front_3q' }, { pose: 'walking' }, {}]) assert(!cas(x).includes('LOOK-BACK:'), '뒤돌아보기 줄 없음 ' + JSON.stringify(x));
 }

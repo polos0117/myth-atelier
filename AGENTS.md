@@ -38,6 +38,11 @@
 **무기당 그림 한 장이다.** 폼도 기준 시트도 없다. 각성(`_awaken`)과 일상컷(`_casualN`)은
 선택이다. 이름 규칙은 `IMAGE_RULES.md` 에 있다.
 
+일상컷 장면은 트리로 고른다 — 시대(지금 · 신화의 옛 땅 · 신화 세계 안 · 무대·환상) → 장소 → 하는 일 → 의상 → 구도(2026-10-29, game-atelier 에서 옮김).
+표는 `data/casual-tree.json`, 거르기는 `lib/casual-tree.js`(game-atelier 원본을 글자 하나 다르지 않게 복사 — 고치려면 game 쪽을 고치고 복사한다).
+예전 갈래·예시는 추천 조합과 변환표로 옮겼다. 표를 고치면 `python3 tools/casual-tree.py check`·`audit` 를 돌린다.
+무기는 일상컷 옷에 넣지 않는다 — 장신구·주변 사물로만(사용자 2026-10-29).
+
 ### 3. 화면을 갈아치우면 그 화면에 딸린 검사를 같이 옮긴다
 
 안 옮기면 검사가 조용히 죽는다. 늘 빨간 검사가 있으면 진짜 고장도 같이 묻힌다.
@@ -82,6 +87,10 @@
 
 ```bash
 node tests/words.cjs             # 낱말이 코드에 박히지 않았나
+python3 tools/casual-tree.py check   # 일상컷 트리 표 — 시대→장소→하는 일→의상 길이 끊긴 데·없는 열쇠·필수 갈래
+python3 tools/casual-tree.py audit   # 하는 일 문장의 고정물이 붙는 장소 문장에 없는 쌍 — 하는 일·장소를 넣었으면 0
+python3 tests/casual-tree.py         # 트리 검사기가 규칙마다 거는지 · 신화 무기 몫(신화 세계·수련·세시)
+node tests/casual-tree.cjs           # 트리 자세 계열의 자세·방향 열쇠가 생성기 표에 있다 · 칸끼리 규칙
 node tests/workspace-theme.cjs   # 결 여덟 · 밀도 · 문양
 node tests/data.cjs              # 카드·이름표·기술·화풍·그림 목록이 서로 맞나
 node tests/sprite-actor-copy.cjs # 도트 재생기 — lib/sprite-actor.js·.css 가 공방 모음 원본과 같다

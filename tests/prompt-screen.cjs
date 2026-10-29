@@ -116,31 +116,43 @@ const S = ctx.window.AtelierSpec;
     await p.selectOption('#pm-output', 'casual');
     await p.selectOption('#pm-casual', '3');
     await p.waitForFunction(() => document.querySelector('#pm-file').innerText.endsWith('_casual3.webp'));
-    /* 일상컷 장면 — 외형 묶음은 사라지고 장면 칸이 온다 */
-    await p.waitForSelector('#pm-casual-cat');
+    /* 일상컷 장면 — 외형 묶음은 사라지고 트리 장면 칸이 온다(2026-10-29 game-atelier 에서 옮김) */
+    await p.waitForSelector('#pm-casual-place');
     assert.equal(await p.locator('.pm-group[data-group="hair"]').count(), 0, '일상컷에는 외형 묶음이 없다');
-    assert.equal(await p.locator('#pm-casual-cat option').count(), S.CASUAL_CATS.filter(r => r[3] !== 'm').length, '갈래 전부');
-    await p.selectOption('#pm-casual-cat', 'heritage_visit');
-    await p.waitForFunction(() => document.querySelector('#pm-casual-ex') && document.querySelector('#pm-casual-ex').options.length > 3);
-    assert.equal(await p.locator('#pm-casual-ex option').count(), S.CASUAL_EXAMPLES.heritage_visit.length, '유적 나들이 예시');
-    await p.selectOption('#pm-casual-ex', 'museum_glass');
-    await p.waitForFunction(() => document.querySelector('#prompt-output').value.includes('EXAMPLE SCENE:'));
+    assert.equal(await p.locator('#pm-casual-cat').count(), 0, '갈래 칸이 없다');
+    const opts = id => p.$$eval('#pm-casual-' + id + ' option', os => os.map(o => o.value));
+    assert.deepEqual(await opts('era'), ['now', 'heritage', 'in_myth', 'fantasy'], '시대 넷');
+    await p.selectOption('#pm-casual-preset', 'museum_glass');
+    await p.waitForFunction(() => document.querySelector('#pm-casual-place').value === 'heritage_museum');
     t = await p.locator('#prompt-output').inputValue();
-    assert(t.includes('CATEGORY:') && t.includes('museum vitrine') && !t.includes('SUBJECT:'), '갈래·예시가 문장에, 뼈대는 없다');
-    /* 랜덤과 잠금 — 예시를 잠그면 갈래 랜덤이 꺼진다 */
-    await p.locator('button[data-lock="ex"]').click();
-    await p.waitForFunction(() => document.querySelector('button[data-random="cat"]').disabled);
-    await p.locator('button[data-random="pose"]').click();
-    await p.waitForFunction(() => document.querySelector('#pm-casual-pose').value !== '');
-    await p.locator('#pm-casual-random-all').click();
-    await p.waitForFunction(() => document.querySelector('#pm-casual-orient').value !== '');
-    assert.equal(await p.locator('#pm-casual-cat').inputValue(), 'heritage_visit', '잠긴 예시의 갈래는 그대로');
-    assert.equal(await p.locator('#pm-casual-ex').inputValue(), 'museum_glass');
+    assert(t.includes('SCENE (chosen):\nPlace: a museum hall where the legendary weapon') && !t.includes('SUBJECT:') && !t.includes('CATEGORY:'), '추천 조합이 길을 채운다, 뼈대는 없다');
+    /* 신화 세계 안 — 그 세계의 장소만, WORLD 줄 */
+    await p.selectOption('#pm-casual-era', 'in_myth');
+    assert((await opts('place')).every(k => k.startsWith('myth_')), '신화 세계 안은 그 세계의 장소만');
+    await p.waitForFunction(() => document.querySelector('#prompt-output').value.includes('WORLD: this scene happens inside the world of Norse myth'));
+    /* 랜덤과 잠금 — 시대를 잠그면 뒤 칸만 그 안에서 */
+    await p.locator('button[data-lock="era"]').click();
+    await p.waitForFunction(() => document.querySelector('button[data-random="era"]').disabled);
+    for (let i = 0; i < 4; i++) await p.locator('#pm-casual-random-all').click();
+    assert.equal(await p.locator('#pm-casual-era').inputValue(), 'in_myth', '잠근 시대는 그대로');
+    assert((await p.locator('#pm-casual-place').inputValue()).startsWith('myth_'), '랜덤 장소도 그 시대 안에서');
+    await p.locator('button[data-lock="era"]').click();
+    /* 수련장 — 하는 일이 자세를 거르고, PRACTICE TOOL 줄 */
+    await p.selectOption('#pm-casual-preset', 'cooldown_wrap');
+    await p.waitForFunction(() => document.querySelector('#prompt-output').value.includes('PRACTICE TOOL:'));
+    await p.selectOption('#pm-casual-frame', 'full_body');
+    assert(!(await opts('pose')).includes('walking') && (await opts('pose')).includes('sitting'), '앉기 계열 자세만');
+    await p.selectOption('#pm-casual-lens', 'wide24');
+    await p.selectOption('#pm-casual-frame', 'face_close');
+    assert.equal(await p.locator('#pm-casual-lens').inputValue(), '', '클로즈업으로 바꾸면 광각은 비운다');
+    await p.waitForFunction(() => document.querySelector('#prompt-output').value.includes('CROP: a close-up'));
     await p.locator('.pm-group[data-group="axes"] summary').click();
     await p.selectOption('#pm-casual-axes-skin_exposure', 'low');
     await p.waitForFunction(() => document.querySelector('#prompt-output').value.includes('skin exposure: low'));
     await p.fill('#pm-casual-outfit', 'grey wool coat');
-    await p.waitForFunction(() => document.querySelector('#prompt-output').value.includes('outfit and props: grey wool coat'));
+    await p.waitForFunction(() => document.querySelector('#prompt-output').value.includes('Outfit: grey wool coat'));
+    await p.selectOption('#pm-casual-preset', 'museum_glass');
+    await p.waitForFunction(() => document.querySelector('#pm-casual-place').value === 'heritage_museum');
 
     /* 다른 무기는 제 설정, 돌아오면 아까 것 */
     await p.selectOption('#pm-myth', 'india'); await p.selectOption('#pm-card', '간디바');
@@ -154,7 +166,7 @@ const S = ctx.window.AtelierSpec;
     assert.equal(await p.locator('#pm-card').inputValue(), '', '지역을 바꾸면 무기 칸이 빈다');
     await p.selectOption('#pm-card', '묠니르');
     await p.waitForFunction(() => document.querySelector('#pm-file').innerText === '묠니르_ink_wash_f_casual3.webp');
-    assert.equal(await p.locator('#pm-casual-cat').inputValue(), 'heritage_visit', '일상컷 장면도 무기마다 남는다');
+    assert.equal(await p.locator('#pm-casual-place').inputValue(), 'heritage_museum', '일상컷 장면도 무기마다 남는다');
     await p.selectOption('#pm-output', 'portrait');
     await p.waitForSelector('.pm-group[data-group="hair"] summary');
     await p.locator('.pm-group[data-group="hair"] summary').click();
@@ -170,6 +182,6 @@ const S = ctx.window.AtelierSpec;
     assert.deepEqual(a.errors, []);
     assert.deepEqual(await p.evaluate(() => window.AtelierWords.missing()), [], '낱말 표에 없는 열쇠');
     await a.close();
-    console.log('PASS 생성기 화면: 고르기·화풍·동작·외형·직접 입력·장면·출력 셋·파일 이름·무기별 저장·초기화·휴대폰');
+    console.log('PASS 생성기 화면: 고르기·화풍·동작·외형·직접 입력·장면·출력 셋·파일 이름·일상컷 트리(추천 조합·신화 세계·잠근 앞 칸·수련 도구·자세 계열·가까운 컷)·무기별 저장·초기화·휴대폰');
   } finally { await harness.stop(); }
 })().catch(e => { console.error(e); process.exit(1); });

@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#121016">
 <title>신화 무기 공방</title>
 <!--
-  그림 프롬프트 생성기. 문장은 lib/prompt-spec.js(표)와 lib/prompt-myth.js(조립)에서 온다 —
+  그림 프롬프트 생성기. 문장은 lib/prompt-spec.js(표)·data/casual-tree.json·lib/casual-tree.js(일상컷 트리)와 lib/prompt-myth.js(조립)에서 온다 —
   여기는 고르고 보여 주고 복사할 뿐이다. 설정은 무기마다 이 브라우저에 남는다.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -115,12 +115,13 @@ html,body {margin:0;padding:0}
 @media(min-width:1000px){.pm-grid {grid-template-columns:360px minmax(0,1fr);align-items:start}}
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
-<script src="lib/words.js?v=myth48"></script>
+<script src="lib/words.js?v=myth49"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth7"></script>
-<script src="lib/prompt-spec.js?v=22"></script>
-<script src="lib/prompt-myth.js?v=13"></script>
-<script src="lib/prompt-random.js?v=1"></script>
+<script src="lib/prompt-spec.js?v=23"></script>
+<script src="lib/casual-tree.js?v=1"></script>
+<script src="lib/prompt-myth.js?v=14"></script>
+<script src="lib/prompt-random.js?v=2"></script>
 </head>
 <body class="prompt-page">
 <div class="wrap"><div id="app"></div></div>
@@ -139,18 +140,21 @@ function useData() {
   const [state, set] = useState(null);
   useEffect(() => {
     const get = f => fetch(f, { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(f + ' ' + r.status); return r.json(); });
-    Promise.all([get('data/card.json'), get('data/group.json'), get('data/skill.json'), IMG.load()])
-      .then(([card, group, skill, img]) => set({ data: { cards: card.cards, group, skills: skill.skills }, img }))
+    Promise.all([get('data/card.json'), get('data/group.json'), get('data/skill.json'), get('data/casual-tree.json'), IMG.load()])
+      .then(([card, group, skill, tree, img]) => set({ data: { cards: card.cards, group, skills: skill.skills, tree }, img }))
       .catch(e => set({ error: String((e && e.message) || e) }));
   }, []);
   return state;
 }
-const DEFAULT = () => ({ style: S.DEFAULT_STYLE, output: 'portrait', action: '', casualIndex: 1, scene: '', params: {}, casual: { cat: 'everyday_basic', ex: '', pose: '', orient: '', expr: '', outfit: '', scene: '', axes: {}, locks: {} } });
+const DEFAULT = () => ({ style: S.DEFAULT_STYLE, output: 'portrait', action: '', casualIndex: 1, scene: '', params: {},
+  casual: { era: 'now', place: '', act: '', ofam: '', item: '', frame: '', lens: '', pose: '', orient: '', expr: '', outfit: '', scene: '', preset: '', axes: {}, locks: {} } });
 
-function Select({ id, label, value, options, onChange }) {
+/* 고르개 — 선택지는 [값, 이름] 이거나 {group, options} 묶음(장소·추천 조합) */
+function Select({ id, label, value, options, onChange, disabled }) {
+  const opt = ([v, name]) => html`<option key=${v} value=${v}>${name}</option>`;
   return html`<label for=${id}>${label}
-    <select id=${id} value=${value} onChange=${e => onChange(e.currentTarget.value)}>
-      ${options.map(([v, name]) => html`<option key=${v} value=${v}>${name}</option>`)}
+    <select id=${id} value=${value} disabled=${disabled} onChange=${e => onChange(e.currentTarget.value)}>
+      ${options.map(o => Array.isArray(o) ? opt(o) : html`<optgroup key=${o.group} label=${o.group}>${o.options.map(opt)}</optgroup>`)}
     </select></label>`;
 }
 
@@ -187,43 +191,61 @@ function ColorPick({ p, val, setP, card }) {
   </div>`;
 }
 
-/* 일상컷 장면 — 갈래·예시·자세·방향·표정·의상·장소·강도 축. 칸마다 랜덤과 잠금 */
-function Casual({ sc, update }) {
-  const set = patch => update({ casual: { ...sc, ...patch } });
-  const lock = k => set({ locks: { ...(sc.locks || {}), [k]: !(sc.locks || {})[k] } });
-  const roll = k => update({ casual: R.randomize(sc, k) });
-  const cats = S.CASUAL_CATS.filter(r => r[3] !== 'm').map(r => [r[0], r[1]]);
-  const exRows = S.CASUAL_EXAMPLES[sc.cat] || [];
-  const exOpts = exRows.map(r => [r[0], r[0] && r[0] !== '__custom__' ? r[1] + ' · ' + W('prompt.casual.tier.' + (r[3] || 'basic')) : r[1]]);
-  const note = k => k === 'ex' ? (S.CASUAL_EX_NOTE[sc.ex] || '') : '';
-  const field = (k, label, value, options, onChange, extra) => html`<div class="pm-scene" key=${k}>
-    <${Select} id=${'pm-casual-' + k.replace('.', '-')} label=${label} value=${value} options=${options} onChange=${onChange} />
+/* 일상컷 장면 — 트리(lib/casual-tree.js, 2026-10-29 game-atelier 에서 옮김): 추천 조합, 시대 → 장소 → 하는 일 → 의상 계열 → 옷 → 프레이밍·렌즈 → 자세·방향 → 표정 · 세부 강도.
+   앞에서 고른 것이 뒤 선택지를 거르고, 앞을 바꾸면 맞지 않게 된 뒤 칸은 고친다(repair). 칸마다 랜덤과 잠금 */
+function Casual({ sc, update, tree, card }) {
+  const CT = window.AtelierCasualTree, ctx = { tree, card };
+  const fixed = CT.repair(tree, CT.fromLegacy(tree, sc), card, S.CLOSE_FRAMES);
+  /* 장소·하는 일·옷을 손으로 바꾸면 추천 조합 표시는 지운다 */
+  const set = patch => { const c = { ...fixed, ...patch }; if (Object.keys(patch).some(k => R.CASUAL.indexOf(k) >= 0 && R.CASUAL.indexOf(k) < R.CASUAL.indexOf('frame'))) c.preset = '';
+    update({ casual: CT.repair(tree, c, card, S.CLOSE_FRAMES) }); };
+  const usePreset = k => update({ casual: CT.repair(tree, k ? CT.applyPreset(tree, fixed, k) : { ...fixed, preset: '' }, card, S.CLOSE_FRAMES) });
+  const lock = k => update({ casual: { ...fixed, locks: { ...(fixed.locks || {}), [k]: !(fixed.locks || {})[k] } } });
+  const roll = k => update({ casual: R.randomize(fixed, k, Math.random, ctx) });
+  const field = (k, label, value, options, onChange, extra, disabled) => html`<div class="pm-scene" key=${k}>
+    <${Select} id=${'pm-casual-' + k.replace('.', '-')} label=${label} value=${value} options=${options} onChange=${onChange} disabled=${disabled} />
     <div class="pm-scene-tools">
-      <button type="button" class="pm-btn quiet" data-random=${k} disabled=${!R.canRandomize(sc, k)} aria-label=${W('prompt.casual.random.field', { label })} onClick=${() => roll(k)}>${W('prompt.casual.random')}</button>
-      <button type="button" class="pm-btn quiet" data-lock=${k} aria-pressed=${!!(sc.locks || {})[k]} aria-label=${W('prompt.casual.lock.field', { label })} onClick=${() => lock(k)}>${(sc.locks || {})[k] ? W('prompt.casual.locked') : W('prompt.casual.lock')}</button>
+      <button type="button" class="pm-btn quiet" data-random=${k} disabled=${!R.canRandomize(fixed, k, ctx)} aria-label=${W('prompt.casual.random.field', { label })} onClick=${() => roll(k)}>${W('prompt.casual.random')}</button>
+      <button type="button" class="pm-btn quiet" data-lock=${k} aria-pressed=${!!(fixed.locks || {})[k]} aria-label=${W('prompt.casual.lock.field', { label })} onClick=${() => lock(k)}>${(fixed.locks || {})[k] ? W('prompt.casual.locked') : W('prompt.casual.lock')}</button>
     </div>
     ${extra}
   </div>`;
+  const help = t => t && html`<p class="pm-note help">${t}</p>`;
+  const presets = [['', W('prompt.tree.preset.none')], ...tree.preset_groups.map(g => ({ group: g.ko, options: tree.presets.filter(p => p.group === g.key).map(p => [p.key, p.ko]) }))];
+  const ps = CT.places(tree, fixed.era, card);
+  const places = tree.groups.map(g => ({ group: g.ko, options: ps.filter(p => p.group === g.key).map(p => [p.key, p.ko]) })).filter(g => g.options.length);
+  const acts = CT.acts(tree, fixed.era, fixed.place).map(a => [a.key, a.ko + ' · ' + tree.families[a.family].ko]);
+  const fams = CT.outfitFamilies(tree, fixed.era, fixed.place, fixed.act).map(o => [o.key, o.ko]);
+  const items = [['', W('prompt.tree.item.auto')], ...CT.items(tree, fixed.ofam, fixed.frame).map(i => [i.key, i.ko])];
+  const allowP = new Set(CT.poses(tree, fixed.act, fixed.frame)), allowO = new Set(CT.orients(tree, fixed.act, fixed.frame, S.CLOSE_FRAMES, fixed.pose));
+  const fam = CT.poseFamily(tree, fixed.act), famKo = fam ? fam.ko : '';
+  const exprOn = CT.exprOk(tree, fixed);
+  const pl = CT.place(tree, fixed.place), ac = CT.act(tree, fixed.act), it = CT.item(tree, fixed.ofam, fixed.item);
   return html`<h2>${W('prompt.casual')}</h2>
     <p class="pm-note help">${W('prompt.casual.note')}</p>
     <div class="pm-scene-tools"><button type="button" class="pm-btn quiet" id="pm-casual-random-all"
-      disabled=${!Object.keys(R.fields(sc)).some(k => R.canRandomize(sc, k))} onClick=${() => roll(null)}>${W('prompt.casual.random.all')}</button></div>
-    ${field('cat', W('prompt.casual.category'), sc.cat || '', cats, v => set({ cat: v, ex: '' }),
-      sc.cat === '__custom__' && html`<input type="text" id="pm-casual-catCustom" value=${sc.catCustom || ''} onInput=${e => set({ catCustom: e.currentTarget.value })} />`)}
-    ${exRows.length > 1 && field('ex', W('prompt.casual.example'), sc.ex || '', exOpts, v => set({ ex: v }),
-      html`${note('ex') && html`<p class="pm-note help">${note('ex')}</p>`}
-        ${sc.ex === '__custom__' && html`<input type="text" id="pm-casual-exCustom" value=${sc.exCustom || ''} onInput=${e => set({ exCustom: e.currentTarget.value })} />`}`)}
-    ${field('pose', W('prompt.casual.pose'), sc.pose || '', S.CASUAL_POSES, v => set({ pose: v }))}
-    ${field('orient', W('prompt.casual.orient'), sc.orient || '', S.CASUAL_ORIENTS, v => set({ orient: v }))}
-    ${field('expr', W('prompt.casual.expr'), sc.expr || '', S.CASUAL_EXPRESSIONS, v => set({ expr: v }))}
-    <label for="pm-casual-outfit">${W('prompt.casual.outfit')}<input id="pm-casual-outfit" type="text" value=${sc.outfit || ''} onInput=${e => set({ outfit: e.currentTarget.value })} /></label>
-    <label for="pm-casual-scene">${W('prompt.casual.scene')}<input id="pm-casual-scene" type="text" value=${sc.scene || ''} onInput=${e => set({ scene: e.currentTarget.value })} /></label>
+      disabled=${!Object.keys(R.fields(fixed, ctx)).some(k => R.canRandomize(fixed, k, ctx))} onClick=${() => roll(null)}>${W('prompt.casual.random.all')}</button></div>
+    <${Select} id="pm-casual-preset" label=${W('prompt.tree.preset')} value=${fixed.preset || ''} options=${presets} onChange=${usePreset} />
+    ${help(W('prompt.help.tree.preset'))}
+    ${field('era', W('prompt.tree.era'), fixed.era, CT.eras(tree).map(e => [e.key, e.ko]), v => set({ era: v }), help(W('prompt.help.tree.era')))}
+    ${field('place', W('prompt.tree.place'), fixed.place, places, v => set({ place: v }), help(pl ? pl.en : ''))}
+    ${field('act', W('prompt.tree.act'), fixed.act, acts, v => set({ act: v }), help(ac ? ac.en : W('prompt.help.tree.act')))}
+    ${field('ofam', W('prompt.tree.ofam'), fixed.ofam, fams, v => set({ ofam: v }))}
+    ${field('item', W('prompt.tree.item'), fixed.item || '', items, v => set({ item: v }), help([it ? it.en : '', CT.frameRule(tree, fixed.frame).low === false ? W('prompt.tree.item.close') : ''].filter(Boolean).join(' ')))}
+    ${field('frame', W('prompt.tree.frame'), fixed.frame || '', S.CASUAL_FRAMES.filter(r => !r[0] || CT.frameOk(tree, fixed.act, r[0])), v => set({ frame: v }))}
+    ${field('lens', W('prompt.tree.lens'), fixed.lens || '', S.CASUAL_LENSES.filter(r => !r[0] || CT.lensOk(tree, fixed.frame, r[0])), v => set({ lens: v }),
+      help(CT.frameRule(tree, fixed.frame).wide === false ? W('prompt.tree.lens.nowide') : ''))}
+    ${field('pose', W('prompt.casual.pose'), fixed.pose || '', S.CASUAL_POSES.filter(r => !r[0] || allowP.has(r[0])), v => set({ pose: v }), help(W('prompt.tree.pose.help', { family: famKo })))}
+    ${field('orient', W('prompt.casual.orient'), fixed.orient || '', S.CASUAL_ORIENTS.filter(r => !r[0] || allowO.has(r[0])), v => set({ orient: v }), help(W('prompt.tree.orient.help', { family: famKo })))}
+    ${field('expr', W('prompt.casual.expr'), exprOn ? fixed.expr || '' : '', S.CASUAL_EXPRESSIONS, v => set({ expr: v }), help(exprOn ? '' : W('prompt.tree.expr.off')), !exprOn)}
+    <label for="pm-casual-outfit">${W('prompt.casual.outfit')}<input id="pm-casual-outfit" type="text" value=${fixed.outfit || ''} onInput=${e => set({ outfit: e.currentTarget.value })} /></label>
+    <label for="pm-casual-scene">${W('prompt.casual.scene')}<input id="pm-casual-scene" type="text" value=${fixed.scene || ''} onInput=${e => set({ scene: e.currentTarget.value })} /></label>
     <details class="pm-group" data-group="axes">
-      <summary><span>${W('prompt.casual.axes')}</span><i>${Object.values(sc.axes || {}).filter(v => v && v !== 'AUTO').length ? W('prompt.group.set', { n: Object.values(sc.axes || {}).filter(v => v && v !== 'AUTO').length }) : ''}</i></summary>
+      <summary><span>${W('prompt.casual.axes')}</span><i>${Object.values(fixed.axes || {}).filter(v => v && v !== 'AUTO').length ? W('prompt.group.set', { n: Object.values(fixed.axes || {}).filter(v => v && v !== 'AUTO').length }) : ''}</i></summary>
       <p class="pm-note help">${W('prompt.casual.axes.note')}</p>
-      ${S.CASUAL_AXES.map(ax => field('axes.' + ax, S.CASUAL_AXIS_LABELS[ax][1], (sc.axes || {})[ax] || 'AUTO',
+      ${S.CASUAL_AXES.map(ax => field('axes.' + ax, S.CASUAL_AXIS_LABELS[ax][1], (fixed.axes || {})[ax] || 'AUTO',
         S.CASUAL_AXIS_OPTIONS[ax].map(v => [v, v === 'AUTO' ? W('prompt.auto') : (S.CASUAL_AXIS_GUIDES[ax][v] ? v + ' — ' + S.CASUAL_AXIS_GUIDES[ax][v][0] : v)]),
-        v => set({ axes: { ...(sc.axes || {}), [ax]: v } })))}
+        v => set({ axes: { ...(fixed.axes || {}), [ax]: v } })))}
     </details>`;
 }
 function App() {
@@ -295,7 +317,7 @@ function App() {
           <select id="pm-casual" value=${String(st.casualIndex || 1)} onChange=${e => update({ casualIndex: +e.currentTarget.value })}>
             ${[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => html`<option key=${n} value=${String(n)}>${n}</option>`)}
           </select></label>`}
-        ${st.output === 'casual' && c ? html`<${Casual} sc=${st.casual || DEFAULT().casual} update=${update} />` : html`
+        ${st.output === 'casual' && c ? html`<${Casual} sc=${st.casual || DEFAULT().casual} update=${update} tree=${data.tree} card=${c} />` : html`
         <h2>${W('prompt.design')}</h2>
         <p class="pm-note help">${W('prompt.design.note')}</p>
         <${Select} id="pm-design" label=${W('prompt.design.kind')} value=${st.design || 'mecha'} options=${S.DESIGNS.map(d => [d[0], d[1] + ' — ' + d[2]])} onChange=${v => update({ design: v })} />
@@ -340,12 +362,6 @@ function App() {
           </details>`;
         })}
         `}
-        ${st.output === 'casual' && c && html`${S.PARAM_GROUPS.filter(g => g[0] === 'shot').map(([gk, gko, gnote]) => {
-          const mine = S.PARAMS.filter(p => p.group === gk && ['frame', 'lens'].includes(p.key));
-          return html`<details class="pm-group" key=${gk} data-group=${gk}>
-            <summary><span>${gko}</span><i></i></summary>
-            <div class="pm-id">${mine.map(p => html`<${Select} key=${p.key} id=${'pm-' + p.key} label=${p.ko} value=${st.params[p.key] || ''} options=${p.options} onChange=${v => update({ params: { ...st.params, [p.key]: v } })} />`)}</div>
-          </details>`; })}`}
         ${c && html`<button class="pm-btn quiet" id="pm-reset" type="button" onClick=${() => { const next = { ...store, __card: card }; delete next[card]; setStore(next); writeStore(next); }}>${W('prompt.reset')}</button>`}
       </div>
 

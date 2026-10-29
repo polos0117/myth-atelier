@@ -12,6 +12,15 @@
 
 
 
+## 2026-10-29 · claude · 일상컷 트리 — game-atelier 의 구조를 신화 무기로
+- data/casual-tree.json · lib/casual-tree.js — 일상컷을 갈래·예시 대신 시대 → 장소 → 하는 일 → 의상 → 구도 한 줄로(사용자 「이 구조로 다른 저장소도」, 범위는 「트리 화면·조립만」 — 무기당 일상컷이 보통 한 장이라 묶음 계획기는 안 옮겼다). 트리 모듈은 game 원본 그대로, 표는 신화 무기 몫: 시대 넷(지금 · 신화의 옛 땅 · 신화 세계 안 · 무대·환상), 게임 몫 장소를 빼고 직업 현장·대장간·공방·수련장·세시·제례·신화 유적 묶음과 신화 세계의 장소, 직업복 계열. 수련장 하는 일엔 practice(무기 종류의 연습 도구 줄), 세시엔 rite(신화 지역 명절 줄). 예전 갈래·예시 465개는 추천 조합 305개·변환표 434줄로(빠진 것 0). 무기 모티브 에디토리얼은 화보(무대·환상)로 — 무기 모양을 옷에 옮기지 않는다.
+- lib/prompt-spec.js — 예전 갈래·예시·설명 표(CASUAL_CATS·CASUAL_EXAMPLES·CASUAL_EX_NOTE)를 지우고, 일상컷 프레이밍·렌즈 고르개(CASUAL_FRAMES·CASUAL_LENSES)·CROP_EDGE·가까운 컷 노출 풀이, 자세 쉿·엄지 척·간식 건네기·물 주기, 일상컷 줄 WARDROBE(가까운 컷 판)·CROP·ERA·WORLD·SETTING·SCREENS·PRACTICE TOOL·RITES. 무기는 옷이 아니라 장신구·주변 사물로(사용자 2026-10-29, game·book 과 같게) — 출력·투영 줄과 무기 반영 축 풀이를 고쳤다. prompt-spec v=23.
+- lib/prompt-myth.js — 일상컷을 트리 길로: CROP·시대 줄·수련 도구·세시를 고른 장면 앞에, 고른 장면 → 옷 줄 → 우선 → 뒤돌아보기. 프레이밍·렌즈는 장면 칸(비면 예전 외형 칸 그대로). 전통 의상은 고른 전통이 신화 지역을 이긴다. prompt-myth v=14.
+- lib/prompt-random.js · prompt.html · lib/words.js 외 여섯 화면 — 장면 랜덤을 트리 차례로(앞 칸을 잠그면 뒤 칸만 그 안에서), 생성기 일상컷 칸을 트리로(추천 조합·시대·장소·하는 일·의상 계열·옷·프레이밍·렌즈·자세·방향·표정 — 칸끼리 규칙으로 거름). 외형 칸의 일상컷 촬영 묶음은 장면 칸으로 옮겼다. prompt-random v=2, words v=myth49.
+- tools/casual-tree.py — 트리 검사기(book·game 과 같은 파일).
+- tests/prompt-engine.cjs · tests/prompt-screen.cjs · tests/casual-tree.cjs · tests/casual-tree.py — 트리·칸끼리 규칙·시대 줄·수련·세시·예전 기록·랜덤. 일상컷 낱말 한도 560 → 640(WARDROBE·장면 줄), 다 채우면 740 → 800.
+- AGENTS.md · PROMPT_IMAGE_WORKFLOW.md — 일상컷 트리, 무기는 옷에 넣지 않는다, 명령.
+
 ## 2026-10-28 · claude · 도트 재생기 복사 — 머리말(여섯 공방)
 - lib/sprite-actor.js — 공방 모음 원본 복사. 머리말만 바뀜(게임 공방이 여섯째로 붙어 「여섯 공방 저장소」) — 동작 그대로라 캐시 꼬리표는 안 올림
 
