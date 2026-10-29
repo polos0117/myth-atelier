@@ -52,4 +52,19 @@ assert(CT.poses(tree, 'interview', 'chest_up').includes('thumbs_up') && !CT.pose
 const fixed = CT.repair(tree, { era: 'now', place: 'evening_gala', act: 'gala_dinner', ofam: 'evening', frame: 'face_close', pose: 'cross_legged', lens: 'wide24', expr: 'calm', orient: 'front' }, null, S.CLOSE_FRAMES);
 assert(!fixed.pose && !fixed.lens && fixed.expr === 'calm', '고치기 — 맞지 않는 자세·광각은 비우고 표정은 둔다');
 assert.equal(CT.repair(tree, { ...fixed, orient: 'back_to_camera', frame: 'full_body' }, null, S.CLOSE_FRAMES).expr || '', '', '등을 보이면 표정을 비운다');
+/* 왜 못 고르나(why) · 해방(unlocked) — 허브 통합 생성기(2026-10-29, game 과 같은 모듈). 트리 안 값은 null, 밖 값은 까닭 코드. 해방한 칸은 고치지 않는다 */
+{
+  const close = S.CLOSE_FRAMES || [], sc = { era: tree.eras[0].key };
+  for (const k of ['place', 'act', 'ofam', 'frame']) sc[k] = CT.choices(tree, sc, k, null, close)[0];
+  for (const k of ['place', 'act', 'ofam', 'frame', 'pose', 'orient']) for (const v of CT.choices(tree, sc, k, null, close))
+    assert.equal(CT.why(tree, sc, k, v, null, close), null, k + ' ' + v + ' 는 고를 수 있다');
+  const farPlace = tree.places.find(p => !CT.places(tree, sc.era).some(q => q.key === p.key));
+  if (farPlace) assert(CT.why(tree, sc, 'place', farPlace.key), farPlace.key + ' 는 까닭이 붙는다');
+  assert.equal(CT.why(tree, sc, 'place', 'nope').code, 'unknown');
+  const outPose = [...poses].find(p => !CT.poses(tree, sc.act, sc.frame).includes(p));
+  assert(CT.why(tree, sc, 'pose', outPose), outPose + ' 는 트리 밖');
+  assert.equal(CT.repair(tree, { ...sc, pose: outPose, unlocked: ['pose'] }, null, close).pose, outPose, '해방한 자세는 그대로');
+  assert.equal(CT.repair(tree, { ...sc, pose: outPose }, null, close).pose || '', '', '해방 안 했으면 비운다');
+  assert(CT.unlocked({ pose: outPose, unlocked: ['pose'] }, 'pose') && !CT.unlocked({ pose: '', unlocked: ['pose'] }, 'pose'), '빈 칸은 해방이 아니다');
+}
 console.log(`PASS 일상컷 트리 ↔ 생성기: 자세 계열 ${Object.keys(tree.families).length} · 자세 ${used.size} · 방향 열쇠 · 길 ${paths}(검사기와 같다) · 추천 조합 ${tree.presets.length} · 칸끼리 규칙(앉는 자리·손·보이는 부위·허리 아래 옷·광각·표정)`);

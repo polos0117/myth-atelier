@@ -11,7 +11,8 @@
   - 칸끼리 규칙 표가 맞다 — 자세마다 보이는 부위·손·앉는 자리, 하는 일의 앉는 자리·빈 손, 프레이밍 규칙,
     옷 계열마다 가슴 위·클로즈업에서 고를 옷(허리 아래로 알아보는 옷 low 가 아닌 것)이 하나 이상
   - 하는 일이 먼저 고르라는 옷(prefer)이 그 하는 일이 받는 옷 계열에 있다 — 자전거 점검에 양궁 차림이 붙었다(심시티 계획)
-  - 어느 시대에서든 필수 갈래(란제리풍·수영복·역할극 또는 그 세계 안 일상 — 섹시)에 닿는 길이 있다
+  - 어느 시대에서든 필수 갈래(란제리풍·수영복·역할극 또는 게임 속 일상 — 섹시)에 닿는 길이 있다
+  - 안 쓰는 값(banned — pkm)·필수 갈래 컷에 안 쓰는 프레이밍(not_required)·동료 자세(companion)·세대 연도(gen_years)가 맞다
   - 추천 조합(지금 갈래의 장면 예시를 옮긴 것)과 예전 기록 변환표가 다 고를 수 있는 길이다
 
     python3 tools/casual-tree.py check
@@ -179,6 +180,33 @@ def check(doc):
         for z in r.get("zones", []):
             if z not in zones:
                 errs.append("프레이밍 %s 의 보이는 부위 %r" % (fr, z))
+    FRAMES = ("environmental", "full_body", "three_quarter", "waist_up", "chest_up", "face_close", "detail")
+    orients = {o for f in doc["families"].values() for o in f["orients"]}
+    ban = doc.get("banned", {})
+    for o in ban.get("orients", []):
+        if o not in orients:
+            errs.append("안 쓰는 방향 %s 가 자세 계열 어디에도 없다" % o)
+    for fr in ban.get("frames", []):
+        if fr not in FRAMES:
+            errs.append("안 쓰는 프레이밍 %r" % fr)
+    for fam, f in doc["families"].items():
+        if not [o for o in f["orients"] if o not in ban.get("orients", [])]:
+            errs.append("자세 계열 %s 에 안 쓰는 값을 빼면 방향이 없다" % fam)
+    for fr, r in doc.get("frame_rules", {}).items():
+        if fr != "note" and r.get("not_required") not in (None, True):
+            errs.append("프레이밍 %s 의 not_required %r" % (fr, r.get("not_required")))
+    comp_groups = {g["key"] for g in doc["groups"] if g.get("companion")}
+    comp_acts = [a for a in doc["activities"] if a.get("companion")]
+    for k, m in meta.items():
+        if m.get("companion") and not comp_acts:
+            errs.append("동료 자세 %s 가 있는데 동료가 있는 하는 일(companion)이 없다" % k)
+    for a in comp_acts:
+        for k in act_places(doc, a):
+            if I["places"][k]["group"] not in comp_groups:
+                errs.append("동료가 있는 하는 일 %s 가 동료 묶음 밖 장소 %s 에 붙는다(동료 줄이 안 실린다)" % (a["key"], k))
+    for g, y in doc.get("gen_years", {}).items():
+        if not (str(g).isdigit() and isinstance(y, int) and 1990 <= y <= 2100):
+            errs.append("세대 연도 %s=%r" % (g, y))
     for o in doc["outfits"]:
         if all(i.get("low") for i in o["items"]):
             errs.append("옷 계열 %s 는 가슴 위·클로즈업에서 고를 옷이 없다(전부 허리 아래로 알아보는 옷)" % o["key"])
