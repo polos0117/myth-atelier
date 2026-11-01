@@ -134,6 +134,7 @@ for a in G['awkward']:
 aw += [
  {'outfits': ['swimwear', 'bath'], 'places': ['@work', '@forge', '@dojo', 'rite_home', 'rite_altar', 'rite_shrine', '@heritage', '!heritage_spring'], 'ko': '일터 · 공방 · 도장 · 제례 · 전설의 자리에 수영복 · 목욕 차림(옛 샘터는 괜찮다)'},
  {'outfits': ['bridal', 'evening'], 'places': ['@forge', 'dojo_training', 'dojo_salle', 'work_garage', 'work_field'], 'ko': '드레스로 불 · 쇠 · 땀 쓰는 자리'},
+ {'outfits': ['work'], 'places': ['@sports', '@water', '@spa', '@stage', '@night', '@evening', '@dojo', '@rite'], 'ko': '직업복으로 운동 · 물가 · 목욕 · 무대 · 밤 · 격식 · 도장 · 제례 자리'},
 ]
 d['awkward'] = aw
 

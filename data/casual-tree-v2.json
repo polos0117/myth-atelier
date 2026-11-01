@@ -5147,6 +5147,22 @@
     "work_field"
    ],
    "ko": "드레스로 불 · 쇠 · 땀 쓰는 자리"
+  },
+  {
+   "outfits": [
+    "work"
+   ],
+   "places": [
+    "@sports",
+    "@water",
+    "@spa",
+    "@stage",
+    "@night",
+    "@evening",
+    "@dojo",
+    "@rite"
+   ],
+   "ko": "직업복으로 운동 · 물가 · 목욕 · 무대 · 밤 · 격식 · 도장 · 제례 자리"
   }
  ],
  "presets": [
