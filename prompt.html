@@ -115,13 +115,13 @@ html,body {margin:0;padding:0}
 @media(min-width:1000px){.pm-grid {grid-template-columns:360px minmax(0,1fr);align-items:start}}
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
-<script src="lib/words.js?v=myth50"></script>
+<script src="lib/words.js?v=myth51"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth7"></script>
 <script src="lib/prompt-spec.js?v=24"></script>
 <script src="lib/casual-tree.js?v=3"></script>
 <script src="lib/casual-tree-v2.js?v=1"></script>
-<script src="lib/prompt-myth.js?v=15"></script>
+<script src="lib/prompt-myth.js?v=16"></script>
 <script src="lib/prompt-random.js?v=4"></script>
 </head>
 <body class="prompt-page">
@@ -364,13 +364,14 @@ function App() {
   const [myth, setMyth] = useState(() => readStore().__myth || '');
   const [skinOnly, setSkinOnly] = useState(() => !!readStore().__skinOnly);
   const [copied, setCopied] = useState(false);
+  const [rec, setRec] = useState('');
   const st = useMemo(() => ({ ...DEFAULT(), ...(store[card] || {}), card }), [store, card]);
   const update = patch => {
     const next = { ...store, [card]: { ...(store[card] || {}), ...patch }, __card: card };
     setStore(next); writeStore(next);
   };
   /* 스킨만 보기에서 무기를 고르면 출력도 스킨으로 */
-  const pickCard = name => { setCard(name); const next = { ...store, __card: name }; if (skinOnly && name) next[name] = { ...(store[name] || {}), output: 'skin' }; setStore(next); writeStore(next); };
+  const pickCard = name => { setCard(name); setRec(''); const next = { ...store, __card: name }; if (skinOnly && name) next[name] = { ...(store[name] || {}), output: 'skin' }; setStore(next); writeStore(next); };
   /* 지역을 바꾸면 무기 칸은 비운다 — 다른 지역의 무기가 남아 있으면 헷갈린다 */
   const pickMyth = m => { setMyth(m); setCard(''); const next = { ...store, __myth: m, __card: '' }; setStore(next); writeStore(next); };
   if (!loaded) return html`<div><${WorkspaceHeader} page="prompt" /><p class="pm-note help">${W('ui.loading')}</p></div>`;
@@ -385,6 +386,8 @@ function App() {
   const file = c ? P.fileName(st, c) : '';
   const portrait = c && IMG.portraitOf(img[c.name], 'f', st.style);
   const copy = () => { navigator.clipboard && navigator.clipboard.writeText(text).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1500); }); };
+  /* 기록 내보내기 — 그림 저장소 records/<카드>/<자리>-ui.json 으로 둔다. tools/casual-plan.cjs · tools/prompt-pack.cjs 와 같은 꼴(P.record) */
+  const exportRecord = () => { const r = JSON.stringify(P.record(stb, c, data), null, 1); setRec(r); navigator.clipboard && navigator.clipboard.writeText(r).catch(() => {}); };
   const cards = g.myth.order.flatMap(m => data.cards.filter(x => x.myth === m).slice().sort((a, b) => b.cost - a.cost || a.name.localeCompare(b.name, 'ko')));
   const drawn = x => !!IMG.portraitOf(img[x.name], 'f');
   /* 스킨만 보기 — 스킨이 있는 무기와 그 무기가 있는 지역만. 켤 때 고른 무기에 스킨이 없으면 비운다 */
@@ -487,6 +490,9 @@ function App() {
           <span>${W('prompt.words', { n: P.words(text) })}</span>
         </div>
         ${c && html`<h2>${W('prompt.file')}</h2><div class="pm-file" id="pm-file">${file}</div><p class="pm-note help">${W('prompt.file.note')}</p>`}
+        ${c && html`<div class="pm-bar"><button class="pm-btn quiet" id="pm-record" type="button" disabled=${!text} onClick=${exportRecord}>${W('prompt.record')}</button>
+          <span>${W('prompt.record.where', { path: 'records/' + c.name.replace(/ /g, '_') + '/' + P.slotName(stb, c) + '-ui.json' })}</span></div>
+          ${rec && html`<textarea id="pm-record-text" readonly value=${rec} aria-label=${W('prompt.record')}></textarea>`}`}
       </div>
     </div>
   </div>`;

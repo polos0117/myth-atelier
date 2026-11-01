@@ -205,12 +205,7 @@ function cardState(card, cut, style) {
   return { style, output: 'casual', action: '', casualIndex: n, scene: '', params: {},
     casual: { treeV: 2, era: 'now', place: '', ofam: '', item: '', expr: '', outfit: '', scene: '', custom: '', preset: '', axes: {}, ...scene, locks } };
 }
-function record(card, cut, style) {
-  const st = cardState(card, cut, style);
-  const text = P.build({ ...st, card: card.name }, DATA);
-  return { version: 1, card: card.name, mode: 'casual', style, file: P.fileName(st, card), record: `records/${fileKey(card)}/casual${cut.n}-ui.json`,
-    at: new Date().toISOString(), storage: { __card: card.name, __myth: card.myth, [card.name]: st }, prompt: text };
-}
+function record(card, cut, style) { return P.record(cardState(card, cut, style), card, DATA); }
 /* 기록 한 장의 장면 — storage[카드].casual */
 const sceneOf = rec => ((rec.storage || {})[rec.card] || {}).casual;
 /* 이미 있는 컷 — 기록 폴더의 casualN-ui.json(버전2 장면만) */
