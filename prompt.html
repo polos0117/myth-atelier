@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#121016">
 <title>신화 무기 공방</title>
 <!--
-  그림 프롬프트 생성기. 문장은 lib/prompt-spec.js(표)·data/casual-tree.json·lib/casual-tree.js(일상컷 트리)와 lib/prompt-myth.js(조립)에서 온다 —
+  그림 프롬프트 생성기. 문장은 lib/prompt-spec.js(표)·data/casual-tree.json·lib/casual-tree.js(일상컷 트리)·data/casual-tree-v2.json·lib/casual-tree-v2.js(버전2)와 lib/prompt-myth.js(조립)에서 온다 —
   여기는 고르고 보여 주고 복사할 뿐이다. 설정은 무기마다 이 브라우저에 남는다.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -115,13 +115,14 @@ html,body {margin:0;padding:0}
 @media(min-width:1000px){.pm-grid {grid-template-columns:360px minmax(0,1fr);align-items:start}}
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
-<script src="lib/words.js?v=myth49"></script>
+<script src="lib/words.js?v=myth50"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth7"></script>
-<script src="lib/prompt-spec.js?v=23"></script>
+<script src="lib/prompt-spec.js?v=24"></script>
 <script src="lib/casual-tree.js?v=3"></script>
-<script src="lib/prompt-myth.js?v=14"></script>
-<script src="lib/prompt-random.js?v=3"></script>
+<script src="lib/casual-tree-v2.js?v=1"></script>
+<script src="lib/prompt-myth.js?v=15"></script>
+<script src="lib/prompt-random.js?v=4"></script>
 </head>
 <body class="prompt-page">
 <div class="wrap"><div id="app"></div></div>
@@ -140,14 +141,21 @@ function useData() {
   const [state, set] = useState(null);
   useEffect(() => {
     const get = f => fetch(f, { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(f + ' ' + r.status); return r.json(); });
-    Promise.all([get('data/card.json'), get('data/group.json'), get('data/skill.json'), get('data/casual-tree.json'), IMG.load()])
-      .then(([card, group, skill, tree, img]) => set({ data: { cards: card.cards, group, skills: skill.skills, tree }, img }))
+    Promise.all([get('data/card.json'), get('data/group.json'), get('data/skill.json'), get('data/casual-tree.json'), get('data/casual-tree-v2.json'), IMG.load()])
+      .then(([card, group, skill, tree, tree2, img]) => set({ data: { cards: card.cards, group, skills: skill.skills, tree, tree2 }, img }))
       .catch(e => set({ error: String((e && e.message) || e) }));
   }, []);
   return state;
 }
-const DEFAULT = () => ({ style: S.DEFAULT_STYLE, output: 'portrait', action: '', casualIndex: 1, scene: '', params: {},
-  casual: { era: 'now', place: '', act: '', ofam: '', item: '', frame: '', lens: '', pose: '', orient: '', expr: '', outfit: '', scene: '', preset: '', axes: {}, locks: {} } });
+/* 일상컷 — 새 장면은 버전2(2026-11-01, lib/casual-tree-v2.js). 하는 일·자세·방향으로 고른 버전1 기록은 버전1 그대로 열고 「버전2로 다시 고르기」 */
+const BLANK_V2 = () => ({ treeV: 2, era: 'now', place: '', ofam: '', item: '', expr: '', outfit: '', scene: '', custom: '', preset: '', axes: {}, locks: {} });
+const DEFAULT = () => ({ style: S.DEFAULT_STYLE, output: 'portrait', action: '', casualIndex: 1, scene: '', params: {}, casual: BLANK_V2() });
+const C2 = window.AtelierCasualTreeV2;
+const t2Of = data => data && data.tree2 && C2 ? C2.make(data.tree2, data.tree) : null;
+/* 버전2로 여나 — 버전2 기록이거나 버전1 의 흔적(하는 일·자세·방향·갈래)이 없는 장면 */
+const opensV2 = (sc, data) => !!t2Of(data) && (!!sc && sc.treeV === 2 || !C2.isV1(sc || {}));
+/* 버전2 장면을 다시 검사해 맞춘다 — 잠금·축은 그대로 */
+const fixV2 = (t, sc, card) => ({ ...C2.repair(t, { ...BLANK_V2(), ...(sc || {}), treeV: 2 }, card), axes: { ...((sc || {}).axes || {}) }, locks: { ...((sc || {}).locks || {}) } });
 
 /* 고르개 — 선택지는 [값, 이름] 이거나 {group, options} 묶음(장소·추천 조합) */
 function Select({ id, label, value, options, onChange, disabled }) {
@@ -193,7 +201,7 @@ function ColorPick({ p, val, setP, card }) {
 
 /* 일상컷 장면 — 트리(lib/casual-tree.js, 2026-10-29 game-atelier 에서 옮김): 추천 조합, 시대 → 장소 → 하는 일 → 의상 계열 → 옷 → 프레이밍·렌즈 → 자세·방향 → 표정 · 세부 강도.
    앞에서 고른 것이 뒤 선택지를 거르고, 앞을 바꾸면 맞지 않게 된 뒤 칸은 고친다(repair). 칸마다 랜덤과 잠금 */
-function Casual({ sc, update, tree, card }) {
+function Casual({ sc, update, tree, card, toV2 }) {
   const CT = window.AtelierCasualTree, ctx = { tree, card };
   const fixed = CT.repair(tree, CT.fromLegacy(tree, sc), card, S.CLOSE_FRAMES);
   /* 장소·하는 일·옷을 손으로 바꾸면 추천 조합 표시는 지운다 */
@@ -223,6 +231,7 @@ function Casual({ sc, update, tree, card }) {
   const pl = CT.place(tree, fixed.place), ac = CT.act(tree, fixed.act), it = CT.item(tree, fixed.ofam, fixed.item);
   return html`<h2>${W('prompt.casual')}</h2>
     <p class="pm-note help">${W('prompt.casual.note')}</p>
+    ${toV2 && html`<p class="pm-note help" id="pm-v1-note">${W('prompt.v1.note')}</p><div class="pm-scene-tools"><button type="button" class="pm-btn quiet" id="pm-to-v2" onClick=${toV2}>${W('prompt.v1.toV2')}</button></div>`}
     <div class="pm-scene-tools"><button type="button" class="pm-btn quiet" id="pm-casual-random-all"
       disabled=${!Object.keys(R.fields(fixed, ctx)).some(k => R.canRandomize(fixed, k, ctx))} onClick=${() => roll(null)}>${W('prompt.casual.random.all')}</button></div>
     <${Select} id="pm-casual-preset" label=${W('prompt.tree.preset')} value=${fixed.preset || ''} options=${presets} onChange=${usePreset} />
@@ -248,6 +257,106 @@ function Casual({ sc, update, tree, card }) {
         v => set({ axes: { ...(fixed.axes || {}), [ax]: v } })))}
     </details>`;
 }
+/* 일상컷 버전2 — 시대 → 장소 → 날씨 → 의상 → 옷 → 자세 추천 → 몸 자세 · 받침 → 구도 → 오른손 · 왼손 → 소품 동작 → 다리 → 시선 → 표정(lib/casual-tree-v2.js).
+   고를 수 있는 값만 보이고, 앞 칸을 바꾸면 set 이 뒤 칸을 고친다. 다리 칸은 다리가 보이는 컷에서만, 소품 동작 칸은 소품을 쓰는 손이 있을 때만.
+   🔓 해방 — 켜면 트리가 막은 값도 「🔓 이름 — 까닭」 으로 보이고, 고르면 그 칸은 기록의 unlocked 에 남아 다시 검사가 고치지 않는다(book · game 과 같다) */
+function CasualV2({ sc, update, t, tree, tree2, card }) {
+  const [showOut, setShowOut] = useState(false);
+  const ctx = { tree, tree2, card };
+  const fixed = fixV2(t, sc, card);
+  const put = c => update({ casual: { ...c, axes: { ...(fixed.axes || {}) }, locks: { ...(fixed.locks || {}) } } });
+  const ch = k => C2.choices(t, fixed, k, card), ko = (list, k) => (list.find(r => r.key === k) || {}).ko || k;
+  const isOut = (k, v) => !!v && !ch(k).includes(v);
+  const set2 = (k, v) => { const un = (fixed.unlocked || []).filter(x => x !== k); if (isOut(k, v)) un.push(k); put(C2.set(t, { ...fixed, unlocked: un }, k, v, card)); };
+  const setText = (k, v) => update({ casual: { ...fixed, [k]: v } });
+  const usePreset = k => put(k ? C2.repair(t, C2.applyPreset(t, fixed, k), card) : { ...fixed, preset: '' });
+  const lock = k => update({ casual: { ...fixed, locks: { ...(fixed.locks || {}), [k]: !(fixed.locks || {})[k] } } });
+  const roll = k => update({ casual: R.randomize(fixed, k, Math.random, ctx) });
+  const hasKo = k => (t.v2.has[k] || {}).ko || k;
+  const whyText = c => c ? W('prompt.v2.why.' + c.code, { needs: (c.needs || []).map(hasKo).join(' · '), eras: (c.eras || []).map(e => ko(tree.eras, e)).join(' · '),
+    since: c.since || '', year: c.year || '', zone: c.zone || '', feature: c.feature ? W('prompt.v2.feature.' + c.feature) : '', gaze: c.gaze ? ko(t.v2.gaze, c.gaze) : '' }) : '';
+  /* 칸 하나의 선택지 — 트리 안 값 + (해방이면) 트리 밖 값. 지금 값이 트리 밖이면(해방해 고른 것) 늘 보인다 */
+  const opts = (k, label, lead = []) => {
+    const inTree = ch(k), rows = [...lead, ...inTree.map(v => [v, label(v)])];
+    const outs = C2.candidates(t, fixed, k).filter(v => !inTree.includes(v) && (showOut || v === fixed[k]));
+    return outs.length ? [...rows, { group: W('prompt.v2.outtree'), options: outs.map(v => [v, '🔓 ' + label(v) + ' — ' + whyText(C2.why(t, fixed, k, v, card))]) }] : rows;
+  };
+  const help = x => x && html`<p class="pm-note help">${x}</p>`;
+  const field = (k, label, value, options, onChange, extra, disabled) => html`<div class="pm-scene" key=${k}>
+    <${Select} id=${'pm-casual-' + k.replace('.', '-')} label=${label} value=${value} options=${options} onChange=${onChange} disabled=${disabled} />
+    <div class="pm-scene-tools">
+      <button type="button" class="pm-btn quiet" data-random=${k} disabled=${!R.canRandomize(fixed, k, ctx)} aria-label=${W('prompt.casual.random.field', { label })} onClick=${() => roll(k)}>${W('prompt.casual.random')}</button>
+      <button type="button" class="pm-btn quiet" data-lock=${k} aria-pressed=${!!(fixed.locks || {})[k]} aria-label=${W('prompt.casual.lock.field', { label })} onClick=${() => lock(k)}>${(fixed.locks || {})[k] ? W('prompt.casual.locked') : W('prompt.casual.lock')}</button>
+    </div>
+    ${extra}
+  </div>`;
+  const sel = (k, options, extra) => field(k, W('prompt.v2.' + k), fixed[k] || '', options, v => set2(k, v), extra);
+  const allP = C2.allPlaces(t), ps = new Set(ch('place'));
+  const places = [...tree.groups.map(g => ({ group: g.ko, options: allP.filter(p => p.group === g.key && ps.has(p.key)).map(p => [p.key, p.ko]) })).filter(g => g.options.length),
+    ...opts('place', k => ko(allP, k)).filter(o => o.group)];
+  const req = new Set((tree.required || {}).outfits || []);
+  const famLabel = k => ko(tree.outfits, k) + (req.has(k) ? ' ★' : '') + (C2.awkward(t, k, fixed.place).length ? ' ⚠' : '');
+  const fam = C2.family(t, fixed.ofam), it = C2.item(t, fixed.ofam, fixed.item), pl = C2.place(t, fixed.place);
+  const aw = C2.awkward(t, fixed.ofam, fixed.place), wa = C2.weatherAwkward(t, fixed.weather, fixed.ofam, fixed.item);
+  const frameKo = k => (S.CASUAL_FRAMES.find(r => r[0] === k) || [k, k])[1];
+  const presets = C2.presets(t, fixed, card);
+  const presetOptions = [['', W('prompt.v2.preset.none')], ...Object.keys(t.v2.frames).filter(f => f !== 'note').map(f => ({ group: frameKo(f),
+    options: presets.filter(p => p.frame === f).map(p => [p.key, p.ko]) })).filter(g => g.options.length)];
+  const handKo = k => k === 'prop' ? W('prompt.v2.hand.prop') : ko(t.v2.hands, k);
+  /* 손 칸 — AUTO(비움 — 그 손 줄을 싣지 않는다)를 맨 앞에. 다른 손이 두 손 자세면 그 값만 */
+  const handOpts = side => { const m = C2.hand(t, fixed[side === 'right' ? 'left' : 'right']); return m && m.both ? opts(side, handKo) : opts(side, handKo, [['', W('prompt.v2.hand.auto')]]); };
+  const f = C2.frame(t, fixed.frame) || {}, showUse = C2.propSides(fixed) > 0;
+  const useLabel = k => { const u = C2.use(t, k); return ko(t.v2.props, u.prop) + ' · ' + u.ko; };
+  const faceHidden = !!(t.v2.body.find(b => b.key === fixed.body) || {}).face_hidden && !(t.v2.head.find(x => x.key === fixed.head) || {}).look_back;
+  const lens = C2.lens(t, fixed.frame), lensKo = (S.CASUAL_LENSES.find(r => r[0] === lens) || [lens, lens])[1];
+  const unl = (fixed.unlocked || []).filter(k => fixed[k]);
+  const fieldKo = k => W({ era: 'prompt.tree.era', place: 'prompt.tree.place', ofam: 'prompt.tree.ofam', item: 'prompt.tree.item' }[k] || 'prompt.v2.' + k);
+  const invalid = C2.ORDER.filter(k => (fixed[k] && !C2.unlocked(fixed, k) && C2.why(t, fixed, k, fixed[k], card)) || (C2.REQUIRED.includes(k) && !fixed[k]));
+  const axesOn = Object.values(fixed.axes || {}).filter(v => v && v !== 'AUTO').length;
+  return html`<div id="casual-tree-v2"><h2>${W('prompt.casual')}</h2>
+    <p class="pm-note help">${W('prompt.v2.note')}</p>
+    <div class="pm-scene-tools"><button type="button" class="pm-btn quiet" id="pm-casual-random-all"
+      disabled=${!Object.keys(R.fields(fixed, ctx)).some(k => R.canRandomize(fixed, k, ctx))} onClick=${() => roll(null)}>${W('prompt.casual.random.all')}</button></div>
+    <label class="pm-skin-only" for="pm-unlock-v2"><input type="checkbox" id="pm-unlock-v2" checked=${showOut} onChange=${() => setShowOut(!showOut)} /><span>${W('prompt.v2.unlock')}</span></label>
+    ${unl.length > 0 && html`<p class="pm-note help" id="pm-unlocked-note">${W('prompt.v2.unlocked', { fields: unl.map(fieldKo).join(' · ') })}</p>`}
+    ${field('era', W('prompt.tree.era'), fixed.era, opts('era', k => ko(tree.eras, k)), v => set2('era', v), help(W('prompt.help.tree.era')))}
+    ${field('place', W('prompt.tree.place'), fixed.place, places, v => set2('place', v), help(pl ? pl.en : ''))}
+    ${field('weather', W('prompt.v2.weather'), fixed.weather || '', opts('weather', k => ko(t.v2.weather || [], k), [['', W('prompt.v2.weather.auto')]]), v => set2('weather', v),
+      help([W('prompt.help.v2.weather'), wa.length && W('prompt.v2.awkward', { what: wa.map(r => r.ko).join(' · ') })].filter(Boolean).join(' ')))}
+    ${field('ofam', W('prompt.tree.ofam'), fixed.ofam, opts('ofam', famLabel), v => set2('ofam', v),
+      help([W('prompt.help.v2.ofam'), aw.length && W('prompt.v2.awkward', { what: aw.map(r => r.ko).join(' · ') })].filter(Boolean).join(' ')))}
+    ${field('item', W('prompt.tree.item'), fixed.item || '', opts('item', k => ko(fam ? fam.items : [], k), [['', W('prompt.tree.item.auto')]]), v => set2('item', v),
+      help([it ? it.en : '', f.close ? W('prompt.tree.item.close') : ''].filter(Boolean).join(' ')))}
+    <label class="pm-skin-only" for="pm-casual-glasses"><input type="checkbox" id="pm-casual-glasses" checked=${(fixed.ofeat || []).includes('glasses')}
+      onChange=${() => { const o = fixed.ofeat || []; put(C2.set(t, fixed, 'ofeat', o.includes('glasses') ? o.filter(x => x !== 'glasses') : [...o, 'glasses'], card)); }} /><span>${W('prompt.v2.glasses')}</span></label>
+    <${Select} id="pm-casual-preset" label=${W('prompt.v2.preset')} value=${fixed.preset || ''} options=${presetOptions} onChange=${usePreset} />
+    ${help(W('prompt.help.v2.preset'))}
+    ${sel('posture', opts('posture', k => ko(t.v2.postures, k)), help(W('prompt.help.v2.posture')))}
+    ${sel('support', opts('support', k => ko(t.v2.supports, k)), help(W('prompt.help.v2.support')))}
+    ${sel('frame', opts('frame', frameKo), help(W('prompt.help.v2.frame') + ' ' + W('prompt.v2.lens', { lens: lensKo })))}
+    ${sel('body', opts('body', k => ko(t.v2.body, k)), help(W('prompt.help.v2.body')))}
+    ${sel('head', opts('head', k => ko(t.v2.head, k)))}
+    ${sel('camera', opts('camera', k => ko(t.v2.camera, k)))}
+    ${sel('right', handOpts('right'), help(W('prompt.help.v2.hand')))}
+    ${sel('left', handOpts('left'))}
+    ${showUse && sel('use', opts('use', useLabel), help(W('prompt.help.v2.use')))}
+    ${f.legs && sel('legs', opts('legs', k => ko(t.v2.legs, k), [['', W('prompt.v2.legs.none')]]), help(W('prompt.help.v2.legs')))}
+    ${sel('gaze', opts('gaze', k => ko(t.v2.gaze, k), [['', W('prompt.v2.gaze.auto')]]), help(W('prompt.help.v2.gaze')))}
+    ${field('expr', W('prompt.casual.expr'), faceHidden ? '' : fixed.expr || '', S.CASUAL_EXPRESSIONS, v => setText('expr', v), help(faceHidden ? W('prompt.v2.expr.hidden') : ''), faceHidden)}
+    <label for="pm-casual-outfit">${W('prompt.casual.outfit')}<input id="pm-casual-outfit" type="text" value=${fixed.outfit || ''} onInput=${e => setText('outfit', e.currentTarget.value)} /></label>
+    <label for="pm-casual-scene">${W('prompt.casual.scene')}<input id="pm-casual-scene" type="text" value=${fixed.scene || ''} onInput=${e => setText('scene', e.currentTarget.value)} /></label>
+    <label for="pm-casual-custom">${W('prompt.v2.custom')}<input id="pm-casual-custom" type="text" value=${fixed.custom || ''} onInput=${e => setText('custom', e.currentTarget.value)} /></label>
+    <details class="pm-group" data-group="axes">
+      <summary><span>${W('prompt.casual.axes')}</span><i>${axesOn ? W('prompt.group.set', { n: axesOn }) : ''}</i></summary>
+      <p class="pm-note help">${W('prompt.casual.axes.note')}</p>
+      ${S.CASUAL_AXES_V2.map(ax => field('axes.' + ax, S.CASUAL_AXIS_LABELS[ax][1], (fixed.axes || {})[ax] || 'AUTO',
+        S.CASUAL_AXIS_OPTIONS[ax].map(v => [v, v === 'AUTO' ? W('prompt.auto') : (S.CASUAL_AXIS_GUIDES[ax][v] ? v + ' — ' + S.CASUAL_AXIS_GUIDES[ax][v][0] : v)]),
+        v => update({ casual: { ...fixed, axes: { ...(fixed.axes || {}), [ax]: v } } })))}
+    </details>
+    <p class="pm-note help" id="pm-required-note">${W(window.AtelierCasualTree.isRequired(tree, fixed) ? 'prompt.tree.required.yes' : 'prompt.tree.required.no')}</p>
+    ${invalid.length > 0 && html`<p class="pm-note help" id="pm-invalid">${W('prompt.v2.invalid', { fields: invalid.map(fieldKo).join(' · ') })}</p>`}
+  </div>`;
+}
 function App() {
   const loaded = useData();
   const [store, setStore] = useState(readStore);
@@ -268,7 +377,11 @@ function App() {
   if (loaded.error) return html`<div><${WorkspaceHeader} page="prompt" /><p class="pm-note help">${W('ui.error', { message: loaded.error })}</p></div>`;
   const { data, img } = loaded, g = data.group;
   const c = P.cardOf(data, card);
-  const text = c ? P.build(st, data) : '';
+  /* 일상컷 — 버전2로 여는 장면은 다시 검사한 것으로 문장을 짓는다(저장된 것이 비어 있어도 화면과 같은 문장) */
+  const t2 = t2Of(data), v2 = st.output === 'casual' && !!c && opensV2(st.casual, data);
+  const stb = v2 ? { ...st, casual: fixV2(t2, st.casual, c) } : st;
+  const text = c ? P.build(stb, data) : '';
+  const toV2 = () => update({ casual: { ...C2.fromV1(t2, st.casual, c), locks: {}, axes: { ...((st.casual || {}).axes || {}) } } });
   const file = c ? P.fileName(st, c) : '';
   const portrait = c && IMG.portraitOf(img[c.name], 'f', st.style);
   const copy = () => { navigator.clipboard && navigator.clipboard.writeText(text).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1500); }); };
@@ -317,7 +430,8 @@ function App() {
           <select id="pm-casual" value=${String(st.casualIndex || 1)} onChange=${e => update({ casualIndex: +e.currentTarget.value })}>
             ${[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => html`<option key=${n} value=${String(n)}>${n}</option>`)}
           </select></label>`}
-        ${st.output === 'casual' && c ? html`<${Casual} sc=${st.casual || DEFAULT().casual} update=${update} tree=${data.tree} card=${c} />` : html`
+        ${st.output === 'casual' && c ? (v2 ? html`<${CasualV2} sc=${st.casual} update=${update} t=${t2} tree=${data.tree} tree2=${data.tree2} card=${c} />`
+          : html`<${Casual} sc=${st.casual || DEFAULT().casual} update=${update} tree=${data.tree} card=${c} toV2=${t2 ? toV2 : null} />`) : html`
         <h2>${W('prompt.design')}</h2>
         <p class="pm-note help">${W('prompt.design.note')}</p>
         <${Select} id="pm-design" label=${W('prompt.design.kind')} value=${st.design || 'mecha'} options=${S.DESIGNS.map(d => [d[0], d[1] + ' — ' + d[2]])} onChange=${v => update({ design: v })} />
