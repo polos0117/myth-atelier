@@ -1,0 +1,6140 @@
+{
+ "version": 2,
+ "note": "일상컷 트리 버전2(docs/CASUAL_TREE_V2.md) — 시대·장소·의상은 버전1 표(data/casual-tree.json)를 그대로 읽는다. 하는 일은 없고, 구도가 보이는 부위를 정한 뒤 몸 자세·받침·손(오른손·왼손 — 인물 본인 기준)·소품 동작·다리를 고른다. 자세 추천은 칸을 채울 뿐 지시문 문장을 갖지 않는다. 신화 공방 몫(2026-11-01, game 표에서 변환 — tools/casual-tree-v2-from-game.py): 게임 장소 → 신화 세계 장소(myth_*), 일터 · 공방 · 도장 · 제례 · 전설의 자리의 받침과 소품, 오락실 소품 · 휴대용 게임기 뺌, 시대 release → heritage.",
+ "base": "data/casual-tree.json",
+ "has": {
+  "chair": {
+   "ko": "의자·소파",
+   "en": "a chair or sofa at seat height"
+  },
+  "edge": {
+   "ko": "걸터앉을 턱·계단·가장자리",
+   "en": "a ledge, step or edge to perch on"
+  },
+  "floor": {
+   "ko": "바닥·풀밭·모래",
+   "en": "the floor, grass or sand"
+  },
+  "lie": {
+   "ko": "눕는 자리",
+   "en": "a bed, lounger, hammock or sofa to lie on"
+  },
+  "wall": {
+   "ko": "기댈 벽·기둥",
+   "en": "a wall or pillar to lean on"
+  },
+  "rail_waist": {
+   "ko": "허리 높이 창턱·난간·카운터",
+   "en": "a waist-high sill, railing or counter"
+  },
+  "table": {
+   "ko": "탁자",
+   "en": "a table at seated elbow height"
+  },
+  "water": {
+   "ko": "몸을 담글 물",
+   "en": "water deep enough to soak in up to the chest"
+  },
+  "deep_water": {
+   "ko": "헤엄칠 물",
+   "en": "open water deep and wide enough to swim in"
+  },
+  "shallow_water": {
+   "ko": "발·손만 담글 물",
+   "en": "shallow water for feet or hands only (footbath, bathtub edge)"
+  },
+  "worktable": {
+   "ko": "서서 쓰는 작업대",
+   "en": "a standing-height worktable or counter to work at"
+  }
+ },
+ "frames": {
+  "note": "프레이밍마다 보이는 부위 — 손 자세·소품 동작의 zone 이 여기 있어야 고를 수 있다. legs 는 다리 세부가 나오는 컷, feet 는 발 동작까지. close 는 손 「화면 밖」 을 받는 컷",
+  "face_close": {
+   "zones": [
+    "face"
+   ],
+   "legs": false,
+   "feet": false,
+   "close": true,
+   "en": "a close-up of her face and hair"
+  },
+  "detail": {
+   "zones": [
+    "face",
+    "chest"
+   ],
+   "legs": false,
+   "feet": false,
+   "close": true,
+   "en": "a detail shot of her hands and what they touch, with readable contact"
+  },
+  "chest_up": {
+   "zones": [
+    "face",
+    "chest",
+    "overhead"
+   ],
+   "legs": false,
+   "feet": false,
+   "close": true,
+   "en": "a chest-up shot of her face, shoulders and expression"
+  },
+  "waist_up": {
+   "zones": [
+    "face",
+    "chest",
+    "overhead",
+    "waist"
+   ],
+   "legs": false,
+   "feet": false,
+   "close": true,
+   "en": "a waist-up shot of her head, torso and hands"
+  },
+  "three_quarter": {
+   "zones": [
+    "face",
+    "chest",
+    "overhead",
+    "waist",
+    "hips",
+    "lap"
+   ],
+   "legs": true,
+   "feet": false,
+   "close": false,
+   "en": "a three-quarter shot from her head to just above the knees"
+  },
+  "full_body": {
+   "zones": [
+    "face",
+    "chest",
+    "overhead",
+    "waist",
+    "hips",
+    "lap",
+    "feet"
+   ],
+   "legs": true,
+   "feet": true,
+   "close": false,
+   "en": "a full-body shot, her complete head, hands and feet inside the frame with restrained margins"
+  },
+  "environmental": {
+   "zones": [
+    "face",
+    "chest",
+    "overhead",
+    "waist",
+    "hips",
+    "lap",
+    "feet"
+   ],
+   "legs": true,
+   "feet": true,
+   "close": false,
+   "en": "an environmental long shot, her complete figure and enough of the place around her"
+  }
+ },
+ "lens": {
+  "face_close": "portrait85",
+  "detail": "portrait85",
+  "chest_up": "portrait85",
+  "waist_up": "natural50",
+  "three_quarter": "natural50",
+  "full_body": "documentary35",
+  "environmental": "documentary35"
+ },
+ "body": [
+  {
+   "key": "front",
+   "ko": "정면",
+   "en": "body facing the camera"
+  },
+  {
+   "key": "front_3q",
+   "ko": "3/4 정면",
+   "en": "body turned three-quarters toward the camera"
+  },
+  {
+   "key": "side",
+   "ko": "옆모습",
+   "en": "body in side profile",
+   "profile_face": true
+  },
+  {
+   "key": "rear_3q",
+   "ko": "뒤 3/4",
+   "en": "body turned three-quarters away from the camera",
+   "far": true,
+   "turned_face": "her face turned away with her body too — only her cheek line and the edge of her profile show"
+  },
+  {
+   "key": "back",
+   "ko": "뒤",
+   "en": "back to the camera",
+   "far": true,
+   "face_hidden": true
+  }
+ ],
+ "head": [
+  {
+   "key": "with_body",
+   "ko": "몸과 같이",
+   "en": "head follows the body"
+  },
+  {
+   "key": "over_shoulder",
+   "ko": "어깨 너머로 돌림",
+   "en": "head turned back over her shoulder",
+   "look_back": true
+  },
+  {
+   "key": "tilt",
+   "ko": "기울임",
+   "en": "head tilted slightly"
+  },
+  {
+   "key": "turn_side",
+   "ko": "옆으로 돌림",
+   "en": "head turned to the side",
+   "not_bodies": [
+    "side"
+   ]
+  }
+ ],
+ "camera": [
+  {
+   "key": "eye",
+   "ko": "눈높이",
+   "en": "camera at her eye level"
+  },
+  {
+   "key": "high",
+   "ko": "위에서 내려다봄",
+   "en": "camera slightly above, looking down at her"
+  },
+  {
+   "key": "low",
+   "ko": "아래에서 올려다봄",
+   "en": "camera slightly below, looking up at her"
+  }
+ ],
+ "gaze": [
+  {
+   "key": "camera",
+   "ko": "카메라",
+   "en": "she looks into the camera"
+  },
+  {
+   "key": "at_prop",
+   "ko": "소품",
+   "en": "her eyes rest on what she holds"
+  },
+  {
+   "key": "into_prop",
+   "ko": "소품을 들여다봄",
+   "en": "one eye is set close to the eyepiece or viewfinder of what she holds, looking through it"
+  },
+  {
+   "key": "window",
+   "ko": "창밖",
+   "en": "she looks out of the window"
+  },
+  {
+   "key": "horizon",
+   "ko": "먼 곳",
+   "en": "she looks toward the far distance"
+  },
+  {
+   "key": "down",
+   "ko": "아래",
+   "en": "her eyes are lowered"
+  },
+  {
+   "key": "up",
+   "ko": "위",
+   "en": "she looks up at the sky"
+  },
+  {
+   "key": "screen_left",
+   "ko": "화면 왼쪽",
+   "en": "she looks toward the left of the frame"
+  },
+  {
+   "key": "screen_right",
+   "ko": "화면 오른쪽",
+   "en": "she looks toward the right of the frame"
+  }
+ ],
+ "supports": [
+  {
+   "key": "none",
+   "ko": "없음",
+   "en": "",
+   "needs": []
+  },
+  {
+   "key": "back_wall",
+   "ko": "등을 벽에",
+   "en": "her back rests against the wall",
+   "needs": [
+    "wall"
+   ]
+  },
+  {
+   "key": "back_seat",
+   "ko": "등받이에 기댐",
+   "en": "her back rests against the seat back",
+   "needs": [
+    "chair"
+   ]
+  },
+  {
+   "key": "back_lounger",
+   "ko": "등과 머리를 눕는 자리가",
+   "en": "the lounger supports her back and head",
+   "needs": [
+    "lie"
+   ]
+  },
+  {
+   "key": "side_floor",
+   "ko": "몸 옆을 바닥에",
+   "en": "she lies on her side, supported along her hip and shoulder",
+   "needs_any": [
+    "lie",
+    "floor"
+   ]
+  },
+  {
+   "key": "front_floor",
+   "ko": "배를 대고",
+   "en": "she lies on her front, propped on her forearms",
+   "needs_any": [
+    "lie",
+    "floor"
+   ],
+   "hands": [
+    "chin_both",
+    "cheek",
+    "shush",
+    "v_sign",
+    "hair_tuck",
+    "prop",
+    "out"
+   ],
+   "note": "두 팔뚝이 몸을 받친다 — 팔꿈치를 바닥에 둔 채 할 수 있는 손만"
+  },
+  {
+   "key": "hip_edge",
+   "ko": "엉덩이를 가장자리에",
+   "en": "she sits on the edge, her weight on her hips",
+   "needs": [
+    "edge"
+   ]
+  },
+  {
+   "key": "water",
+   "ko": "물이 몸을 받침",
+   "en": "the water holds her up to the chest",
+   "needs": [
+    "water"
+   ]
+  }
+ ],
+ "postures": [
+  {
+   "key": "stand",
+   "ko": "서기",
+   "family": "stand",
+   "en": "standing",
+   "needs": [],
+   "supports": [
+    "none"
+   ],
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ]
+  },
+  {
+   "key": "lean_wall",
+   "ko": "벽에 기대 서기",
+   "family": "stand",
+   "en": "standing, leaning back against a wall",
+   "needs": [
+    "wall"
+   ],
+   "supports": [
+    "back_wall"
+   ],
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ]
+  },
+  {
+   "key": "lean_rail",
+   "ko": "난간·창턱에 기대 서기",
+   "family": "stand",
+   "en": "standing at a waist-high railing or sill, leaning lightly on it",
+   "needs": [
+    "rail_waist"
+   ],
+   "supports": [
+    "none"
+   ],
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ]
+  },
+  {
+   "key": "walk",
+   "ko": "걷기",
+   "family": "walk",
+   "en": "walking",
+   "needs": [],
+   "supports": [
+    "none"
+   ],
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ]
+  },
+  {
+   "key": "sit_chair",
+   "ko": "의자에 앉기",
+   "family": "sit",
+   "en": "seated on a chair",
+   "needs": [
+    "chair"
+   ],
+   "supports": [
+    "none",
+    "back_seat"
+   ],
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ]
+  },
+  {
+   "key": "sit_edge",
+   "ko": "가장자리에 걸터앉기",
+   "family": "sit",
+   "en": "perched on a ledge or edge",
+   "needs": [
+    "edge"
+   ],
+   "supports": [
+    "hip_edge"
+   ],
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ]
+  },
+  {
+   "key": "sit_floor",
+   "ko": "바닥에 앉기",
+   "family": "low",
+   "en": "sitting on the ground",
+   "needs": [
+    "floor"
+   ],
+   "supports": [
+    "none",
+    "back_wall"
+   ],
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ]
+  },
+  {
+   "key": "kneel",
+   "ko": "무릎 꿇기",
+   "family": "low",
+   "en": "kneeling on the ground",
+   "needs": [
+    "floor"
+   ],
+   "supports": [
+    "none"
+   ],
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ]
+  },
+  {
+   "key": "squat",
+   "ko": "쪼그려 앉기",
+   "family": "low",
+   "en": "crouching low on her heels",
+   "needs": [
+    "floor"
+   ],
+   "supports": [
+    "none"
+   ],
+   "frames": [
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ]
+  },
+  {
+   "key": "recline",
+   "ko": "기대 눕기",
+   "family": "lie",
+   "en": "reclining on her back",
+   "needs": [
+    "lie"
+   ],
+   "supports": [
+    "back_lounger"
+   ],
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ]
+  },
+  {
+   "key": "lie_side",
+   "ko": "옆으로 눕기",
+   "family": "lie",
+   "en": "lying on her side",
+   "needs_any": [
+    "lie",
+    "floor"
+   ],
+   "supports": [
+    "side_floor"
+   ],
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ]
+  },
+  {
+   "key": "lie_front",
+   "ko": "엎드리기",
+   "family": "lie",
+   "en": "lying on her front",
+   "needs_any": [
+    "lie",
+    "floor"
+   ],
+   "supports": [
+    "front_floor"
+   ],
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ]
+  },
+  {
+   "key": "soak",
+   "ko": "물에 몸 담그기",
+   "family": "swim",
+   "en": "chest-deep in the water",
+   "needs": [
+    "water"
+   ],
+   "supports": [
+    "water"
+   ],
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up"
+   ]
+  },
+  {
+   "key": "swim",
+   "ko": "헤엄치기",
+   "family": "swim",
+   "en": "swimming breaststroke, head and shoulders above the water",
+   "needs": [
+    "deep_water"
+   ],
+   "supports": [
+    "water"
+   ],
+   "frames": [
+    "face_close",
+    "chest_up"
+   ]
+  },
+  {
+   "key": "lean_counter",
+   "ko": "작업대에 몸 숙이기",
+   "family": "stand",
+   "en": "standing at a work surface, upper body leaning slightly forward over it, hips back and weight on both feet",
+   "needs_any": [
+    "worktable",
+    "rail_waist",
+    "table"
+   ],
+   "supports": [
+    "none"
+   ],
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ]
+  },
+  {
+   "key": "sit_lean",
+   "ko": "앉아 앞으로 기울이기",
+   "family": "sit",
+   "en": "seated, leaning slightly forward toward the table, forearms near its edge",
+   "needs": [
+    "chair",
+    "table"
+   ],
+   "supports": [
+    "none"
+   ],
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ]
+  }
+ ],
+ "hands": [
+  {
+   "key": "out",
+   "ko": "화면 밖",
+   "zone": "out",
+   "en": "her own {side} hand stays outside the frame"
+  },
+  {
+   "key": "natural",
+   "ko": "자연스럽게",
+   "zone": "any",
+   "en": "her own {side} hand rests naturally for the posture, relaxed and empty"
+  },
+  {
+   "key": "down",
+   "ko": "옆으로 내림",
+   "zone": "hips",
+   "en": "her own {side} arm hangs relaxed at her side",
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "lean_counter"
+   ]
+  },
+  {
+   "key": "hip",
+   "ko": "허리에 손",
+   "zone": "waist",
+   "en": "her own {side} hand rests on her hip",
+   "postures": [
+    "stand",
+    "lean_wall",
+    "walk",
+    "lean_counter"
+   ]
+  },
+  {
+   "key": "pocket",
+   "ko": "주머니에 손",
+   "zone": "waist",
+   "en": "her own {side} hand is tucked into a pocket",
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "lean_counter",
+    "sit_lean"
+   ],
+   "outfit": "pocket"
+  },
+  {
+   "key": "hair_tuck",
+   "ko": "머리 넘기기",
+   "zone": "face",
+   "en": "her own {side} hand tucks hair behind her ear",
+   "space": "hair"
+  },
+  {
+   "key": "behind_head",
+   "ko": "머리 뒤 받치기",
+   "zone": "overhead",
+   "en": "her own {side} arm bends behind her head, the hand cradling the back of her head",
+   "elbow": "raised beside her head"
+  },
+  {
+   "key": "chin_table",
+   "ko": "턱 괴기(탁자)",
+   "zone": "face",
+   "en": "her own {side} hand cups her chin, that elbow resting on the table",
+   "needs": [
+    "table"
+   ],
+   "postures": [
+    "sit_chair",
+    "sit_lean"
+   ],
+   "elbow": "on the table"
+  },
+  {
+   "key": "chin_rail",
+   "ko": "턱 괴기(창턱·난간)",
+   "zone": "face",
+   "en": "her own {side} hand cups her chin, that elbow resting on the sill",
+   "needs": [
+    "rail_waist"
+   ],
+   "postures": [
+    "lean_rail"
+   ],
+   "elbow": "on the sill"
+  },
+  {
+   "key": "chin_knee",
+   "ko": "턱 괴기(무릎)",
+   "zone": "face",
+   "en": "her own {side} hand cups her chin, that elbow resting on her raised knee",
+   "postures": [
+    "sit_floor",
+    "sit_edge"
+   ],
+   "elbow": "on her knee"
+  },
+  {
+   "key": "cheek",
+   "ko": "볼에 손",
+   "zone": "face",
+   "en": "her own {side} fingertips rest lightly on her cheek"
+  },
+  {
+   "key": "shush",
+   "ko": "입술에 검지",
+   "zone": "face",
+   "en": "her own {side} index finger rests against her lips in a hush",
+   "space": "mouth"
+  },
+  {
+   "key": "v_sign",
+   "ko": "브이",
+   "zone": "face",
+   "en": "her own {side} hand makes a V sign beside her face"
+  },
+  {
+   "key": "thumbs_up",
+   "ko": "엄지 척",
+   "zone": "chest",
+   "en": "her own {side} hand gives a thumbs-up at chest height"
+  },
+  {
+   "key": "chest_hand",
+   "ko": "가슴에 한 손",
+   "zone": "chest",
+   "en": "her own {side} hand rests lightly on her collarbone"
+  },
+  {
+   "key": "wave",
+   "ko": "손 흔들기",
+   "zone": "face",
+   "en": "her own {side} hand is raised beside her face, waving"
+  },
+  {
+   "key": "reach",
+   "ko": "앞으로 손 뻗기",
+   "zone": "chest",
+   "en": "her own {side} hand reaches gently toward the camera",
+   "postures": [
+    "stand",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "recline",
+    "lie_front",
+    "lean_counter",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "strap",
+   "ko": "끈 잡기",
+   "zone": "chest",
+   "en": "her own {side} thumb hooks under a shoulder strap",
+   "outfit": "strap"
+  },
+  {
+   "key": "collar",
+   "ko": "옷깃 잡기",
+   "zone": "chest",
+   "en": "her own {side} hand holds the edge of her collar",
+   "outfit": "collar"
+  },
+  {
+   "key": "rail",
+   "ko": "창턱·난간에 얹기",
+   "zone": "waist",
+   "en": "her own {side} hand rests on the railing",
+   "needs": [
+    "rail_waist"
+   ],
+   "postures": [
+    "lean_rail",
+    "stand",
+    "lean_counter"
+   ]
+  },
+  {
+   "key": "wall_palm",
+   "ko": "벽 짚기",
+   "zone": "chest",
+   "en": "her own {side} palm presses flat against the wall at shoulder height",
+   "needs": [
+    "wall"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_counter"
+   ]
+  },
+  {
+   "key": "edge_brace",
+   "ko": "가장자리 짚기",
+   "zone": "hips",
+   "en": "her own {side} hand braces on the edge beside her hip",
+   "needs": [
+    "edge"
+   ],
+   "postures": [
+    "sit_edge"
+   ]
+  },
+  {
+   "key": "floor_brace",
+   "ko": "바닥 짚기",
+   "zone": "hips",
+   "en": "her own {side} hand is planted on the ground beside her",
+   "needs_any": [
+    "floor",
+    "lie"
+   ],
+   "postures": [
+    "sit_floor",
+    "kneel",
+    "lie_side",
+    "recline"
+   ]
+  },
+  {
+   "key": "lap",
+   "ko": "무릎 위",
+   "zone": "lap",
+   "en": "her own {side} hand rests on her knee",
+   "postures": [
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "squat",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "water_trail",
+   "ko": "물에 손 담그기",
+   "zone": "waist",
+   "en": "her own {side} fingertips trail across the water surface",
+   "needs_any": [
+    "water",
+    "deep_water",
+    "shallow_water"
+   ],
+   "postures": [
+    "soak",
+    "sit_edge"
+   ]
+  },
+  {
+   "key": "arms_crossed",
+   "ko": "팔짱",
+   "zone": "chest",
+   "both": true,
+   "en": "her arms are folded loosely across her chest",
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "sit_chair",
+    "lean_counter",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "clasp_both",
+   "ko": "두 손 모으기",
+   "zone": "chest",
+   "both": true,
+   "en": "both hands clasp loosely together in front of her chest"
+  },
+  {
+   "key": "edge_brace_both",
+   "ko": "두 손으로 가장자리 짚기",
+   "zone": "hips",
+   "both": true,
+   "en": "both hands brace on the edge on either side of her hips",
+   "needs": [
+    "edge"
+   ],
+   "postures": [
+    "sit_edge"
+   ]
+  },
+  {
+   "key": "chin_both",
+   "ko": "두 손으로 턱 괴기",
+   "zone": "face",
+   "both": true,
+   "en": "both hands cup her chin, her forearms propped beneath her",
+   "postures": [
+    "lie_front"
+   ],
+   "needs_any": [
+    "lie",
+    "floor"
+   ]
+  },
+  {
+   "key": "glasses_adjust",
+   "ko": "안경 고쳐 쓰기",
+   "zone": "face",
+   "outfit": "glasses",
+   "en": "her own {side} fingertips nudge the frame of her glasses"
+  }
+ ],
+ "legs": [
+  {
+   "key": "stand_relaxed",
+   "ko": "편히 서기",
+   "families": [
+    "stand"
+   ],
+   "feet": false,
+   "en": "weight even on both legs"
+  },
+  {
+   "key": "contrapposto",
+   "ko": "짝다리",
+   "families": [
+    "stand"
+   ],
+   "feet": false,
+   "en": "weight on one leg, the other knee softly bent"
+  },
+  {
+   "key": "step_forward",
+   "ko": "한 발 앞으로",
+   "families": [
+    "stand",
+    "walk"
+   ],
+   "feet": true,
+   "en": "one foot a step ahead of the other"
+  },
+  {
+   "key": "walk_stride",
+   "ko": "걷기 보폭",
+   "families": [
+    "walk"
+   ],
+   "feet": true,
+   "en": "mid-stride, one heel lifting"
+  },
+  {
+   "key": "walk_pause",
+   "ko": "걷다 멈춤",
+   "families": [
+    "walk"
+   ],
+   "feet": false,
+   "en": "paused mid-walk, weight on the front foot"
+  },
+  {
+   "key": "tiptoe",
+   "ko": "까치발",
+   "families": [
+    "stand"
+   ],
+   "feet": true,
+   "en": "rising onto her toes"
+  },
+  {
+   "key": "foot_on_wall",
+   "ko": "벽에 한 발",
+   "families": [
+    "stand"
+   ],
+   "feet": true,
+   "needs": [
+    "wall"
+   ],
+   "en": "one foot lifted flat against the wall behind her"
+  },
+  {
+   "key": "cross_legs",
+   "ko": "다리 꼬기",
+   "families": [
+    "sit"
+   ],
+   "postures": [
+    "sit_chair",
+    "sit_edge",
+    "sit_lean"
+   ],
+   "feet": false,
+   "en": "legs crossed at the knee"
+  },
+  {
+   "key": "dangle",
+   "ko": "다리 늘어뜨림",
+   "families": [
+    "sit"
+   ],
+   "postures": [
+    "sit_edge"
+   ],
+   "feet": true,
+   "en": "legs dangling loosely over the edge"
+  },
+  {
+   "key": "knees_together",
+   "ko": "무릎 모으기",
+   "families": [
+    "sit",
+    "low"
+   ],
+   "postures": [
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "sit_lean"
+   ],
+   "feet": false,
+   "en": "knees together, feet slightly apart"
+  },
+  {
+   "key": "cross_legged",
+   "ko": "책상다리",
+   "families": [
+    "low"
+   ],
+   "postures": [
+    "sit_floor"
+   ],
+   "feet": true,
+   "en": "legs folded cross-legged"
+  },
+  {
+   "key": "knee_up",
+   "ko": "한쪽 무릎 세우기",
+   "families": [
+    "low",
+    "lie"
+   ],
+   "postures": [
+    "sit_floor",
+    "recline",
+    "lie_side"
+   ],
+   "feet": false,
+   "en": "one knee drawn up, the other leg resting flat"
+  },
+  {
+   "key": "kneel_sit",
+   "ko": "무릎 꿇고 앉기",
+   "families": [
+    "low"
+   ],
+   "postures": [
+    "kneel"
+   ],
+   "feet": true,
+   "en": "kneeling, sitting back on her heels"
+  },
+  {
+   "key": "squat_heels",
+   "ko": "쪼그려 앉기",
+   "families": [
+    "low"
+   ],
+   "postures": [
+    "squat"
+   ],
+   "feet": true,
+   "en": "crouched on the balls of her feet, knees bent"
+  },
+  {
+   "key": "legs_extended",
+   "ko": "다리 뻗기",
+   "families": [
+    "lie",
+    "low"
+   ],
+   "postures": [
+    "sit_floor",
+    "recline",
+    "lie_side",
+    "lie_front"
+   ],
+   "feet": true,
+   "en": "legs stretched out long"
+  },
+  {
+   "key": "legs_bent_side",
+   "ko": "다리 옆으로 접기",
+   "families": [
+    "lie",
+    "low"
+   ],
+   "postures": [
+    "sit_floor",
+    "lie_side"
+   ],
+   "feet": false,
+   "en": "legs bent together to one side"
+  },
+  {
+   "key": "feet_up",
+   "ko": "엎드려 발 올리기",
+   "families": [
+    "lie"
+   ],
+   "postures": [
+    "lie_front"
+   ],
+   "feet": true,
+   "en": "lower legs raised behind her, ankles loosely crossed"
+  },
+  {
+   "key": "feet_in_water",
+   "ko": "발을 물에",
+   "families": [
+    "sit"
+   ],
+   "postures": [
+    "sit_edge"
+   ],
+   "feet": true,
+   "needs_any": [
+    "water",
+    "deep_water",
+    "shallow_water"
+   ],
+   "en": "feet dipped in the water below the edge"
+  },
+  {
+   "key": "ankles_crossed",
+   "ko": "발목만 교차",
+   "families": [
+    "sit",
+    "stand"
+   ],
+   "postures": [
+    "sit_chair",
+    "sit_edge",
+    "sit_lean",
+    "stand",
+    "lean_wall",
+    "lean_counter"
+   ],
+   "feet": true,
+   "en": "both legs held close together, one ankle crossed over the other at the feet"
+  }
+ ],
+ "places": {
+  "home_bedroom": [
+   "lie",
+   "floor",
+   "wall",
+   "edge"
+  ],
+  "home_bath": [
+   "edge",
+   "shallow_water",
+   "wall"
+  ],
+  "home_kitchen": [
+   "rail_waist",
+   "chair",
+   "wall",
+   "table",
+   "worktable"
+  ],
+  "home_living": [
+   "chair",
+   "lie",
+   "floor",
+   "table",
+   "wall"
+  ],
+  "home_balcony": [
+   "rail_waist",
+   "chair",
+   "wall",
+   "floor"
+  ],
+  "home_entry": [
+   "wall",
+   "edge",
+   "floor"
+  ],
+  "street_alley": [
+   "wall",
+   "edge",
+   "floor"
+  ],
+  "street_market": [
+   "rail_waist",
+   "wall"
+  ],
+  "street_cafe": [
+   "chair",
+   "table",
+   "rail_waist",
+   "wall"
+  ],
+  "street_shop": [
+   "rail_waist",
+   "wall"
+  ],
+  "street_station": [
+   "wall",
+   "chair",
+   "rail_waist"
+  ],
+  "street_laundromat": [
+   "chair",
+   "wall",
+   "rail_waist",
+   "edge"
+  ],
+  "street_rooftop": [
+   "rail_waist",
+   "edge",
+   "floor",
+   "wall"
+  ],
+  "street_park": [
+   "chair",
+   "floor",
+   "lie",
+   "edge"
+  ],
+  "street_grocery": [
+   "rail_waist",
+   "wall"
+  ],
+  "street_mall": [
+   "rail_waist",
+   "edge",
+   "wall",
+   "chair"
+  ],
+  "arcade_hall": [
+   "chair",
+   "wall",
+   "rail_waist"
+  ],
+  "arcade_photo": [
+   "chair",
+   "wall"
+  ],
+  "studio_art": [
+   "chair",
+   "table",
+   "wall",
+   "worktable"
+  ],
+  "water_pool": [
+   "water",
+   "deep_water",
+   "edge",
+   "lie",
+   "chair"
+  ],
+  "water_beach": [
+   "floor",
+   "lie",
+   "water",
+   "deep_water"
+  ],
+  "water_river": [
+   "edge",
+   "rail_waist",
+   "water",
+   "deep_water"
+  ],
+  "water_resort": [
+   "lie",
+   "chair",
+   "edge",
+   "water",
+   "deep_water"
+  ],
+  "water_yacht": [
+   "rail_waist",
+   "lie",
+   "edge",
+   "water"
+  ],
+  "water_waterfall": [
+   "water",
+   "deep_water",
+   "edge",
+   "floor"
+  ],
+  "water_infinity": [
+   "water",
+   "deep_water",
+   "edge",
+   "lie"
+  ],
+  "spa_onsen": [
+   "water",
+   "edge",
+   "wall"
+  ],
+  "spa_cedar": [
+   "water",
+   "edge",
+   "wall"
+  ],
+  "spa_sauna": [
+   "edge",
+   "wall",
+   "lie"
+  ],
+  "spa_jjimjil": [
+   "floor",
+   "lie",
+   "wall"
+  ],
+  "spa_hammam": [
+   "edge",
+   "lie",
+   "wall"
+  ],
+  "spa_lounge": [
+   "lie",
+   "chair",
+   "table"
+  ],
+  "spa_footbath": [
+   "edge",
+   "shallow_water"
+  ],
+  "sports_gym": [
+   "wall",
+   "floor",
+   "edge"
+  ],
+  "sports_court": [
+   "floor",
+   "edge",
+   "wall"
+  ],
+  "sports_track": [
+   "floor",
+   "edge",
+   "wall"
+  ],
+  "sports_studio": [
+   "floor",
+   "wall",
+   "rail_waist"
+  ],
+  "sports_wall": [
+   "wall",
+   "floor"
+  ],
+  "sports_rink": [
+   "rail_waist",
+   "edge",
+   "floor"
+  ],
+  "sports_range": [
+   "rail_waist",
+   "wall"
+  ],
+  "night_bar": [
+   "chair",
+   "rail_waist",
+   "table",
+   "wall"
+  ],
+  "night_jazz": [
+   "chair",
+   "rail_waist",
+   "table",
+   "wall"
+  ],
+  "night_club": [
+   "wall",
+   "rail_waist",
+   "edge"
+  ],
+  "night_livehouse": [
+   "wall",
+   "rail_waist",
+   "edge"
+  ],
+  "night_karaoke": [
+   "chair",
+   "table",
+   "wall"
+  ],
+  "night_taxi": [
+   "chair"
+  ],
+  "night_rooftop": [
+   "rail_waist",
+   "chair",
+   "edge"
+  ],
+  "night_powder": [
+   "chair",
+   "rail_waist",
+   "wall"
+  ],
+  "stage_festival": [
+   "wall",
+   "edge",
+   "rail_waist"
+  ],
+  "stage_fireworks": [
+   "rail_waist",
+   "floor",
+   "edge"
+  ],
+  "stage_contest": [
+   "chair",
+   "table",
+   "wall"
+  ],
+  "stage_event": [
+   "chair",
+   "table",
+   "wall"
+  ],
+  "stage_convention": [
+   "chair",
+   "table",
+   "wall"
+  ],
+  "stage_dance": [
+   "floor",
+   "wall"
+  ],
+  "stage_redcarpet": [
+   "wall",
+   "rail_waist"
+  ],
+  "stage_wedding": [
+   "chair",
+   "table",
+   "wall",
+   "edge"
+  ],
+  "stage_open_air": [
+   "chair",
+   "edge",
+   "floor"
+  ],
+  "stage_show": [
+   "chair",
+   "wall",
+   "edge"
+  ],
+  "evening_hotel": [
+   "lie",
+   "chair",
+   "table",
+   "wall",
+   "rail_waist"
+  ],
+  "evening_penthouse": [
+   "lie",
+   "chair",
+   "rail_waist",
+   "wall",
+   "table"
+  ],
+  "evening_opera": [
+   "chair",
+   "rail_waist",
+   "wall"
+  ],
+  "evening_gala": [
+   "chair",
+   "table",
+   "wall"
+  ],
+  "evening_museum": [
+   "wall",
+   "rail_waist",
+   "edge"
+  ],
+  "travel_trail": [
+   "floor",
+   "edge",
+   "wall"
+  ],
+  "travel_rural_station": [
+   "chair",
+   "wall",
+   "rail_waist"
+  ],
+  "travel_ferry": [
+   "rail_waist",
+   "chair",
+   "edge"
+  ],
+  "travel_camp": [
+   "chair",
+   "floor",
+   "lie"
+  ],
+  "travel_lake": [
+   "edge",
+   "floor",
+   "water",
+   "deep_water",
+   "lie"
+  ],
+  "travel_lookout": [
+   "rail_waist",
+   "edge",
+   "wall"
+  ],
+  "travel_lodge": [
+   "chair",
+   "lie",
+   "table",
+   "wall",
+   "floor"
+  ],
+  "travel_cablecar": [
+   "chair",
+   "rail_waist",
+   "wall"
+  ],
+  "travel_dunes": [
+   "floor",
+   "lie"
+  ],
+  "travel_coast": [
+   "rail_waist",
+   "edge",
+   "floor"
+  ],
+  "myth_place": [
+   "wall",
+   "edge",
+   "floor"
+  ],
+  "myth_room": [
+   "lie",
+   "chair",
+   "table",
+   "wall",
+   "floor"
+  ],
+  "myth_bath": [
+   "water",
+   "edge"
+  ],
+  "myth_market": [
+   "rail_waist",
+   "wall",
+   "edge"
+  ],
+  "myth_inn": [
+   "chair",
+   "table",
+   "rail_waist",
+   "wall"
+  ],
+  "myth_roof": [
+   "edge",
+   "lie",
+   "floor",
+   "rail_waist"
+  ],
+  "myth_field": [
+   "floor",
+   "lie",
+   "edge",
+   "wall"
+  ],
+  "fx_studio": [
+   "chair",
+   "floor",
+   "wall",
+   "edge",
+   "lie"
+  ],
+  "fx_runway": [
+   "floor"
+  ],
+  "fx_ballroom": [
+   "chair",
+   "wall",
+   "rail_waist"
+  ],
+  "fx_starstage": [
+   "floor",
+   "edge"
+  ],
+  "fx_forest": [
+   "floor",
+   "lie",
+   "edge",
+   "wall"
+  ],
+  "fx_spa": [
+   "water",
+   "lie",
+   "edge"
+  ],
+  "fx_observatory": [
+   "rail_waist",
+   "chair",
+   "wall"
+  ],
+  "fx_circus": [
+   "floor",
+   "edge",
+   "wall"
+  ],
+  "fx_castle": [
+   "edge",
+   "rail_waist",
+   "wall"
+  ],
+  "fx_chapel": [
+   "chair",
+   "wall",
+   "edge"
+  ],
+  "fx_retro_home": [
+   "chair",
+   "lie",
+   "table",
+   "wall",
+   "rail_waist"
+  ],
+  "greenhouse": [
+   "worktable",
+   "chair",
+   "floor",
+   "wall"
+  ],
+  "bakery_kitchen": [
+   "worktable",
+   "wall",
+   "rail_waist"
+  ],
+  "lodge_terrace": [
+   "rail_waist",
+   "chair",
+   "wall",
+   "floor"
+  ],
+  "train_sleeper": [
+   "lie",
+   "chair",
+   "table",
+   "wall",
+   "edge"
+  ],
+  "backstage_dressing": [
+   "chair",
+   "table",
+   "wall",
+   "rail_waist"
+  ],
+  "work_office": [
+   "chair",
+   "table",
+   "wall",
+   "floor"
+  ],
+  "work_museum_store": [
+   "wall",
+   "floor",
+   "table"
+  ],
+  "work_library": [
+   "wall",
+   "floor",
+   "chair",
+   "table"
+  ],
+  "work_florist": [
+   "worktable",
+   "rail_waist",
+   "wall",
+   "floor"
+  ],
+  "work_kitchen": [
+   "worktable",
+   "rail_waist",
+   "wall"
+  ],
+  "work_garage": [
+   "worktable",
+   "wall",
+   "floor",
+   "edge"
+  ],
+  "work_field": [
+   "floor",
+   "edge",
+   "wall"
+  ],
+  "work_backstage": [
+   "wall",
+   "floor",
+   "edge",
+   "chair"
+  ],
+  "work_tailor": [
+   "worktable",
+   "chair",
+   "wall",
+   "floor"
+  ],
+  "forge_polish": [
+   "worktable",
+   "chair",
+   "wall",
+   "floor"
+  ],
+  "forge_smithy": [
+   "worktable",
+   "wall",
+   "floor"
+  ],
+  "forge_silver": [
+   "worktable",
+   "chair",
+   "wall"
+  ],
+  "forge_kiln": [
+   "worktable",
+   "chair",
+   "floor",
+   "wall"
+  ],
+  "forge_restore": [
+   "worktable",
+   "chair",
+   "table",
+   "wall"
+  ],
+  "forge_leather": [
+   "worktable",
+   "chair",
+   "wall",
+   "floor"
+  ],
+  "dojo_hall": [
+   "floor",
+   "wall",
+   "lie",
+   "edge"
+  ],
+  "dojo_archery": [
+   "floor",
+   "wall",
+   "edge"
+  ],
+  "dojo_salle": [
+   "wall",
+   "floor",
+   "edge"
+  ],
+  "dojo_training": [
+   "floor",
+   "wall",
+   "edge",
+   "lie"
+  ],
+  "rite_home": [
+   "floor",
+   "table",
+   "wall",
+   "chair"
+  ],
+  "rite_doorstep": [
+   "wall",
+   "edge",
+   "floor"
+  ],
+  "rite_hill": [
+   "floor",
+   "lie",
+   "edge"
+  ],
+  "rite_river": [
+   "edge",
+   "floor",
+   "rail_waist"
+  ],
+  "rite_altar": [
+   "floor",
+   "wall",
+   "table"
+  ],
+  "rite_shrine": [
+   "floor",
+   "wall",
+   "edge",
+   "rail_waist"
+  ],
+  "heritage_museum": [
+   "wall",
+   "rail_waist",
+   "edge"
+  ],
+  "heritage_temple": [
+   "edge",
+   "wall",
+   "floor"
+  ],
+  "heritage_ruin": [
+   "edge",
+   "wall",
+   "floor",
+   "lie"
+  ],
+  "heritage_archive": [
+   "chair",
+   "table",
+   "wall",
+   "floor"
+  ],
+  "heritage_pass": [
+   "rail_waist",
+   "edge",
+   "wall"
+  ],
+  "heritage_plaza": [
+   "edge",
+   "wall",
+   "floor",
+   "chair"
+  ],
+  "heritage_gallery": [
+   "wall",
+   "rail_waist",
+   "floor"
+  ],
+  "heritage_theater": [
+   "edge",
+   "floor",
+   "wall"
+  ],
+  "heritage_grove": [
+   "floor",
+   "lie",
+   "edge",
+   "wall"
+  ],
+  "heritage_spring": [
+   "edge",
+   "floor",
+   "wall"
+  ],
+  "heritage_shop": [
+   "rail_waist",
+   "wall"
+  ]
+ },
+ "props": [
+  {
+   "key": "cup",
+   "ko": "잔·컵",
+   "en": "a cup",
+   "places": [
+    "@street",
+    "@night",
+    "@evening",
+    "@home",
+    "@travel",
+    "@studio",
+    "myth_inn",
+    "myth_room",
+    "spa_lounge",
+    "lodge_terrace",
+    "train_sleeper",
+    "backstage_dressing",
+    "greenhouse",
+    "work_office",
+    "work_backstage",
+    "forge_kiln",
+    "forge_restore",
+    "rite_home",
+    "dojo_hall"
+   ]
+  },
+  {
+   "key": "drink_glass",
+   "ko": "칵테일 잔",
+   "en": "a cocktail glass",
+   "places": [
+    "@night",
+    "@evening",
+    "water_pool",
+    "water_resort",
+    "water_yacht",
+    "water_infinity",
+    "stage_redcarpet",
+    "stage_wedding",
+    "fx_ballroom"
+   ]
+  },
+  {
+   "key": "phone",
+   "ko": "휴대폰",
+   "en": "a smartphone",
+   "eras": [
+    "now"
+   ],
+   "places": [
+    "@street",
+    "@home",
+    "@night",
+    "@travel",
+    "@water",
+    "@arcade",
+    "@studio",
+    "@stage",
+    "@evening",
+    "@work",
+    "@heritage"
+   ]
+  },
+  {
+   "key": "book",
+   "ko": "책",
+   "en": "a book",
+   "places": [
+    "@home",
+    "street_cafe",
+    "street_park",
+    "studio_art",
+    "travel_lodge",
+    "travel_camp",
+    "travel_rural_station",
+    "myth_room",
+    "myth_inn",
+    "fx_observatory",
+    "evening_hotel",
+    "spa_lounge",
+    "train_sleeper",
+    "greenhouse",
+    "work_library",
+    "heritage_archive",
+    "work_office",
+    "work_museum_store"
+   ]
+  },
+  {
+   "key": "camera",
+   "ko": "카메라",
+   "en": "a camera",
+   "places": [
+    "@street",
+    "@travel",
+    "@stage",
+    "fx_studio",
+    "water_beach",
+    "myth_field",
+    "myth_place",
+    "lodge_terrace",
+    "greenhouse",
+    "heritage_ruin",
+    "heritage_plaza",
+    "heritage_pass",
+    "heritage_temple",
+    "heritage_gallery",
+    "heritage_grove",
+    "work_field"
+   ]
+  },
+  {
+   "key": "umbrella",
+   "ko": "우산",
+   "en": "an umbrella",
+   "places": [
+    "street_alley",
+    "street_station",
+    "street_park",
+    "street_market",
+    "travel_rural_station",
+    "travel_coast",
+    "home_entry",
+    "@street",
+    "travel_trail",
+    "travel_lookout",
+    "stage_open_air",
+    "myth_market",
+    "heritage_plaza",
+    "rite_shrine"
+   ]
+  },
+  {
+   "key": "fishing_rod",
+   "ko": "낚싯대",
+   "en": "a fishing rod",
+   "places": [
+    "water_river",
+    "water_yacht",
+    "travel_lake",
+    "travel_coast",
+    "myth_field"
+   ]
+  },
+  {
+   "key": "float_ring",
+   "ko": "튜브",
+   "en": "a swim ring",
+   "places": [
+    "water_pool",
+    "water_beach",
+    "water_resort",
+    "water_infinity",
+    "water_river"
+   ]
+  },
+  {
+   "key": "towel",
+   "ko": "수건",
+   "en": "a towel",
+   "places": [
+    "@spa",
+    "@water",
+    "sports_gym",
+    "sports_court",
+    "sports_track",
+    "home_bath",
+    "myth_bath",
+    "bakery_kitchen",
+    "backstage_dressing",
+    "dojo_hall",
+    "dojo_training",
+    "dojo_salle"
+   ]
+  },
+  {
+   "key": "fan",
+   "ko": "접부채",
+   "en": "a folding fan",
+   "places": [
+    "stage_festival",
+    "stage_fireworks",
+    "fx_ballroom",
+    "evening_opera",
+    "evening_gala",
+    "spa_onsen",
+    "myth_inn",
+    "heritage_theater",
+    "rite_shrine"
+   ]
+  },
+  {
+   "key": "coin",
+   "ko": "동전",
+   "en": "a single coin",
+   "places": [
+    "arcade_hall",
+    "myth_market",
+    "@arcade"
+   ]
+  },
+  {
+   "key": "microphone",
+   "ko": "마이크",
+   "en": "a microphone",
+   "places": [
+    "night_karaoke",
+    "night_livehouse",
+    "stage_contest",
+    "stage_event",
+    "fx_starstage",
+    "night_club",
+    "stage_festival",
+    "stage_open_air",
+    "stage_show"
+   ]
+  },
+  {
+   "key": "guitar",
+   "ko": "기타",
+   "en": "an acoustic guitar",
+   "places": [
+    "night_livehouse",
+    "travel_camp",
+    "street_park",
+    "street_rooftop",
+    "home_living",
+    "home_bedroom"
+   ]
+  },
+  {
+   "key": "telescope",
+   "ko": "망원경",
+   "en": "a small brass telescope",
+   "places": [
+    "street_rooftop",
+    "night_rooftop",
+    "fx_observatory",
+    "travel_lookout",
+    "water_yacht",
+    "myth_roof"
+   ]
+  },
+  {
+   "key": "bouquet",
+   "ko": "꽃다발",
+   "en": "a small bouquet",
+   "places": [
+    "stage_wedding",
+    "stage_redcarpet",
+    "fx_chapel",
+    "street_market",
+    "fx_forest",
+    "greenhouse",
+    "backstage_dressing",
+    "work_florist"
+   ]
+  },
+  {
+   "key": "shopping_bag",
+   "ko": "쇼핑백",
+   "en": "a paper shopping bag",
+   "places": [
+    "street_mall",
+    "street_shop",
+    "street_market",
+    "street_grocery",
+    "street_station",
+    "evening_hotel",
+    "heritage_shop"
+   ]
+  },
+  {
+   "key": "ice_cream",
+   "ko": "아이스크림",
+   "en": "an ice cream cone",
+   "places": [
+    "street_park",
+    "water_beach",
+    "stage_festival",
+    "street_mall",
+    "travel_coast",
+    "street_market",
+    "water_resort",
+    "heritage_plaza"
+   ]
+  },
+  {
+   "key": "lantern",
+   "ko": "등불",
+   "en": "a small hand lantern",
+   "places": [
+    "@myth",
+    "stage_festival",
+    "travel_camp",
+    "fx_forest",
+    "fx_castle",
+    "rite_doorstep",
+    "rite_river",
+    "rite_hill",
+    "rite_shrine",
+    "heritage_temple"
+   ]
+  },
+  {
+   "key": "sketchbook",
+   "ko": "스케치북",
+   "en": "a sketchbook and pencil",
+   "places": [
+    "studio_art",
+    "street_park",
+    "travel_lookout",
+    "street_cafe",
+    "myth_field",
+    "travel_lake",
+    "greenhouse",
+    "heritage_gallery",
+    "heritage_museum",
+    "heritage_ruin",
+    "heritage_grove",
+    "work_tailor"
+   ]
+  },
+  {
+   "key": "water_bottle",
+   "ko": "물병",
+   "en": "a water bottle",
+   "places": [
+    "@sports",
+    "travel_trail",
+    "travel_dunes",
+    "@dojo",
+    "work_field"
+   ]
+  },
+  {
+   "key": "racket",
+   "ko": "테니스 라켓",
+   "en": "a tennis racket",
+   "places": [
+    "sports_court"
+   ]
+  },
+  {
+   "key": "bow",
+   "ko": "양궁 활",
+   "en": "a recurve archery bow",
+   "places": [
+    "sports_range",
+    "dojo_archery"
+   ]
+  },
+  {
+   "key": "compact",
+   "ko": "손거울",
+   "en": "a compact mirror",
+   "places": [
+    "night_powder",
+    "home_bedroom",
+    "evening_hotel",
+    "home_bath",
+    "backstage_dressing",
+    "spa_lounge"
+   ]
+  },
+  {
+   "key": "mask",
+   "ko": "가면",
+   "en": "a masquerade mask on a stick",
+   "places": [
+    "fx_ballroom",
+    "stage_convention",
+    "evening_opera",
+    "stage_show",
+    "stage_festival",
+    "night_club",
+    "evening_gala",
+    "fx_circus",
+    "heritage_theater"
+   ]
+  },
+  {
+   "key": "signature",
+   "ko": "알아볼 거리",
+   "en": "her weapon's signature object",
+   "signature": true,
+   "places": [
+    "*"
+   ]
+  },
+  {
+   "key": "teapot",
+   "ko": "찻주전자",
+   "en": "a small teapot",
+   "places": [
+    "home_living",
+    "home_kitchen",
+    "street_cafe",
+    "travel_lodge",
+    "train_sleeper",
+    "evening_hotel",
+    "myth_inn",
+    "rite_home",
+    "dojo_hall",
+    "forge_kiln"
+   ]
+  },
+  {
+   "key": "notebook",
+   "ko": "노트와 펜",
+   "en": "a notebook",
+   "places": [
+    "train_sleeper",
+    "street_cafe",
+    "home_living",
+    "@studio",
+    "work_office",
+    "work_field",
+    "work_museum_store",
+    "heritage_archive",
+    "heritage_museum",
+    "forge_restore"
+   ]
+  },
+  {
+   "key": "mixing_bowl",
+   "ko": "반죽 그릇과 거품기",
+   "en": "a mixing bowl of batter and a whisk",
+   "places": [
+    "bakery_kitchen",
+    "home_kitchen",
+    "myth_inn"
+   ]
+  },
+  {
+   "key": "watering_can",
+   "ko": "작은 물뿌리개",
+   "en": "a small watering can",
+   "places": [
+    "greenhouse",
+    "home_balcony",
+    "street_park",
+    "street_shop",
+    "myth_field",
+    "work_florist"
+   ]
+  },
+  {
+   "key": "loose_flowers",
+   "ko": "꽃 몇 송이",
+   "en": "a few loose flower stems",
+   "places": [
+    "greenhouse",
+    "street_shop",
+    "home_kitchen",
+    "stage_wedding",
+    "backstage_dressing",
+    "home_living",
+    "home_bedroom",
+    "street_market",
+    "travel_trail",
+    "fx_forest",
+    "work_florist",
+    "rite_altar",
+    "rite_home",
+    "heritage_spring"
+   ]
+  },
+  {
+   "key": "embroidery",
+   "ko": "자수 틀",
+   "en": "a small embroidery hoop with fabric in it",
+   "places": [
+    "home_living",
+    "train_sleeper",
+    "travel_lodge",
+    "home_bedroom",
+    "work_tailor"
+   ]
+  },
+  {
+   "key": "hairbrush",
+   "ko": "빗",
+   "en": "a hairbrush",
+   "places": [
+    "backstage_dressing",
+    "home_bedroom",
+    "home_bath",
+    "@spa",
+    "evening_hotel",
+    "myth_room",
+    "train_sleeper"
+   ]
+  },
+  {
+   "key": "ball",
+   "ko": "농구공",
+   "en": "a basketball",
+   "places": [
+    "sports_court",
+    "sports_gym",
+    "street_park",
+    "street_rooftop",
+    "myth_field"
+   ]
+  },
+  {
+   "key": "beach_ball",
+   "ko": "비치볼",
+   "en": "a striped beach ball",
+   "places": [
+    "water_pool",
+    "water_beach",
+    "water_resort",
+    "water_infinity",
+    "travel_coast"
+   ]
+  },
+  {
+   "key": "headphones",
+   "ko": "헤드폰",
+   "en": "over-ear headphones",
+   "places": [
+    "@home",
+    "@studio",
+    "street_station",
+    "street_cafe",
+    "street_park",
+    "night_taxi",
+    "travel_rural_station",
+    "train_sleeper",
+    "work_office",
+    "work_backstage"
+   ]
+  },
+  {
+   "key": "tote_bag",
+   "ko": "토트백",
+   "en": "a canvas tote bag",
+   "places": [
+    "@street",
+    "@travel",
+    "stage_convention",
+    "stage_festival",
+    "heritage_shop",
+    "heritage_plaza"
+   ]
+  },
+  {
+   "key": "sunglasses",
+   "ko": "선글라스",
+   "en": "a pair of sunglasses",
+   "places": [
+    "@water",
+    "street_park",
+    "street_rooftop",
+    "travel_coast",
+    "travel_dunes",
+    "travel_lookout",
+    "stage_redcarpet",
+    "stage_festival",
+    "evening_penthouse"
+   ]
+  },
+  {
+   "key": "map",
+   "ko": "종이 지도",
+   "en": "a folded paper map",
+   "places": [
+    "@travel",
+    "street_station",
+    "street_market",
+    "myth_market",
+    "myth_field",
+    "myth_inn",
+    "heritage_pass",
+    "heritage_ruin",
+    "work_field"
+   ]
+  },
+  {
+   "key": "skateboard",
+   "ko": "스케이트보드",
+   "en": "a skateboard",
+   "places": [
+    "street_park",
+    "street_alley",
+    "street_rooftop",
+    "sports_court"
+   ]
+  },
+  {
+   "key": "sparkler",
+   "ko": "불꽃 막대",
+   "en": "a lit sparkler",
+   "places": [
+    "stage_fireworks",
+    "stage_festival",
+    "home_balcony",
+    "travel_camp",
+    "water_beach",
+    "night_rooftop",
+    "rite_doorstep",
+    "rite_hill"
+   ]
+  },
+  {
+   "key": "balloon",
+   "ko": "풍선",
+   "en": "a single helium balloon",
+   "places": [
+    "stage_festival",
+    "stage_event",
+    "street_park",
+    "fx_circus",
+    "stage_convention"
+   ]
+  },
+  {
+   "key": "vinyl",
+   "ko": "레코드판",
+   "en": "a vinyl record",
+   "places": [
+    "home_living",
+    "home_bedroom",
+    "night_jazz",
+    "night_livehouse",
+    "street_shop"
+   ]
+  },
+  {
+   "key": "letter",
+   "ko": "편지",
+   "en": "a handwritten letter",
+   "places": [
+    "@home",
+    "street_cafe",
+    "train_sleeper",
+    "travel_lodge",
+    "myth_inn",
+    "myth_room",
+    "rite_altar",
+    "rite_home",
+    "heritage_archive"
+   ]
+  },
+  {
+   "key": "sun_hat",
+   "ko": "챙 넓은 모자",
+   "en": "a wide-brimmed sun hat",
+   "places": [
+    "@water",
+    "travel_coast",
+    "travel_dunes",
+    "travel_trail",
+    "street_market",
+    "stage_festival",
+    "greenhouse",
+    "heritage_ruin",
+    "work_field",
+    "heritage_grove"
+   ]
+  }
+ ],
+ "prop_uses": [
+  {
+   "key": "cup_hold",
+   "prop": "cup",
+   "kind": "hold",
+   "hands": "one",
+   "zone": "chest",
+   "ko": "잔을 든다",
+   "en": "holds {prop} at chest height",
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "squat",
+    "recline",
+    "lie_side",
+    "lie_front",
+    "lean_counter",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "cup_sip",
+   "prop": "cup",
+   "kind": "raise",
+   "hands": "one",
+   "zone": "face",
+   "ko": "잔을 입에 댄다",
+   "en": "brings {prop} to her lips",
+   "space": "mouth",
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "squat",
+    "recline",
+    "lie_side",
+    "lie_front",
+    "lean_counter",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "glass_hold",
+   "prop": "drink_glass",
+   "kind": "hold",
+   "hands": "one",
+   "zone": "chest",
+   "ko": "잔을 든다",
+   "en": "holds {prop} by the stem at chest height",
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "squat",
+    "recline",
+    "lie_side",
+    "lie_front",
+    "soak",
+    "lean_counter",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "glass_sip",
+   "prop": "drink_glass",
+   "kind": "raise",
+   "hands": "one",
+   "zone": "face",
+   "ko": "잔을 입에 댄다",
+   "en": "brings {prop} to her lips",
+   "space": "mouth",
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "squat",
+    "recline",
+    "lie_side",
+    "lie_front",
+    "lean_counter",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "phone_look",
+   "prop": "phone",
+   "kind": "hold",
+   "hands": "one",
+   "zone": "chest",
+   "ko": "휴대폰을 본다",
+   "en": "holds {prop} at chest height, screen toward her",
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "squat",
+    "recline",
+    "lie_side",
+    "lie_front",
+    "lean_counter",
+    "sit_lean"
+   ],
+   "gaze": "at_prop"
+  },
+  {
+   "key": "phone_selfie",
+   "prop": "phone",
+   "kind": "raise",
+   "hands": "one",
+   "zone": "face",
+   "ko": "셀카를 찍는다",
+   "en": "holds {prop} up at arm's length to take a selfie",
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "recline",
+    "lie_front",
+    "lean_counter",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "book_hold",
+   "prop": "book",
+   "kind": "hold",
+   "hands": "one",
+   "zone": "chest",
+   "ko": "책을 안는다",
+   "en": "holds {prop} closed against her chest",
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "squat",
+    "recline",
+    "lie_side",
+    "lie_front",
+    "lean_counter",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "book_read",
+   "prop": "book",
+   "kind": "both",
+   "hands": "both",
+   "zone": "chest",
+   "ko": "책을 읽는다",
+   "en": "reads {prop} held open in both hands",
+   "grip": {
+    "right": "holds the right page",
+    "left": "holds the left page"
+   },
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "recline",
+    "lie_front",
+    "lie_side",
+    "lean_wall",
+    "sit_lean"
+   ],
+   "gaze": "at_prop"
+  },
+  {
+   "key": "camera_carry",
+   "prop": "camera",
+   "kind": "hold",
+   "hands": "one",
+   "zone": "hips",
+   "ko": "카메라를 든다",
+   "en": "carries {prop} by its grip at her side",
+   "frames": [
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "lean_counter"
+   ]
+  },
+  {
+   "key": "camera_shoot",
+   "prop": "camera",
+   "kind": "both",
+   "hands": "both",
+   "zone": "face",
+   "ko": "사진을 찍는다",
+   "en": "raises {prop} to her eye to take a photo",
+   "grip": {
+    "right": "on the grip, finger on the shutter",
+    "left": "supports the lens from below"
+   },
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "squat",
+    "lean_counter",
+    "sit_lean"
+   ],
+   "gaze": "into_prop"
+  },
+  {
+   "key": "umbrella_hold",
+   "prop": "umbrella",
+   "kind": "hold",
+   "hands": "one",
+   "zone": "chest",
+   "ko": "우산을 쓴다",
+   "en": "holds {prop} open over her shoulder",
+   "space": "above",
+   "frames": [
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "lean_counter",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "rod_rest",
+   "prop": "fishing_rod",
+   "kind": "hold",
+   "hands": "one",
+   "zone": "chest",
+   "ko": "낚싯대를 어깨에 걸친다",
+   "en": "rests {prop} against her shoulder",
+   "frames": [
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_edge",
+    "lean_counter"
+   ]
+  },
+  {
+   "key": "rod_cast",
+   "prop": "fishing_rod",
+   "kind": "both",
+   "hands": "both",
+   "zone": "chest",
+   "ko": "낚싯대를 던진다",
+   "en": "casts the line with {prop}",
+   "grip": {
+    "right": "on the rod handle near the reel",
+    "left": "further up the rod"
+   },
+   "space": "front",
+   "frames": [
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_rail",
+    "lean_counter"
+   ],
+   "gaze": "horizon"
+  },
+  {
+   "key": "ring_hip",
+   "prop": "float_ring",
+   "kind": "hold",
+   "hands": "one",
+   "zone": "waist",
+   "ko": "튜브를 옆구리에 낀다",
+   "en": "carries {prop} on one hip",
+   "frames": [
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "lean_counter"
+   ]
+  },
+  {
+   "key": "ring_lean",
+   "prop": "float_ring",
+   "kind": "both",
+   "hands": "both",
+   "zone": "chest",
+   "ko": "튜브에 팔을 걸친다",
+   "en": "leans her forearms over {prop} floating in the water",
+   "grip": {
+    "right": "forearm over the ring",
+    "left": "forearm over the ring"
+   },
+   "frames": [
+    "chest_up",
+    "waist_up"
+   ],
+   "postures": [
+    "soak"
+   ]
+  },
+  {
+   "key": "towel_hold",
+   "prop": "towel",
+   "kind": "hold",
+   "hands": "one",
+   "zone": "chest",
+   "ko": "수건을 안는다",
+   "en": "holds {prop} folded against her chest",
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "squat",
+    "recline",
+    "lie_side",
+    "lie_front",
+    "lean_counter",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "towel_dry",
+   "prop": "towel",
+   "kind": "both",
+   "hands": "both",
+   "zone": "face",
+   "ko": "수건으로 머리를 말린다",
+   "en": "dries her hair with {prop}",
+   "grip": {
+    "right": "presses the towel to the top of her head",
+    "left": "holds the towel at the side of her hair"
+   },
+   "frames": [
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "lean_counter",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "fan_hold",
+   "prop": "fan",
+   "kind": "hold",
+   "hands": "one",
+   "zone": "chest",
+   "ko": "부채를 든다",
+   "en": "holds {prop} open near her chest",
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "squat",
+    "recline",
+    "lie_side",
+    "lie_front",
+    "lean_counter",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "fan_raise",
+   "prop": "fan",
+   "kind": "raise",
+   "hands": "one",
+   "zone": "face",
+   "ko": "부채로 얼굴을 가린다",
+   "en": "lifts {prop} open to just below her eyes",
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "squat",
+    "recline",
+    "lie_side",
+    "lie_front",
+    "lean_counter",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "coin_hold",
+   "prop": "coin",
+   "kind": "raise",
+   "hands": "one",
+   "zone": "face",
+   "ko": "동전을 들어 보인다",
+   "en": "holds {prop} up between two fingers",
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "lean_counter",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "mic_sing",
+   "prop": "microphone",
+   "kind": "raise",
+   "hands": "one",
+   "zone": "face",
+   "ko": "마이크를 입가에 댄다",
+   "en": "holds {prop} close to her lips",
+   "space": "mouth",
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "lean_counter",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "guitar_carry",
+   "prop": "guitar",
+   "kind": "hold",
+   "hands": "one",
+   "zone": "hips",
+   "ko": "기타를 든다",
+   "en": "carries {prop} by its neck at her side",
+   "frames": [
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "lean_counter"
+   ]
+  },
+  {
+   "key": "guitar_play",
+   "prop": "guitar",
+   "kind": "both",
+   "hands": "both",
+   "zone": "chest",
+   "ko": "기타를 친다",
+   "en": "plays {prop}",
+   "grip": {
+    "right": "strums the strings over the sound hole",
+    "left": "frets chords on the neck"
+   },
+   "frames": [
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "stand",
+    "lean_counter",
+    "sit_lean"
+   ],
+   "gaze": "down"
+  },
+  {
+   "key": "scope_look",
+   "prop": "telescope",
+   "kind": "both",
+   "hands": "both",
+   "zone": "face",
+   "ko": "망원경을 들여다본다",
+   "en": "looks into {prop}",
+   "grip": {
+    "right": "steadies the eyepiece end",
+    "left": "supports the barrel"
+   },
+   "frames": [
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_rail",
+    "sit_chair",
+    "lean_counter",
+    "sit_lean"
+   ],
+   "gaze": "into_prop"
+  },
+  {
+   "key": "bouquet_hold",
+   "prop": "bouquet",
+   "kind": "hold",
+   "hands": "one",
+   "zone": "chest",
+   "ko": "꽃다발을 든다",
+   "en": "holds {prop} at chest height",
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "squat",
+    "recline",
+    "lie_side",
+    "lie_front",
+    "lean_counter",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "bouquet_both",
+   "prop": "bouquet",
+   "kind": "both",
+   "hands": "both",
+   "zone": "waist",
+   "ko": "두 손으로 꽃다발을 든다",
+   "en": "holds {prop} in both hands at her waist",
+   "grip": {
+    "right": "around the stems",
+    "left": "around the stems"
+   },
+   "frames": [
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "kneel",
+    "lean_counter",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "bag_carry",
+   "prop": "shopping_bag",
+   "kind": "hold",
+   "hands": "one",
+   "zone": "hips",
+   "ko": "쇼핑백을 든다",
+   "en": "carries {prop} at her side",
+   "frames": [
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "lean_counter"
+   ]
+  },
+  {
+   "key": "icecream_hold",
+   "prop": "ice_cream",
+   "kind": "hold",
+   "hands": "one",
+   "zone": "chest",
+   "ko": "아이스크림을 든다",
+   "en": "holds {prop} at chest height",
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "squat",
+    "recline",
+    "lie_side",
+    "lie_front",
+    "lean_counter",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "icecream_taste",
+   "prop": "ice_cream",
+   "kind": "raise",
+   "hands": "one",
+   "zone": "face",
+   "ko": "아이스크림을 먹는다",
+   "en": "brings {prop} to her lips",
+   "space": "mouth",
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "squat",
+    "recline",
+    "lie_side",
+    "lie_front",
+    "lean_counter",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "lantern_low",
+   "prop": "lantern",
+   "kind": "hold",
+   "hands": "one",
+   "zone": "hips",
+   "ko": "등불을 든다",
+   "en": "holds {prop} low at her side",
+   "frames": [
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "lean_counter"
+   ]
+  },
+  {
+   "key": "lantern_raise",
+   "prop": "lantern",
+   "kind": "raise",
+   "hands": "one",
+   "zone": "chest",
+   "ko": "등불을 들어 비춘다",
+   "en": "lifts {prop} to chest height",
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "lean_counter",
+    "sit_lean"
+   ],
+   "gaze": "at_prop"
+  },
+  {
+   "key": "sketch_draw",
+   "prop": "sketchbook",
+   "kind": "both",
+   "hands": "both",
+   "zone": "chest",
+   "ko": "스케치한다",
+   "en": "sketches in {prop}",
+   "grip": {
+    "right": "draws with the pencil",
+    "left": "holds the sketchbook open"
+   },
+   "frames": [
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "lean_wall",
+    "sit_lean"
+   ],
+   "gaze": "at_prop"
+  },
+  {
+   "key": "bottle_hold",
+   "prop": "water_bottle",
+   "kind": "hold",
+   "hands": "one",
+   "zone": "chest",
+   "ko": "물병을 든다",
+   "en": "holds {prop} at chest height",
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "squat",
+    "recline",
+    "lie_side",
+    "lie_front",
+    "lean_counter",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "bottle_drink",
+   "prop": "water_bottle",
+   "kind": "raise",
+   "hands": "one",
+   "zone": "face",
+   "ko": "물을 마신다",
+   "en": "drinks from {prop}",
+   "space": "mouth",
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "lean_counter",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "racket_shoulder",
+   "prop": "racket",
+   "kind": "hold",
+   "hands": "one",
+   "zone": "chest",
+   "ko": "라켓을 어깨에 걸친다",
+   "en": "rests {prop} on her shoulder",
+   "frames": [
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "lean_counter"
+   ]
+  },
+  {
+   "key": "bow_draw",
+   "prop": "bow",
+   "kind": "both",
+   "hands": "both",
+   "zone": "face",
+   "ko": "활을 당긴다",
+   "en": "draws {prop}, string back to her cheek",
+   "grip": {
+    "right": "draws the string back to her cheek",
+    "left": "holds the bow grip at arm's length"
+   },
+   "space": "side",
+   "frames": [
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_counter"
+   ],
+   "gaze": "horizon"
+  },
+  {
+   "key": "compact_look",
+   "prop": "compact",
+   "kind": "raise",
+   "hands": "one",
+   "zone": "face",
+   "ko": "손거울을 본다",
+   "en": "holds {prop} open in front of her face",
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "recline",
+    "lean_counter",
+    "sit_lean"
+   ],
+   "gaze": "at_prop"
+  },
+  {
+   "key": "mask_raise",
+   "prop": "mask",
+   "kind": "raise",
+   "hands": "one",
+   "zone": "face",
+   "ko": "가면을 든다",
+   "en": "holds {prop} up to her eyes",
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "lean_counter",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "sig_hold",
+   "prop": "signature",
+   "kind": "hold",
+   "hands": "one",
+   "zone": "chest",
+   "ko": "알아볼 거리를 든다",
+   "en": "holds {prop} at chest height",
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "squat",
+    "recline",
+    "lie_side",
+    "lie_front",
+    "lean_counter",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "sig_raise",
+   "prop": "signature",
+   "kind": "raise",
+   "hands": "one",
+   "zone": "face",
+   "ko": "알아볼 거리를 얼굴 옆에 든다",
+   "en": "holds {prop} up beside her face",
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "squat",
+    "recline",
+    "lie_side",
+    "lie_front",
+    "lean_counter",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "sig_both",
+   "prop": "signature",
+   "kind": "both",
+   "hands": "both",
+   "zone": "chest",
+   "ko": "알아볼 거리를 두 손으로 든다",
+   "en": "holds {prop} in both hands in front of her",
+   "grip": {
+    "right": "holds one side",
+    "left": "holds the other side"
+   },
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "squat",
+    "recline",
+    "lie_side",
+    "lie_front",
+    "lean_counter",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "cup_wrap",
+   "prop": "cup",
+   "kind": "both",
+   "hands": "both",
+   "zone": "chest",
+   "ko": "두 손으로 잔을 감싼다",
+   "en": "holds {prop} in both hands, wrapped around its warm sides",
+   "grip": {
+    "right": "curls around the right side of the cup",
+    "left": "curls around the left side"
+   },
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "squat",
+    "recline",
+    "lie_side",
+    "lie_front",
+    "lean_counter",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "cup_set",
+   "prop": "cup",
+   "kind": "hold",
+   "hands": "one",
+   "zone": "waist",
+   "ko": "잔을 내려놓는다",
+   "en": "sets {prop} down on the surface in front of her",
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "sit_lean",
+    "stand",
+    "lean_counter"
+   ],
+   "needs_any": [
+    "table",
+    "worktable",
+    "rail_waist"
+   ]
+  },
+  {
+   "key": "book_turn",
+   "prop": "book",
+   "kind": "both",
+   "hands": "both",
+   "zone": "chest",
+   "ko": "탁자 위 책장을 넘긴다",
+   "en": "turns a page of {prop} lying open on the table",
+   "grip": {
+    "right": "lifts the corner of a page",
+    "left": "keeps the book flat"
+   },
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "sit_lean",
+    "stand",
+    "lean_counter"
+   ],
+   "gaze": "at_prop",
+   "needs_any": [
+    "table",
+    "worktable",
+    "rail_waist"
+   ]
+  },
+  {
+   "key": "towel_neck",
+   "prop": "towel",
+   "kind": "hold",
+   "hands": "one",
+   "zone": "chest",
+   "ko": "목에 건 수건 끝을 잡는다",
+   "en": "holds one end of {prop} hung around her neck",
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "squat",
+    "recline",
+    "lie_side",
+    "lie_front",
+    "lean_counter",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "camera_check",
+   "prop": "camera",
+   "kind": "both",
+   "hands": "both",
+   "zone": "chest",
+   "ko": "찍은 사진을 확인한다",
+   "en": "checks the photo on the back screen of {prop} at chest height",
+   "grip": {
+    "right": "holds the grip",
+    "left": "cradles the body from below"
+   },
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "lean_counter",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "sit_lean",
+    "squat"
+   ],
+   "gaze": "at_prop"
+  },
+  {
+   "key": "bouquet_smell",
+   "prop": "bouquet",
+   "kind": "raise",
+   "hands": "one",
+   "zone": "face",
+   "ko": "꽃향기를 맡는다",
+   "en": "brings {prop} up to her face to smell the flowers",
+   "space": "nose",
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "squat",
+    "recline",
+    "lie_side",
+    "lie_front",
+    "lean_counter",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "bouquet_wrap",
+   "prop": "bouquet",
+   "kind": "both",
+   "hands": "both",
+   "zone": "chest",
+   "ko": "꽃다발 포장을 매만진다",
+   "en": "straightens the wrapping paper around {prop}",
+   "grip": {
+    "right": "smooths the paper",
+    "left": "holds the stems"
+   },
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "lean_counter",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "sit_lean"
+   ],
+   "gaze": "at_prop"
+  },
+  {
+   "key": "teapot_pour",
+   "prop": "teapot",
+   "kind": "both",
+   "hands": "both",
+   "zone": "chest",
+   "ko": "잔에 차를 따른다",
+   "en": "pours tea from {prop} into a cup on the table",
+   "grip": {
+    "right": "holds the handle",
+    "left": "steadies the lid"
+   },
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "sit_lean",
+    "stand",
+    "lean_counter"
+   ],
+   "gaze": "at_prop",
+   "needs_any": [
+    "table",
+    "worktable"
+   ]
+  },
+  {
+   "key": "notebook_write",
+   "prop": "notebook",
+   "kind": "both",
+   "hands": "both",
+   "zone": "chest",
+   "ko": "노트에 쓴다",
+   "en": "writes in {prop} with a pen on the table",
+   "grip": {
+    "right": "holds the pen",
+    "left": "keeps the page flat"
+   },
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "sit_lean",
+    "stand",
+    "lean_counter"
+   ],
+   "gaze": "at_prop",
+   "needs_any": [
+    "table",
+    "worktable"
+   ]
+  },
+  {
+   "key": "bowl_mix",
+   "prop": "mixing_bowl",
+   "kind": "both",
+   "hands": "both",
+   "zone": "chest",
+   "ko": "반죽을 섞는다",
+   "en": "mixes the batter in {prop} on the worktable",
+   "grip": {
+    "right": "works the whisk",
+    "left": "steadies the bowl"
+   },
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_counter"
+   ],
+   "gaze": "at_prop",
+   "needs_any": [
+    "worktable",
+    "rail_waist"
+   ]
+  },
+  {
+   "key": "can_water",
+   "prop": "watering_can",
+   "kind": "hold",
+   "hands": "one",
+   "zone": "chest",
+   "ko": "화분에 물을 준다",
+   "en": "waters a potted plant with {prop}",
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_counter",
+    "squat",
+    "kneel"
+   ],
+   "gaze": "at_prop"
+  },
+  {
+   "key": "flower_trim",
+   "prop": "loose_flowers",
+   "kind": "both",
+   "hands": "both",
+   "zone": "chest",
+   "ko": "꽃 줄기를 다듬는다",
+   "en": "trims the stems of {prop} on the worktable",
+   "grip": {
+    "right": "holds small shears",
+    "left": "holds the stems"
+   },
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "sit_lean",
+    "stand",
+    "lean_counter"
+   ],
+   "gaze": "at_prop",
+   "needs_any": [
+    "worktable",
+    "table",
+    "rail_waist"
+   ]
+  },
+  {
+   "key": "hoop_stitch",
+   "prop": "embroidery",
+   "kind": "both",
+   "hands": "both",
+   "zone": "chest",
+   "ko": "수를 놓는다",
+   "en": "stitches into {prop}",
+   "grip": {
+    "right": "draws the needle and thread",
+    "left": "holds the hoop"
+   },
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "sit_lean",
+    "recline",
+    "lie_side"
+   ],
+   "gaze": "at_prop"
+  },
+  {
+   "key": "brush_hair",
+   "prop": "hairbrush",
+   "kind": "raise",
+   "hands": "one",
+   "zone": "face",
+   "ko": "머리를 빗는다",
+   "en": "brushes her hair with {prop}",
+   "space": "hair",
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "kneel",
+    "squat",
+    "recline",
+    "lie_side",
+    "lie_front",
+    "lean_counter",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "ball_tuck",
+   "prop": "ball",
+   "kind": "hold",
+   "hands": "one",
+   "zone": "hips",
+   "ko": "공을 옆구리에 낀다",
+   "en": "tucks {prop} under one arm against her hip",
+   "frames": [
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "lean_counter",
+    "sit_edge",
+    "sit_floor"
+   ]
+  },
+  {
+   "key": "ball_spin",
+   "prop": "ball",
+   "kind": "raise",
+   "hands": "one",
+   "zone": "face",
+   "ko": "손가락 끝에서 공을 돌린다",
+   "en": "spins {prop} on one raised fingertip",
+   "space": "above",
+   "frames": [
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "lean_counter"
+   ]
+  },
+  {
+   "key": "beachball_both",
+   "prop": "beach_ball",
+   "grip": {
+    "right": "palm on the right side of the ball",
+    "left": "palm on the left side of the ball"
+   },
+   "kind": "both",
+   "hands": "both",
+   "zone": "chest",
+   "ko": "비치볼을 두 손으로 든다",
+   "en": "holds {prop} in both hands in front of her",
+   "frames": [
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "lean_counter",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "sit_lean",
+    "kneel"
+   ]
+  },
+  {
+   "key": "phones_press",
+   "prop": "headphones",
+   "grip": {
+    "right": "over the right ear cup",
+    "left": "over the left ear cup"
+   },
+   "kind": "both",
+   "hands": "both",
+   "zone": "face",
+   "ko": "헤드폰을 두 손으로 귀에 누른다",
+   "en": "presses {prop} to her ears with both hands",
+   "frames": [
+    "face_close",
+    "chest_up",
+    "waist_up",
+    "three_quarter"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "lean_counter",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "sit_lean",
+    "kneel",
+    "squat",
+    "recline",
+    "lie_side",
+    "lie_front"
+   ]
+  },
+  {
+   "key": "phones_neck",
+   "prop": "headphones",
+   "kind": "hold",
+   "hands": "one",
+   "zone": "chest",
+   "ko": "목에 건 헤드폰을 잡는다",
+   "en": "holds one ear cup of {prop} resting around her neck",
+   "frames": [
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "lean_counter",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "sit_lean",
+    "kneel",
+    "squat",
+    "recline",
+    "lie_side",
+    "lie_front"
+   ]
+  },
+  {
+   "key": "tote_shoulder",
+   "prop": "tote_bag",
+   "kind": "hold",
+   "hands": "one",
+   "zone": "chest",
+   "ko": "가방끈을 어깨에 걸쳐 잡는다",
+   "en": "holds the strap of {prop} on her shoulder",
+   "frames": [
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "lean_counter"
+   ]
+  },
+  {
+   "key": "shades_lower",
+   "prop": "sunglasses",
+   "kind": "raise",
+   "hands": "one",
+   "zone": "face",
+   "ko": "선글라스를 손가락으로 내린다",
+   "en": "lowers {prop} down her nose with one finger",
+   "frames": [
+    "face_close",
+    "chest_up",
+    "waist_up",
+    "three_quarter"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "lean_counter",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "sit_lean",
+    "kneel",
+    "squat",
+    "recline",
+    "lie_side",
+    "lie_front"
+   ]
+  },
+  {
+   "key": "shades_hold",
+   "prop": "sunglasses",
+   "kind": "hold",
+   "hands": "one",
+   "zone": "chest",
+   "ko": "접은 선글라스를 든다",
+   "en": "holds folded {prop} by one arm",
+   "frames": [
+    "face_close",
+    "detail",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "lean_counter",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "sit_lean",
+    "kneel",
+    "squat",
+    "recline",
+    "lie_side",
+    "lie_front"
+   ]
+  },
+  {
+   "key": "map_open",
+   "prop": "map",
+   "grip": {
+    "right": "holds the right edge of the map",
+    "left": "holds the left edge of the map"
+   },
+   "kind": "both",
+   "hands": "both",
+   "zone": "chest",
+   "ko": "지도를 두 손으로 펼친다",
+   "en": "unfolds {prop} in both hands in front of her",
+   "gaze": "down",
+   "frames": [
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "lean_counter",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "skate_side",
+   "prop": "skateboard",
+   "kind": "hold",
+   "hands": "one",
+   "zone": "hips",
+   "ko": "보드를 옆에 세워 잡는다",
+   "en": "holds {prop} upright at her side by its nose",
+   "frames": [
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail"
+   ]
+  },
+  {
+   "key": "sparkler_raise",
+   "prop": "sparkler",
+   "kind": "raise",
+   "hands": "one",
+   "zone": "face",
+   "ko": "불꽃 막대를 들어 올린다",
+   "en": "holds {prop} up beside her face",
+   "space": "above",
+   "frames": [
+    "face_close",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "lean_counter",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "sit_lean",
+    "kneel",
+    "squat",
+    "recline",
+    "lie_side",
+    "lie_front"
+   ]
+  },
+  {
+   "key": "balloon_string",
+   "prop": "balloon",
+   "kind": "raise",
+   "hands": "one",
+   "zone": "chest",
+   "ko": "풍선 끈을 잡는다",
+   "en": "holds the string of {prop} floating above her",
+   "space": "above",
+   "frames": [
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "lean_counter",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "sit_lean"
+   ]
+  },
+  {
+   "key": "vinyl_both",
+   "prop": "vinyl",
+   "grip": {
+    "right": "fingertips on the record edge",
+    "left": "holds the sleeve"
+   },
+   "kind": "both",
+   "hands": "both",
+   "zone": "chest",
+   "ko": "레코드판을 두 손으로 든다",
+   "en": "holds {prop} half out of its sleeve in both hands",
+   "frames": [
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "lean_counter",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "sit_lean",
+    "kneel",
+    "squat",
+    "recline",
+    "lie_side",
+    "lie_front"
+   ]
+  },
+  {
+   "key": "letter_read",
+   "prop": "letter",
+   "grip": {
+    "right": "holds the right edge of the page",
+    "left": "holds the left edge of the page"
+   },
+   "kind": "both",
+   "hands": "both",
+   "zone": "chest",
+   "ko": "편지를 두 손으로 읽는다",
+   "en": "reads {prop} held in both hands",
+   "gaze": "down",
+   "frames": [
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "lean_counter",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "sit_lean",
+    "kneel",
+    "squat",
+    "recline",
+    "lie_side",
+    "lie_front"
+   ]
+  },
+  {
+   "key": "hat_brim",
+   "prop": "sun_hat",
+   "kind": "raise",
+   "hands": "one",
+   "zone": "face",
+   "ko": "쓴 모자 챙을 잡는다",
+   "en": "holds the brim of {prop} she wears",
+   "frames": [
+    "face_close",
+    "chest_up",
+    "waist_up",
+    "three_quarter",
+    "full_body",
+    "environmental"
+   ],
+   "postures": [
+    "stand",
+    "lean_wall",
+    "lean_rail",
+    "walk",
+    "lean_counter",
+    "sit_chair",
+    "sit_edge",
+    "sit_floor",
+    "sit_lean",
+    "kneel",
+    "squat",
+    "recline",
+    "lie_side",
+    "lie_front"
+   ]
+  }
+ ],
+ "outfit_features": {
+  "note": "손 자세가 옷에 기대는 것 — pocket(주머니에 손) · strap(끈 잡기) · collar(옷깃 잡기). 계열 기본값(defaults)에 옷마다 더하기(add)·빼기(remove). 없는 옷에 그 손 자세는 걸러진다 · glasses(안경)는 옷이 아니라 장면의 「안경」 표시로만",
+  "defaults": {
+   "everyday": [
+    "pocket"
+   ],
+   "homewear": [],
+   "lingerie": [
+    "strap"
+   ],
+   "swimwear": [
+    "strap"
+   ],
+   "bath": [],
+   "active": [],
+   "evening": [],
+   "traditional": [],
+   "roleplay": [
+    "collar"
+   ],
+   "subculture": [
+    "pocket"
+   ],
+   "costume": [],
+   "editorial": [],
+   "bridal": [],
+   "retro": [],
+   "halloween": [],
+   "work": []
+  },
+  "add": {
+   "overalls": [
+    "strap"
+   ],
+   "halter_shorts": [
+    "strap"
+   ],
+   "slip_tights": [
+    "strap"
+   ],
+   "blazer_skirt": [
+    "collar"
+   ],
+   "shirt_dress": [
+    "collar"
+   ],
+   "trench_coat": [
+    "collar"
+   ],
+   "work_shirt_jeans": [
+    "collar"
+   ],
+   "band_tee_jacket": [
+    "collar"
+   ],
+   "bomber_shorts": [
+    "collar"
+   ],
+   "long_coat_scarf": [
+    "collar"
+   ],
+   "wool_coat": [
+    "collar"
+   ],
+   "raincoat_boots": [
+    "collar"
+   ],
+   "paint_shirt": [
+    "collar"
+   ],
+   "oversized_shirt": [
+    "collar"
+   ],
+   "sleep_shirt": [
+    "collar"
+   ],
+   "satin_pyjamas": [
+    "collar"
+   ],
+   "camisole_wrap": [
+    "strap"
+   ],
+   "soft_tank_shorts": [
+    "strap"
+   ],
+   "bralette_cardigan": [
+    "strap"
+   ],
+   "light_slip": [
+    "strap"
+   ],
+   "hoodie_shorts": [
+    "pocket"
+   ],
+   "open_shirt_lingerie": [
+    "collar"
+   ],
+   "sports_bra_leggings": [
+    "strap"
+   ],
+   "yoga_set": [
+    "strap"
+   ],
+   "climbing_set": [
+    "strap"
+   ],
+   "slip_dress": [
+    "strap"
+   ],
+   "silk_robe_slip": [
+    "strap"
+   ],
+   "halter_evening": [
+    "strap"
+   ],
+   "opera_coat": [
+    "collar"
+   ],
+   "punk_jacket": [
+    "collar"
+   ],
+   "rock_leather": [
+    "collar"
+   ],
+   "biker": [
+    "collar"
+   ],
+   "editorial_tailoring": [
+    "collar"
+   ],
+   "harness_tailoring": [
+    "collar",
+    "strap"
+   ],
+   "nineties_slip": [
+    "strap"
+   ],
+   "y2k_lowrise": [
+    "pocket"
+   ],
+   "florist_apron": [
+    "pocket",
+    "collar"
+   ],
+   "office_blouse_skirt": [
+    "collar"
+   ],
+   "barista_apron": [
+    "pocket"
+   ],
+   "leather_apron_work": [
+    "strap"
+   ],
+   "curator_cardigan": [
+    "pocket"
+   ],
+   "coach_polo": [
+    "collar"
+   ],
+   "chef_jacket": [
+    "collar"
+   ],
+   "mechanic_overalls": [
+    "strap",
+    "pocket"
+   ],
+   "field_vest": [
+    "pocket",
+    "collar"
+   ],
+   "stage_blacks": [
+    "pocket"
+   ],
+   "tailored_glam": [
+    "collar"
+   ],
+   "glam_apron": [
+    "strap"
+   ]
+  },
+  "remove": {
+   "linen_dress": [
+    "pocket"
+   ],
+   "sundress_cardigan": [
+    "pocket"
+   ],
+   "slip_tights": [
+    "pocket"
+   ],
+   "knit_skirt": [
+    "pocket"
+   ],
+   "thin_blouse_skirt": [
+    "pocket"
+   ],
+   "crop_wrap_skirt": [
+    "pocket"
+   ],
+   "bandeau_bikini": [
+    "strap"
+   ],
+   "burkini_modest": [
+    "strap"
+   ],
+   "rashguard_set": [
+    "strap"
+   ],
+   "swim_coverup": [
+    "strap"
+   ],
+   "sarong_wrap": [
+    "strap"
+   ],
+   "yukata_over": [
+    "strap"
+   ],
+   "hanbok_coverup": [
+    "strap"
+   ],
+   "bunny": [
+    "collar"
+   ],
+   "cheer_costume": [
+    "collar"
+   ],
+   "majorette": [
+    "collar"
+   ],
+   "witch_party": [
+    "collar"
+   ],
+   "cat_cafe": [
+    "collar"
+   ],
+   "santa_party": [
+    "collar"
+   ],
+   "masquerade_costume": [
+    "collar"
+   ],
+   "vinyl_stage": [
+    "collar"
+   ]
+  }
+ },
+ "awkward": [
+  {
+   "outfits": [
+    "bridal"
+   ],
+   "places": [
+    "@spa",
+    "@sports",
+    "@arcade"
+   ],
+   "ko": "웨딩드레스로 목욕·운동·오락실"
+  },
+  {
+   "outfits": [
+    "swimwear",
+    "bath"
+   ],
+   "places": [
+    "travel_cablecar",
+    "travel_lodge",
+    "evening_opera",
+    "evening_gala",
+    "evening_museum",
+    "night_taxi",
+    "street_station"
+   ],
+   "ko": "물과 먼 실내·추운 곳에 수영복·목욕 차림"
+  },
+  {
+   "outfits": [
+    "bath"
+   ],
+   "places": [
+    "@street",
+    "@stage",
+    "@sports",
+    "@arcade"
+   ],
+   "ko": "목욕 차림으로 바깥·무대"
+  },
+  {
+   "outfits": [
+    "evening",
+    "bridal",
+    "costume"
+   ],
+   "places": [
+    "@sports"
+   ],
+   "ko": "드레스·무대 의상으로 운동"
+  },
+  {
+   "outfits": [
+    "active"
+   ],
+   "places": [
+    "evening_opera",
+    "evening_gala",
+    "evening_museum",
+    "stage_wedding",
+    "stage_redcarpet"
+   ],
+   "ko": "운동복으로 격식 자리"
+  },
+  {
+   "outfits": [
+    "lingerie"
+   ],
+   "places": [
+    "@sports",
+    "street_station",
+    "street_grocery"
+   ],
+   "ko": "란제리풍으로 운동·생활 공간"
+  },
+  {
+   "outfits": [
+    "swimwear",
+    "bath",
+    "lingerie"
+   ],
+   "places": [
+    "bakery_kitchen"
+   ],
+   "ko": "열람실 · 작업실에 수영복 · 목욕 · 란제리풍"
+  },
+  {
+   "outfits": [
+    "swimwear",
+    "bath"
+   ],
+   "places": [
+    "lodge_terrace"
+   ],
+   "ko": "눈 덮인 테라스에 수영복 · 목욕 차림"
+  },
+  {
+   "outfits": [
+    "halloween"
+   ],
+   "places": [
+    "@spa",
+    "@sports",
+    "@water"
+   ],
+   "ko": "할로윈·주인공 코스튬으로 목욕·운동·물가"
+  },
+  {
+   "outfits": [
+    "swimwear",
+    "bath"
+   ],
+   "places": [
+    "@work",
+    "@forge",
+    "@dojo",
+    "rite_home",
+    "rite_altar",
+    "rite_shrine",
+    "@heritage",
+    "!heritage_spring"
+   ],
+   "ko": "일터 · 공방 · 도장 · 제례 · 전설의 자리에 수영복 · 목욕 차림(옛 샘터는 괜찮다)"
+  },
+  {
+   "outfits": [
+    "bridal",
+    "evening"
+   ],
+   "places": [
+    "@forge",
+    "dojo_training",
+    "dojo_salle",
+    "work_garage",
+    "work_field"
+   ],
+   "ko": "드레스로 불 · 쇠 · 땀 쓰는 자리"
+  }
+ ],
+ "presets": [
+  {
+   "key": "shush_close",
+   "ko": "쉿 클로즈업",
+   "posture": "stand",
+   "support": "none",
+   "frame": "face_close",
+   "body": "front",
+   "head": "with_body",
+   "camera": "eye",
+   "right": "shush",
+   "left": "out",
+   "legs": "",
+   "gaze": "camera"
+  },
+  {
+   "key": "cheek_close",
+   "ko": "볼에 손 클로즈업",
+   "posture": "stand",
+   "support": "none",
+   "frame": "face_close",
+   "body": "front_3q",
+   "head": "tilt",
+   "camera": "eye",
+   "right": "cheek",
+   "left": "out",
+   "legs": "",
+   "gaze": "camera"
+  },
+  {
+   "key": "hair_close",
+   "ko": "머리 넘기며 내려다보기",
+   "posture": "stand",
+   "support": "none",
+   "frame": "face_close",
+   "body": "side",
+   "head": "with_body",
+   "camera": "eye",
+   "right": "hair_tuck",
+   "left": "out",
+   "legs": "",
+   "gaze": "down"
+  },
+  {
+   "key": "sip_close",
+   "ko": "소품을 얼굴 가까이 든 클로즈업",
+   "posture": "sit_chair",
+   "support": "back_seat",
+   "frame": "face_close",
+   "body": "front_3q",
+   "head": "with_body",
+   "camera": "eye",
+   "right": "prop",
+   "left": "out",
+   "prop_kind": "raise",
+   "legs": "",
+   "gaze": "camera"
+  },
+  {
+   "key": "vsign_close",
+   "ko": "브이 클로즈업",
+   "posture": "stand",
+   "support": "none",
+   "frame": "face_close",
+   "body": "front",
+   "head": "tilt",
+   "camera": "low",
+   "right": "v_sign",
+   "left": "out",
+   "legs": "",
+   "gaze": "camera"
+  },
+  {
+   "key": "chin_close",
+   "ko": "턱 괴고 창밖",
+   "posture": "sit_chair",
+   "support": "none",
+   "frame": "face_close",
+   "body": "front_3q",
+   "head": "with_body",
+   "camera": "eye",
+   "right": "chin_table",
+   "left": "out",
+   "legs": "",
+   "gaze": "window"
+  },
+  {
+   "key": "prop_detail",
+   "ko": "소품을 든 손 디테일",
+   "posture": "stand",
+   "support": "none",
+   "frame": "detail",
+   "body": "front_3q",
+   "head": "tilt",
+   "camera": "eye",
+   "right": "prop",
+   "left": "out",
+   "prop_kind": "hold",
+   "legs": "",
+   "gaze": "at_prop"
+  },
+  {
+   "key": "recline_head",
+   "ko": "머리 받치고 눕기",
+   "posture": "recline",
+   "support": "back_lounger",
+   "frame": "chest_up",
+   "body": "front",
+   "head": "with_body",
+   "camera": "high",
+   "right": "behind_head",
+   "left": "prop",
+   "prop_kind": "hold",
+   "legs": "",
+   "gaze": "camera"
+  },
+  {
+   "key": "crossed_wall",
+   "ko": "벽에 기대 팔짱",
+   "posture": "lean_wall",
+   "support": "back_wall",
+   "frame": "chest_up",
+   "body": "front_3q",
+   "head": "with_body",
+   "camera": "eye",
+   "right": "arms_crossed",
+   "left": "arms_crossed",
+   "legs": "",
+   "gaze": "camera"
+  },
+  {
+   "key": "lookback_raise",
+   "ko": "소품 들고 돌아보기",
+   "posture": "stand",
+   "support": "none",
+   "frame": "chest_up",
+   "body": "side",
+   "head": "over_shoulder",
+   "camera": "eye",
+   "right": "prop",
+   "left": "out",
+   "prop_kind": "raise",
+   "legs": "",
+   "gaze": "camera"
+  },
+  {
+   "key": "strap_tilt",
+   "ko": "끈 잡고 고개 기울이기",
+   "posture": "stand",
+   "support": "none",
+   "frame": "chest_up",
+   "body": "front_3q",
+   "head": "tilt",
+   "camera": "eye",
+   "right": "strap",
+   "left": "out",
+   "legs": "",
+   "gaze": "camera"
+  },
+  {
+   "key": "soak_hair",
+   "ko": "물에 담그고 머리 넘기기",
+   "posture": "soak",
+   "support": "water",
+   "frame": "waist_up",
+   "body": "front",
+   "head": "with_body",
+   "camera": "high",
+   "right": "hair_tuck",
+   "left": "water_trail",
+   "legs": "",
+   "gaze": "camera"
+  },
+  {
+   "key": "swim_close",
+   "ko": "헤엄쳐 다가오기",
+   "posture": "swim",
+   "support": "water",
+   "frame": "chest_up",
+   "body": "front",
+   "head": "with_body",
+   "camera": "high",
+   "right": "out",
+   "left": "out",
+   "legs": "",
+   "gaze": "camera"
+  },
+  {
+   "key": "wave_chest",
+   "ko": "손 흔들기",
+   "posture": "stand",
+   "support": "none",
+   "frame": "chest_up",
+   "body": "front",
+   "head": "with_body",
+   "camera": "eye",
+   "right": "wave",
+   "left": "chest_hand",
+   "legs": "",
+   "gaze": "camera"
+  },
+  {
+   "key": "window_chin",
+   "ko": "창가에 기대 턱 괴기",
+   "posture": "lean_rail",
+   "support": "none",
+   "frame": "waist_up",
+   "body": "front_3q",
+   "head": "with_body",
+   "camera": "eye",
+   "right": "chin_rail",
+   "left": "rail",
+   "legs": "",
+   "gaze": "window"
+  },
+  {
+   "key": "thumbs_waist",
+   "ko": "엄지 척",
+   "posture": "stand",
+   "support": "none",
+   "frame": "waist_up",
+   "body": "front",
+   "head": "with_body",
+   "camera": "eye",
+   "right": "thumbs_up",
+   "left": "hip",
+   "legs": "",
+   "gaze": "camera"
+  },
+  {
+   "key": "counter_cup",
+   "ko": "카운터에서 소품 보기",
+   "posture": "lean_rail",
+   "support": "none",
+   "frame": "waist_up",
+   "body": "side",
+   "head": "with_body",
+   "camera": "eye",
+   "right": "prop",
+   "left": "rail",
+   "prop_kind": "hold",
+   "legs": "",
+   "gaze": "at_prop"
+  },
+  {
+   "key": "pocket_look",
+   "ko": "주머니에 손 넣고 소품 보기",
+   "posture": "stand",
+   "support": "none",
+   "frame": "waist_up",
+   "body": "front_3q",
+   "head": "tilt",
+   "camera": "eye",
+   "right": "prop",
+   "left": "pocket",
+   "prop_kind": "hold",
+   "legs": "",
+   "gaze": "at_prop"
+  },
+  {
+   "key": "clasp_low",
+   "ko": "두 손 모으고 올려다보기",
+   "posture": "stand",
+   "support": "none",
+   "frame": "waist_up",
+   "body": "front",
+   "head": "tilt",
+   "camera": "low",
+   "right": "clasp_both",
+   "left": "clasp_both",
+   "legs": "",
+   "gaze": "camera"
+  },
+  {
+   "key": "wall_hair",
+   "ko": "벽에 기대 머리 넘기기",
+   "posture": "lean_wall",
+   "support": "back_wall",
+   "frame": "waist_up",
+   "body": "front_3q",
+   "head": "with_body",
+   "camera": "eye",
+   "right": "hair_tuck",
+   "left": "out",
+   "legs": "",
+   "gaze": "screen_left"
+  },
+  {
+   "key": "reach_waist",
+   "ko": "카메라로 손 뻗기",
+   "posture": "stand",
+   "support": "none",
+   "frame": "waist_up",
+   "body": "front",
+   "head": "with_body",
+   "camera": "eye",
+   "right": "reach",
+   "left": "chest_hand",
+   "legs": "",
+   "gaze": "camera"
+  },
+  {
+   "key": "chair_cross_prop",
+   "ko": "다리 꼬고 앉아 소품 보기",
+   "posture": "sit_chair",
+   "support": "back_seat",
+   "frame": "three_quarter",
+   "body": "side",
+   "head": "with_body",
+   "camera": "eye",
+   "right": "prop",
+   "left": "lap",
+   "prop_kind": "hold",
+   "legs": "cross_legs",
+   "gaze": "at_prop"
+  },
+  {
+   "key": "walk_lookback",
+   "ko": "걷다 멈춰 돌아보기",
+   "posture": "walk",
+   "support": "none",
+   "frame": "three_quarter",
+   "body": "rear_3q",
+   "head": "over_shoulder",
+   "camera": "eye",
+   "right": "prop",
+   "left": "down",
+   "prop_kind": "hold",
+   "legs": "walk_pause",
+   "gaze": "camera"
+  },
+  {
+   "key": "hip_contra",
+   "ko": "허리에 손 짝다리",
+   "posture": "stand",
+   "support": "none",
+   "frame": "three_quarter",
+   "body": "front_3q",
+   "head": "with_body",
+   "camera": "eye",
+   "right": "hip",
+   "left": "hair_tuck",
+   "legs": "contrapposto",
+   "gaze": "camera"
+  },
+  {
+   "key": "edge_brace",
+   "ko": "걸터앉아 두 손 짚기",
+   "posture": "sit_edge",
+   "support": "hip_edge",
+   "frame": "three_quarter",
+   "body": "front",
+   "head": "with_body",
+   "camera": "eye",
+   "right": "edge_brace_both",
+   "left": "edge_brace_both",
+   "legs": "knees_together",
+   "gaze": "camera"
+  },
+  {
+   "key": "floor_knee",
+   "ko": "바닥에 앉아 무릎에 턱 괴기",
+   "posture": "sit_floor",
+   "support": "none",
+   "frame": "three_quarter",
+   "body": "front_3q",
+   "head": "tilt",
+   "camera": "high",
+   "right": "chin_knee",
+   "left": "floor_brace",
+   "legs": "knee_up",
+   "gaze": "camera"
+  },
+  {
+   "key": "camera_shot",
+   "ko": "두 손으로 소품 쓰기",
+   "posture": "stand",
+   "support": "none",
+   "frame": "three_quarter",
+   "body": "front_3q",
+   "head": "with_body",
+   "camera": "eye",
+   "right": "prop",
+   "left": "prop",
+   "prop_kind": "both",
+   "legs": "stand_relaxed",
+   "gaze": ""
+  },
+  {
+   "key": "kneel_clasp",
+   "ko": "무릎 꿇고 두 손 모으기",
+   "posture": "kneel",
+   "support": "none",
+   "frame": "three_quarter",
+   "body": "front",
+   "head": "with_body",
+   "camera": "high",
+   "right": "clasp_both",
+   "left": "clasp_both",
+   "legs": "knees_together",
+   "gaze": "camera"
+  },
+  {
+   "key": "wall_foot",
+   "ko": "벽에 기대 한 발 올리기",
+   "posture": "lean_wall",
+   "support": "back_wall",
+   "frame": "full_body",
+   "body": "front_3q",
+   "head": "with_body",
+   "camera": "eye",
+   "right": "pocket",
+   "left": "hair_tuck",
+   "legs": "foot_on_wall",
+   "gaze": "camera"
+  },
+  {
+   "key": "stride_prop",
+   "ko": "소품 들고 걷기",
+   "posture": "walk",
+   "support": "none",
+   "frame": "full_body",
+   "body": "front_3q",
+   "head": "with_body",
+   "camera": "eye",
+   "right": "prop",
+   "left": "down",
+   "prop_kind": "hold",
+   "legs": "walk_stride",
+   "gaze": "camera"
+  },
+  {
+   "key": "tiptoe_wave",
+   "ko": "까치발로 손 흔들기",
+   "posture": "stand",
+   "support": "none",
+   "frame": "full_body",
+   "body": "side",
+   "head": "with_body",
+   "camera": "low",
+   "right": "wave",
+   "left": "down",
+   "legs": "tiptoe",
+   "gaze": "camera"
+  },
+  {
+   "key": "side_chair_read",
+   "ko": "옆모습으로 앉아 두 손으로 소품 쓰기",
+   "posture": "sit_chair",
+   "support": "none",
+   "frame": "full_body",
+   "body": "side",
+   "head": "with_body",
+   "camera": "eye",
+   "right": "prop",
+   "left": "prop",
+   "prop_kind": "both",
+   "legs": "knees_together",
+   "gaze": "at_prop"
+  },
+  {
+   "key": "side_chair_cross",
+   "ko": "옆모습으로 다리 꼬고 앉기",
+   "posture": "sit_chair",
+   "support": "back_seat",
+   "frame": "full_body",
+   "body": "side",
+   "head": "with_body",
+   "camera": "eye",
+   "right": "prop",
+   "left": "lap",
+   "prop_kind": "hold",
+   "legs": "cross_legs",
+   "gaze": "camera"
+  },
+  {
+   "key": "lie_side_full",
+   "ko": "옆으로 누워 머리 받치기",
+   "posture": "lie_side",
+   "support": "side_floor",
+   "frame": "full_body",
+   "body": "front",
+   "head": "tilt",
+   "camera": "high",
+   "right": "behind_head",
+   "left": "floor_brace",
+   "legs": "legs_bent_side",
+   "gaze": "camera"
+  },
+  {
+   "key": "lie_front_full",
+   "ko": "엎드려 두 손으로 턱 괴기",
+   "posture": "lie_front",
+   "support": "front_floor",
+   "frame": "full_body",
+   "body": "front",
+   "head": "with_body",
+   "camera": "low",
+   "right": "chin_both",
+   "left": "chin_both",
+   "legs": "feet_up",
+   "gaze": "camera"
+  },
+  {
+   "key": "edge_dangle",
+   "ko": "걸터앉아 발 담그기",
+   "posture": "sit_edge",
+   "support": "hip_edge",
+   "frame": "full_body",
+   "body": "side",
+   "head": "with_body",
+   "camera": "eye",
+   "right": "edge_brace_both",
+   "left": "edge_brace_both",
+   "legs": "feet_in_water",
+   "gaze": "horizon"
+  },
+  {
+   "key": "squat_prop",
+   "ko": "쪼그려 앉아 소품 보기",
+   "posture": "squat",
+   "support": "none",
+   "frame": "full_body",
+   "body": "front",
+   "head": "tilt",
+   "camera": "high",
+   "right": "prop",
+   "left": "lap",
+   "prop_kind": "hold",
+   "legs": "squat_heels",
+   "gaze": "at_prop"
+  },
+  {
+   "key": "walk_away",
+   "ko": "멀어지며 걷기",
+   "posture": "walk",
+   "support": "none",
+   "frame": "environmental",
+   "body": "back",
+   "head": "with_body",
+   "camera": "eye",
+   "right": "prop",
+   "left": "down",
+   "prop_kind": "hold",
+   "legs": "walk_stride",
+   "gaze": "horizon"
+  },
+  {
+   "key": "floor_horizon",
+   "ko": "바닥에 앉아 먼 곳 보기",
+   "posture": "sit_floor",
+   "support": "none",
+   "frame": "environmental",
+   "body": "side",
+   "head": "with_body",
+   "camera": "high",
+   "right": "lap",
+   "left": "floor_brace",
+   "legs": "cross_legged",
+   "gaze": "horizon"
+  },
+  {
+   "key": "lounger_drink",
+   "ko": "선베드에 누워 소품 들기",
+   "posture": "recline",
+   "support": "back_lounger",
+   "frame": "environmental",
+   "body": "front_3q",
+   "head": "with_body",
+   "camera": "high",
+   "right": "behind_head",
+   "left": "prop",
+   "prop_kind": "hold",
+   "legs": "legs_extended",
+   "gaze": "camera"
+  },
+  {
+   "key": "stand_use",
+   "ko": "서서 소품 쓰기",
+   "posture": "stand",
+   "support": "none",
+   "frame": "environmental",
+   "body": "side",
+   "head": "with_body",
+   "camera": "eye",
+   "right": "prop",
+   "left": "prop",
+   "prop_kind": "both",
+   "legs": "stand_relaxed",
+   "gaze": ""
+  },
+  {
+   "key": "bench_sit",
+   "ko": "벤치에 앉아 옆 보기",
+   "posture": "sit_chair",
+   "support": "none",
+   "frame": "environmental",
+   "body": "front",
+   "head": "turn_side",
+   "camera": "eye",
+   "right": "prop",
+   "left": "lap",
+   "prop_kind": "hold",
+   "legs": "knees_together",
+   "gaze": "screen_left"
+  },
+  {
+   "key": "counter_work",
+   "ko": "작업대에서 두 손으로 소품 쓰기",
+   "posture": "lean_counter",
+   "support": "none",
+   "frame": "waist_up",
+   "body": "front_3q",
+   "head": "with_body",
+   "camera": "eye",
+   "right": "prop",
+   "left": "prop",
+   "prop_kind": "both",
+   "legs": "",
+   "gaze": ""
+  },
+  {
+   "key": "table_lean_use",
+   "ko": "탁자 쪽으로 기울여 두 손으로 소품 쓰기",
+   "posture": "sit_lean",
+   "support": "none",
+   "frame": "three_quarter",
+   "body": "side",
+   "head": "with_body",
+   "camera": "eye",
+   "right": "prop",
+   "left": "prop",
+   "prop_kind": "both",
+   "legs": "knees_together",
+   "gaze": ""
+  },
+  {
+   "key": "wrap_close",
+   "ko": "두 손으로 소품 감싼 가슴 위",
+   "posture": "stand",
+   "support": "none",
+   "frame": "chest_up",
+   "body": "front",
+   "head": "tilt",
+   "camera": "eye",
+   "right": "prop",
+   "left": "prop",
+   "prop_kind": "both",
+   "legs": "",
+   "gaze": "camera"
+  },
+  {
+   "key": "ankles_sit",
+   "ko": "발목 교차하고 앉기",
+   "posture": "sit_chair",
+   "support": "back_seat",
+   "frame": "full_body",
+   "body": "front_3q",
+   "head": "with_body",
+   "camera": "eye",
+   "right": "lap",
+   "left": "natural",
+   "legs": "ankles_crossed",
+   "gaze": "camera"
+  },
+  {
+   "key": "raise_chest",
+   "ko": "얼굴 가까이 소품 쓰기(가슴 위)",
+   "posture": "stand",
+   "support": "none",
+   "frame": "chest_up",
+   "body": "front_3q",
+   "head": "tilt",
+   "camera": "eye",
+   "right": "prop",
+   "left": "out",
+   "prop_kind": "raise",
+   "legs": "",
+   "gaze": ""
+  }
+ ],
+ "expressions": {
+  "calm": "relaxed brow, softly open eyes, lips closed and unstrained, no smile",
+  "focused": "slightly drawn brow, narrowed steady eyes, mouth firmly closed",
+  "soft_smile": "faint upward pull at the mouth corners, lips together, warmth reaching the lower eyelids",
+  "half_smile": "one mouth corner lifted higher than the other, lips closed",
+  "playful": "asymmetric grin with teeth just showing, one brow raised, eyes narrowed with amusement",
+  "confident": "level brow, calm unhurried eyes, mouth closed and composed",
+  "sensual": "heavy-lidded eyes, lips slightly parted and relaxed, brow smooth",
+  "provocative": "challenging eyes under lowered lids, one brow raised, mouth corner tugged in a slight smirk",
+  "sleepy": "heavy drooping eyelids, soft unfocused eyes, softened slack mouth, brow low and relaxed",
+  "candid": "an unposed in-between expression, mouth caught mid-shape, brows natural",
+  "mildly_annoyed": "inner brows drawn together, one eye slightly narrowed, mouth pressed flat to one side",
+  "surprised": "raised brows, widened eyes with visible upper white, mouth open in a small round shape",
+  "curious": "one brow raised higher, eyes wide and attentive, lips slightly parted",
+  "serious": "level lowered brow, steady unblinking eyes, mouth closed in a straight line, jaw set",
+  "amused": "crinkled lower eyelids, closed-lip smile pushing the cheeks up, brows relaxed",
+  "bored": "lidded half-open eyes, slack mouth, brows flat and unengaged",
+  "pensive": "slightly furrowed brow, softened eyes, lips lightly pressed together",
+  "smug": "one mouth corner lifted, lids lowered in a knowing look",
+  "gentle": "softly lowered brows, warm relaxed eyes, faint closed-lip smile, no tension anywhere",
+  "determined": "brows pulled down and in, hard steady eyes, jaw clenched, mouth a tight line",
+  "exhausted": "drooping lids and brows, dull tired eyes, mouth slightly open and slack",
+  "nostalgic": "soft distant eyes, faint wistful half-smile, brows gently raised at the inner ends",
+  "unimpressed": "flat level brows, half-lidded deadpan eyes, mouth in a straight unmoved line",
+  "flustered": "raised inner brows, wide unsettled eyes, mouth slightly open, faint blush across the cheeks and nose",
+  "proud": "brows level, eyes bright and steady, closed-lip smile with a firm mouth",
+  "wistful": "softened eyes, faint sad smile, inner brows raised",
+  "mischievous": "narrowed sparkling eyes, one brow up, closed-lip grin pushed to one side",
+  "relieved": "brows released upward and outward, eyes half closed, breath-out mouth slightly open, whole face loosened",
+  "cold_smile": "mouth smiling while the eyes stay flat and unsmiling, brows level",
+  "laughing": "eyes squeezed nearly shut, mouth open wide with teeth showing, cheeks raised high",
+  "laughing_open": "mouth open wide in a laugh with teeth showing and cheeks raised, eyes open and engaged with lids only slightly narrowed",
+  "wink": "one eye closed in a playful wink while the other stays open and bright, one mouth corner lifted in a small smile, brows relaxed"
+ },
+ "legacy": {
+  "note": "버전1 기록(하는 일 act · 자세 pose · 방향 orient) → 버전2 칸. 시대 · 장소 · 의상 · 옷 · 프레이밍 · 표정은 같은 열쇠라 그대로 둔다. 렌즈는 버린다(자동)",
+  "families": {
+   "stand": "stand",
+   "walk": "walk",
+   "sit": "sit_chair",
+   "low": "sit_floor",
+   "lie": "recline",
+   "move": "stand"
+  },
+  "acts": {
+   "swim": {
+    "posture": "swim"
+   },
+   "soak": {
+    "posture": "soak"
+   },
+   "float_ring": {
+    "posture": "soak"
+   },
+   "bath_edge": {
+    "posture": "sit_edge"
+   },
+   "footbath": {
+    "posture": "sit_edge",
+    "legs": "feet_in_water"
+   },
+   "sunbed": {
+    "posture": "recline"
+   }
+  },
+  "poses": {
+   "standing_relaxed": {
+    "legs": "stand_relaxed"
+   },
+   "contrapposto": {
+    "legs": "contrapposto"
+   },
+   "hand_on_hip": {
+    "right": "hip"
+   },
+   "arms_crossed": {
+    "right": "arms_crossed",
+    "left": "arms_crossed"
+   },
+   "leaning_wall": {
+    "posture": "lean_wall",
+    "support": "back_wall"
+   },
+   "leaning_furniture": {
+    "posture": "lean_rail",
+    "right": "rail"
+   },
+   "hands_in_hair": {
+    "right": "hair_tuck"
+   },
+   "waving": {
+    "right": "wave"
+   },
+   "finger_to_lips": {
+    "right": "shush"
+   },
+   "thumbs_up": {
+    "right": "thumbs_up"
+   },
+   "on_tiptoe": {
+    "legs": "tiptoe"
+   },
+   "walking": {
+    "posture": "walk",
+    "legs": "walk_stride"
+   },
+   "mid_stride": {
+    "posture": "walk",
+    "legs": "walk_stride"
+   },
+   "perched_seat": {
+    "posture": "sit_edge",
+    "support": "hip_edge"
+   },
+   "side_sitting": {
+    "posture": "sit_floor",
+    "legs": "legs_bent_side"
+   },
+   "cross_legged": {
+    "posture": "sit_floor",
+    "legs": "cross_legged"
+   },
+   "one_knee_up": {
+    "posture": "sit_floor",
+    "legs": "knee_up"
+   },
+   "sitting_floor": {
+    "posture": "sit_floor"
+   },
+   "kneeling": {
+    "posture": "kneel"
+   },
+   "squatting": {
+    "posture": "squat",
+    "legs": "squat_heels"
+   }
+  },
+  "orients": {
+   "front": {
+    "body": "front"
+   },
+   "front_3q": {
+    "body": "front_3q"
+   },
+   "side": {
+    "body": "side"
+   },
+   "profile_close": {
+    "body": "side"
+   },
+   "rear_3q": {
+    "body": "rear_3q"
+   },
+   "three_quarter_back": {
+    "body": "rear_3q"
+   },
+   "back": {
+    "body": "back"
+   },
+   "back_to_camera": {
+    "body": "back"
+   },
+   "walking_away": {
+    "body": "back",
+    "gaze": "horizon"
+   },
+   "over_shoulder": {
+    "body": "rear_3q",
+    "head": "over_shoulder"
+   },
+   "seated_twist": {
+    "body": "front_3q",
+    "head": "turn_side"
+   },
+   "turning_midmotion": {
+    "body": "front_3q",
+    "head": "over_shoulder"
+   },
+   "low_angle": {
+    "camera": "low"
+   },
+   "high_angle": {
+    "camera": "high"
+   },
+   "looking_down": {
+    "camera": "high",
+    "gaze": "down"
+   },
+   "looking_away": {
+    "gaze": "screen_left"
+   },
+   "reaching_up": {
+    "gaze": "up"
+   }
+  }
+ },
+ "extra_places": [
+  {
+   "key": "greenhouse",
+   "group": "travel",
+   "ko": "온실·식물원",
+   "en": "a glass greenhouse full of plants with a wooden potting bench",
+   "eras": [
+    "now",
+    "heritage"
+   ]
+  },
+  {
+   "key": "bakery_kitchen",
+   "group": "studio",
+   "ko": "베이커리 작업실",
+   "en": "a small bakery workroom with a floury wooden worktable and warm ovens",
+   "eras": [
+    "now",
+    "heritage"
+   ]
+  },
+  {
+   "key": "lodge_terrace",
+   "group": "travel",
+   "ko": "겨울 산장 테라스",
+   "en": "a snowy mountain-lodge terrace with a wooden railing and benches above a winter valley",
+   "eras": [
+    "now",
+    "heritage"
+   ]
+  },
+  {
+   "key": "train_sleeper",
+   "group": "travel",
+   "ko": "기차 침대칸",
+   "en": "a night-train sleeper compartment with a narrow berth, a fold-down table and a small window",
+   "eras": [
+    "now"
+   ]
+  },
+  {
+   "key": "backstage_dressing",
+   "group": "stage",
+   "ko": "공연장 대기실",
+   "en": "a backstage dressing room with a bulb-lit mirror, a vanity table and costume racks",
+   "eras": [
+    "now"
+   ]
+  }
+ ],
+ "weather": [
+  {
+   "key": "rain",
+   "ko": "비",
+   "en": "a rainy day — rain falls outside and streaks any window; surfaces are wet where she is outdoors"
+  },
+  {
+   "key": "snow",
+   "ko": "눈",
+   "en": "a snowy day — snow falls or lies outside, with frost on any window"
+  },
+  {
+   "key": "autumn",
+   "ko": "가을 단풍",
+   "en": "autumn — falling leaves and warm low light outside"
+  },
+  {
+   "key": "spring",
+   "ko": "봄꽃",
+   "en": "spring — blossom petals drifting outside"
+  },
+  {
+   "key": "summer",
+   "ko": "한여름 볕",
+   "en": "high summer — strong sunlight and deep shadows"
+  },
+  {
+   "key": "fog",
+   "ko": "안개 낀 아침",
+   "en": "a misty morning — soft fog outside"
+  },
+  {
+   "key": "night_snow",
+   "ko": "눈 오는 밤",
+   "en": "a snowy night — snow drifting through warm lamplight outside"
+  }
+ ],
+ "weather_awkward": [
+  {
+   "weather": [
+    "snow",
+    "night_snow"
+   ],
+   "outfits": [
+    "swimwear"
+   ],
+   "items": [],
+   "ko": "눈 오는 날 수영복(노천탕 · 실내 수영장이면 괜찮다)"
+  },
+  {
+   "weather": [
+    "summer"
+   ],
+   "outfits": [],
+   "items": [
+    "wool_coat",
+    "long_coat_scarf"
+   ],
+   "ko": "한여름 볕에 겨울 옷"
+  }
+ ]
+}
