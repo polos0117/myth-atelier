@@ -20,7 +20,8 @@
     "bridal",
     "retro",
     "costume",
-    "work"
+    "work",
+    "halloween"
    ]
   },
   {
@@ -72,7 +73,8 @@
     "retro",
     "traditional",
     "subculture",
-    "roleplay"
+    "roleplay",
+    "halloween"
    ]
   }
  ],
@@ -210,7 +212,8 @@
     "homewear",
     "lingerie",
     "everyday",
-    "active"
+    "active",
+    "halloween"
    ],
    "screens": true
   },
@@ -703,7 +706,8 @@
     "evening",
     "subculture",
     "everyday",
-    "retro"
+    "retro",
+    "halloween"
    ]
   },
   {
@@ -720,7 +724,8 @@
     "subculture",
     "everyday",
     "retro",
-    "costume"
+    "costume",
+    "halloween"
    ]
   },
   {
@@ -780,7 +785,8 @@
     "evening",
     "subculture",
     "everyday",
-    "retro"
+    "retro",
+    "halloween"
    ]
   },
   {
@@ -811,7 +817,8 @@
     "traditional",
     "roleplay",
     "retro",
-    "subculture"
+    "subculture",
+    "halloween"
    ]
   },
   {
@@ -858,7 +865,8 @@
     "active",
     "evening",
     "traditional",
-    "costume"
+    "costume",
+    "halloween"
    ]
   },
   {
@@ -899,7 +907,8 @@
    ],
    "outfits": [
     "roleplay",
-    "costume"
+    "costume",
+    "halloween"
    ]
   },
   {
@@ -913,7 +922,8 @@
    "outfits": [
     "roleplay",
     "subculture",
-    "costume"
+    "costume",
+    "halloween"
    ]
   },
   {
@@ -1248,7 +1258,8 @@
     "costume",
     "lingerie",
     "swimwear",
-    "evening"
+    "evening",
+    "halloween"
    ]
   },
   {
@@ -1276,7 +1287,8 @@
    "outfits": [
     "costume",
     "evening",
-    "retro"
+    "retro",
+    "halloween"
    ]
   },
   {
@@ -1289,7 +1301,8 @@
    ],
    "outfits": [
     "costume",
-    "editorial"
+    "editorial",
+    "halloween"
    ]
   },
   {
@@ -1303,7 +1316,8 @@
    "outfits": [
     "costume",
     "bridal",
-    "traditional"
+    "traditional",
+    "halloween"
    ]
   },
   {
@@ -1330,7 +1344,8 @@
    "outfits": [
     "costume",
     "editorial",
-    "evening"
+    "evening",
+    "halloween"
    ]
   },
   {
@@ -1343,7 +1358,8 @@
    ],
    "outfits": [
     "costume",
-    "roleplay"
+    "roleplay",
+    "halloween"
    ]
   },
   {
@@ -1358,7 +1374,8 @@
     "costume",
     "evening",
     "bridal",
-    "retro"
+    "retro",
+    "halloween"
    ]
   },
   {
@@ -1372,7 +1389,8 @@
    "outfits": [
     "costume",
     "subculture",
-    "bridal"
+    "bridal",
+    "halloween"
    ]
   },
   {
@@ -1470,7 +1488,8 @@
    "outfits": [
     "editorial",
     "retro",
-    "costume"
+    "costume",
+    "halloween"
    ]
   },
   {
@@ -4205,7 +4224,8 @@
    "en": "wrapped in aerial silks, holding a pose in mid-air",
    "outfits": [
     "active",
-    "costume"
+    "costume",
+    "halloween"
    ],
    "prefer": [
     "unitard"
@@ -5999,6 +6019,93 @@
     }
    ],
    "en": "a stage or fantasy costume"
+  },
+  {
+   "key": "halloween",
+   "ko": "할로윈 코스튬",
+   "en": "a daring adult Halloween costume",
+   "items": [
+    {
+     "key": "hw_witch",
+     "ko": "마녀",
+     "en": "a dark witch costume — a plunging black velvet bodysuit under a sheer black chiffon cape, a crooked wide-brimmed pointed hat and sheer thigh-high stockings"
+    },
+    {
+     "key": "hw_vampire",
+     "ko": "뱀파이어",
+     "en": "a vampire costume — a plunging blood-red satin corset dress with a thigh-high slit under a high-collared black cape"
+    },
+    {
+     "key": "hw_black_cat",
+     "ko": "검은 고양이",
+     "en": "a black cat costume — a glossy black strapless bodysuit, sheer black tights, a cat-ear headband, a curling tail and a bell choker"
+    },
+    {
+     "key": "hw_devil",
+     "ko": "악마",
+     "en": "a she-devil costume — a glossy red corset mini dress with a sweetheart neckline, small curved horns and a pointed tail"
+    },
+    {
+     "key": "hw_succubus",
+     "ko": "서큐버스",
+     "en": "a succubus costume — a black strappy bralette and a high-waisted lace mini skirt with garter straps, small bat wings and curled horns"
+    },
+    {
+     "key": "hw_mummy",
+     "ko": "미라",
+     "en": "a mummy costume — a fitted bandage-wrap mini dress of layered cream gauze strips, bare shoulders and loose trailing wrap ends"
+    },
+    {
+     "key": "hw_ghost_bride",
+     "ko": "유령 신부",
+     "en": "a ghost bride costume — a tattered off-shoulder white lace mini dress with a torn trailing veil and a wilted bouquet corsage"
+    },
+    {
+     "key": "hw_skeleton",
+     "ko": "해골",
+     "en": "a skeleton costume — a black stretch catsuit printed with white bones, worn with a red-rose flower crown"
+    },
+    {
+     "key": "hw_pumpkin",
+     "ko": "호박",
+     "en": "a pumpkin costume — an orange satin corset with a puffed tulle mini skirt, black-and-orange striped thigh-high stockings and a tiny green stem headband"
+    },
+    {
+     "key": "hw_wolf",
+     "ko": "늑대",
+     "en": "a she-wolf costume — a grey faux-fur crop top and mini skirt, a wolf-ear headband, a fluffy tail and fingerless gloves"
+    },
+    {
+     "key": "hw_pirate",
+     "ko": "해적",
+     "en": "a pirate costume — a laced black corset over an off-shoulder white blouse, a ragged mini skirt, thigh-high boots and a tricorn hat"
+    },
+    {
+     "key": "hw_spider",
+     "ko": "거미 여왕",
+     "en": "a black widow costume — a sheer-sleeved black mini dress with a web-patterned lace overlay and a spiked spider-leg collar"
+    },
+    {
+     "key": "hw_dark_angel",
+     "ko": "타락 천사",
+     "en": "a dark angel costume — a black feather-trimmed corset mini dress with large black feathered wings"
+    },
+    {
+     "key": "hw_bat",
+     "ko": "박쥐",
+     "en": "a bat costume — a black satin bustier mini dress with scalloped bat-wing sleeves and a small bat-ear headband"
+    },
+    {
+     "key": "hw_sheer_ghost",
+     "ko": "시스루 유령",
+     "en": "a sheer ghost costume — layers of translucent white chiffon draped over a short white satin slip"
+    },
+    {
+     "key": "hw_medusa",
+     "ko": "메두사",
+     "en": "a Medusa costume — a gold-trimmed emerald one-shoulder draped mini dress, a coiled-serpent headpiece and snake arm cuffs"
+    }
+   ]
   },
   {
    "key": "editorial",

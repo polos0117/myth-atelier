@@ -12,6 +12,9 @@
 
 
 
+## 2026-11-01 · claude · 일상컷 의상 계열 「할로윈 코스튬」
+- data/casual-tree.json — 의상 계열 할로윈 코스튬(halloween) 열여섯 벌: 마녀 · 뱀파이어 · 검은 고양이 · 악마 · 서큐버스 · 미라 · 유령 신부 · 해골 · 호박 · 늑대 · 해적 · 거미 여왕 · 타락 천사 · 박쥐 · 시스루 유령 · 메두사(수위 있게 — 코르셋 · 하이 슬릿 · 바디수트 · 사이하이). 시대는 지금 · 무대·환상(옛 시대 줄 「그 시대 평상복만」 과 부딪혀 뺐다), 장소는 무대 의상을 받는 곳 + 거실 · 바 · 옥상 파티 · 축제 거리, 무대 의상을 받는 하는 일. 필수 갈래는 아니다. 사용자 「각 공방에 일상컷 의상중에 할로윈 코스튬 의상 등 좀 더 추가해줘. 수위가 좀 있는걸로」
+
 ## 2026-10-29 · claude · 헤엄치기 문장·컷
 - data/casual-tree.json — 하는 일 swim 의 en 「swimming through the water mid-stroke」 → 「swimming breaststroke, her head and shoulders above the water」, not_frames 에 three_quarter 를 더했다. game 리니지 일상4 가 두 번 다 물속에 앉아 기댔다 — 무릎까지 담는 3/4 컷이 수평으로 누운 헤엄과 부딪혀 몸을 세웠다
 
