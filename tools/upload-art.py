@@ -9,6 +9,9 @@
     --no-push    커밋까지만
     --trailer L  커밋 메시지 끝에 붙일 줄. 여러 번 줄 수 있다 (Co-Authored-By 같은 것)
     --img-repo   그림 저장소 경로. 기본은 옆 폴더 ../myth-atelier-img
+    --new-only   그림 저장소에 같은 이름이 벌써 있으면 멈춘다(GPT 세션 — 덮지 않는다, docs/IMAGE_AUTOMATION.md)
+    --records D  지시문 묶음 폴더(tools/prompt-pack.cjs) — 올리는 칸의 <칸>-ui.json · <칸>-import.json · <칸>-blocked.json 과
+                 casual-plan.json 을 그림 저장소 records/<카드>/ 에 같은 커밋으로 둔다(2026-11-02)
 
 칸 이름은 IMAGE_RULES.md 와 같다: base(=_f) · awaken · cursed · casualN · extraN · skin_<열쇠> · skin_<열쇠>_awaken · skin_<열쇠>_cursed.
 스킨의 각성·저주는 그 스킨 기본과 구도를 대조한다(스킨 기본은 원래 기본과).
@@ -71,6 +74,7 @@ def main():
     ap.add_argument('--dry', action='store_true'); ap.add_argument('--no-push', action='store_true')
     ap.add_argument('--trailer', action='append', default=[])
     ap.add_argument('--img-repo', default=str(ROOT.parent / 'myth-atelier-img'))
+    ap.add_argument('--new-only', action='store_true'); ap.add_argument('--records', default='')
     ap.add_argument('pairs', nargs='*')
     a = ap.parse_intermixed_args()
 
@@ -104,6 +108,11 @@ def main():
     stem = a.card.replace(' ', '_') + '_' + a.style + '_f'
     def fname(k): return stem + ('' if k == 'base' else '_' + k) + '.webp'
     out_dir = img_dir if not a.dry else Path(tempfile.mkdtemp(prefix='upload-art-'))
+    if a.new_only:
+        there = [fname(k) for k in pairs if (img_dir / fname(k)).exists()]
+        if there: die('그림 저장소에 벌써 있다(덮지 않는다): ' + ', '.join(there))
+    rec_dir = Path(a.records) if a.records else None
+    if rec_dir and not rec_dir.is_dir(): die('기록 폴더가 없다: ' + a.records)
 
     print('[변환] %s · %s (%s)%s' % (a.card, names[a.style], a.style, '  — 시늉' if a.dry else ''))
     written = {}
@@ -158,6 +167,14 @@ def main():
     msg = '%s %s %d장' % (a.card, names[a.style], n)
     if a.trailer: msg += '\n\n' + '\n'.join(a.trailer)
     run(['git', 'add', 'img'], img_repo)
+    if rec_dir:
+        dst = img_repo / 'records' / a.card.replace(' ', '_')
+        dst.mkdir(parents=True, exist_ok=True)
+        got = [f for k in written for f in (k + '-ui.json', k + '-import.json', k + '-blocked.json') if (rec_dir / f).exists()]
+        if (rec_dir / 'casual-plan.json').exists(): got.append('casual-plan.json')
+        for f in got: (dst / f).write_bytes((rec_dir / f).read_bytes())
+        print('[기록] records/%s/ — %s' % (dst.name, ', '.join(got) or '없음'))
+        run(['git', 'add', 'records'], img_repo)
     for i in range(3):
         r = run(['git', 'commit', '-q', '-m', msg], img_repo, check=False)
         if r.returncode == 0: break

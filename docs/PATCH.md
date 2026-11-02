@@ -12,6 +12,16 @@
 
 
 
+## 2026-11-02 · claude · GPT 세션 이미지 규칙 — 잠금 · 문서 · 기록 올리기
+- tools/image-claim.cjs — 새 도구(book · game · element 와 같은 잠금 도구, 위 몇 줄만 신화 몫): 차례는 카드 표, 한 무기의 빈 자리는 기본 그림 화풍의 액션 · 각성 · 저주 · 일상컷 세 장(지금 무기마다 한두 장, 많아야 셋 — 스킨 · 특별컷은 안 든다), 실행마다 하나 · 하루 열둘, 잠금 파일은 그림 저장소 records/automation/claims/<카드>.json
+- docs/IMAGE_AUTOMATION.md — 새 문서: GPT 세션 순서(준비 → 잠금 → 계획 · 지시문 묶음 → 그리기 · 검수 → 멈춤 → 올리기 · 끝), 묻지 않고 올리기, 신화 검수 항목(무기를 들지 않았나 · 손은 손 · 각성 · 저주 구도 일치 · curse.text · 일상 계획 칸), 기록 꼴
+- tools/upload-art.py — --new-only(그림 저장소에 같은 이름이 있으면 멈춘다 — 덮지 않는다), --records <폴더>(올리는 칸의 기록 · 검수 · 계획을 같은 커밋으로 records/<카드>/ 에)
+- IMAGE_RULES.md — GPT 세션 안내, 「일상컷 — 트리 버전2 · 묶음」(계획기 규칙 · 고정값), 「필터에 막히면」(같은 지시문 한 번 → 노출 한 단계씩 → 계획 바꾸기 한 번 — 다른 공방과 같게, 액션 · 각성 · 저주는 장면 한 줄), 「기록」
+- PROMPT_IMAGE_WORKFLOW.md — 화면 대신 지시문 묶음, 일상컷 트리 버전2 · 묶음 계획기, 필터 순서, 기록을 같은 커밋으로
+- AGENTS.md — 문서 표에 IMAGE_AUTOMATION, 일상컷 버전2 · 계획기 · 지시문 묶음 · 검사 명령
+- .claude/skills/upload-art/SKILL.md — --records · --new-only
+- tests/image-claim.cjs — 새 시험(book 과 같다): 잡기 · 겹침 · 실행마다 하나 · push 경합 되돌림 · 멈춤 · 끝 검사 · 하루 몫
+
 ## 2026-11-01 · claude · 지시문 묶음 — 브라우저 없이 생성기와 같은 지시문 · 기록(GPT 세션용)
 - tools/prompt-pack.cjs — 새 도구(book 의 같은 도구를 신화 꼴로): init <카드> 가 settings.json(고칠 칸만 — 디자인 · 선택 문단 · 외형 · 액션 자세 · 장면 글 · 일상 추가 연출 · 노출 낮추기)을 만들고, build 가 자리(등록부에 없는 액션 · 각성 · 저주 + 계획기 plan.json 의 일상 칸 + --skins 의 스킨 셋)마다 지시문 · 기록과 차례표 INDEX.md(첨부 · 올릴 파일 · 기록 자리 · sha256)를 쓴다. 표에 없는 값 · 사유 없는 직접 입력 · 계획에 없는 컷 · 없는 스킨이 하나라도 있으면 아무것도 안 쓴다
 - lib/prompt-myth.js — record · slotName: 생성기 · 계획기 · 지시문 묶음이 같은 기록 꼴(storage = 생성기 localStorage myth_prompt_v1 꼴, 그림 저장소 records/<카드>/<자리>-ui.json)

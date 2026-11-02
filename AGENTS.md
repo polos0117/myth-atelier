@@ -12,6 +12,7 @@
 | `docs/GAME_CONCEPT.md` | 놀이 구조 — 정해진 것과 아직 시험할 것 |
 | `IMAGE_RULES.md` | 그림 한 장 규칙 — 이름·크기·두 저장소 순서 |
 | `PROMPT_IMAGE_WORKFLOW.md` | 생성기로 문장을 뽑아 기준컷·각성·저주·일상컷을 만들고 올리는 절차 — A/B 최소 보정, 기준컷 검수 관문 |
+| `docs/IMAGE_AUTOMATION.md` | GPT 세션(사람이 안 지켜보는) 이미지 작업 — 잠금(`tools/image-claim.cjs`) · 지시문 묶음(`tools/prompt-pack.cjs`) · 일상컷 계획기(`tools/casual-plan.cjs`) · 검수 · 묻지 않고 올리기 |
 | `docs/PATCH.md` | 무엇을 고쳤나 — 고친 쪽이 직접 적는다 (아래 규칙 5) |
 | `docs/SCENE_MOTION.md` | 움직임 — 공용 모듈(켄 번스·입자·열리기·넘기기)의 계약과 무기마다 입자를 고르는 표(`data/motion.json`) |
 
@@ -42,6 +43,10 @@
 표는 `data/casual-tree.json`, 거르기는 `lib/casual-tree.js`(game-atelier 원본을 글자 하나 다르지 않게 복사 — 고치려면 game 쪽을 고치고 복사한다).
 예전 갈래·예시는 추천 조합과 변환표로 옮겼다. 표를 고치면 `python3 tools/casual-tree.py check`·`audit` 를 돌린다.
 무기는 일상컷 옷에 넣지 않는다 — 장신구·주변 사물로만(사용자 2026-10-29).
+새 일상컷은 **트리 버전2**다(2026-11-01) — 표 `data/casual-tree-v2.json`(game 표에서 `tools/casual-tree-v2-from-game.py` 로 만든다), 모듈 `lib/casual-tree-v2.js`(game 원본 그대로 복사).
+하는 일 없이 몸 자세 · 받침 · 구도 · 두 손 · 소품 · 다리 · 시선을 고른다. 한 무기 여러 장은 `node tools/casual-plan.cjs <카드>` 로 짜고 올리기 전 `--check`.
+브라우저 없이 생성기와 같은 지시문 · 기록은 `node tools/prompt-pack.cjs init <카드> --dir <폴더>` → `build`. 검사: `python3 tools/casual-tree-v2.py` · `node tests/casual-tree-v2.cjs` ·
+`node tests/prompt-casual-v2.cjs` · `node tests/casual-plan.cjs` · `node tests/prompt-pack-screen.cjs`(브라우저) · `node tests/image-claim.cjs`.
 
 ### 3. 화면을 갈아치우면 그 화면에 딸린 검사를 같이 옮긴다
 

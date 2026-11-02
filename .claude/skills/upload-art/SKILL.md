@@ -29,6 +29,9 @@ python3 tools/upload-art.py <카드> --style game_keyart \
   --trailer "Co-Authored-By: …" --trailer "Claude-Session: …"
 ```
 
+계획기(`tools/casual-plan.cjs --out`) · 지시문 묶음(`tools/prompt-pack.cjs`) · 생성기 「기록 내보내기」 로 만든 기록(`<칸>-ui.json`)이 있으면 `--records <그 폴더>` 를 붙인다 —
+그림과 같은 커밋으로 그림 저장소 `records/<카드>/` 에 간다. 이미 있는 이름을 덮지 않으려면 `--new-only`(다시 그리라는 요청이 아니면 붙인다).
+
 - `--trailer` 에는 이 세션이 커밋에 붙이라고 받은 줄을 그대로 넣는다. 모델 이름은 커밋 메시지 본문엔 안 쓴다.
 - 확신이 안 서면 먼저 `--dry` 로 바꾸기·대조만 보고, 맞으면 다시 돌린다.
 - 그림 저장소는 옆 폴더 `../myth-atelier-img` 다. 없으면 `--img-repo` 로 준다.
