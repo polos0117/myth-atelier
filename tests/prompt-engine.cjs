@@ -56,7 +56,8 @@ assert.equal(new Set(S.PARAMS.map(p => p.key)).size, S.PARAMS.length, '열쇠가
 
 /* 액션 한 장은 머리색·눈색 자동(2026-10-01)으로 여섯 낱말쯤 늘어 330. 몸 개수 줄 BODY(2026-10-27)로 40낱말쯤 더 — 일상컷은 HAND TASK 도 넣고 겹치는 금지 문장을 덜었다(560, 다 채우면 740).
    일상컷 트리(2026-10-29)로 WARDROBE(첨부 그림의 옷을 버린다) 줄과 장면 줄이 늘었다 — 640 */
-const BUDGET = { portrait: 370, awaken: 270, cursed: 310, casual: 640, skin: 320 };
+// 각성 · 저주 · 스킨은 빈손 줄(KEEP_HANDS, 2026-11-02 — 서른다섯 낱말 남짓)만큼 늘렸다
+const BUDGET = { portrait: 370, awaken: 305, cursed: 345, casual: 640, skin: 360 };
 let n = 0, longest = { w: 0 };
 for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for (const style of S.STYLES) {
   const st = { card: card.name, style: style[0], output, params: {} };
@@ -74,17 +75,19 @@ for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for 
   if (output === 'skin') {
     const sk = card.skins[0];
     assert(/attached/.test(text) && !text.includes('SUBJECT:') && !text.includes('IDENTITY'), '스킨은 첨부 그림을 따르고 뼈대·외형을 다시 말하지 않는다');
+    assert(text.includes(S.KEEP_HANDS), '스킨도 빈손');
     assert(text.includes('SKIN LOOK') && text.includes(sk.look) && text.indexOf('WEAPON LOOK') < text.indexOf('SKIN LOOK'), '스킨 묘사가 무기 묘사 뒤에');
     assert.equal(P.fileName(st, card), card.name.replace(/ /g, '_') + '_' + style[0] + '_f_skin_' + sk.key + '.webp', '스킨 파일 이름');
     for (const state of ['awaken', 'cursed']) {
       const s2 = { ...st, skinState: state }, t2 = P.build(s2, data);
       assert(t2.includes(S.OUTPUTS[state].text) && t2.includes('SKIN LOOK') && t2.includes('SKIN NOTE') && !t2.includes(S.OUTPUTS.skin.text), '스킨 ' + state + ' 은 그 상태 문장에 스킨 묘사');
-      assert(P.words(t2) <= 400, card.name + ' 스킨 ' + state + ' 낱말 ' + P.words(t2));
+      assert(P.words(t2) <= 440, card.name + ' 스킨 ' + state + ' 낱말 ' + P.words(t2));
       assert.equal(P.fileName(s2, card), card.name.replace(/ /g, '_') + '_' + style[0] + '_f_skin_' + sk.key + '_' + state + '.webp', '스킨 ' + state + ' 파일 이름');
     }
   }
   if (output === 'awaken' || output === 'cursed') {
     assert(/attached/.test(text) && !text.includes('SUBJECT:') && !text.includes('IDENTITY'), '각성·저주는 첨부 그림을 따르고 뼈대·외형을 다시 말하지 않는다');
+    assert(text.includes(S.KEEP_HANDS), '각성·저주도 빈손 — 무기를 따로 꺼내 쥐지 않는다(관창의 창 2026-11-02)');
     if (output === 'cursed') assert(text.includes('red-violet') && text.includes('silver plates stay silver'), '저주는 룬이 오염되고 장갑은 그대로');
   } else if (output === 'portrait') {
     assert(text.includes('Facial ethnicity: ' + (card.ethnicity || S.PARAMS[0].auto[card.myth])), '자동이면 카드(없으면 신화권)가 얼굴 계통을 정한다');
