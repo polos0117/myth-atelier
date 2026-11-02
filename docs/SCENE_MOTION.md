@@ -127,7 +127,7 @@ pkm 은 타입, atelier(건담)는 기체·장면 성격으로 고른다 — 그
 정규식은 오해를 피하게 좁혀 두었다 — `sun-bleached`(햇빛에 바랜 나무), `leaf blade`·`leaf-shaped`(창날 모양), `gold leaf`(금박), `sound waves` 는 원소로 안 친다.
 `ash` 는 물푸레나무(ash shaft)와 겹쳐서 쓰지 않고 `ashes`·`soot` 로 본다. 표를 고치면 `node tests/scene-motion.cjs` 가 모든 값이 모듈 종류인지,
 모든 무기가 종류 하나를 받는지, 몇 무기의 답(묠니르 `sparks`, 레바테인 `embers`, 울르의 활 `snow`, 트리아이나 `bubbles`, 티르핑 `ash`, 아르테미스의 활 `stars`)을 본다.
-지금 187자루는 embers 37 · sparks 27 · bubbles 20 · mist 19 · leaves 19 · stars 17 · dust 16 · gold 11 · petals 9 · ash 7 · snow 5.
+지금 198자루는 embers 37 · sparks 28 · bubbles 22 · leaves 20 · mist 19 · dust 18 · stars 17 · gold 12 · petals 11 · ash 8 · snow 6.
 
 붙인 자리:
 

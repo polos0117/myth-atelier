@@ -1287,6 +1287,80 @@
    "effect": "stun",
    "mult": 1.6,
    "dur": 1.5
+  },
+  "singing_atgeir": {
+   "name": "우는 창날",
+   "text": "피를 부를 일 앞에서 창날이 울고, 앞의 상대와 그 뒤를 꿰뚫는다.",
+   "effect": "pierce",
+   "mult": 2.4
+  },
+  "labyrinth_thread": {
+   "name": "미궁의 실",
+   "text": "실을 따라 미궁 끝까지 가 한 상대를 크게 벤다.",
+   "effect": "strike",
+   "mult": 2.6
+  },
+  "hwarang_charge": {
+   "name": "화랑의 돌격",
+   "text": "홀로 말을 달려 앞줄 둘을 흔들어 멈추게 한다.",
+   "effect": "stun",
+   "mult": 1.0,
+   "targets": 2,
+   "dur": 1.5
+  },
+  "rattan_skin": {
+   "name": "기름 먹인 등나무",
+   "text": "칼도 화살도 튕겨 내는 등나무 갑옷이 두꺼운 보호막이 된다.",
+   "effect": "shield",
+   "mult": 1.8,
+   "self": true
+  },
+  "drinking_spear": {
+   "name": "큰 잔의 창",
+   "text": "단숨에 비운 잔의 기세로 앞줄 전부를 휩쓴다.",
+   "effect": "sweep",
+   "mult": 1.5,
+   "targets": 3
+  },
+  "vel_split": {
+   "name": "둘로 가르는 창",
+   "text": "어머니의 창이 앞의 상대와 그 뒤를 꿰뚫는다.",
+   "effect": "pierce",
+   "mult": 2.2
+  },
+  "bes_dance": {
+   "name": "베스의 춤",
+   "text": "방패를 두드리며 춤춰 앞의 상대를 겁줘 멈추게 한다.",
+   "effect": "stun",
+   "mult": 0.8,
+   "dur": 2
+  },
+  "seven_radiances": {
+   "name": "일곱 겹 광채",
+   "text": "일곱 겹 두려운 빛이 둘레의 동료 모두와 자신을 감싼다.",
+   "effect": "bulwark",
+   "mult": 1.2
+  },
+  "never_twice": {
+   "name": "다시 칠 일 없는 칼",
+   "text": "한 번에 끝낸다. 체력이 낮은 상대에게 세다.",
+   "effect": "execute",
+   "mult": 2.4,
+   "threshold": 0.4
+  },
+  "xibalba_ball": {
+   "name": "시발바의 공",
+   "text": "허리로 고무공을 쳐 앞의 상대를 멈추게 한다.",
+   "effect": "stun",
+   "mult": 1.0,
+   "dur": 1.5
+  },
+  "bridge_bout": {
+   "name": "외나무다리 겨루기",
+   "text": "참나무 봉으로 앞의 상대를 쳐 멈추게 한다.",
+   "effect": "stun",
+   "mult": 1.4,
+   "dur": 1.5
   }
  }
 }

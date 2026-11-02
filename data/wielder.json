@@ -168,6 +168,16 @@
   {"name": "이랑신", "myth": "china", "might": 92, "art": 88, "divine": 88, "favor": "spear", "text": "셋째 눈과 사냥개를 거느린 하늘의 장수. 손오공을 사로잡았다."},
   {"name": "아메노와카히코", "myth": "japan", "might": 70, "art": 84, "divine": 72, "favor": "bow", "text": "땅을 다스리라 보내졌다가 여덟 해를 눌러앉은 하늘의 신."},
   {"name": "잘", "myth": "westasia", "might": 70, "art": 86, "divine": 50, "favor": "relic", "text": "흰머리로 태어나 버려졌다가 시무르그가 키운 영웅. 로스탐의 아버지."},
-  {"name": "틀랄록", "myth": "america", "might": 76, "art": 70, "divine": 96, "favor": "spear", "text": "고글 눈과 송곳니의 아즈텍 비의 신. 산속 항아리에 비를 담아 둔다."}
+  {"name": "틀랄록", "myth": "america", "might": 76, "art": 70, "divine": 96, "favor": "spear", "text": "고글 눈과 송곳니의 아즈텍 비의 신. 산속 항아리에 비를 담아 둔다."},
+  {"name": "군나르", "myth": "norse", "might": 90, "art": 92, "divine": 20, "favor": "spear", "text": "활을 쏘아도 창을 휘둘러도 따를 이가 없던 아이슬란드의 영웅. 마지막 싸움에서 아내가 머리 한 타래를 내주지 않았다."},
+  {"name": "테세우스", "myth": "greek", "might": 88, "art": 80, "divine": 40, "favor": "sword", "text": "바위 밑의 칼과 샌들을 찾아 아테네로 간 왕자. 미궁의 괴물을 베었다."},
+  {"name": "관창", "myth": "korea", "might": 74, "art": 72, "divine": 30, "favor": "spear", "text": "황산벌에서 홀로 백제 진영에 뛰어든 신라의 화랑. 계백도 그 용기를 아꼈다."},
+  {"name": "올돌골", "myth": "china", "might": 92, "art": 40, "divine": 30, "favor": "armor", "text": "남만 오과국의 왕. 등갑병을 이끌고 제갈량과 맞섰다."},
+  {"name": "모리 다헤에", "myth": "japan", "might": 84, "art": 70, "divine": 10, "favor": "spear", "text": "구로다 가문의 술 센 무사. 큰 잔을 비워 이름난 창을 받아 냈다."},
+  {"name": "무루간", "myth": "india", "might": 88, "art": 84, "divine": 92, "favor": "spear", "text": "공작을 탄 젊은 전쟁의 신. 여섯 얼굴로 태어나 신들의 군대를 이끌었다."},
+  {"name": "베스", "myth": "egypt", "might": 70, "art": 60, "divine": 80, "favor": "armor", "text": "사자 갈기의 난쟁이 신. 집과 아이와 산모를 지키며 춤과 소리로 악귀를 쫓는다."},
+  {"name": "훔바바", "myth": "westasia", "might": 94, "art": 50, "divine": 80, "favor": "armor", "text": "엔릴이 삼나무 숲을 지키라 세운 괴물. 일곱 광채를 두르고 숨으로 불을 뿜었다."},
+  {"name": "핀 막 쿨", "myth": "celtic", "might": 88, "art": 86, "divine": 50, "favor": "sword", "text": "피아나 기사단의 우두머리. 지혜의 연어를 덴 엄지를 깨물면 앞일을 알았다."},
+  {"name": "리틀 존", "myth": "knight", "might": 92, "art": 70, "divine": 10, "favor": "blunt", "text": "이름과 달리 칠 척 거인. 외나무다리에서 로빈 후드를 이겨 셔우드의 둘째가 되었다."}
  ]
 }

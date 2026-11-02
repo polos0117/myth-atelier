@@ -54,13 +54,14 @@ const heroSafe = D.list.find(id => D.cards[id].hero && D.cards[id].variant === '
     && data.cards.some(c => c.wielder === b.wielder && c.myth === b.myth)), '주인 열하나 — 초상·진영 능력·주인 이름');
 }
 
-/* 프로필 — 시작 덱 25(주 권 17 + 다른 권 8), 같은 시드 같은 덱, 옛 저장 올리기 */
+/* 프로필 — 시작 덱 25(주 권 기본판 전부(권마다 열여덟 — 2026-11-02) + 날씨판 1 + 다른 권 나머지), 같은 시드 같은 덱, 옛 저장 올리기 */
+const PER = D => D.list.filter(id => D.cards[id].myth === 'norse' && D.cards[id].variant === 'base').length;
 {
   const p = A.newProfile(data, 'norse', 7), q = A.newProfile(data, 'norse', 7);
   ok(p.owned.length === 25 && p.deck.length === 25 && JSON.stringify(p.deck) === JSON.stringify(q.deck), '시작 덱 25 · 같은 시드 같은 덱');
-  ok(p.owned.filter(id => D.cards[id].myth === 'norse' && D.cards[id].variant === 'base').length === 17, '주 권 기본판 17');
+  ok(p.owned.filter(id => D.cards[id].myth === 'norse' && D.cards[id].variant === 'base').length === PER(D) && PER(D) === 18, '주 권 기본판 전부(열여덟)');
   ok(p.owned.filter(id => D.cards[id].variant === 'weather').length === 1 && D.cards[p.owned.find(id => D.cards[id].variant === 'weather')].myth === 'norse', '주 권 날씨판 1장 — 첫 판부터 날씨를 써 본다');
-  ok(p.owned.filter(id => D.cards[id].myth !== 'norse').length === 7 && p.owned.filter(id => D.cards[id].myth !== 'norse').every(id => D.cards[id].variant === 'base' && !D.cards[id].hero), '다른 권 비영웅 기본판 7');
+  ok(p.owned.filter(id => D.cards[id].myth !== 'norse').length === 25 - PER(D) - 1 && p.owned.filter(id => D.cards[id].myth !== 'norse').every(id => D.cards[id].variant === 'base' && !D.cards[id].hero), '다른 권 비영웅 기본판 나머지(여섯)');
   ok(p.stats.games === 0 && p.level === 'rookie' && p.v === A.VERSION, '빈 통계 · 신참 · 판');
   const old = A.upgradeProfile({ main: 'greek', owned: p.owned.slice(), deck: p.deck.slice() });
   ok(old.stats && old.stats.cards && old.beaten && old.level === 'rookie', '옛 저장(stats 없음)도 올린다');
@@ -80,8 +81,8 @@ const heroSafe = D.list.find(id => D.cards[id].hero && D.cards[id].variant === '
   const heroes = by(c => c.hero && c.myth === 'norse'), weathers = by(c => c.variant === 'weather' && c.myth === 'norse');
   p.deck = heroes.slice(0, 5).concat(by(c => c.myth === 'norse' && !c.hero && c.variant === 'base').slice(0, 20));
   ok(A.validateDeck(data, p).problems.includes('hero') && A.validateDeck(data, p).hero === 5, '영웅 5 는 많다(변형판도 영웅)');
-  p.deck = weathers.slice(0, 4).concat(by(c => c.myth === 'norse' && c.variant === 'base'), by(c => c.myth === 'greek' && c.variant === 'base' && !c.hero).slice(0, 4)); /* 4 + 17 + 4 */
-  v = A.validateDeck(data, p); ok(v.problems.includes('weather') && v.weather === 4 && v.main === 21 && v.n === 25, '날씨판 4 는 많다 · 날씨판도 주 권으로 센다');
+  p.deck = weathers.slice(0, 4).concat(by(c => c.myth === 'norse' && c.variant === 'base'), by(c => c.myth === 'greek' && c.variant === 'base' && !c.hero).slice(0, 3)); /* 4 + 18 + 3 */
+  v = A.validateDeck(data, p); ok(v.problems.includes('weather') && v.weather === 4 && v.main === 22 && v.n === 25, '날씨판 4 는 많다 · 날씨판도 주 권으로 센다');
   p.deck = by(c => c.myth === 'norse' && c.variant === 'base').slice(0, 24).concat(['묠니르']);
   ok(A.validateDeck(data, p).problems.includes('dup'), '같은 id 둘');
   p.owned = p.owned.filter(id => id !== '묠니르');
@@ -96,10 +97,10 @@ const heroSafe = D.list.find(id => D.cards[id].hero && D.cards[id].variant === '
   const rng = { rngState: 3 }, vOf = ids => ids.reduce((m, id) => (m[D.cards[id].variant] = (m[D.cards[id].variant] || 0) + 1, m), {});
   for (const b of data.duel.bosses) {
     const r = A.bossDeck(data, rng, b.myth, 'rookie'), v = A.bossDeck(data, rng, b.myth, 'veteran'), a = A.bossDeck(data, rng, b.myth, 'ace');
-    ok(r.length === 25 && new Set(r).size === 25 && r.filter(id => D.cards[id].myth === b.myth).length === 17 && r.filter(id => D.cards[id].myth === b.ally).length === 8, b.wielder + ' 신참 — 자기 권 17 · 이웃 8');
+    ok(r.length === 25 && new Set(r).size === 25 && r.filter(id => D.cards[id].myth === b.myth).length === PER(D) && r.filter(id => D.cards[id].myth === b.ally).length === 25 - PER(D), b.wielder + ' 신참 — 자기 권 전부 · 이웃 나머지(일곱)');
     ok(vOf(r).base === 25, b.wielder + ' 신참은 기본판만');
-    const ally = v.filter(id => D.cards[id].myth === b.ally).map(id => D.cards[id].power), top = D.list.filter(id => D.cards[id].myth === b.ally && D.cards[id].variant === 'base').map(id => D.cards[id].power).sort((x, y) => y - x).slice(0, 8);
-    ok(JSON.stringify(ally.sort((x, y) => y - x)) === JSON.stringify(top) && vOf(v).awaken === 3 && v.length === 25, b.wielder + ' 숙련 — 이웃은 힘 순 8 · 각성판 3');
+    const ally = v.filter(id => D.cards[id].myth === b.ally).map(id => D.cards[id].power), top = D.list.filter(id => D.cards[id].myth === b.ally && D.cards[id].variant === 'base').map(id => D.cards[id].power).sort((x, y) => y - x).slice(0, 25 - PER(D));
+    ok(JSON.stringify(ally.sort((x, y) => y - x)) === JSON.stringify(top) && vOf(v).awaken === 3 && v.length === 25, b.wielder + ' 숙련 — 이웃은 힘 순 일곱 · 각성판 3');
     const pics = D.list.filter(id => D.cards[id].myth === b.myth && D.cards[id].variant === 'weather').length; /* 그림 있는 카드 수 — 아메리카는 여섯뿐이라 날씨판은 있는 만큼 */
     ok(vOf(a).awaken === 3 && vOf(a).cursed === 2 && vOf(a).weather === Math.min(2, pics - 5) && a.length === 25 && new Set(a).size === 25, b.wielder + ' 에이스 — 각성 3 · 저주 2 · 날씨 2(모자라면 있는 만큼)');
     ok(a.every(id => D.cards[id].variant === 'base' || D.cards[id].myth === b.myth), b.wielder + ' 변형판은 자기 권만');
