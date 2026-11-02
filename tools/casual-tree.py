@@ -192,6 +192,14 @@ def check(doc):
     for fam, f in doc["families"].items():
         if not [o for o in f["orients"] if o not in ban.get("orients", [])]:
             errs.append("자세 계열 %s 에 안 쓰는 값을 빼면 방향이 없다" % fam)
+    # 코스튬 필수 컷(costume_required — game · pkm)의 옷 계열은 표에 있고, 안 쓰는 프레이밍(not_frames)은 정한 말
+    cos = doc.get("costume_required")
+    if cos:
+        if cos.get("outfit") not in {o["key"] for o in doc["outfits"]}:
+            errs.append("코스튬 필수 옷 계열 %r 가 표에 없다" % cos.get("outfit"))
+        for fr in cos.get("not_frames", []):
+            if fr not in FRAMES:
+                errs.append("코스튬 필수 컷의 안 쓰는 프레이밍 %r" % fr)
     for fr, r in doc.get("frame_rules", {}).items():
         if fr != "note" and r.get("not_required") not in (None, True):
             errs.append("프레이밍 %s 의 not_required %r" % (fr, r.get("not_required")))

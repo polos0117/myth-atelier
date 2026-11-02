@@ -12,6 +12,10 @@
 
 
 
+## 2026-11-02 · claude · 공용 트리 모듈 복사 — 코스튬 컷의 안 쓰는 프레이밍 칸
+- lib/casual-tree.js · lib/casual-tree-v2.js — 공용 트리 모듈(game 원본)을 그대로 복사. 표에 costume_required.not_frames 가 있으면 그 옷 계열 컷에 그 프레이밍을 안 쓴다(이유 code costume). 이 공방 표엔 그 칸이 없어 동작은 그대로
+- tools/casual-tree.py — 같이 복사(코스튬 칸이 있을 때만 보는 검사)
+
 ## 2026-11-02 · claude · 카드마다 시대 칸(era)
 - data/card.json — 198장 모두에 era(그 무기 전승의 시대와 땅, 영어 한 구): 신들의 무기는 그 신화가 섬겨지던 무렵(바이킹 시대 스칸디나비아 · 고졸기 그리스 · 신왕국 이집트 …), 사람 · 영웅의 무기는 그 사람의 시대(관창의 창 = 660년 황산벌의 7세기 신라, 이순신의 활 = 임진왜란의 1590년대 조선, 니혼고 = 16세기 말 센고쿠 …). note 에 칸 뜻. 사용자 「일상 1번이 무기의 시대 배경인건가?」 → 「카드마다 시대 칸 넣어줘」
 - lib/prompt-spec.js · lib/prompt-myth.js — 일상컷 「신화의 옛 땅」 ERA 줄이 신화권(「the Korea world in the age of its myths」) 대신 카드의 era 를 쓴다(eraLine — 없으면 예전 말). 버전1 · 버전2 둘 다
