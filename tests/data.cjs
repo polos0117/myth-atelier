@@ -24,6 +24,8 @@ for (const c of cards) {
   const cu = c.curse;
   assert(cu && cu.at >= 0.2 && cu.at <= 0.6 && cu.atk >= 0 && cu.atk <= 0.8 && cu.skill >= 0 && cu.skill <= 0.8 && cu.bleed >= 0.01 && cu.bleed <= 0.08 && cu.text, c.name + ' 의 curse 는 {at, atk, skill, bleed, text}');
   assert(/^[ -~\u2019]+$/.test(c.look) && c.look.split(';').length === 3, c.name + ' 의 look 은 영어이고 "재질과 색; 형태; 문양" 세 토막');
+  /* 시대(2026-11-02) — 일상컷 「신화의 옛 땅」 ERA 줄이 쓴다. 영어 한 구, 한글 없음 */
+  assert(typeof c.era === 'string' && c.era.length >= 12 && c.era.length <= 90 && !/[\uac00-\ud7a3]/.test(c.era), c.name + ' 의 era 는 영어 한 구(시대와 땅)');
 }
 /* 신화권마다 열 자루, 값은 1~5 골고루 — 상점이 어느 값에서든 카드를 내놓아야 한다 */
 for (const m of group.myth.order) {

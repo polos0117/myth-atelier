@@ -42,7 +42,10 @@ assert(rite.includes(S.CASUAL_RULES.ritesV2.replace('{rites}', S.CASUAL_RITES.no
 assert(!a.includes('PRACTICE TOOL') && !a.includes('RITES OF HER REGION'), '거실엔 없다');
 
 /* 5. 시대 — 옛 땅 · 신화 세계 안 · 무대 */
-assert(build(mjol, fx({ era: 'heritage', place: 'forge_smithy', ofam: 'work' })).includes(S.CASUAL_RULES.era.replace('{myth}', 'Norse')), '옛 땅 ERA');
+assert(build(mjol, fx({ era: 'heritage', place: 'forge_smithy', ofam: 'work' })).includes(S.CASUAL_RULES.era.replace('{when}', mjol.era)), '옛 땅 ERA — 카드의 시대');
+{ const g = card('관창의 창'), t = build(g, fx({ era: 'heritage', place: 'forge_smithy', ofam: 'work' }));
+  assert(t.includes('ERA: set this scene in the time and land of her legend — 7th-century Silla at the Battle of Hwangsanbeol, 660.'), '관창의 창 — 7세기 신라');
+  assert.equal(P.eraLine({}, 'Korea'), S.CASUAL_RULES.era.replace('{when}', 'the Korea world in the age of its myths'), '시대가 없는 카드는 신화권의 신화 시대'); }
 const world = build(mjol, fx({ era: 'in_myth', place: 'myth_place', ofam: 'everyday' }));
 assert(world.includes(S.CASUAL_RULES.world.replace('{myth}', 'Norse')) && world.includes('Place: the place named in WORLD'), '신화 세계 안 WORLD');
 

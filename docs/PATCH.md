@@ -12,6 +12,12 @@
 
 
 
+## 2026-11-02 · claude · 카드마다 시대 칸(era)
+- data/card.json — 198장 모두에 era(그 무기 전승의 시대와 땅, 영어 한 구): 신들의 무기는 그 신화가 섬겨지던 무렵(바이킹 시대 스칸디나비아 · 고졸기 그리스 · 신왕국 이집트 …), 사람 · 영웅의 무기는 그 사람의 시대(관창의 창 = 660년 황산벌의 7세기 신라, 이순신의 활 = 임진왜란의 1590년대 조선, 니혼고 = 16세기 말 센고쿠 …). note 에 칸 뜻. 사용자 「일상 1번이 무기의 시대 배경인건가?」 → 「카드마다 시대 칸 넣어줘」
+- lib/prompt-spec.js · lib/prompt-myth.js — 일상컷 「신화의 옛 땅」 ERA 줄이 신화권(「the Korea world in the age of its myths」) 대신 카드의 era 를 쓴다(eraLine — 없으면 예전 말). 버전1 · 버전2 둘 다
+- tests/data.cjs — 카드마다 era(영어 한 구). tests/prompt-engine.cjs · tests/prompt-casual-v2.cjs — ERA 줄이 카드의 시대, 관창의 창은 7세기 신라, era 없는 카드는 예전 말
+- prompt.html — 캐시 판 올림
+
 ## 2026-11-02 · claude · 각성 · 저주 · 스킨도 빈손 줄
 - lib/prompt-spec.js · lib/prompt-myth.js — 각성 · 저주 · 스킨 지시문에 KEEP_HANDS(첨부 그림의 빈손 그대로, 무기를 따로 — 손에 · 옆에 기대 · 떠서 — 더하지 않는다). 이 셋은 SUBJECT 줄(「무기를 들지 않는다」)을 싣지 않아 무기 모양 줄과 「무기가 깨어난다」 만 남았고, 관창의 창 각성 · 저주가 둘 다 창을 쥐었다. 사용자 「2번으로 고치고 여덟 장 같이 올려줘」
 - tests/prompt-engine.cjs — 각성 · 저주 · 스킨에 빈손 줄, 낱말 한도를 그만큼(각성 305 · 저주 345 · 스킨 360 · 스킨 상태 440)

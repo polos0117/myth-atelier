@@ -197,7 +197,7 @@ for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for 
   assert(sceneOf(cas({}, { params: { frame: 'waist-up framing' } })).includes('Framing: waist-up framing'), '예전 외형 칸 프레이밍');
   /* 시대 — 신화의 옛 땅은 ERA, 신화 세계 안은 WORLD, 무대·환상은 SETTING */
   const norse = data.group.myth.en[gung.myth];
-  assert(cas({ era: 'heritage', place: 'forge_smithy', act: 'anvil_hammer', ofam: 'everyday' }).includes('ERA: set this scene in the ancient lands her myth comes from — the ' + norse + ' world'), '신화의 옛 땅');
+  assert(cas({ era: 'heritage', place: 'forge_smithy', act: 'anvil_hammer', ofam: 'everyday' }).includes('ERA: set this scene in the time and land of her legend — ' + gung.era + '.'), '신화의 옛 땅 — 카드의 시대(2026-11-02)');
   const world = cas({ era: 'in_myth', place: 'myth_bath', act: 'soak', ofam: 'bath' });
   assert(world.includes('WORLD: this scene happens inside the world of ' + norse + ' myth') && !world.includes('ERA:'), '신화 세계 안');
   assert(sceneOf(cas({ era: 'in_myth', place: 'myth_place', act: 'stroll', ofam: 'everyday' })).startsWith('Place: the place named in WORLD'), '그 신화의 장소는 WORLD 를 가리킨다');
