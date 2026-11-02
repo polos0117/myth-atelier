@@ -12,9 +12,9 @@
      - 무기는 들지 않는다 — 알아볼 거리 소품은 없다(카드엔 signature_hold 가 없다)
    이미 그림이 있는 칸은 짜지 않고, 그 기록(--records)은 겹침 검사에만 쓴다. 옛 일상컷(2026-11-01 전)은 기록이 없어 겹침 검사에 안 들어간다.
 
-     node tools/casual-plan.cjs <카드 이름> [--slots 2,3,4 | --count 3] [--style game_keyart] [--records <그림 저장소>/records/<카드>]
+     node tools/casual-plan.cjs <카드 이름> [--slots 2,3,4 | --count 5] [--style game_keyart] [--records <그림 저장소>/records/<카드>]
                                          [--required lingerie|swimwear|roleplay|in_myth] [--usage <그림 저장소>/records | none] [--seed N] [--out <폴더>]
-   카드 이름은 data/card.json 의 name(공백은 그대로 또는 밑줄). --slots 를 안 주면 등록부(data/img.json)에 없는 번호에서 --count 칸(기본 3).
+   카드 이름은 data/card.json 의 name(공백은 그대로 또는 밑줄). --slots 를 안 주면 등록부(data/img.json)에 없는 가장 작은 번호부터 — --count 칸, 없으면 다섯 장까지 모자란 만큼.
    --style 을 안 주면 그 카드의 기본 그림 화풍(없으면 생성기 기본 화풍). --out 을 주면 칸마다 기록 · 지시문과 plan.json 을 쓴다.
    --usage(기본 옆의 myth-atelier-img/records)에서 다른 카드 기록의 장소 · 옷 · 표정 · 자세 추천 · 자세 · 소품 쓴 횟수를 세어
    안 쓴 값은 무게 4, 쓴 값은 1/(1+횟수)² 로 고른다(game · book · element 와 같다).
@@ -40,6 +40,8 @@ const ERA_WEIGHT = { now: 5, heritage: 2, in_myth: 2, fantasy: 1 };
 /* 일상컷 고정값(game · book 과 같다) — 전체 강도 strong · 피부 노출 bold. 필터에 막히면 노출만 한 단계씩 낮춘다(IMAGE_RULES) */
 const FIXED_AXES = { overall_intensity: 'strong', skin_exposure: 'bold' };
 const DRINKS = ['cup', 'drink_glass', 'water_bottle', 'teapot'];
+/* 무기마다 일상컷 다섯 장(사용자 2026-11-02) — 칸을 안 주면 그만큼까지 모자란 번호 */
+const CASUAL_N = 5;
 const by = (list, k) => list.find(r => r.key === k);
 const fileKey = card => card.name.replace(/ /g, '_');
 const cardOf = name => CARDS.find(c => c.name === name || fileKey(c) === name);
@@ -271,7 +273,10 @@ function main(argv) {
   const style = opt.style || styleOf(card);
   if (!S.STYLES.some(s => s[0] === style)) { console.error('화풍이 없다: ' + style); return 2; }
   const taken = registered(card, style);
-  const slots = opt.slots ? opt.slots.split(',').map(Number) : [...Array(30).keys()].map(i => i + 1).filter(n => !taken.includes(n)).slice(0, Number(opt.count || 3));
+  /* 칸 — --slots 그대로, --count 면 비어 있는 가장 작은 번호부터 그만큼, 둘 다 없으면 다섯 장까지 모자란 만큼(tools/image-claim.cjs 의 빈 자리와 같다) */
+  const free = [...Array(40).keys()].map(i => i + 1).filter(n => !taken.includes(n));
+  const slots = opt.slots ? opt.slots.split(',').map(Number) : free.slice(0, opt.count ? Number(opt.count) : Math.max(0, CASUAL_N - taken.length));
+  if (!slots.length) { console.error(`${card.name} 은 일상컷이 벌써 ${taken.length} 장(${CASUAL_N} 장 넘음) — 더 짜려면 --count 나 --slots 를 준다`); return 1; }
   const old = oldCuts(opt.records, card).filter(c => !slots.includes(c.n));
   const seed = Number(opt.seed || Date.now() % 1e9);
   const usageDir = opt.usage === 'none' ? '' : (opt.usage || path.join(ROOT, '..', 'myth-atelier-img', 'records'));

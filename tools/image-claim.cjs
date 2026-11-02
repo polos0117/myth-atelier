@@ -18,8 +18,8 @@
 const fs = require('node:fs'), path = require('node:path'), cp = require('node:child_process');
 const ROOT = path.join(__dirname, '..');
 const read = f => JSON.parse(fs.readFileSync(path.join(ROOT, f), 'utf8'));
-/* 일상컷은 무기마다 세 장(2026-11-01 — 지금 그림이 무기마다 한두 장, 많아야 셋). 스킨은 빈 자리에 안 든다(선택) */
-const DAILY_MAX = 12, EXECUTION_MAX = 1, CASUAL_N = 3;
+/* 일상컷은 무기마다 다섯 장(사용자 2026-11-02 「다섯장으로 바꿔줘」 — 다른 공방과 같다). 스킨은 빈 자리에 안 든다(선택) */
+const DAILY_MAX = 12, EXECUTION_MAX = 1, CASUAL_N = 5;
 
 /* ── 공방마다 다른 것: 그림 저장소 이름 · 차례 · 한 캐릭터의 빈 자리 ── */
 const IMG_REPO = 'myth-atelier-img', WHAT = '무기';
@@ -27,7 +27,7 @@ const keyOf = name => name.replace(/ /g, '_');
 const cardOf = key => read('data/card.json').cards.find(c => keyOf(c.name) === key || c.name === key);
 /* 차례 — 카드 표 차례 */
 function order() { return read('data/card.json').cards.map(c => ({ key: keyOf(c.name), title: c.name })); }
-/* 빈 자리 — 그 카드의 기본 그림 화풍(없으면 생성기 기본)으로 액션 · 각성 · 저주 · 일상 세 장 */
+/* 빈 자리 — 그 카드의 기본 그림 화풍(없으면 생성기 기본)으로 액션 · 각성 · 저주 · 일상 다섯 장 */
 function missing(key) {
   const card = cardOf(key);
   if (!card) return [];

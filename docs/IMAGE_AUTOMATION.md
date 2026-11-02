@@ -46,15 +46,15 @@ node tools/image-claim.cjs claim <카드> --execution $ATELIER_EXECUTION_ID
 - 잠금은 그림 저장소 `records/automation/claims/<카드>.json` 하나다. `claim` 은 그 파일만 커밋해 일반 push 한다 —
   다른 세션이 먼저 밀었으면 거절되고 도구가 제 커밋을 되돌린다. 그때는 pull 하고 `status` 부터 다시.
 - 잡힌 무기(`working` · `blocked`)는 시간이 지나도 가져가지 않는다. `blocked` 는 사용자가 정한 뒤 `release` 로만 푼다.
-- 한 무기의 빈 자리 = 액션 · 각성 · 저주 · **일상컷 세 장**(그 무기의 기본 그림 화풍 — 보통 `game_keyart`, `data/img.json`).
-  일상컷이 셋보다 적은 무기는 모자란 만큼만 더 그린다(비어 있는 가장 작은 번호부터 — `claim` 이 적어 준 `missing` 그대로). 스킨 · 특별컷은 빈 자리에 들지 않는다(사람이 요청할 때만).
+- 한 무기의 빈 자리 = 액션 · 각성 · 저주 · **일상컷 다섯 장**(사용자 2026-11-02 「다섯장으로 바꿔줘」)(그 무기의 기본 그림 화풍 — 보통 `game_keyart`, `data/img.json`).
+  일상컷이 다섯보다 적은 무기는 모자란 만큼만 더 그린다(비어 있는 가장 작은 번호부터 — `claim` 이 적어 준 `missing` 그대로). 스킨 · 특별컷은 빈 자리에 들지 않는다(사람이 요청할 때만).
 
 ## 3. 계획과 지시문 묶음
 
 작업 폴더(`$W`)는 세션 임시 자리에 둔다. 일상컷이 빈 자리에 있으면 계획부터:
 
 ```sh
-node tools/casual-plan.cjs <카드> --slots <빈 일상 번호들, 예: 2,3> \
+node tools/casual-plan.cjs <카드> --slots <빈 일상 번호들, 예: 2,3,4,5> \
      --records ../myth-atelier-img/records/<카드> --out $W/plan
 node tools/prompt-pack.cjs init <카드> --dir $W/pack --plan $W/plan/plan.json   # 일상 빈 자리가 없으면 --plan 없이
 node tools/prompt-pack.cjs build --dir $W/pack                                  # 자리마다 <자리>-prompt.txt · <자리>-ui.json · INDEX.md
@@ -119,7 +119,7 @@ python3 tools/upload-art.py '<카드 이름>' --style <화풍> --new-only --reco
 node tools/image-claim.cjs done <카드> --execution $ATELIER_EXECUTION_ID
 ```
 
-`done` 은 `data/img.json` 에 그 무기의 빈 자리가 없어야 된다(일상컷 세 장까지).
+`done` 은 `data/img.json` 에 그 무기의 빈 자리가 없어야 된다(일상컷 다섯 장까지).
 
 ## 7. 기록 꼴 — `records/<카드>/<자리>-import.json`
 
