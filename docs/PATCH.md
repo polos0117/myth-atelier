@@ -12,6 +12,9 @@
 
 
 
+## 2026-11-02 · gpt · 등갑 이미지 8장 추가
+- myth-atelier-img/img/등갑_game_keyart_f*.webp · records/등갑/ — 기본·각성·저주와 일상컷 다섯 장. 생성기 원문·선택값·AI 검수를 함께 보존. 각성·저주 구도 일치 0.830·0.901; 메카 요소와 일부 일상컷 크롭·자세·의상 모티프의 계획 이탈은 검수 기록에 명시
+
 ## 2026-11-02 · claude · 공용 트리 모듈 복사 — 코스튬 컷의 안 쓰는 프레이밍 칸
 - lib/casual-tree.js · lib/casual-tree-v2.js — 공용 트리 모듈(game 원본)을 그대로 복사. 표에 costume_required.not_frames 가 있으면 그 옷 계열 컷에 그 프레이밍을 안 쓴다(이유 code costume). 이 공방 표엔 그 칸이 없어 동작은 그대로
 - tools/casual-tree.py — 같이 복사(코스튬 칸이 있을 때만 보는 검사)
