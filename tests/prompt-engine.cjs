@@ -57,7 +57,8 @@ assert.equal(new Set(S.PARAMS.map(p => p.key)).size, S.PARAMS.length, '열쇠가
 /* 액션 한 장은 머리색·눈색 자동(2026-10-01)으로 여섯 낱말쯤 늘어 330. 몸 개수 줄 BODY(2026-10-27)로 40낱말쯤 더 — 일상컷은 HAND TASK 도 넣고 겹치는 금지 문장을 덜었다(560, 다 채우면 740).
    일상컷 트리(2026-10-29)로 WARDROBE(첨부 그림의 옷을 버린다) 줄과 장면 줄이 늘었다 — 640 */
 // 각성 · 저주 · 스킨은 빈손 줄(KEEP_HANDS, 2026-11-02 — 서른다섯 낱말 남짓)만큼 늘렸다
-const BUDGET = { portrait: 370, awaken: 305, cursed: 345, casual: 640, skin: 360 };
+// game_keyart 화풍 문장 보정(2026-11-02 — 평면 2D 애니로 넘어가던 것, 원소 공방 v3 와 같은 뜻을 줄인 것)으로 스물두 낱말쯤 — 그 화풍만 늘었다
+const BUDGET = { portrait: 395, awaken: 330, cursed: 370, casual: 640, skin: 385 };
 let n = 0, longest = { w: 0 };
 for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for (const style of S.STYLES) {
   const st = { card: card.name, style: style[0], output, params: {} };

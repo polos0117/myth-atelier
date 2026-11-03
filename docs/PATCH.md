@@ -12,6 +12,11 @@
 
 
 
+## 2026-11-02 · claude · 기본 화풍 game_keyart 문장 보정 — 평면 2D 애니로 넘어가지 않게
+- lib/prompt-spec.js — STYLES game_keyart 문장. 원소 공방에서 「clean linework · anime facial design · cel-to-soft shading」 이 어리고 귀여운 얼굴과 겹쳐 평면 셀 2D 애니로 나와 v3 로 고친 것과 같은 뜻(사용자 「3번은 신화쪽도 수정」). 신화 지시문은 짧게 두는 몫이라 줄여 실었다(53낱말). 옛 문장은 주석에
+- tests/prompt-engine.cjs — 낱말 예산을 그 몫만큼(초상 395 · 각성 330 · 저주 370 · 스킨 385)
+- IMAGE_RULES.md — 화풍 줄에 보정 까닭
+
 ## 2026-11-02 · gpt · 니혼고 이미지 8장 추가
 - myth-atelier-img/img/니혼고_game_keyart_f*.webp · records/니혼고/ — 기본·각성·저주와 일상컷 다섯 장. 생성기 원문·선택값·검수 기록 보존. 각성·저주 구도 일치 0.861·0.859. 일상2 안전 차단 후 단일 슬롯 재계획; 일상컷 일부 복식·크롭·모티프 이탈 및 일상5 손가락 추가 의심을 QA에 명시
 
