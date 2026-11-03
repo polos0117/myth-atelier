@@ -58,7 +58,7 @@ assert.equal(new Set(S.PARAMS.map(p => p.key)).size, S.PARAMS.length, '열쇠가
    일상컷 트리(2026-10-29)로 WARDROBE(첨부 그림의 옷을 버린다) 줄과 장면 줄이 늘었다 — 640 */
 // 각성 · 저주 · 스킨은 빈손 줄(KEEP_HANDS, 2026-11-02 — 서른다섯 낱말 남짓)만큼 늘렸다
 // game_keyart 화풍 문장 보정(2026-11-02 — 평면 2D 애니로 넘어가던 것, 원소 공방 v3 와 같은 뜻을 줄인 것)으로 스물두 낱말쯤 — 그 화풍만 늘었다
-const BUDGET = { portrait: 395, awaken: 330, cursed: 370, casual: 640, skin: 385 };
+const BUDGET = { portrait: 395, awaken: 330, cursed: 370, casual: 700,   /* 2026-11-03 +60 — 일상컷 화풍 · 얼굴은 첨부 그림 그대로(STYLE · FACE 줄 · 표정 끝 한 마디) */ skin: 385 };
 let n = 0, longest = { w: 0 };
 for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for (const style of S.STYLES) {
   const st = { card: card.name, style: style[0], output, params: {} };
@@ -66,7 +66,8 @@ for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for 
   if (output === 'skin' && !(card.skins || []).length) { assert.equal(text, '', card.name + ' — 스킨이 없으면 스킨 문장도 없다'); continue; }
   n++;
   assert(text.startsWith((output === 'casual' ? 'CHARACTER: ' : 'WEAPON: ') + card.en + ' (' + card.name + ')'), card.name + ' 이름이 앞에');
-  assert(text.includes(style[2]), card.name + ' ' + style[0] + ' 화풍 문장');
+  /* 일상컷 화풍 · 얼굴은 첨부 그림에 맡긴다(2026-11-03) */
+  assert(output === 'casual' ? text.includes("STYLE: keep the attached image's rendering exactly") && !text.includes(style[2]) && text.includes('FACE: exactly the face of the attached image') : text.includes(style[2]), card.name + ' ' + style[0] + ' 화풍 문장');
   assert(text.includes(S.OUTPUTS[output].text), '출력 문장');
   /* 몸 개수 줄은 모든 출력에, 일상컷은 손 규칙까지. 손 줄에 다 보이라는 말·손가락 개수는 없다(2026-10-27) */
   assert(text.includes(S.BODY_LINE) && (output !== 'casual' || text.includes(S.CASUAL_RULES.hands)) && !/fully visible|five fingers|four fingers/.test(text), card.name + ' ' + output + ' 몸·손 줄');
@@ -193,7 +194,7 @@ for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for 
   const tc = cas({ era: 'now', place: 'heritage_museum', act: 'vitrine_look', ofam: 'everyday', pose: 'contrapposto', frame: 'waist_up', lens: 'wide24', axes: { skin_exposure: 'bold' } });
   assert(tc.includes('CROP: ' + S.CROP_EDGE.waist_up) && tc.includes(S.CASUAL_RULES.wardrobeClose) && !tc.includes('Pose: ') && !tc.includes('Lens / perspective: '), '가까운 컷 — CROP, 다리 자세·광각 없음');
   assert(!/skin exposure: [^\n]*(midriff|leg)/.test(tc) && tc.includes('inside the crop'), '가까운 컷 노출 풀이');
-  assert(P.words(t) <= 800, '일상컷 다 채워도 800 안(트리 장면·WARDROBE 줄로 늘었다): ' + P.words(t));
+  assert(P.words(t) <= 860, '일상컷 다 채워도 860 안(트리 장면·WARDROBE 줄 · 2026-11-03 첨부 그림 그대로 줄로 늘었다): ' + P.words(t));
   /* 예전 외형 칸의 프레이밍(영어 문장) — 장면 칸이 비면 그대로 */
   assert(sceneOf(cas({}, { params: { frame: 'waist-up framing' } })).includes('Framing: waist-up framing'), '예전 외형 칸 프레이밍');
   /* 시대 — 신화의 옛 땅은 ERA, 신화 세계 안은 WORLD, 무대·환상은 SETTING */

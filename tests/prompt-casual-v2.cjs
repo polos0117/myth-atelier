@@ -62,7 +62,7 @@ const ax = build(mjol, fx({ axes: { skin_exposure: 'moderate', action_level: 'mo
 assert(ax.includes('skin exposure: moderate') && !ax.includes('action level'), '세부 축');
 
 /* 8. 추천 × 카드 여럿, 랜덤 수백 — 다 조립되고 무기는 들지 않으며 낱말 한도 안 */
-const LIMIT = 940;   // 가장 긴 조합(긴 화풍 · 축 넷 · 크롭 · 옛 땅 · 돌아보기) 923. 버전1 일상컷 한도(760)보다 크다 — 손 · 다리 · 시선 · 받침이 한 줄씩(book 은 800, 신화는 무기 몫 · 세시 줄이 더 있다)
+const LIMIT = 1060;   // 2026-11-03 940 → 1060: 일상컷 화풍 · 얼굴은 첨부 그림 그대로(FACE 줄 · 표정 끝 한 마디).   // 가장 긴 조합(긴 화풍 · 축 넷 · 크롭 · 옛 땅 · 돌아보기) 923. 버전1 일상컷 한도(760)보다 크다 — 손 · 다리 · 시선 · 받침이 한 줄씩(book 은 800, 신화는 무기 몫 · 세시 줄이 더 있다)
 let longest = 0, n = 0;
 const some = data.cards.filter((_, i) => i % 23 === 0);
 for (const c of some) for (const pr of t.v2.presets) {
