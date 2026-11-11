@@ -33,7 +33,8 @@ const DATA = { cards: CARDS, group: J('data/group.json'), skills: J('data/skill.
 const PLAN = require('./casual-plan.cjs');
 const sha = s => crypto.createHash('sha256').update(s).digest('hex');
 const CASUAL_LOCKS = { 'axes.overall_intensity': true, 'axes.skin_exposure': true };
-const STYLES = S.STYLES.map(r => r[0]), DESIGNS = S.DESIGNS.map(r => r[0]), EXTRAS = S.EXTRAS.map(r => r[0]);
+/* 새 그림의 화풍은 살아 있는 것만 — 내린 화풍(S.RETIRED_STYLES, 2026-11-11)은 옛 그림 · 기록에만 남는다 */
+const STYLES = S.LIVE_STYLES.map(r => r[0]), DESIGNS = S.DESIGNS.map(r => r[0]), EXTRAS = S.EXTRAS.map(r => r[0]);
 const optionKeys = d => (d.options || []).map(r => r[0]).filter(v => v && v !== '__custom__');
 
 function cardOf(name) {
@@ -66,6 +67,7 @@ function initSettings(card, { plan: planPath = '', style = '', with: withList = 
   const plan = planPath ? JSON.parse(fs.readFileSync(planPath, 'utf8')) : null;
   if (plan && plan.card !== card.name) throw new Error('계획이 다른 카드 것이다: ' + plan.card);
   const st = style || (plan && plan.style) || PLAN.styleOf(card), img = imgOf(card, st);
+  if (!STYLES.includes(st)) throw new Error((S.RETIRED_STYLES.includes(st) ? '내린 화풍이다(2026-11-11 — 새 그림엔 안 쓴다): ' : '화풍이 없다: ') + st + ' — 쓸 수 있는 것: ' + STYLES.join(' · '));
   const forced = String(withList || '').split(',').filter(Boolean);
   const base = ['base', 'awaken', 'cursed'].filter(k => forced.includes(k) || !(k === 'base' ? img.f : (img[k] || {}).f));
   const sk = String(skins || '').split(',').filter(Boolean);
@@ -82,7 +84,7 @@ function validate(set, card, plan) {
   const unknown = (obj, allowed, where) => Object.keys(obj || {}).forEach(k => { if (!allowed.includes(k)) errs.push(where + ' 에 없는 칸 ' + k); });
   const lower = (x, where) => { if (x.exposure == null || x.exposure === '') return; if (!['moderate', 'low'].includes(x.exposure)) errs.push(where + '.exposure 는 moderate · low(낮추기만)'); else if (!(x.why || '').trim()) errs.push(where + '.exposure 를 낮췄는데 why(막힌 까닭)가 비었다'); };
   if (set.card !== card.name) errs.push('settings.card 가 ' + card.name + ' 가 아니다');
-  if (!STYLES.includes(set.style)) errs.push('화풍이 없다: ' + set.style);
+  if (!STYLES.includes(set.style)) errs.push((S.RETIRED_STYLES.includes(set.style) ? '내린 화풍이다(2026-11-11 — 새 그림엔 안 쓴다): ' : '화풍이 없다: ') + set.style + ' — 쓸 수 있는 것: ' + STYLES.join(' · '));
   if (plan && plan.card !== card.name) errs.push('계획이 다른 카드 것이다: ' + plan.card);
   if (plan && plan.style && plan.style !== set.style) errs.push('계획의 화풍(' + plan.style + ')과 settings.style 이 다르다');
   if (!Array.isArray(set.base) || set.base.some(k => !['base', 'awaken', 'cursed'].includes(k))) errs.push('settings.base 는 base · awaken · cursed 의 목록');

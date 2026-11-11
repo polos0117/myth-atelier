@@ -85,7 +85,11 @@ def main():
     styles = load_json(ROOT / 'data/style.json')
     slist = styles.get('styles') if isinstance(styles, dict) else styles
     names = {s['key']: s.get('name', s['key']) for s in slist} if isinstance(slist, list) else {k: (v.get('name', k) if isinstance(v, dict) else v) for k, v in slist.items()}
-    if a.style not in names: die('화풍 key 가 없다: %s  — data/style.json: %s' % (a.style, ', '.join(names)))
+    # 내린 화풍(retired, 2026-11-11)은 옛 그림만 남는다 — 새로 올리지 않는다
+    retired = {s['key'] for s in slist if s.get('retired')} if isinstance(slist, list) else {k for k, v in slist.items() if isinstance(v, dict) and v.get('retired')}
+    live = [k for k in names if k not in retired]
+    if a.style not in names: die('화풍 key 가 없다: %s  — data/style.json: %s' % (a.style, ', '.join(live)))
+    if a.style in retired: die('내린 화풍이다: %s  — 새 그림은 살아 있는 화풍만: %s' % (a.style, ', '.join(live)))
 
     pairs = {}
     for p in a.pairs:

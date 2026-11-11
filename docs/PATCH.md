@@ -13,6 +13,14 @@
 
 
 
+## 2026-11-11 · claude · 비교용 화풍 열셋 내림
+- data/style.json — game_keyart 말고 열셋(cinematic_semi_real · glossy_kr_game · game_cgi · semi_real_paint · glossy_promo · mecha_cinematic_keyart · photoreal · anime_illust · cel_anime · painterly · retro_anime · ink_wash · bright_catalog)에 retired 2026-11-11 · retired_why. data/img.json 기준 궁니르 한 자루에 세 장씩(glossy_promo 만 미스틸테인 네 장까지), game_keyart 는 197자루. 사용자 「비교용도 지금은 무의미해서 … 다 내려줘」
+- lib/prompt-spec.js — RETIRED_STYLES · LIVE_STYLES. 문장은 STYLES 에 그대로(옛 기록을 열면 같은 지시문) · prompt.html 화풍 고르개는 LIVE_STYLES 만, 저장된 설정 · 옛 기록이 내린 화풍이면 「· 내린 화풍」 하나만 더 보인다
+- tools/prompt-pack.cjs · tools/casual-plan.cjs · tools/upload-art.py — 새 작업에 내린 화풍을 주면 막는다(계획기의 기본 화풍 고르기도 내린 것은 건너뛴다). 등록기(register-images.py)는 옛 그림을 계속 받는다
+- dex.html · lib/words.js(style.retired) — 도감은 옛 비교 그림을 그대로 보여 주되 화풍 이름 뒤에 「· 내린 화풍」. words.js ?v=myth53 · prompt-spec.js ?v=27
+- tests/prompt-engine.cjs · tests/data.cjs · tests/prompt-screen.cjs — RETIRED_STYLES 와 style.json 의 retired 가 같은지, 살아 있는 목록, 생성기 고르개가 살아 있는 것만 · 옛 화풍 기록 열기
+- IMAGE_RULES.md · PROMPT_IMAGE_WORKFLOW.md · .claude/skills/upload-art/SKILL.md — 새 그림은 살아 있는 화풍(game_keyart)만
+
 ## 2026-11-03 · claude · 일상컷 얼굴 · 화풍은 첨부 그림에 맡긴다
 - lib/prompt-myth.js — 일상컷 지시문 끝에서 refLock: 화풍 문장 → 「STYLE: keep the attached image's rendering exactly …」, 나이 줄 → 「FACE: exactly the face of the attached image …」(없으면 CHARACTER 밑에), 표정 줄 끝에 「눈썹 · 눈꺼풀 · 입꼬리로만」, FINAL CHECK 줄 뺌. 사용자 「일상컷 저거 너무 이상해」 → 「이제 좀 낫네」 → 「응 다 적용해줘」 — 화풍 · 얼굴 문장을 새로 주면 GPT 세션이 첨부 그림의 얼굴을 다시 그렸다(헬륨 메카 일상)
 - tests — 일상컷 화풍 · 얼굴 · 표정 줄 검사로 바꾸고 일상컷 낱말 상한을 올렸다

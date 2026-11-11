@@ -58,7 +58,10 @@ const S = ctx.window.AtelierSpec;
     await p.locator('#pm-extra-silhouette').uncheck();
     await p.waitForFunction(() => !document.querySelector('#prompt-output').value.includes('SILHOUETTE:'));
 
-    await p.selectOption('#pm-style', 'ink_wash');
+    /* 화풍 고르개는 살아 있는 화풍만 — 내린 열셋(2026-11-11)은 새 작업에 안 나온다 */
+    assert.deepEqual(await p.locator('#pm-style option').evaluateAll(os => os.map(o => o.value)), [...S.LIVE_STYLES.map(s => s[0])], '화풍 고르개는 살아 있는 것만');
+    assert(S.RETIRED_STYLES.length > 0 && !S.LIVE_STYLES.some(s => S.RETIRED_STYLES.includes(s[0])));
+    await p.selectOption('#pm-style', S.DEFAULT_STYLE);
     await p.selectOption('#pm-action', 'shoulder');
     assert.equal(await p.locator('.pm-group').count(), S.PARAM_GROUPS.length, '외형 묶음 다섯');
     assert.equal(await p.locator('#pm-hairColor').isVisible(), false, '머리 묶음은 접혀 있다');
@@ -103,7 +106,7 @@ const S = ctx.window.AtelierSpec;
     t = await p.locator('#prompt-output').inputValue();
     assert(t.includes('POSTURE: ' + S.ACTIONS.blunt[1][2]) && t.includes('Hair color: crimson.') && t.includes('Facial ethnicity: Sami.'), t.slice(0, 200));
     assert((await p.locator('.pm-group[data-group="hair"] summary i').innerText()).includes('1'), '고른 수가 묶음 머리에');
-    assert.equal(await p.locator('#pm-file').innerText(), '묠니르_ink_wash_f.webp');
+    assert.equal(await p.locator('#pm-file').innerText(), '묠니르_game_keyart_f.webp');
 
     /* 출력을 바꾸면 파일 이름과 문장이 따라온다 */
     await p.selectOption('#pm-output', 'awaken');
@@ -179,7 +182,7 @@ const S = ctx.window.AtelierSpec;
     t = await out();
     assert(t.includes('POSTURE: ') && !t.includes('Activity: ') && await p.locator('#pm-casual-place').inputValue() === 'street_alley' && await p.locator('#pm-casual-ofam').inputValue() === 'everyday', '버전2로 옮기면 장소 · 의상은 그대로');
     await p.selectOption('#pm-myth', 'norse'); await p.selectOption('#pm-card', '묠니르');
-    await p.waitForFunction(() => document.querySelector('#pm-file').innerText === '묠니르_ink_wash_f_casual3.webp');
+    await p.waitForFunction(() => document.querySelector('#pm-file').innerText === '묠니르_game_keyart_f_casual3.webp');
 
     /* 다른 무기는 제 설정, 돌아오면 아까 것 */
     await p.selectOption('#pm-myth', 'india'); await p.selectOption('#pm-card', '간디바');
@@ -192,7 +195,7 @@ const S = ctx.window.AtelierSpec;
     await p.selectOption('#pm-myth', 'norse');
     assert.equal(await p.locator('#pm-card').inputValue(), '', '지역을 바꾸면 무기 칸이 빈다');
     await p.selectOption('#pm-card', '묠니르');
-    await p.waitForFunction(() => document.querySelector('#pm-file').innerText === '묠니르_ink_wash_f_casual3.webp');
+    await p.waitForFunction(() => document.querySelector('#pm-file').innerText === '묠니르_game_keyart_f_casual3.webp');
     assert.equal(await p.locator('#pm-casual-place').inputValue(), 'heritage_museum', '일상컷 장면도 무기마다 남는다');
     await p.selectOption('#pm-output', 'portrait');
     await p.waitForSelector('.pm-group[data-group="hair"] summary');
@@ -200,6 +203,17 @@ const S = ctx.window.AtelierSpec;
     assert.equal(await p.locator('[data-color-picker="hairColor"] .pm-color[aria-pressed="true"]').getAttribute('data-value'), 'crimson', '무기마다 설정이 남는다');
     await p.locator('#pm-reset').click();
     await p.waitForFunction(d => document.querySelector('#pm-file').innerText === '묠니르_' + d + '_f.webp', S.DEFAULT_STYLE);
+    /* 내린 화풍(2026-11-11) — 고르개엔 없지만, 저장된 설정 · 옛 기록이 그 화풍이면 「· 내린 화풍」 하나로 더 보여 주고 파일 이름 · 지시문도 그 화풍 그대로 */
+    await p.evaluate(() => { const k = 'myth_prompt_v1', s = JSON.parse(localStorage.getItem(k) || '{}'); s['묠니르'] = { ...(s['묠니르'] || {}), style: 'ink_wash' }; localStorage.setItem(k, JSON.stringify(s)); });
+    await p.reload(); await p.waitForSelector('#pm-file');
+    await p.waitForFunction(() => document.querySelector('#pm-file').innerText === '묠니르_ink_wash_f.webp');
+    assert.deepEqual(await p.locator('#pm-style option').evaluateAll(os => os.map(o => o.value)), [...S.LIVE_STYLES.map(s => s[0]), 'ink_wash'], '옛 화풍은 그것일 때만 하나 더');
+    assert((await p.locator('#pm-style option[value="ink_wash"]').innerText()).includes('내린 화풍'), '내린 화풍 표시');
+    assert.equal(await p.locator('#pm-style').inputValue(), 'ink_wash');
+    assert((await p.locator('#prompt-output').inputValue()).includes(S.STYLES.find(s => s[0] === 'ink_wash')[2]), '옛 화풍 문장 그대로');
+    await p.selectOption('#pm-style', S.DEFAULT_STYLE);
+    await p.waitForFunction(d => document.querySelector('#pm-file').innerText === '묠니르_' + d + '_f.webp', S.DEFAULT_STYLE);
+    assert.equal(await p.locator('#pm-style option[value="ink_wash"]').count(), 0, '살아 있는 화풍으로 옮기면 사라진다');
 
     /* 복사 단추가 있고, 휴대폰에서 안 넘친다 */
     assert.equal(await p.locator('#pm-copy').isDisabled(), false);

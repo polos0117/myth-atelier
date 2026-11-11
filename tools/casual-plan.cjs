@@ -246,7 +246,8 @@ function registered(card, style) {
 /* 카드의 기본 화풍 — 기본 그림이 있는 첫 화풍, 없으면 생성기 기본 */
 function styleOf(card) {
   const by = (J('data/img.json').img[card.name] || { byStyle: {} }).byStyle;
-  return by[S.DEFAULT_STYLE] ? S.DEFAULT_STYLE : Object.keys(by).find(k => by[k].f) || S.DEFAULT_STYLE;
+  /* 내린 화풍(S.RETIRED_STYLES)의 옛 그림은 새 일상컷의 화풍이 되지 않는다 */
+  return by[S.DEFAULT_STYLE] ? S.DEFAULT_STYLE : Object.keys(by).find(k => by[k].f && !S.RETIRED_STYLES.includes(k)) || S.DEFAULT_STYLE;
 }
 function line(c) {
   const p = C2.place(T2, c.place), f = CT.family(tree, c.ofam), it = CT.item(tree, c.ofam, c.item), u = C2.use(T2, c.use), pr = by(tree2.presets, c.preset);
@@ -271,7 +272,7 @@ function main(argv) {
     return errs.length ? 1 : 0;
   }
   const style = opt.style || styleOf(card);
-  if (!S.STYLES.some(s => s[0] === style)) { console.error('화풍이 없다: ' + style); return 2; }
+  if (!S.LIVE_STYLES.some(s => s[0] === style)) { console.error((S.RETIRED_STYLES.includes(style) ? '내린 화풍이다(2026-11-11 — 새 그림엔 안 쓴다): ' : '화풍이 없다: ') + style + ' — 쓸 수 있는 것: ' + S.LIVE_STYLES.map(s => s[0]).join(' · ')); return 2; }
   const taken = registered(card, style);
   /* 칸 — --slots 그대로, --count 면 비어 있는 가장 작은 번호부터 그만큼, 둘 다 없으면 다섯 장까지 모자란 만큼(tools/image-claim.cjs 의 빈 자리와 같다) */
   const free = [...Array(40).keys()].map(i => i + 1).filter(n => !taken.includes(n));

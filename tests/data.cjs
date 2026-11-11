@@ -71,6 +71,11 @@ for (const [k, s] of Object.entries(skill.skills)) {
 
 /* 화풍 열쇠는 파일 이름에 들어가므로 소문자·밑줄만 */
 for (const s of style.styles) assert(/^[a-z0-9_]+$/.test(s.key) && s.name, '화풍 ' + s.key);
+/* 내린 화풍(2026-11-11) — 날짜와 까닭이 같이 있고, 살아 있는 화풍이 하나는 남는다. 옛 그림은 아래에서 그대로 style.json 의 열쇠로 받는다 */
+for (const s of style.styles) if ('retired' in s || 'retired_why' in s)
+  assert(/^\d{4}-\d{2}-\d{2}$/.test(s.retired) && typeof s.retired_why === 'string' && s.retired_why.length > 5, '내린 화풍 ' + s.key + ' 에 retired 날짜 · retired_why');
+const liveStyles = style.styles.filter(s => !s.retired).map(s => s.key);
+assert(liveStyles.length >= 1 && liveStyles[0] === 'game_keyart', '살아 있는 화풍의 첫 것이 기준 game_keyart: ' + liveStyles.join(','));
 
 /* img.json 은 카드와 화풍만 가리킨다. 폼은 없다 */
 const styleKeys = new Set(style.styles.map(s => s.key));
@@ -128,4 +133,4 @@ for (const c of cards) {
     assert(o.n === undefined || (o.n >= 1 && o.n <= 3), name + ' 덮어쓰기 수치는 1~3');
   }
 }
-console.log('PASS 자료: 카드 ' + cards.length + ' · 기술 ' + Object.keys(skill.skills).length + ' · 화풍 ' + style.styles.length + ' · 그림 ' + Object.keys(img.img || {}).length + ' · 스킨 ' + skinN);
+console.log('PASS 자료: 카드 ' + cards.length + ' · 기술 ' + Object.keys(skill.skills).length + ' · 화풍 ' + liveStyles.length + '(내린 것 ' + (style.styles.length - liveStyles.length) + ')' + ' · 그림 ' + Object.keys(img.img || {}).length + ' · 스킨 ' + skinN);

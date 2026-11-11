@@ -1,4 +1,4 @@
-/* 프롬프트가 화면 없이 끝까지 나오나 — 카드 전부 × 출력 다섯 × 화풍 열넷.
+/* 프롬프트가 화면 없이 끝까지 나오나 — 카드 전부 × 출력 다섯 × 화풍 전부(내린 것까지 — 옛 기록도 열린다).
    Run: node tests/prompt-engine.cjs */
 const fs = require('node:fs'), vm = require('node:vm'), assert = require('node:assert/strict');
 const ctx = { window: {}, console };
@@ -18,6 +18,10 @@ const styleJson = d('style');
 assert.equal(JSON.stringify(S.STYLES.map(s => [s[0], s[1]])), JSON.stringify(styleJson.styles.map(s => [s.key, s.name])), 'lib/prompt-spec.js 의 STYLES 와 data/style.json 이 다르다');
 assert(S.STYLES.every(s => s[2].length > 80), '화풍마다 core 문장');
 assert(S.STYLES.some(s => s[0] === S.DEFAULT_STYLE), '기본 화풍이 표에 있다');
+/* 내린 화풍(2026-11-11) — 문장은 표에 남고, 새 작업의 고르개(LIVE_STYLES)는 style.json 에서 retired 가 없는 것과 같다 */
+assert.deepEqual([...S.RETIRED_STYLES].sort(), styleJson.styles.filter(s => s.retired).map(s => s.key).sort(), 'lib/prompt-spec.js 의 RETIRED_STYLES 와 data/style.json 의 retired 가 다르다');
+assert.deepEqual([...S.LIVE_STYLES.map(s => s[0])], styleJson.styles.filter(s => !s.retired).map(s => s.key), '살아 있는 화풍 = style.json 의 retired 없는 것');
+assert(S.LIVE_STYLES.some(s => s[0] === S.DEFAULT_STYLE), '기본 화풍은 내리지 않는다');
 for (const k of data.group.myth.order) assert(S.MYTH_FLAVOR[k], k + ' 의 옷·재질 언어');
 for (const k of data.group.kind.order) assert(S.ACTIONS[k] && S.ACTIONS[k].length >= 3 && S.KIND_SILHOUETTE[k], k + ' 의 자세와 실루엣');
 assert.equal(S.PARAMS[0].key, 'ethnicity', '첫 칸은 얼굴 계통 — 자동 규칙이 본다');

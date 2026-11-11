@@ -183,7 +183,7 @@ body {color:var(--text);font-size:15px}
 .dot-badge {position:absolute;right:5px;bottom:5px;z-index:2;padding:2px 7px;border-radius:999px;background:#120f16d9;color:var(--gold);font:800 10px/1.4 var(--display);letter-spacing:.04em;pointer-events:none}
 </style>
 <script src="lib/workspace-theme.js?v=myth8"></script>
-<script src="lib/words.js?v=myth52"></script>
+<script src="lib/words.js?v=myth53"></script>
 <script src="lib/fresh.js?v=4"></script>
 <script src="lib/img.js?v=myth7"></script>
 <!-- 즐겨찾기 — lib/favorites.js(공방 넷과 공방 모음이 글자 하나 다르지 않게 나눠 쓴다) -->
@@ -303,7 +303,8 @@ function useDex() {
     Promise.all([get('data/card.json'), get('data/style.json'), get(IMG.DATA), get('data/group.json'), get('data/skill.json'), get('data/motion.json').catch(() => null)])
       .then(([card, style, imgDoc, group, skill, motion]) => {
         const styleName = {};
-        for (const r of style.styles || []) styleName[r.key] = r.name;
+        /* 내린 화풍(retired, 2026-11-11)도 옛 그림이 있으니 이름은 둔다 — 「· 내린 화풍」 을 붙여 거르기 · 상세의 화풍 고르기에서 뒤로 물린다 */
+        for (const r of style.styles || []) styleName[r.key] = r.retired ? W('style.retired', { name: r.name }) : r.name;
         set({ cards: card.cards || [], styleName, img: (imgDoc && imgDoc.img) || {}, added: (imgDoc && imgDoc.added) || {}, group, skill: skill.skills || {}, motion: motion || {} });
       }).catch(e => set({ error: String((e && e.message) || e) }));
   }, []);
