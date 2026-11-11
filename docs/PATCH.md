@@ -13,6 +13,9 @@
 
 
 
+## 2026-11-11 · claude · core v5 블록
+- core 블록 판만 v5(표식 red_lip 을 연하게) — 이 공방엔 표식 표가 없어 지시문 변화 없음
+
 ## 2026-11-11 · claude · 일상컷 화풍 지시 한 방향으로 · 저주 「은색」 고침(감사 M1 · M2)
 - M1 일상컷: 맨 앞 STYLE 줄(첨부 그림의 그림체 그대로)과 반대로 「고른 화풍으로」 를 말하던 네 곳 — 입력 줄 「Render her in the selected style rather than copying the attached image’s rendering(첨부 그림체를 베끼지 말고 고른 화풍으로)」 빼기, 카메라 줄 「The selected rendering style still controls lighting and surfaces(고른 화풍이 빛과 질감을 정한다)」 → 「Lighting follows the scene(빛은 장면을 따른다)」, 마지막 확인 「…and the selected rendering style」 → 「…and the attached image’s rendering(첨부 그림의 그림체)」, 프레임 줄의 「and the selected rendering style controls lighting and surfaces」 빼기
 - M2 저주: 「the silver plates stay silver(은색 판은 은색으로)」 → 「her armor keeps its own base colors(갑옷은 자기 원래 색을 지킨다)」 — 무기 색이 은색이 아닌 151장(묠니르 등)에 없는 은색 장갑을 불렀다. 스킨 저주의 SKIN NOTE 괄호 「(where the text below says silver, read it as the skin’s base armor color)」 도 같이 뺐다
