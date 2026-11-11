@@ -13,6 +13,12 @@
 
 
 
+## 2026-11-11 · claude · 일상컷 화풍 지시 한 방향으로 · 저주 「은색」 고침(감사 M1 · M2)
+- M1 일상컷: 맨 앞 STYLE 줄(첨부 그림의 그림체 그대로)과 반대로 「고른 화풍으로」 를 말하던 네 곳 — 입력 줄 「Render her in the selected style rather than copying the attached image’s rendering(첨부 그림체를 베끼지 말고 고른 화풍으로)」 빼기, 카메라 줄 「The selected rendering style still controls lighting and surfaces(고른 화풍이 빛과 질감을 정한다)」 → 「Lighting follows the scene(빛은 장면을 따른다)」, 마지막 확인 「…and the selected rendering style」 → 「…and the attached image’s rendering(첨부 그림의 그림체)」, 프레임 줄의 「and the selected rendering style controls lighting and surfaces」 빼기
+- M2 저주: 「the silver plates stay silver(은색 판은 은색으로)」 → 「her armor keeps its own base colors(갑옷은 자기 원래 색을 지킨다)」 — 무기 색이 은색이 아닌 151장(묠니르 등)에 없는 은색 장갑을 불렀다. 스킨 저주의 SKIN NOTE 괄호 「(where the text below says silver, read it as the skin’s base armor color)」 도 같이 뺐다
+- tests/prompt-engine.cjs · tests/prompt-sections.cjs 저주 검사를 새 글로, prompt.html prompt-spec · prompt-myth ?v 하나씩 올림. 검사 — 처음부터 깨져 있던 넷(도감 · 박물관) 말고 통과
+- 사용자 2026-11-11 「m1,m2는 다 고쳐줘」
+
 ## 2026-11-11 · claude · 지시문을 칸 꼴로 — 액션 · 각성 · 저주 · 스킨이 삼국지와 같은 「머리말 + 다섯 칸」
 - lib/prompt-myth.js — 일상컷이 아닌 지시문(액션 · 각성 · 저주 · 스킨 · 스킨의 각성 · 저주)을 칸 꼴로 짓는 buildSections 를 더했다. 글은 예전 문단 꼴 그대로이고 자리만 옮긴다 — 옛 조립은 문단에 이름표만 붙여 남겼고(스위치를 끄거나 설정에 _long 을 주면 예전 글자 그대로), 외형 묶음은 identityGroups 로 두 꼴이 같은 값을 쓴다. 일상컷(refLock 포함)은 손대지 않았다. 까닭: 사용자 2026-11-11 「초안 없이 다 진행해줘」(3단계 — 칸 꼴 통일)
 - lib/prompt-spec.js — SECTIONS 표(스위치 on · 3칸 머리에 넣는 말 costume/genre · 삼국지와 같은 줄 머리 · OUTPUT 문장을 보내는 칸 · 외형 묶음의 줄 · 옛 줄 이름을 가리키던 말)를 더했다. 칸 머리 · 해부 줄 · Avoid 줄은 여기 없고 파일 끝 core 블록의 CORE_FRAME 에서 온다(블록은 손대지 않았다). 화풍 문장 · 다른 표는 그대로

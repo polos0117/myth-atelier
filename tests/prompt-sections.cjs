@@ -164,7 +164,7 @@ for (const card of data.cards) for (const style of (card === data.cards[0] ? S.S
     'Replace her armor materials, palette and motifs with the skin look above, keeping the same armor layout and silhouette logic, so the pair reads as the same character in a different outfit.'], '스킨 3칸 — 스킨 모양 바로 밑에 「the skin look above」(R6)');
   assert(sk[5].includes('\nHands stay human hands and hold nothing.\n') && sk[5].endsWith('frame border, emblems, names.'), '스킨 5칸 — 손 줄 · 「No text, logos, emblems or names.」 는 Avoid(text · logo 는 한 번)');
   const skc = P.build({ card: '티르핑', style: 'game_keyart', output: 'skin', skinState: 'cursed', params: {} }, data);
-  assert(skc.indexOf('Skin note: ') > 0 && skc.indexOf('Skin note: ') < skc.indexOf('the silver plates stay silver') && skc.includes('where the text below says silver'), '스킨 저주 — 「the text below」 가 가리키는 은색 말이 아래(4칸)에 있다(R8)');
+  assert(skc.indexOf('Skin note: ') > 0 && skc.includes('her armor keeps its own base colors') && !/silver plates|says silver/.test(skc), '스킨 저주 — 은색 말 없이 「갑옷은 자기 원래 색」(2026-11-11 감사 M2), 스킨 노트에 은색 풀이 괄호 없음');
   const shield = P.build({ card: '아이기스', style: 'game_keyart', output: 'portrait', params: {} }, data);
   assert(shield.includes('\n' + S.ARMOR_WEAR.shield + '\n') && shield.includes('\n' + S.ARMOR_HANDS.shield + '\n') && !shield.includes(S.HANDS_LINE), '방패 — 「no helm unless the look says so」 는 제자리(조건 마디), 손 줄은 방패 몫');
 }

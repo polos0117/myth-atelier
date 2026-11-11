@@ -97,7 +97,7 @@ for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for 
     } else if (output === 'awaken' || output === 'cursed') {
       assert(/attached/.test(now) && !now.includes('Subject:') && !now.includes('Identity'), id + '첨부 그림을 따르고 뼈대·외형을 다시 말하지 않는다');
       assert(B[5].includes('\nHands: ' + S.KEEP_HANDS.slice(7) + '\n'), id + '빈손 — 무기를 따로 꺼내 쥐지 않는다');
-      if (output === 'cursed') assert(now.includes('red-violet') && now.includes('silver plates stay silver'), id + '룬이 오염되고 장갑은 그대로');
+      if (output === 'cursed') assert(now.includes('red-violet') && now.includes('her armor keeps its own base colors') && !now.includes('silver plates'), id + '룬이 오염되고 장갑은 그대로');
     } else {
       assert(B[2].includes('Facial ethnicity: ' + (card.ethnicity || S.PARAMS[0].auto[card.myth])), id + '자동 얼굴 계통');
       assert(B[3].includes('Weapon look') && B[3].includes(card.look), id + '무기의 시각 언어(3칸)');
@@ -133,7 +133,7 @@ for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for 
   if (output === 'awaken' || output === 'cursed') {
     assert(/attached/.test(text) && !text.includes('SUBJECT:') && !text.includes('IDENTITY'), '각성·저주는 첨부 그림을 따르고 뼈대·외형을 다시 말하지 않는다');
     assert(text.includes(S.KEEP_HANDS), '각성·저주도 빈손 — 무기를 따로 꺼내 쥐지 않는다(관창의 창 2026-11-02)');
-    if (output === 'cursed') assert(text.includes('red-violet') && text.includes('silver plates stay silver'), '저주는 룬이 오염되고 장갑은 그대로');
+    if (output === 'cursed') assert(text.includes('red-violet') && text.includes('her armor keeps its own base colors') && !text.includes('silver plates'), '저주는 룬이 오염되고 장갑은 그대로');
   } else if (output === 'portrait') {
     assert(text.includes('Facial ethnicity: ' + (card.ethnicity || S.PARAMS[0].auto[card.myth])), '자동이면 카드(없으면 신화권)가 얼굴 계통을 정한다');
   }
