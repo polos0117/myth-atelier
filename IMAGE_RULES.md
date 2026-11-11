@@ -39,6 +39,19 @@
 훈민정음만 낱자(ㄱ·ㅁ·ㅇ·ㅅ…)를 문양으로 띄우는 것을 예외로 둔다. 생성기는 가짜 글자를 쓰므로 문장은 늘 틀린다. 각성은 액션 그림을 첨부하고 같은 구도에서 무기만 깨운다. 저주는 같은 구도에서 룬과 빛이
 오염되고 깃털·천·후광이 갈라진다 — 은색 장갑은 그대로.
 
+## 지시문 꼴 — 칸 꼴 (2026-11-11)
+
+- **액션 · 각성 · 저주 · 스킨(스킨의 각성 · 저주까지) 지시문은 칸 꼴**이다(사용자 「초안 없이 다 진행해줘」 3단계 — 공방마다 다르던 꼴을 삼국지의 「머리말 + 다섯 칸」 으로). 글은 예전 문단 꼴 그대로이고 자리만 옮긴다.
+  칸 머리 · 해부 줄 · Avoid 줄은 화풍공방 core 칸 틀(`AtelierSpec.CORE_FRAME` — `lib/prompt-spec.js` 끝 core 블록, 손으로 고치지 않는다)에서 온다.
+  머리말(Weapon 무기 · Subject 뼈대 첫 문장 · Output 출력 첫 문장 — 이어가기는 「첨부 그림의 …」) → 1 STYLE(화풍 문장) → 2 CHARACTER(고른 외형 Identity · Age · Face — · Body and hair · Expression, 전설 Legend, 비율 Anatomy · 몸 Body, 끝은 core 해부 줄)
+  → 3 ARMOR(천 설계는 COSTUME) — 갈래(MECHA PERSONIFICATION · PERSONIFICATION · AWAKENED · CURSED · SKIN): 무기 모양 Weapon look · 방어구의 「입는다」 줄 · 스킨 모양 Skin look · Skin note · 바뀌는 것(Change only this … · Replace …) · 선택 문단(Embodiment · Silhouette · 신화권 언어) · 옷 방향
+  → 4 SCENE(이어가기의 「Keep the attached image's …」 · 「The pair must read …」, 새 인물의 Pose · Posture · Composition · Shot —, 장면 Scene note) → 5 CONSTRAINTS(ONE FIGURE ONLY. · 「She does NOT hold …」 · 손 줄 · Avoid).
+- 달라진 글은 넷뿐이다: ① 줄 머리 — 대문자 머리는 첫 글자만 대문자(`WEAPON LOOK` → `Weapon look`), 외형 묶음(BASE · BUILD · FACE · HAIR · SHOT)은 삼국지 줄(`Age:` · `Face —` · `Body and hair:` · `Expression:` · `Shot —`)로, 나이는 `Apparent age: 20s.` → `Age: 20s.`
+  ② 「No a, no b.」 금지 문장은 5칸 끝 `Avoid:` 한 줄로(겹치는 낱말은 한 번) — 규칙 줄(ONE FIGURE ONLY. · She does NOT hold … · HANDS: … · 방어구의 입는다 줄)은 글 그대로
+  ③ 옛 줄 이름을 가리키던 말 — `(see WEAPON LOOK)` → `(see the weapon look above)`, `the SKIN LOOK above` → `the skin look above` ④ BODY 줄에서 core 해부 줄과 글자 그대로 겹치는 마디(one head, two arms and two legs, each joined at its natural joint)를 뺀다.
+- 조립은 `lib/prompt-myth.js` 의 `buildSections`, 줄 머리 · 자리 표와 스위치는 `lib/prompt-spec.js` 의 `SECTIONS`(`on: false` 로 끄면 — 또는 core 칸 틀이 없으면 — 예전 문단 꼴 그대로). 검사는 `node tests/prompt-sections.cjs`(전 카드 — 칸 · 잃은 마디 · 옛 줄 이름), core 블록은 `node tests/core-sync.cjs`.
+  **일상컷은 칸 꼴이 아니다** — 아래 그대로. 옛 기록의 지시문(문단 꼴)은 기록에 그대로 남아 있고, 그 기록을 생성기에 넣으면 지금 꼴(칸 꼴)로 다시 나온다.
+
 ## 일상컷 — 트리 버전2 · 묶음 (2026-11-01)
 
 - **일상컷 지시문은 얼굴 · 화풍을 첨부 그림에 맡긴다(2026-11-03).** 공방 화풍 문장 대신 「STYLE: keep the attached image's rendering exactly …」, 나이 줄 대신(없으면 CHARACTER 줄 바로 밑에) 「FACE: exactly the face of the attached image …」, 표정 줄 끝에 「눈썹 · 눈꺼풀 · 입꼬리로만, 얼굴은 첨부 그림 그대로」. 화풍 점검(FINAL CHECK) 줄도 일상컷엔 없다.
@@ -61,7 +74,7 @@
 ① 같은 지시문으로 한 번 더. ② 또 막히면 **노출을 한 단계씩 낮춰** 단계마다 한 번 — 과감 → 보통 → 적게(일상컷의 피부 노출 축 `skin_exposure`; 자동이면 보통으로 본다).
 노출 칸 말고 다른 말은 바꾸지 않는다 — 낱말을 고쳐 필터를 더듬지 않는다. 지시문 묶음에선 `slots.casualN.exposure` 에 `moderate` · `low` 와 막힌 까닭(why).
 ③ 적게에서도 막히면 **계획을 바꾼다** — 일상컷은 그 칸만 계획기에 다른 씨앗으로 다시 맡긴다(장소 · 옷 · 자세가 바뀐다). 새 계획도 원래 노출에서 ①② 를 한 번씩 밟는다.
-액션 · 각성 · 저주 · 스킨은 노출 칸이 없다 — ① 뒤 장면 칸(SCENE NOTE)에 중립적인 장면 한 줄로 한 번 바꾼다. 계획 바꾸기는 한 번 — 그래도 막히면 그 자리는 멈추고 보고한다.
+액션 · 각성 · 저주 · 스킨은 노출 칸이 없다 — ① 뒤 장면 칸(지시문 4칸의 Scene note 줄 — 옛 꼴의 SCENE NOTE)에 중립적인 장면 한 줄로 한 번 바꾼다. 계획 바꾸기는 한 번 — 그래도 막히면 그 자리는 멈추고 보고한다.
 
 ## 기록 (2026-11-01)
 

@@ -104,6 +104,8 @@ node tests/auto-sim.cjs --quick  # 싸움 규칙 (빼면 균형 표)
 node tests/duel-sim.cjs --quick  # 결투 규칙 (빼면 297판 균형 보고)
 node tests/run-sim.cjs --quick   # 던전 규칙 — 덱·각성·저주·상점·평면도(갈림길·계단·보스) (빼면 300판 완주율)
 node tests/prompt-engine.cjs     # 프롬프트가 화면 없이 나오나
+node tests/prompt-sections.cjs   # 칸 꼴 지시문(액션·각성·저주·스킨) — 머리말 + 다섯 칸, 칸 머리 = core 칸 틀, 잃은 마디·옛 줄 이름 없음, 스위치(S.SECTIONS.on), 일상컷 그대로
+node tests/core-sync.cjs         # lib/prompt-spec.js 끝 core 블록 — CORE_VERSION·CORE_FRAME 이 서고, 옆에 style-atelier 가 있으면 원본과 같다
 node tests/register-images.cjs   # 그림 등록기의 들어온 날(added) — 새 파일만 오늘, git 기록 채우기, 얕은 저장소
 ```
 

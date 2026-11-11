@@ -42,11 +42,13 @@ const S = ctx.window.AtelierSpec;
     await p.selectOption('#pm-myth', 'norse');
 
     await p.selectOption('#pm-card', '묠니르');
-    await p.waitForFunction(() => document.querySelector('#prompt-output').value.startsWith('WEAPON: Mjolnir'));
+    await p.waitForFunction(() => document.querySelector('#prompt-output').value.startsWith('Weapon: Mjolnir'));
     assert((await p.locator('#prompt-output').getAttribute('aria-label')).includes('묠니르'), '결과 칸의 이름에 무기 이름');
     let t = await p.locator('#prompt-output').inputValue();
     assert(t.includes(S.STYLES.find(s => s[0] === S.DEFAULT_STYLE)[2]), '기본 화풍');
-    assert(!t.includes('POSTURE:') && t.includes('WEAPON LOOK') && t.includes('mecha personification'), '기본은 자세 없이 메카 의인화');
+    /* 액션 · 각성 · 저주 · 스킨은 칸 꼴(2026-11-11 3단계 — 머리말 + 다섯 칸, 줄 머리는 첫 글자만 대문자). 옛 꼴(문단 꼴)은 tests/prompt-engine.cjs 가 스위치를 끈 판으로 본다 */
+    assert(!t.includes('Posture:') && t.includes('Weapon look') && t.includes('mecha personification'), '기본은 자세 없이 메카 의인화');
+    assert(t.split('\n\n').length === 6 && ['1. STYLE', '2. CHARACTER', '3. ARMOR \u2014 MECHA PERSONIFICATION', '4. SCENE', '5. CONSTRAINTS'].every((h, i) => t.split('\n\n')[i + 1].startsWith(h + '\n')) && !/^(?:WEAPON|SUBJECT|OUTPUT|STYLE): /m.test(t), '화면의 지시문은 칸 꼴 — 머리말 + 다섯 칸');
     assert.equal(await p.locator('#pm-file').innerText(), '묠니르_' + S.DEFAULT_STYLE + '_f.webp');
     assert.equal(await p.locator('#pm-action option').count(), S.ACTIONS.blunt.length + 1, '자동 + 둔기 자세 넷');
     /* 설계 — 천으로, 선택 문단 켜기 */
@@ -54,9 +56,9 @@ const S = ctx.window.AtelierSpec;
     await p.waitForFunction(() => !document.querySelector('#prompt-output').value.includes('mecha personification'));
     await p.selectOption('#pm-design', 'mecha');
     await p.locator('#pm-extra-silhouette').check();
-    await p.waitForFunction(() => document.querySelector('#prompt-output').value.includes('SILHOUETTE: blunt'));
+    await p.waitForFunction(() => document.querySelector('#prompt-output').value.includes('Silhouette: blunt'));
     await p.locator('#pm-extra-silhouette').uncheck();
-    await p.waitForFunction(() => !document.querySelector('#prompt-output').value.includes('SILHOUETTE:'));
+    await p.waitForFunction(() => !document.querySelector('#prompt-output').value.includes('Silhouette:'));
 
     /* 화풍 고르개는 살아 있는 화풍만 — 내린 열셋(2026-11-11)은 새 작업에 안 나온다 */
     assert.deepEqual(await p.locator('#pm-style option').evaluateAll(os => os.map(o => o.value)), [...S.LIVE_STYLES.map(s => s[0])], '화풍 고르개는 살아 있는 것만');
@@ -102,9 +104,9 @@ const S = ctx.window.AtelierSpec;
     await p.waitForSelector('#pm-ethnicity-custom');
     await p.fill('#pm-ethnicity-custom', 'Sami');
     await p.fill('#pm-scene', 'stormy cliff at dusk');
-    await p.waitForFunction(() => document.querySelector('#prompt-output').value.includes('SCENE NOTE: stormy cliff at dusk'));
+    await p.waitForFunction(() => document.querySelector('#prompt-output').value.includes('Scene note: stormy cliff at dusk'));
     t = await p.locator('#prompt-output').inputValue();
-    assert(t.includes('POSTURE: ' + S.ACTIONS.blunt[1][2]) && t.includes('Hair color: crimson.') && t.includes('Facial ethnicity: Sami.'), t.slice(0, 200));
+    assert(t.includes('Posture: ' + S.ACTIONS.blunt[1][2]) && t.includes('Hair color: crimson.') && t.includes('Facial ethnicity: Sami.'), t.slice(0, 200));
     assert((await p.locator('.pm-group[data-group="hair"] summary i').innerText()).includes('1'), '고른 수가 묶음 머리에');
     assert.equal(await p.locator('#pm-file').innerText(), '묠니르_game_keyart_f.webp');
 
@@ -112,7 +114,7 @@ const S = ctx.window.AtelierSpec;
     await p.selectOption('#pm-output', 'awaken');
     await p.waitForFunction(() => document.querySelector('#pm-file').innerText.endsWith('_awaken.webp'));
     t = await p.locator('#prompt-output').inputValue();
-    assert(t.includes('attached') && !t.includes('POSTURE:'), '각성');
+    assert(t.includes('attached') && !t.includes('Posture:') && t.includes('\n\n3. ARMOR \u2014 AWAKENED\n'), '각성');
     await p.selectOption('#pm-output', 'cursed');
     await p.waitForFunction(() => document.querySelector('#pm-file').innerText.endsWith('_cursed.webp'));
     assert((await p.locator('#prompt-output').inputValue()).includes('CURSED state'), '저주');
@@ -130,7 +132,7 @@ const S = ctx.window.AtelierSpec;
     await p.selectOption('#pm-casual-place', 'heritage_museum');
     await has('Place: a museum hall where the legendary weapon');
     t = await out();
-    assert(t.includes('POSTURE: ') && t.includes('COMPOSITION: ') && t.includes(S.CASUAL_RULES.outputV2) && !t.includes('Activity: ') && !t.includes('SUBJECT:'), '버전2 줄, 뼈대 없음');
+    assert(t.includes('POSTURE: ') && t.includes('COMPOSITION: ') && t.includes(S.CASUAL_RULES.outputV2) && !t.includes('Activity: ') && !t.includes('SUBJECT:') && !t.includes('Subject:') && !t.includes('1. STYLE'), '버전2 줄, 뼈대 없음 — 일상컷은 칸 꼴이 아니다');
     /* 신화 세계 안 — 그 세계의 장소만, WORLD 줄. 해방하면 다른 장소가 🔓 로 붙는다 */
     await p.selectOption('#pm-casual-era', 'in_myth');
     await has('WORLD: this scene happens inside the world of Norse myth');
@@ -186,7 +188,7 @@ const S = ctx.window.AtelierSpec;
 
     /* 다른 무기는 제 설정, 돌아오면 아까 것 */
     await p.selectOption('#pm-myth', 'india'); await p.selectOption('#pm-card', '간디바');
-    await p.waitForFunction(() => document.querySelector('#prompt-output').value.startsWith('WEAPON: Gandiva'));
+    await p.waitForFunction(() => document.querySelector('#prompt-output').value.startsWith('Weapon: Gandiva'));
     assert.equal(await p.locator('#pm-file').innerText(), '간디바_' + S.DEFAULT_STYLE + '_f.webp', '새 무기는 기본 설정');
     assert((await p.locator('#prompt-output').inputValue()).includes('Facial ethnicity: South Asian.'), '인도면 남아시아가 자동');
     await p.reload(); await p.waitForSelector('#pm-card');

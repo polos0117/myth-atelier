@@ -34,7 +34,9 @@ const C = require('../tools/casual-plan.cjs'), K = require('../tools/prompt-pack
         assert.equal(fs.readFileSync(path.join(dir, s.slot + '-prompt.txt'), 'utf8'), rec.prompt);
         assert.equal(rec.record, 'records/' + name + '/' + s.slot + '-ui.json');
         if (edit && s.slot === 'casual3') assert(/skin exposure: moderate/.test(rec.prompt) && !/skin exposure: bold/.test(rec.prompt), '일상 노출 낮추기가 지시문에');
-        if (edit && s.slot === 'base') assert(rec.prompt.includes('Facial ethnicity: Sami.') && rec.prompt.includes('SCENE NOTE: stormy cliff at dusk'), '외형 직접 입력 · 장면');
+        /* 액션 · 각성 · 저주 · 스킨 자리는 칸 꼴(2026-11-11 3단계), 일상 자리는 그대로 — 묶음과 화면이 같은 조립부라 아래에서 글자까지 같다 */
+        assert.equal(/\n\n1\. STYLE\n[^]*\n\n5\. CONSTRAINTS\n/.test(rec.prompt), !/^casual/.test(s.slot), name + ' ' + s.slot + ' 지시문 꼴(칸 꼴은 일상컷이 아닌 자리만)');
+        if (edit && s.slot === 'base') assert(rec.prompt.includes('Facial ethnicity: Sami.') && rec.prompt.includes('Scene note: stormy cliff at dusk'), '외형 직접 입력 · 장면');
         const a = await h.open('index.html'), p = a.page;
         await p.evaluate(st => localStorage.setItem('myth_prompt_v1', JSON.stringify(st)), rec.storage);
         await p.goto(p.url().replace(/index\.html.*$/, 'prompt.html'));

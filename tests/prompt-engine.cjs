@@ -1,4 +1,6 @@
 /* 프롬프트가 화면 없이 끝까지 나오나 — 카드 전부 × 출력 다섯 × 화풍 전부(내린 것까지 — 옛 기록도 열린다).
+   일상컷이 아닌 지시문은 칸 꼴(2026-11-11 3단계 — lib/prompt-myth.js buildSections, 스위치 S.SECTIONS.on)로 나간다. 여기서는 옛 꼴(문단 꼴)을 스위치를 끈 판(st._long)으로 계속 보고,
+   지금 나가는 칸 꼴도 같은 조건을 칸 꼴 말로 본다. 칸 · 줄 머리 · 잃은 마디는 tests/prompt-sections.cjs.
    Run: node tests/prompt-engine.cjs */
 const fs = require('node:fs'), vm = require('node:vm'), assert = require('node:assert/strict');
 const ctx = { window: {}, console };
@@ -8,7 +10,8 @@ vm.runInContext(fs.readFileSync('lib/casual-tree.js', 'utf8'), ctx);
 vm.runInContext(fs.readFileSync('lib/prompt-myth.js', 'utf8'), ctx);
 vm.runInContext(fs.readFileSync('lib/prompt-random.js', 'utf8'), ctx);
 const R = ctx.window.AtelierSceneRandom;
-const S = ctx.window.AtelierSpec, P = ctx.window.AtelierPrompt, CT = ctx.window.AtelierCasualTree;
+const S = ctx.window.AtelierSpec, P = ctx.window.AtelierPrompt, CT = ctx.window.AtelierCasualTree, CF = S.CORE_FRAME;
+assert(CF && CF.anatomy && P.sectionsOn({}) && !P.sectionsOn({ _long: true }), '칸 꼴이 켜져 있고(core 칸 틀 · S.SECTIONS.on) st._long 은 옛 꼴');
 const d = f => JSON.parse(fs.readFileSync('data/' + f + '.json', 'utf8'));
 const data = { cards: d('card').cards, group: d('group'), skills: d('skill').skills, tree: d('casual-tree') };
 const tree = data.tree;
@@ -34,11 +37,11 @@ assert.equal(S.PARAMS[0].key, 'ethnicity', '첫 칸은 얼굴 계통 — 자동 
   assert.equal(P.autoHair({ ...cs[0], hair: 'mint' }), 'mint', '카드의 hair 가 이긴다');
   /* 방어구는 입는다 — "들지 않는다" 줄 대신 "입는다" 줄. 다른 종류는 그대로 */
   assert(Object.values(S.CORE).every(c => c.includes(S.HOLD_LINE)), '설계 언어 둘 다 "들지 않는다" 줄을 그대로 가진다');
-  for (const design of Object.keys(S.CORE)) {
-    const helm = P.build({ card: '맘브리노의 투구', style: 'game_keyart', output: 'portrait', design, params: {} }, data);
-    const sword = P.build({ card: '뒤랑달', style: 'game_keyart', output: 'portrait', design, params: {} }, data);
+  for (const _long of [true, false]) for (const design of Object.keys(S.CORE)) {   /* 옛 꼴 · 칸 꼴 둘 다 — 줄은 글 그대로다 */
+    const helm = P.build({ card: '맘브리노의 투구', style: 'game_keyart', output: 'portrait', design, params: {}, _long }, data);
+    const sword = P.build({ card: '뒤랑달', style: 'game_keyart', output: 'portrait', design, params: {}, _long }, data);
     assert(helm.includes(S.ARMOR_WEAR.helm) && !helm.includes(S.HOLD_LINE) && !/strapped|forearm/.test(helm), design + ' 투구는 머리에 — 방패 말이 없다');
-    const shield = P.build({ card: '아이기스', style: 'game_keyart', output: 'portrait', design, params: {} }, data);
+    const shield = P.build({ card: '아이기스', style: 'game_keyart', output: 'portrait', design, params: {}, _long }, data);
     assert(shield.includes(S.ARMOR_WEAR.shield) && !shield.includes(S.ARMOR_WEAR.helm), design + ' 방패는 팔에');
     assert(shield.includes('never floating') && shield.includes(S.ARMOR_HANDS.shield) && !shield.includes(S.HANDS_LINE), design + ' 방패는 팔에 붙고, 두 손이 비었다는 줄이 없다(띄우지 않게)');
     assert(sword.includes(S.HANDS_LINE) && helm.includes(S.HANDS_LINE), design + ' 다른 카드는 손 줄 그대로');
@@ -66,9 +69,45 @@ const BUDGET = { portrait: 395, awaken: 330, cursed: 370, casual: 700,   /* 2026
 let n = 0, longest = { w: 0 };
 for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for (const style of S.STYLES) {
   const st = { card: card.name, style: style[0], output, params: {} };
-  const text = P.build(st, data), w = P.words(text);
-  if (output === 'skin' && !(card.skins || []).length) { assert.equal(text, '', card.name + ' — 스킨이 없으면 스킨 문장도 없다'); continue; }
+  /* text 는 옛 꼴(일상컷은 원래 꼴 그대로), now 는 지금 나가는 꼴(일상컷이 아니면 칸 꼴) */
+  const now = P.build(st, data), text = output === 'casual' ? now : P.build({ ...st, _long: true }, data), w = P.words(text);
+  if (output === 'skin' && !(card.skins || []).length) { assert.equal(text, '', card.name + ' — 스킨이 없으면 스킨 문장도 없다'); assert.equal(now, '', card.name + ' — 칸 꼴도'); continue; }
   n++;
+  if (output !== 'casual') {   /* 칸 꼴 — 아래 옛 꼴 조건을 칸 꼴 말로 */
+    const B = now.split('\n\n'), id = card.name + ' ' + output + ' ' + style[0] + ' 칸 꼴 ';
+    assert(B.length === 6 && now.startsWith('Weapon: ' + card.en + ' (' + card.name + ')'), id + '이름이 앞에 · 여섯 덩어리');
+    assert.equal(B[1], CF.s1 + '\n' + style[2], id + '화풍 문장');
+    assert(B[0].includes('\nOutput: ' + S.OUTPUTS[output].text.slice(8).split('. ')[0]), id + '출력 문장(머리말)');
+    /* 몸 개수는 해부 줄(core)이, 나머지는 Body 줄이. 손가락 개수는 core 해부 줄에만(공방 글에는 없다), 다 보이라는 말은 없다 */
+    assert(B[2].endsWith('\nBody: a normal human body; elbows, knees and wrists bend the human way. Hands and feet may be partly hidden by the pose, what she holds or the frame.\n' + CF.anatomy), id + '몸 · 해부 줄');
+    assert(!/fully visible|five fingers|four fingers/.test(now.replace(CF.anatomy, '')), id + '손 줄');
+    assert(P.words(now) <= BUDGET[output] + 12, id + '낱말 ' + P.words(now) + ' > ' + (BUDGET[output] + 12));
+    if (P.words(now) > longest.w) longest = { w: P.words(now), card: card.name, output, style: style[0] };
+    assert(!/포켓몬|armor form|pokemon|overdrive/i.test(now) && !now.includes('fused to a limb') && !now.includes('Posture:'), id + '앞 저장소의 말 · 지운 문장 · 고르지 않은 자세');
+    if (output === 'skin') {
+      const sk = card.skins[0];
+      assert(/attached/.test(now) && !now.includes('Subject:') && !now.includes('Identity'), id + '첨부 그림을 따르고 뼈대·외형을 다시 말하지 않는다');
+      assert(B[5].includes('\nHands: ' + S.KEEP_HANDS.slice(7) + '\n'), id + '빈손');
+      assert(B[3].includes('\nWeapon look (') && B[3].includes('\nSkin look (') && now.includes(sk.look) && now.indexOf('Weapon look') < now.indexOf('Skin look'), id + '스킨 묘사가 무기 묘사 뒤에(3칸)');
+      for (const state of ['awaken', 'cursed']) {
+        const t2 = P.build({ ...st, skinState: state }, data);
+        assert(t2.includes(S.OUTPUTS[state].text.slice(8).split('. ')[0]) && t2.includes('\nSkin look (') && t2.includes('\nSkin note: ') && !t2.includes('a SKIN of the attached'), id + state + ' 은 그 상태 문장에 스킨 묘사');
+        assert(P.words(t2) <= 452, id + state + ' 낱말 ' + P.words(t2));
+      }
+    } else if (output === 'awaken' || output === 'cursed') {
+      assert(/attached/.test(now) && !now.includes('Subject:') && !now.includes('Identity'), id + '첨부 그림을 따르고 뼈대·외형을 다시 말하지 않는다');
+      assert(B[5].includes('\nHands: ' + S.KEEP_HANDS.slice(7) + '\n'), id + '빈손 — 무기를 따로 꺼내 쥐지 않는다');
+      if (output === 'cursed') assert(now.includes('red-violet') && now.includes('silver plates stay silver'), id + '룬이 오염되고 장갑은 그대로');
+    } else {
+      assert(B[2].includes('Facial ethnicity: ' + (card.ethnicity || S.PARAMS[0].auto[card.myth])), id + '자동 얼굴 계통');
+      assert(B[3].includes('Weapon look') && B[3].includes(card.look), id + '무기의 시각 언어(3칸)');
+      const wear = card.kind === 'armor' ? S.ARMOR_WEAR[card.wear] : '', hands = (card.kind === 'armor' && S.ARMOR_HANDS[card.wear]) || S.HANDS_LINE;
+      assert(B[0].includes('\nSubject: ' + S.CORE.mecha.split(' ' + S.HOLD_LINE)[0].replace('{weapon}', card.en) + '\n'), id + '뼈대 첫 문장은 머리말');
+      assert(wear ? B[3].includes('\n' + wear) && !now.includes(S.HOLD_LINE) : B[5].includes('\n' + S.HOLD_LINE + '\n'), id + '무기를 들지 않고(5칸) 방어구는 입고(3칸)');
+      assert(B[5].includes('\n' + hands + '\n'), id + '손은 손이다(5칸)');
+      assert(!now.includes('Embodiment') && !now.includes('Silhouette:') && !now.includes(S.MYTH_FLAVOR[card.myth]), id + '선택 문단은 기본에서 꺼져 있다');
+    }
+  }
   assert(text.startsWith((output === 'casual' ? 'CHARACTER: ' : 'WEAPON: ') + card.en + ' (' + card.name + ')'), card.name + ' 이름이 앞에');
   /* 일상컷 화풍 · 얼굴은 첨부 그림에 맡긴다(2026-11-03) */
   assert(output === 'casual' ? text.includes("STYLE: keep the attached image's rendering exactly") && !text.includes(style[2]) && text.includes('FACE: exactly the face of the attached image') : text.includes(style[2]), card.name + ' ' + style[0] + ' 화풍 문장');
@@ -85,7 +124,7 @@ for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for 
     assert(text.includes('SKIN LOOK') && text.includes(sk.look) && text.indexOf('WEAPON LOOK') < text.indexOf('SKIN LOOK'), '스킨 묘사가 무기 묘사 뒤에');
     assert.equal(P.fileName(st, card), card.name.replace(/ /g, '_') + '_' + style[0] + '_f_skin_' + sk.key + '.webp', '스킨 파일 이름');
     for (const state of ['awaken', 'cursed']) {
-      const s2 = { ...st, skinState: state }, t2 = P.build(s2, data);
+      const s2 = { ...st, skinState: state }, t2 = P.build({ ...s2, _long: true }, data);
       assert(t2.includes(S.OUTPUTS[state].text) && t2.includes('SKIN LOOK') && t2.includes('SKIN NOTE') && !t2.includes(S.OUTPUTS.skin.text), '스킨 ' + state + ' 은 그 상태 문장에 스킨 묘사');
       assert(P.words(t2) <= 440, card.name + ' 스킨 ' + state + ' 낱말 ' + P.words(t2));
       assert.equal(P.fileName(s2, card), card.name.replace(/ /g, '_') + '_' + style[0] + '_f_skin_' + sk.key + '_' + state + '.webp', '스킨 ' + state + ' 파일 이름');
@@ -120,8 +159,14 @@ for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for 
   const st = { card: '묠니르', style: 'ink_wash', output: 'portrait', action: 'shoulder', scene: 'stormy cliff at dusk',
     design: 'cloth', extras: { embodiment: true, silhouette: true, myth: true },
     params: { ethnicity: '__custom__', ethnicity_custom: 'Sami', hairColor: 'crimson', expression: '__custom__', expression_custom: 'fierce' } };
-  const t = P.build(st, data);
+  const t = P.build({ ...st, _long: true }, data), now = P.build(st, data), B = now.split('\n\n');   /* t 옛 꼴(스위치 끈 판) · now 칸 꼴 */
   assert(t.includes('POSTURE: ' + S.ACTIONS.blunt[1][2]) && t.includes('SCENE NOTE: stormy cliff at dusk'));
+  /* 칸 꼴 — 같은 선택이 제 칸에 */
+  assert(B[4].includes('\nPosture: ' + S.ACTIONS.blunt[1][2] + '\n') && B[4].endsWith('\nScene note: stormy cliff at dusk'), '칸 꼴 — 자세 · 장면은 4칸');
+  assert(B[0].includes('\nSubject: ' + S.CORE.cloth.split(' ' + S.HOLD_LINE)[0].replace('{weapon}', 'Mjolnir') + '\n') && !now.includes('mecha personification') && B[3].startsWith('3. COSTUME \u2014 PERSONIFICATION\n'), '칸 꼴 — 설계 언어를 천으로');
+  assert(B[3].includes('\nEmbodiment: ' + S.EMBODIMENT.slice(12).replace('(see WEAPON LOOK)', '(see the weapon look above)') + '\n') && B[3].includes('\nSilhouette: ' + S.KIND_SILHOUETTE.blunt.slice(12) + '\n') && B[3].endsWith('\n' + S.MYTH_FLAVOR.norse), '칸 꼴 — 켠 문단 셋은 3칸');
+  assert(B[2].includes('\nFace \u2014 Facial ethnicity: Sami. Eye color: ' + P.autoEye(P.cardOf(data, '묠니르')) + '.\n') && B[2].includes('\nBody and hair: Hair color: crimson.\n') && B[2].includes('\nExpression: fierce.\n'), '칸 꼴 — 얼굴 · 머리 · 표정 줄(2칸)');
+  assert(!now.includes('Age: ') && !now.includes('Body type:') && !now.includes('Shot \u2014') && !now.includes('Outfit direction:'), '칸 꼴 — 비운 것은 줄이 없다');
   assert(t.includes('SUBJECT: ' + S.CORE.cloth.replace('{weapon}', 'Mjolnir')) && !t.includes('mecha personification'), '설계 언어를 천으로');
   assert(t.includes(S.EMBODIMENT) && t.includes(S.KIND_SILHOUETTE.blunt) && t.includes(S.MYTH_FLAVOR.norse), '켠 문단 셋이 붙는다');
   assert(t.indexOf('OUTPUT:') < t.indexOf('EMBODIMENT') && t.indexOf(S.MYTH_FLAVOR.norse) < t.indexOf('POSTURE:'), '선택 문단은 규격 뒤, 자세 앞');
@@ -142,17 +187,24 @@ for (const card of data.cards) for (const output of Object.keys(S.OUTPUTS)) for 
   assert(!t.includes('Apparent age:') && !t.includes('BUILD \u2014') && !t.includes('SHOT \u2014'), '비운 것은 줄도 묶음도 없다');
   /* RGB 로 고른 색 — 코드와 색 이름이 같이. 팔레트 색은 이름대로 읽힌다 */
   {
-    const h = P.build({ ...st, params: { hairColor: '#3a7bd5', eyeColor: '#8E1B2B', eyeColor2: '#ffd700' } }, data);
-    assert(h.includes('Hair color: #3A7BD5 (medium azure blue).') && h.includes('Eye color: #8E1B2B (crimson).') && h.includes('#FFD700 (vivid medium golden yellow)'), h);
+    for (const _long of [true, false]) {   /* 옛 꼴 · 칸 꼴 둘 다 */
+      const h = P.build({ ...st, _long, params: { hairColor: '#3a7bd5', eyeColor: '#8E1B2B', eyeColor2: '#ffd700' } }, data);
+      assert(h.includes('Hair color: #3A7BD5 (medium azure blue).') && h.includes('Eye color: #8E1B2B (crimson).') && h.includes('#FFD700 (vivid medium golden yellow)'), h);
+    }
     assert(!P.isHex('#12345') && !P.isHex('3a7bd5') && P.isHex('#AbCdEf'), 'hex 모양만');
     const names = { white: 'white', silver: 'silver', crimson: 'crimson', brown: 'brown', black: 'black', teal: 'teal', lavender: 'lavender', pink: 'pink', green: 'green', gray: 'gray' };
     for (const k in names) assert(P.hexName(S.COLOR_HEX[k]).endsWith(names[k]), k + ' → ' + P.hexName(S.COLOR_HEX[k]));
   }
   /* 서른아홉 칸을 다 채워도 예산 안 */
   const all = {}; for (const p of S.PARAMS) { const o = p.options.find(x => x[0] && x[0] !== '__custom__'); if (o) all[p.key] = o[0]; }
-  const full = P.build({ card: '묠니르', style: 'glossy_promo', output: 'portrait', params: all, scene: 'stormy cliff at dusk', action: 'overhead', extras: { embodiment: true, silhouette: true, myth: true } }, data);
+  const fullSt = { card: '묠니르', style: 'glossy_promo', output: 'portrait', params: all, scene: 'stormy cliff at dusk', action: 'overhead', extras: { embodiment: true, silhouette: true, myth: true } };
+  const full = P.build({ ...fullSt, _long: true }, data), fullNow = P.build(fullSt, data);
   assert(P.words(full) <= 700, '다 켜고 다 채우면 ' + P.words(full) + '낱말 — 700 넘음');
+  assert(P.words(fullNow) <= 700, '칸 꼴 — 다 켜고 다 채우면 ' + P.words(fullNow) + '낱말 — 700 넘음');
   for (const g of S.PARAM_GROUPS) assert(full.includes(g[0].toUpperCase() + ' \u2014 '), g[0] + ' 묶음 줄');
+  /* 칸 꼴 — 묶음 다섯이 삼국지 줄로: 나이 · 얼굴(계통 + 얼굴 묶음) · 몸과 머리(체형 + 머리 묶음) · 표정은 2칸, 옷 방향은 3칸, 구도 묶음은 4칸. 고른 값은 하나도 안 빠진다 */
+  for (const head of ['\nAge: ', '\nFace \u2014 ', '\nBody and hair: ', '\nExpression: ', '\nOutfit direction: ', '\nShot \u2014 ']) assert(fullNow.includes(head), '칸 꼴 ' + head.trim() + ' 줄');
+  for (const p of S.PARAMS) if (all[p.key]) assert(fullNow.includes(p.key === 'age' ? 'Age: ' + all.age + '.' : p.label + ': ' + all[p.key] + '.'), '칸 꼴 — 고른 ' + p.key + ' 값');
   assert.equal(P.fileName(st, P.cardOf(data, '묠니르')), '묠니르_ink_wash_f.webp');
   assert.equal(P.fileName({ ...st, output: 'awaken' }, P.cardOf(data, '묠니르')), '묠니르_ink_wash_f_awaken.webp');
   assert.equal(P.fileName({ ...st, output: 'cursed' }, P.cardOf(data, '묠니르')), '묠니르_ink_wash_f_cursed.webp');

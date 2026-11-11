@@ -13,6 +13,18 @@
 
 
 
+## 2026-11-11 · claude · 지시문을 칸 꼴로 — 액션 · 각성 · 저주 · 스킨이 삼국지와 같은 「머리말 + 다섯 칸」
+- lib/prompt-myth.js — 일상컷이 아닌 지시문(액션 · 각성 · 저주 · 스킨 · 스킨의 각성 · 저주)을 칸 꼴로 짓는 buildSections 를 더했다. 글은 예전 문단 꼴 그대로이고 자리만 옮긴다 — 옛 조립은 문단에 이름표만 붙여 남겼고(스위치를 끄거나 설정에 _long 을 주면 예전 글자 그대로), 외형 묶음은 identityGroups 로 두 꼴이 같은 값을 쓴다. 일상컷(refLock 포함)은 손대지 않았다. 까닭: 사용자 2026-11-11 「초안 없이 다 진행해줘」(3단계 — 칸 꼴 통일)
+- lib/prompt-spec.js — SECTIONS 표(스위치 on · 3칸 머리에 넣는 말 costume/genre · 삼국지와 같은 줄 머리 · OUTPUT 문장을 보내는 칸 · 외형 묶음의 줄 · 옛 줄 이름을 가리키던 말)를 더했다. 칸 머리 · 해부 줄 · Avoid 줄은 여기 없고 파일 끝 core 블록의 CORE_FRAME 에서 온다(블록은 손대지 않았다). 화풍 문장 · 다른 표는 그대로
+- 칸 대조 — 머리말: WEAPON(전설 앞까지) · SUBJECT 첫 문장 · OUTPUT 첫 문장 / 1 STYLE: STYLE / 2 CHARACTER: IDENTITY 머리 · Age · Face —(얼굴 계통 + FACE 묶음) · Body and hair(BUILD + HAIR 묶음) · Expression · Legend(WEAPON 줄의 전설) · ANATOMY 첫 문장 · BODY 나머지 · core 해부 줄 / 3 ARMOR|COSTUME — 갈래: WEAPON LOOK · 방어구의 입는다 줄 · SKIN LOOK · SKIN NOTE · OUTPUT 의 Change only this/Replace 문장 · EMBODIMENT · SILHOUETTE · 신화권 언어 · Outfit direction / 4 SCENE: OUTPUT 의 Keep the attached image … · The pair must … · Default stance(Pose) · POSTURE · Vertical 2:3 …(Composition) · SHOT 묶음 · SCENE NOTE / 5 CONSTRAINTS: ONE FIGURE ONLY. · She does NOT hold … · 손 줄 · HANDS(각성 · 저주 · 스킨) · Avoid
+- 바뀐 글 — 줄 머리는 첫 글자만 대문자(WEAPON LOOK → Weapon look …), 외형 묶음 머리 BASE · BUILD · FACE · HAIR · SHOT → Age · Face — · Body and hair · Expression · Shot —, 나이 「Apparent age: 20s.」 → 「Age: 20s.」 / 「No …」 금지 문장 셋(ONE FIGURE ONLY 뒤 · ANATOMY 뒤 · 스킨의 No text, logos, emblems or names.)은 5칸 Avoid 한 줄로(text · logo 는 한 번) / 「(see WEAPON LOOK)」 → 「(see the weapon look above)」, 「the SKIN LOOK above」 → 「the skin look above」 / BODY 줄의 「— one head, two arms and two legs, each joined at its natural joint」 는 core 해부 줄과 겹쳐 뺐다. 그 밖의 글은 그대로 — 방어구의 입는다 줄은 「; no shield, no other gear, nothing in her hands」 까지 한 줄로 3칸 무기 모양 밑에 둔다
+- tests/prompt-sections.cjs — 새 검사: 전 카드 × 액션(기본 · 천 · 다 켠 것 자세마다) · 각성 · 저주 · 스킨 세 상태 1701장이 여섯 덩어리 · 칸 머리 = core 칸 틀 · 2칸 끝 해부 줄 · Avoid 는 5칸 맨 끝 · Avoid 밖 「No …」 없음 · 옛 줄 이름 · 찌꺼기 없음 · 옛 꼴의 마디를 하나도 잃지 않음(달라진 마디는 검사 안 목록) · 낱말 265~718 · 스위치 · 일상컷 그대로
+- tests/core-sync.cjs — 새 검사: lib/prompt-spec.js 끝 core 블록이 있고 CORE_VERSION · CORE_FRAME 이 서며, 옆에 style-atelier 가 있으면 그 core/sync.cjs --check 로 원본과 같다
+- tests/prompt-engine.cjs — 옛 꼴 조건은 스위치를 끈 판(st._long)으로 그대로 보고, 지금 나가는 칸 꼴에도 같은 조건(이름 · 화풍 · 출력 · 몸 줄 · 빈손 · 스킨 · 방어구 · 선택 문단 · 고른 외형 · 낱말 예산 +12)을 칸 꼴 말로 더했다. 손가락 개수는 core 해부 줄에만 있다
+- tests/prompt-screen.cjs · tests/prompt-pack-screen.cjs — 화면 · 묶음의 지시문이 칸 꼴이라 줄 머리 말(Weapon: · Weapon look · Silhouette: · Posture: · Scene note:)을 칸 꼴 기준으로 고치고, 화면이 여섯 덩어리인지 · 묶음의 일상 자리만 옛 꼴인지를 더 본다
+- prompt.html — prompt-spec.js?v=28 · prompt-myth.js?v=19
+- IMAGE_RULES.md · AGENTS.md — 칸 꼴 한 단락(칸마다 무엇 · 달라진 글 · 스위치 · 검사)과 검사 두 줄
+
 ## 2026-11-11 · claude · 비교용 화풍 열셋 내림
 - data/style.json — game_keyart 말고 열셋(cinematic_semi_real · glossy_kr_game · game_cgi · semi_real_paint · glossy_promo · mecha_cinematic_keyart · photoreal · anime_illust · cel_anime · painterly · retro_anime · ink_wash · bright_catalog)에 retired 2026-11-11 · retired_why. data/img.json 기준 궁니르 한 자루에 세 장씩(glossy_promo 만 미스틸테인 네 장까지), game_keyart 는 197자루. 사용자 「비교용도 지금은 무의미해서 … 다 내려줘」
 - lib/prompt-spec.js — RETIRED_STYLES · LIVE_STYLES. 문장은 STYLES 에 그대로(옛 기록을 열면 같은 지시문) · prompt.html 화풍 고르개는 LIVE_STYLES 만, 저장된 설정 · 옛 기록이 내린 화풍이면 「· 내린 화풍」 하나만 더 보인다
