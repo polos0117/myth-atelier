@@ -13,6 +13,11 @@
 
 
 
+## 2026-11-13 · claude · core v6 · 체형 선택지 둘(슬림 근육형 · 아담한 풍만형)
+- lib/prompt-spec.js — VOCAB_EN.body(lean_toned · petite_voluptuous, core 블록이 덮는다)를 새로 두고 체형 선택지 · 견본 줄에 두 값(영어 글 그대로). 사용자 「pkm,myth은 그림 없어도 추가해줘」
+- lib/prompt-spec.js FIGURE_NOPIC · lib/prompt-myth.js figureURL · prompt.html — 견본 그림이 없는 값은 주소를 만들지 않고 견본 칸에 글자만
+- lib/prompt-spec.js — core:v6 블록. prompt.html ?v= 올림(prompt-spec · prompt-myth)
+
 ## 2026-11-12 · claude · 검사 정리 — 겹치는 검사 둘 지우고 느린 검사 반복 줄이기
 - 사용자 2026-11-12 「각 공방별로 필요없고 쓸데없이 시간만 잡아먹는 검사들 좀 없애줘」 — 보는 것(단언의 종류)은 남기고 반복만 줄였다
 - tests/core-sync.cjs 지움 — 화풍공방 tests/core.cjs 가 이 저장소 core 블록을 같은 sync --check 로 본다. AGENTS.md 검사 표 · IMAGE_RULES.md 를 그쪽으로
