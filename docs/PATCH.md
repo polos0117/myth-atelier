@@ -13,6 +13,10 @@
 
 
 
+## 2026-11-12 · claude · 공방 지도의 문에서 넘어올 때 페이드
+- index.html · dex.html · prompt.html · auto.html · museum.html · draft.html · duel.html · run.html — 머리(`<title>` 바로 아래)에 한 줄: `@view-transition { navigation: auto; }`(동작 줄이기면 꺼진다)와, 여기서 나갈 때는 전환을 그만두는 `pageswap` · 끊긴 전환의 콘솔 오류를 받아 두는 `pagereveal` 한 마디씩. 공방 지도(polos0117.github.io)의 대미궁에서 문을 누르면 이 페이지가 페이드로 들어온다 — 공방 안에서 쪽을 옮길 때는 전과 같다. 문서 간 전환을 모르는 브라우저도 전과 같다
+- 사용자 2026-11-12 「각 공방 저장소에도 한 줄 넣고 VT_READY 에 더해줘」 — 약속은 공방 지도 README 「방에 들어가는 연출」
+
 ## 2026-11-11 · claude · core v5 블록
 - core 블록 판만 v5(표식 red_lip 을 연하게) — 이 공방엔 표식 표가 없어 지시문 변화 없음
 
