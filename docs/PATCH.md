@@ -13,6 +13,18 @@
 
 
 
+## 2026-11-12 · claude · 검사 정리 — 겹치는 검사 둘 지우고 느린 검사 반복 줄이기
+- 사용자 2026-11-12 「각 공방별로 필요없고 쓸데없이 시간만 잡아먹는 검사들 좀 없애줘」 — 보는 것(단언의 종류)은 남기고 반복만 줄였다
+- tests/core-sync.cjs 지움 — 화풍공방 tests/core.cjs 가 이 저장소 core 블록을 같은 sync --check 로 본다. AGENTS.md 검사 표 · IMAGE_RULES.md 를 그쪽으로
+- tests/casual-tree-v2.py 지움 — 검사기 tools/casual-tree-v2.py 는 game-atelier 원본 그대로, 변형 검사도 game 쪽과 한 줄만 달랐다. 이 저장소 표는 python3 tools/casual-tree-v2.py check 가 본다
+- tests/casual-tree-v2.cjs — 랜덤 2000 · 바꾸기 1500 → 300 · 200(공방 공통 수), 무기마다 랜덤 33자루 × 40 → 10자루 × 20. 83초 → 13초
+- tests/theme-screen.cjs — 결 13개 색 · 대비는 집에서 다 보고, 화면 일곱마다는 결 둘(처음 · 마지막) · 크기 둘(덮개 · PC). 56초 → 10초
+- tests/header-layout.cjs — 크기 다섯 → 셋(덮개 · PC · 낮은 가로 화면 — 제목이 숨는 갈래). 36초(한 번은 120초 넘김) → 21초
+- tests/gallery-screen.cjs — 폭 넷 → 둘(344 · 1440, 사이 크기는 dex-favorites 가 본다). 14초 → 3초
+- tests/museum-screen.cjs — 휴대폰 손잡이 · 두 번 누르기 단계 뺌(헤드리스 소프트웨어 GL 에서 2분 넘고 흔들렸다). 이 환경에선 전처럼 명판 기다리기에서 시간 넘김 — 그건 그대로
+- tests/museum-grow.cjs — 새 방 안 키보드 걷기 뺌(걷기는 museum-screen), 한 장 그릴 때마다 오래 기다리던 evaluate 넷을 하나로. 55~83초 → 35~40초
+- AGENTS.md — draft-sim 을 검사 표에 --quick 으로(규칙 0.3초, 빼면 600판 균형 표 41초)
+
 ## 2026-11-12 · claude · 도감 크게 보기에 즐겨찾기 하트
 - 사용자 「크게보기에도 즐겨찾기 추가 다 해야돼. 지금까지 그게 없었어」 — 하트가 상세에만 있었다(포켓몬 도감 37a75ef 와 같은 일)
 - dex.html — Zoom 위 띠에 하트(#zoom-fav, 「♡ 즐겨찾기」): 지금 넘겨 보는 그림 한 장을 담고 뺀다, 넘기면 그 그림의 상태, 닫으면 상세 하트와 같다. 담는 칸 만들기를 favEntry() 하나로(상세 하트와 같이 쓴다 — 칸 모양 · link ?card=&pic= 그대로). 알림(aria-live)은 띠 바로 밑에 붙어 띠가 두 줄인 폰에서도 아래 넘기기 단추를 안 가린다. 저장이 막히면 상세와 같은 「못 담았어요」. 폰에서는 원본 크기와 같은 둘째 줄. 담기면 분홍. 화면 안 style 이라 ?v 올릴 공용 파일 없음

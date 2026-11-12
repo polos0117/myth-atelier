@@ -1,8 +1,9 @@
-/* Gallery regression: deterministic delayed art; visual review uses real registered images. */
+/* Gallery regression: deterministic delayed art; visual review uses real registered images.
+   폭 둘 — 가장 좁은 휴대폰 · 넓은 PC(사이 크기는 dex-favorites 가 다섯 크기로 본다). */
 const assert=require('node:assert/strict'),path=require('node:path');
 const {start}=require('./browser-harness.cjs');
 const gundam=path.basename(path.resolve(__dirname,'..'))==='atelier';
-(async()=>{const h=await start();try{for(const width of [344,390,690,1440]){
+(async()=>{const h=await start();try{for(const width of [344,1440]){
  const a=await h.open('dex.html',{viewport:{width,height:width===1440?1000:844},mobile:width<720}),p=a.page;
  try{
  let release;const pending=new Promise(r=>release=r);

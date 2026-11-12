@@ -49,7 +49,7 @@
 - 달라진 글은 넷뿐이다: ① 줄 머리 — 대문자 머리는 첫 글자만 대문자(`WEAPON LOOK` → `Weapon look`), 외형 묶음(BASE · BUILD · FACE · HAIR · SHOT)은 삼국지 줄(`Age:` · `Face —` · `Body and hair:` · `Expression:` · `Shot —`)로, 나이는 `Apparent age: 20s.` → `Age: 20s.`
   ② 「No a, no b.」 금지 문장은 5칸 끝 `Avoid:` 한 줄로(겹치는 낱말은 한 번) — 규칙 줄(ONE FIGURE ONLY. · She does NOT hold … · HANDS: … · 방어구의 입는다 줄)은 글 그대로
   ③ 옛 줄 이름을 가리키던 말 — `(see WEAPON LOOK)` → `(see the weapon look above)`, `the SKIN LOOK above` → `the skin look above` ④ BODY 줄에서 core 해부 줄과 글자 그대로 겹치는 마디(one head, two arms and two legs, each joined at its natural joint)를 뺀다.
-- 조립은 `lib/prompt-myth.js` 의 `buildSections`, 줄 머리 · 자리 표와 스위치는 `lib/prompt-spec.js` 의 `SECTIONS`(`on: false` 로 끄면 — 또는 core 칸 틀이 없으면 — 예전 문단 꼴 그대로). 검사는 `node tests/prompt-sections.cjs`(전 카드 — 칸 · 잃은 마디 · 옛 줄 이름), core 블록은 `node tests/core-sync.cjs`.
+- 조립은 `lib/prompt-myth.js` 의 `buildSections`, 줄 머리 · 자리 표와 스위치는 `lib/prompt-spec.js` 의 `SECTIONS`(`on: false` 로 끄면 — 또는 core 칸 틀이 없으면 — 예전 문단 꼴 그대로). 검사는 `node tests/prompt-sections.cjs`(전 카드 — 칸 · 잃은 마디 · 옛 줄 이름), core 블록이 화풍공방 원본과 같은지는 화풍공방의 `node tests/core.cjs`.
   **일상컷은 칸 꼴이 아니다** — 아래 그대로. 옛 기록의 지시문(문단 꼴)은 기록에 그대로 남아 있고, 그 기록을 생성기에 넣으면 지금 꼴(칸 꼴)로 다시 나온다.
 
 ## 일상컷 — 트리 버전2 · 묶음 (2026-11-01)

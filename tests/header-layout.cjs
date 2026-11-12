@@ -26,8 +26,8 @@ function same(actual,expected,label){
 (async()=>{
  const h=await start();
  try{
-  for(const [viewport,mobile] of [[FOLD.cover,true],[FOLD.inner,true],
-   [{width:1280,height:900},false],[{width:1920,height:1080},false],[{width:882,height:344},true]]){
+  /* 크기 셋 — 가장 좁은 휴대폰(덮개) · 넓은 PC · 낮은 가로 화면(제목이 숨는 max-height:550 갈래). 펼친 화면 · 1920 은 이 둘 사이라 뺐다 */
+  for(const [viewport,mobile] of [[FOLD.cover,true],[{width:1280,height:900},false],[{width:882,height:344},true]]){
    const a=await h.open('index.html',{viewport,mobile}),p=a.page;
    try{
     for(const density of ['compact','relaxed']){
@@ -90,6 +90,6 @@ function same(actual,expected,label){
     assert.deepEqual(a.errors,[]);
    }finally{await a.close()}
   }
-  console.log('PASS header layout: '+PAGES.length+' pages, 5 viewport sizes, both densities, stable navigation while scrolling');
+  console.log('PASS header layout: '+PAGES.length+' pages, 3 viewport sizes, both densities, stable navigation while scrolling');
  }finally{await h.stop()}
 })().catch(e=>{console.error(e);process.exitCode=1});

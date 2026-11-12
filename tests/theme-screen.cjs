@@ -50,14 +50,15 @@ const contrast=(a,b)=>{const x=luminance(a),y=luminance(b);return (Math.max(x,y)
    }),page+' heading, navigation, appearance order');
    assert.equal(await p.evaluate(()=>document.documentElement.dataset.theme),keys[keys.length-1],'theme follows navigation');
    const before=page==='prompt.html'?await p.locator('#prompt-output').inputValue():null;
-   for(const key of keys){
+   /* 결 13개의 색 · 대비는 위 집 화면에서 다 봤다 — 화면마다는 둘만 고른다(끝은 마지막 결이라 다음 화면이 그걸 이어받는지 본다) */
+   for(const key of [keys[0],keys[keys.length-1]]){
     /* 테마는 ⚙ 패널 안에 있다. 도감은 자료를 읽고 머리를 다시 그려 패널이 닫힐 수 있어 매번 본다 */
     if(!await p.locator('.appearance-panel').count())await p.locator('.appearance-toggle').click();
     await p.getByLabel('테마',{exact:true}).selectOption(key);
     assert.equal(await p.evaluate(()=>document.documentElement.dataset.theme),key);
     if(before)assert.equal(await p.locator('#prompt-output').inputValue(),before,'appearance never changes the prompt');
    }
-   for(const viewport of [FOLD.cover,FOLD.inner,{width:1280,height:900}]){
+   for(const viewport of [FOLD.cover,{width:1280,height:900}]){
     await p.setViewportSize(viewport);
     const size=await p.evaluate(()=>({
      body:document.body.scrollWidth,width:innerWidth,
@@ -73,6 +74,6 @@ const contrast=(a,b)=>{const x=luminance(a),y=luminance(b);return (Math.max(x,y)
   assert.deepEqual(a.errors,[]);
   assert.deepEqual(await p.evaluate(()=>window.AtelierWords.missing()),[]);
   await a.close();
-  console.log('PASS theme screens: '+keys.length+' palettes and motifs, AA text contrast, persisted navigation, unchanged prompts, 3 viewports');
+  console.log('PASS theme screens: '+keys.length+' palettes and motifs, AA text contrast, persisted navigation, unchanged prompts, 2 viewports');
  }finally{await harness.stop()}
 })().catch(e=>{console.error(e);process.exitCode=1});
