@@ -177,6 +177,12 @@ body {color:var(--text);font-size:15px}
 .fav-toggle button:focus-visible,.fav-toggle .fav-count:focus-visible {outline:2px solid var(--gold);outline-offset:2px}
 .fav-toast {position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:90;max-width:calc(100vw - 32px);padding:9px 16px;border-radius:999px;background:var(--text);color:var(--bg);font:700 13px/1.35 var(--display);text-align:center;pointer-events:none}
 .fav-toast:empty {display:none}
+/* 크게 보기 하트(2026-11-12) — 담기면 분홍. 알림은 위 띠 바로 밑(띠가 두 줄이 돼도 따라온다) — 아래 넘기기 단추와 안 겹친다 */
+.zoom-layer .zoom-bar {position:relative}
+.zoom-layer .zoom-fav span {font-size:15px;line-height:1;margin-right:4px}
+.zoom-layer .zoom-fav[aria-pressed="true"] {border-color:#f4a6b8;color:#f4a6b8}
+.zoom-layer .zoom-bar .fav-toast {position:absolute;top:calc(100% + 8px);bottom:auto}
+@media (max-width:599px) {.zoom-layer .zoom-fav {order:3}}
 /* 도트 — 상세의 작은 무대(바닥 위를 거닌다, 누르면 반응), 목록 칸의 「도트」 표(「새」·「모심」은 왼쪽이라 오른쪽 아래) */
 .dex-dot {margin:14px 0 6px}.dex-dot[hidden] {display:none}
 .dex-dot-stage {position:relative;height:150px;overflow:hidden;border:1px solid var(--line);border-radius:12px;
@@ -521,14 +527,12 @@ function Detail({ card, entry, styleName, group, skill, motion: motionTable, sel
     return () => { c.destroy(); if (ambient.current === c) ambient.current = null; };
   }, [shown && shown.file, kind]);
   useEffect(() => () => { if (MOTION) { MOTION.cancel('dex-big'); const img = bigImg(); if (img) MOTION.stop(img); } }, []);
-  /* 즐겨찾기 — 큰 그림에 떠 있는 바로 그 그림(기본·각성·저주·일상·스킨 무엇이든). link 에 ?card=&pic= 를 적어 공방 모음에서 누르면 이 그림으로 다시 연다 */
+  /* 즐겨찾기 — 큰 그림에 떠 있는 바로 그 그림(기본·각성·저주·일상·스킨 무엇이든). 칸은 favEntry(크게 보기와 같이 쓴다) */
   const favs = useFavorites(), [favMsg, sayFav] = useNote();
   const faved = !!shown && favs.some(x => x.a === 'myth' && x.file === shown.file);
   const toggleFav = () => {
     if (!FAV || !shown) return;
-    const q = new URLSearchParams(); q.set('card', card.name); q.set('pic', shown.file);
-    const on = FAV.toggle({ a: 'myth', key: card.name, file: shown.file, title: card.name, sub: shotLabel(shown),
-      thumb: IMG.thumbURL(shown.file), full: IMG.imgURL(shown.file), link: new URL('dex.html', location.href).pathname + '?' + q.toString() });
+    const on = FAV.toggle(favEntry(card, shown));
     sayFav(W(on ? 'dex.fav.added' : faved ? 'dex.fav.removed' : 'dex.fav.blocked'));
   };
   const head = html`
@@ -654,13 +658,22 @@ function Zoom({ card, shots, at, canPrev, canNext, onMove, onClose, defs }) {
     홈 화면 앱(허브 범위 /)에서는 같은 앱 창에 그림만 떠서 돌아올 길이 없었다(2026-10-20). 넘기면 다시 화면에 맞춘다 */
  const [actual,setActual]=useState(false);
  useEffect(()=>setActual(false),[shot&&shot.file]);
+ /* 즐겨찾기(2026-11-12 사용자 「크게보기에도 즐겨찾기 추가 다 해야돼」) — 지금 넘겨 보고 있는 그림 한 장. 상세 하트와 같은 칸(favEntry) */
+ const favs=useFavorites(),[favMsg,sayFav]=useNote(),faved=!!shot&&favs.some(x=>x.a==='myth'&&x.file===shot.file);
+ const toggleFav=()=>{if(!FAV||!shot)return;const on=FAV.toggle(favEntry(card,shot));sayFav(W(on?'dex.fav.added':faved?'dex.fav.removed':'dex.fav.blocked'));};
  return html`<div ref=${layer} class="zoom-layer" role="dialog" aria-modal="true" aria-label=${W('gallery.zoom')}>
-  <div class="zoom-bar"><b>${card.name} · ${shotLabel(shot,defs)}</b><span aria-live="polite">${at+1} / ${shots.length}</span><button type="button" class="zoom-open" aria-pressed=${actual} onClick=${()=>setActual(v=>!v)}>${W(actual?'gallery.fit':'gallery.original')}</button><button class="zoom-close" data-dialog-close onClick=${onClose} aria-label=${W('gallery.close')}>✕</button></div>
+  <div class="zoom-bar"><b>${card.name} · ${shotLabel(shot,defs)}</b><span aria-live="polite">${at+1} / ${shots.length}</span><button type="button" class="zoom-fav" id="zoom-fav" aria-pressed=${faved} disabled=${!FAV} title=${W('dex.fav.note')} onClick=${toggleFav}><span aria-hidden="true">${faved?'♥':'♡'}</span>${W('dex.fav')}</button><button type="button" class="zoom-open" aria-pressed=${actual} onClick=${()=>setActual(v=>!v)}>${W(actual?'gallery.fit':'gallery.original')}</button><button class="zoom-close" data-dialog-close onClick=${onClose} aria-label=${W('gallery.close')}>✕</button><div class="fav-toast" role="status" aria-live="polite">${favMsg}</div></div>
   <div class=${'zoom-body'+(actual?' actual':'')} ...${actual?{}:swipe}><${Pic} full file=${shot.file} alt=${card.name+' · '+shotLabel(shot,defs)} /><div class="zoom-nav"><button class="zoom-prev" disabled=${!canPrev} onClick=${()=>onMove(-1)} aria-label=${W('gallery.previous')}>‹</button><button class="zoom-next" disabled=${!canNext} onClick=${()=>onMove(1)} aria-label=${W('gallery.next')}>›</button></div></div>
   <div class="zoom-footer"><span class="viewer-keyboard">${W('gallery.viewer.hint')}</span><span class="viewer-touch">${W('gallery.viewer.touch')}</span></div>
  </div>`;
 }
 
+/* 즐겨찾기 한 칸 — 상세와 크게 보기가 같이 쓴다. link 에 ?card=&pic= 를 적어 공방 모음에서 누르면 이 그림으로 다시 연다 */
+function favEntry(card, shot) {
+  const q = new URLSearchParams(); q.set('card', card.name); q.set('pic', shot.file);
+  return { a: 'myth', key: card.name, file: shot.file, title: card.name, sub: shotLabel(shot),
+    thumb: IMG.thumbURL(shot.file), full: IMG.imgURL(shot.file), link: new URL('dex.html', location.href).pathname + '?' + q.toString() };
+}
 function shotLabel(shot) {
   if (shot.cut === 'skin') return W('dex.cut.skin', { name: shot.name }) + (shot.state && shot.state !== 'base' ? ' · ' + W('dex.cut.' + shot.state) : '');
   const cut = W('dex.cut.' + shot.cut);
