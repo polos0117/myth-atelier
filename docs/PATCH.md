@@ -13,6 +13,9 @@
 
 
 
+## 2026-11-20 · claude · core v7 — 얼굴 낱말에서 크기 말을 빼고 모양 · 방향만
+- 사용자 「이건 공통적으로 손볼 부분 같긴한데」 → 「이건 지금 고치자」 → 「옮겨주고」. style-atelier core/v7 — VOCAB_EN 얼굴 낱말(face_shape · eyes · brows · nose · lips 스물다섯)과 FACE_DESIGN.eye_size 에서 크기 말을 빼고, 이목구비 크기는 자연스러운 범위 · 차이는 눈꼬리 · 눈썹 곡선 · 입꼬리 · 턱선으로(예: square_soft · broad_soft · wide_smile · round_large). 도시 공방 해치 스팀펑크 시험에서 각진 얼굴 · 넓은 코 · 넓은 입 · 긴 아몬드 눈이 겹쳐 넓적하게 나왔다. 열쇠는 그대로 — 이 공방 lib/ 끝 core 블록을 node core/sync.cjs 로 v7 로 옮겼다(블록은 손으로 고치지 않는다). 이미 그린 그림은 그대로.
+
 ## 2026-11-13 · claude · core v6 · 체형 선택지 둘(슬림 근육형 · 아담한 풍만형)
 - lib/prompt-spec.js — VOCAB_EN.body(lean_toned · petite_voluptuous, core 블록이 덮는다)를 새로 두고 체형 선택지 · 견본 줄에 두 값(영어 글 그대로). 사용자 「pkm,myth은 그림 없어도 추가해줘」
 - lib/prompt-spec.js FIGURE_NOPIC · lib/prompt-myth.js figureURL · prompt.html — 견본 그림이 없는 값은 주소를 만들지 않고 견본 칸에 글자만
