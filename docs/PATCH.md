@@ -13,6 +13,9 @@
 
 
 
+## 2026-11-23 · claude · 인상 열네 개 더함 — 섹시 · 도발 · 퇴폐 · 팜파탈 · 새침 · 도도 · 여우 · 몽환 · 신비 · 당당 · 냉미녀 · 수줍음 · 당찬 · 아련함
+- lib/prompt-spec.js — 화풍공방 core v7 블록 다시 옮김(FACE_DESIGN.impression 에 열네 열쇠 — 이 공방은 얼굴 설계 표가 없어 지시문은 그대로). 사용자 2026-11-23 「인상중에 뭔가 섹시,도발, 퇴폐 느낌이 없네」 → 「다 넣어주고 공방 다 적용해줘. 설계 있는거에서도 옮겨주고」. prompt-spec ?v= 올림
+
 ## 2026-11-23 · claude · core v7 나이 문장 — 20대 초 youthful · 중반 young-adult · 후반 clear adult
 - lib/prompt-spec.js — 화풍공방 core v7 블록 다시 옮김(나이 문장: 20대 초 youthful · 중반 young-adult · 후반 clear adult). prompt-spec ?v= 올림
 
