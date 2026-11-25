@@ -13,6 +13,11 @@
 
 
 
+## 2026-11-25 · claude · 허브 즐겨찾기 — 크게 보기 꽉 채우기 · 가로 보기 · 한도
+- lib/favorites.js — style-atelier shared 판(원본이 공방 모음에서 shared 로): 3000칸, 가득이면 오래된 것을 빼지 않고 거절 · error() · message() · room(), 저장 공간 모자람(QuotaExceededError)은 'quota'(담아 둔 칸 그대로)
+- dex.html — 상세 · 크게 보기 하트 알림이 가득 · 저장 공간이면 그 말(FAV.message()), favorites ?v=2
+- AGENTS.md — favorites.js 원본은 style-atelier shared
+
 ## 2026-11-25 · claude · 공용 파일 한 곳에서 — style-atelier shared · sync
 - lib/casual-tree.js — style-atelier shared 판(`animals` 함수 하나 더함 — 동물이 배경에 나오는 장소, 이 공방은 아직 안 씀). 계획기 출력(네 카드 × 씨앗 둘) 앞뒤 같다
 - lib/casual-tree-v2.js — 그대로: shared 판(도시 · 삼국지 · 원소 · 포켓몬)과 갈라진 뒤 쌓인 규칙이 이 공방 검사기(`tools/casual-tree-v2.py`)와 지시문 검사(뒷모습 돌아보기 손 줄)와 어긋나 sync 밖 — 옮기려면 검사기 · 검사를 같이

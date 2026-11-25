@@ -139,7 +139,7 @@ ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/scene-motion.cjs    # �
 ESM_DIR=<node_modules> CHROMIUM_PATH=<chrome> node tests/dex-favorites.cjs   # 즐겨찾기 — 상세의 하트·저장된 칸·?pic= 로 열기·저장 막힘·다섯 크기
 ```
 
-즐겨찾기 `lib/favorites.js` 는 공방 모음(polos0117.github.io)의 `favorites.js` 를 글자 하나 다르지 않게 복사한 공용 모듈이다(열쇠 `atelier_favorites_v1`, 약속은 그쪽 README 「즐겨찾기」절). 고치면 다섯 저장소를 같이 고치고, `tests/dex-favorites.cjs` 가 원본과 견준다.
+즐겨찾기 `lib/favorites.js` 는 공방 모음(polos0117.github.io)의 `favorites.js` 를 글자 하나 다르지 않게 복사한 공용 모듈이다(열쇠 `atelier_favorites_v1`, 약속은 그쪽 README 「즐겨찾기」절). 2026-11-25부터 원본은 style-atelier `shared/lib/favorites.js` — `node shared/sync.cjs` 가 덮으니 여기서 고치지 않는다. 3000칸까지, 가득 차면 오래된 것을 빼지 않고 담기를 거절한다(하트 알림은 `FAV.message() || 막힘 말`). 고치면 다섯 저장소를 같이 고치고, `tests/dex-favorites.cjs` 가 원본과 견준다.
 
 도트 재생기 `lib/sprite-actor.js`·`lib/sprite-actor.css` 도 공방 모음의 `sprite-actor.js`·`.css` 를 글자 하나 다르지 않게 복사한 공용 모듈이다(판 v1, 약속 — `data/sprites.json` 꼴·API — 은 그쪽 README 「도트 재생기」절, 인물의 그림은 공방 모음의 도트 공방 `dot.html` 에서 만든다). 고치면 원본과 다섯 저장소를 같이, `node tests/sprite-actor-copy.cjs` 가 원본과 견준다. 부르는 곳: 대장간(`index.html` — 무대 아래쪽 띠 `.hall-dots`, 누르면 그 무기의 도감)·도감(상세의 도트 줄, 목록 칸의 「도트」 표). 인물은 `data/sprites.json` 의 `actors` 에 도트 공방의 「인물 칸 복사」를 넣는다(card = 무기 이름), 그림은 `myth-atelier-img` 의 `sprites/`.
 
