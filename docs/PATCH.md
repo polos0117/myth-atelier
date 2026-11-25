@@ -13,6 +13,9 @@
 
 
 
+## 2026-11-25 · claude · 즐겨찾기 알림 말 — 공용 파일에서 빼서 낱말 표로
+- lib/words.js · lib/favorites.js(공용 사본) · ?v — 공용 favorites.js 에 박혀 「화면 코드에 한글 금지」 검사(words)를 깨던 가득 · 저장 공간 알림 말을 빼고, 낱말 표 dex.fav.full · dex.fav.quota 로
+
 ## 2026-11-25 · claude · 허브 즐겨찾기 — 크게 보기 꽉 채우기 · 가로 보기 · 한도
 - lib/favorites.js — style-atelier shared 판(원본이 공방 모음에서 shared 로): 3000칸, 가득이면 오래된 것을 빼지 않고 거절 · error() · message() · room(), 저장 공간 모자람(QuotaExceededError)은 'quota'(담아 둔 칸 그대로)
 - dex.html — 상세 · 크게 보기 하트 알림이 가득 · 저장 공간이면 그 말(FAV.message()), favorites ?v=2
