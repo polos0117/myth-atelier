@@ -13,6 +13,12 @@
 
 
 
+## 2026-11-25 · claude · 공용 파일 한 곳에서 — style-atelier shared · sync
+- lib/casual-tree.js — style-atelier shared 판(`animals` 함수 하나 더함 — 동물이 배경에 나오는 장소, 이 공방은 아직 안 씀). 계획기 출력(네 카드 × 씨앗 둘) 앞뒤 같다
+- lib/casual-tree-v2.js — 그대로: shared 판(도시 · 삼국지 · 원소 · 포켓몬)과 갈라진 뒤 쌓인 규칙이 이 공방 검사기(`tools/casual-tree-v2.py`)와 지시문 검사(뒷모습 돌아보기 손 줄)와 어긋나 sync 밖 — 옮기려면 검사기 · 검사를 같이
+- AGENTS.md — `lib/casual-tree.js` 는 style-atelier `shared/` 에서만 고치고 `node shared/sync.cjs` 로 옮긴다
+- prompt.html — casual-tree ?v=4
+
 ## 2026-11-23 · claude · 인상 열네 개 더함 — 섹시 · 도발 · 퇴폐 · 팜파탈 · 새침 · 도도 · 여우 · 몽환 · 신비 · 당당 · 냉미녀 · 수줍음 · 당찬 · 아련함
 - lib/prompt-spec.js — 화풍공방 core v7 블록 다시 옮김(FACE_DESIGN.impression 에 열네 열쇠 — 이 공방은 얼굴 설계 표가 없어 지시문은 그대로). 사용자 2026-11-23 「인상중에 뭔가 섹시,도발, 퇴폐 느낌이 없네」 → 「다 넣어주고 공방 다 적용해줘. 설계 있는거에서도 옮겨주고」. prompt-spec ?v= 올림
 

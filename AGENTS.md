@@ -40,10 +40,10 @@
 선택이다. 이름 규칙은 `IMAGE_RULES.md` 에 있다.
 
 일상컷 장면은 트리로 고른다 — 시대(지금 · 신화의 옛 땅 · 신화 세계 안 · 무대·환상) → 장소 → 하는 일 → 의상 → 구도(2026-10-29, game-atelier 에서 옮김).
-표는 `data/casual-tree.json`, 거르기는 `lib/casual-tree.js`(game-atelier 원본을 글자 하나 다르지 않게 복사 — 고치려면 game 쪽을 고치고 복사한다).
+표는 `data/casual-tree.json`, 거르기는 `lib/casual-tree.js`(style-atelier `shared/` 에서만 고치고 `node shared/sync.cjs` 로 옮긴다 — 여기서 고친 것은 덮인다, 2026-11-25).
 예전 갈래·예시는 추천 조합과 변환표로 옮겼다. 표를 고치면 `python3 tools/casual-tree.py check`·`audit` 를 돌린다.
 무기는 일상컷 옷에 넣지 않는다 — 장신구·주변 사물로만(사용자 2026-10-29).
-새 일상컷은 **트리 버전2**다(2026-11-01) — 표 `data/casual-tree-v2.json`(game 표에서 `tools/casual-tree-v2-from-game.py` 로 만든다), 모듈 `lib/casual-tree-v2.js`(game 원본 그대로 복사).
+새 일상컷은 **트리 버전2**다(2026-11-01) — 표 `data/casual-tree-v2.json`(game 표에서 `tools/casual-tree-v2-from-game.py` 로 만든다), 모듈 `lib/casual-tree-v2.js`(game 과 같은 옛 사본 — shared 판과 갈라져 아직 sync 밖).
 하는 일 없이 몸 자세 · 받침 · 구도 · 두 손 · 소품 · 다리 · 시선을 고른다. 한 무기 여러 장은 `node tools/casual-plan.cjs <카드>` 로 짜고 올리기 전 `--check`.
 브라우저 없이 생성기와 같은 지시문 · 기록은 `node tools/prompt-pack.cjs init <카드> --dir <폴더>` → `build`. 검사: `python3 tools/casual-tree-v2.py` · `node tests/casual-tree-v2.cjs` ·
 `node tests/prompt-casual-v2.cjs` · `node tests/casual-plan.cjs` · `node tests/prompt-pack-screen.cjs`(브라우저) · `node tests/image-claim.cjs`.
