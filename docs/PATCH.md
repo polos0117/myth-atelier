@@ -13,6 +13,10 @@
 
 
 
+## 2026-11-26 · claude · 공용 casual-tree.js 받기(세계 장면 장소)
+- lib/casual-tree.js — 공용(style-atelier/shared) 그대로: isRequired 가 required.world.scene_places 를 본다(삼국지 2026-11-26). 이 공방 표엔 그 칸이 없어 하는 일은 같다
+- prompt.html — casual-tree.js ?v=req1
+
 ## 2026-11-26 · claude · 새 판 살피기 — 주소에 시각 붙이지 않기
 - lib/fresh.js — 사용자 「공방에서 뒤로가기로 허브 이동한때마다 떠」(GitHub Pages 「Rate limit exceeded」): 새 판을 묻는 HEAD 주소에서 `?_=시각` 을 뺐다. 시각을 붙이면 CDN 캐시를 건너뛰어 화면을 열 때마다 원본까지 갔다. 브라우저 캐시는 그대로 no-store 로 건너뛴다(Pages 가 십 분 캐시하므로 새 판은 늦어도 십 분 안에 보인다)
 - *.html — lib/fresh.js ?v=cdn1
